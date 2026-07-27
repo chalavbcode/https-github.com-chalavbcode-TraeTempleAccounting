@@ -52,6 +52,8 @@ Namespace TempleAccounting
             AddHandler btnClose.Click, AddressOf BtnClose_Click
             AddHandler btnMinimize.Click, AddressOf BtnMinimize_Click
             AddHandler btnLogout.Click, AddressOf BtnLogout_Click
+            AddHandler lblStatusCenter.DoubleClick, AddressOf StatusCenter_DoubleClick
+            AddHandler lblStatusCenter.MouseClick, AddressOf StatusCenter_MouseClick
 
             AddHandler Me.Load, AddressOf FrmMain_Load
         End Sub
@@ -222,11 +224,44 @@ Namespace TempleAccounting
         End Sub
 
         Private Sub UpdateStatusTime()
-            lblStatusCenter.Text = $"🟢 สถานะระบบ: ปกติ | ฐานข้อมูล: เชื่อมต่อแล้ว | {DateTime.Now:dd/MM/yyyy HH:mm:ss}"
+            Try
+                Dim dbName = Path.GetFileName(AppPaths.DatabaseFile)
+                lblStatusCenter.Text = $"🟢 สถานะระบบ: ปกติ | ฐานข้อมูล: {dbName} | {DateTime.Now:dd/MM/yyyy HH:mm:ss}"
+            Catch
+                lblStatusCenter.Text = $"🟢 สถานะระบบ: ปกติ | ฐานข้อมูล: เชื่อมต่อแล้ว | {DateTime.Now:dd/MM/yyyy HH:mm:ss}"
+            End Try
         End Sub
 
         Private Sub FrmMain_Load(sender As Object, e As EventArgs)
+            Try
+                Dim tt As New ToolTip()
+                tt.SetToolTip(lblStatusCenter, "ดับเบิ้ลคลิก: เปิดโฟลเดอร์ฐานข้อมูล" & vbCrLf & "คลิกขวา: คัดลอกที่อยู่ไฟล์ฐานข้อมูล" & vbCrLf & "ไฟล์: " & AppPaths.DatabaseFile)
+            Catch
+            End Try
             ShowDashboard()
+        End Sub
+
+        Private Sub StatusCenter_DoubleClick(sender As Object, e As EventArgs)
+            Try
+                Dim dbPath = AppPaths.DatabaseFile
+                Dim dbFolder = Path.GetDirectoryName(dbPath)
+                If Directory.Exists(dbFolder) Then
+                    System.Diagnostics.Process.Start("explorer.exe", dbFolder)
+                End If
+            Catch ex As Exception
+                MessageBox.Show("ไม่สามารถเปิดโฟลเดอร์ได้: " & ex.Message, "ข้อผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            End Try
+        End Sub
+
+        Private Sub StatusCenter_MouseClick(sender As Object, e As MouseEventArgs)
+            If e.Button = MouseButtons.Right Then
+                Try
+                    Clipboard.SetText(AppPaths.DatabaseFile)
+                    MessageBox.Show("คัดลอกที่อยู่ไฟล์ฐานข้อมูลแล้ว:" & vbCrLf & AppPaths.DatabaseFile, "คัดลอกสำเร็จ", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                Catch ex As Exception
+                    MessageBox.Show("ไม่สามารถคัดลอกได้: " & ex.Message, "ข้อผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                End Try
+            End If
         End Sub
 
         Public Sub ShowDashboard()
