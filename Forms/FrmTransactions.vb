@@ -147,7 +147,7 @@ Namespace TempleAccounting
                 cboCategory.DataSource = dt
                 cboCategory.SelectedIndex = 0
 
-                Dim bounds = Db.GetTable(conn, "SELECT MIN(TranDate) AS MinTranDate, MAX(TranDate) AS MaxTranDate FROM Transactions")
+                Dim bounds = Db.GetTable(conn, "SELECT MIN(IIF(Year(TranDate)>2400, DateAdd('yyyy',-543,TranDate), TranDate)) AS MinTranDate, MAX(IIF(Year(TranDate)>2400, DateAdd('yyyy',-543,TranDate), TranDate)) AS MaxTranDate FROM Transactions")
                 If bounds.Rows.Count > 0 Then
                     Dim minValue = bounds.Rows(0)("MinTranDate")
                     Dim maxValue = bounds.Rows(0)("MaxTranDate")
@@ -175,6 +175,7 @@ Namespace TempleAccounting
             Dim keepSelectedId As Integer = If(_editingTransactionId > 0, _editingTransactionId, GetSelectedTransactionId())
 
             Using conn = Db.OpenConn()
+                Dim tranDateExpr = "IIF(Year(t.TranDate)>2400, DateAdd('yyyy',-543,t.TranDate), t.TranDate)"
                 Dim sql = "SELECT t.ID, t.TranDate, t.TranType, t.CategoryID, IIF(c.CategoryName IS NULL,'',c.CategoryName) AS CategoryName, " &
                           "t.FundID, IIF(f.FundName IS NULL,'',f.FundName) AS FundName, " &
                           "t.BankID, IIF(b.BankName IS NULL,'',b.BankName & IIF(b.AccountNo IS NULL,'',' ' & b.AccountNo)) AS BankName, " &
@@ -186,7 +187,7 @@ Namespace TempleAccounting
                           "LEFT JOIN BankAccounts b ON t.BankID=b.ID) " &
                           "LEFT JOIN Funds f2 ON t.ToFundID=f2.ID) " &
                           "LEFT JOIN BankAccounts b2 ON t.ToBankID=b2.ID " &
-                          "WHERE t.TranDate BETWEEN @d1 AND @d2 "
+                          "WHERE " & tranDateExpr & " BETWEEN @d1 AND @d2 "
 
                 Dim ps As New List(Of Tuple(Of String, Object))
                 ps.Add(New Tuple(Of String, Object)("@d1", dtpFrom.Value.Date))
@@ -207,7 +208,7 @@ Namespace TempleAccounting
                     sql &= " AND (t.Detail LIKE @s OR t.Note LIKE @s OR t.TranType LIKE @s OR c.CategoryName LIKE @s OR f.FundName LIKE @s OR b.BankName LIKE @s OR f2.FundName LIKE @s OR b2.BankName LIKE @s) "
                     ps.Add(New Tuple(Of String, Object)("@s", "*" & txtSearch.Text.Trim() & "*"))
                 End If
-                sql &= " ORDER BY t.TranDate DESC, t.ID DESC"
+                sql &= " ORDER BY " & tranDateExpr & " DESC, t.ID DESC"
 
                 Dim dt = Db.GetTable(conn, sql, ps.ToArray())
                 dgvTransactions.DataSource = dt
