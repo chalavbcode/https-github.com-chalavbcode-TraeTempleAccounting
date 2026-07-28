@@ -10,84 +10,16 @@ Imports System.Windows.Forms
 Imports System.Data.OleDb
 
 Namespace TempleAccounting
+    <DesignerCategory("Form")>
     Partial Public Class FrmTransfer
         Inherits Form
 
         Private Const EmptySelectionId As Integer = 0
 
-        Private components As IContainer = Nothing
         Private ReadOnly _enterFlow As New List(Of Control)()
-        Friend WithEvents dtpDate As DateTimePicker
-        Friend WithEvents cboFromFund As ComboBox, cboFromBank As ComboBox
-        Friend WithEvents cboToFund As ComboBox, cboToBank As ComboBox
-        Friend WithEvents txtAmount As TextBox, txtRemark As TextBox
-        Friend WithEvents btnSave As Button, btnCancel As Button, lblHeader As Label
-
-        Private l1, l2, l3, l4, l5, l6 As Label
 
         Public Sub New()
             InitializeComponent()
-        End Sub
-
-        Protected Overrides Sub Dispose(disposing As Boolean)
-            If disposing AndAlso components IsNot Nothing Then components.Dispose()
-            MyBase.Dispose(disposing)
-        End Sub
-
-        Private Sub InitializeComponent()
-            Me.Text = "โอนเงินภายใน"
-            Me.BackColor = Color.FromArgb(254, 249, 235)
-            Me.Font = New Font("Tahoma", 10.5!)
-            Me.FormBorderStyle = FormBorderStyle.None
-            Me.Dock = DockStyle.Fill
-            Me.AutoScroll = True
-
-            lblHeader = New Label()
-            lblHeader.Text = "🔁 โอนเงินภายในระหว่างกองทุน/บัญชี"
-            lblHeader.Font = New Font("Tahoma", 14.0!, FontStyle.Bold)
-            lblHeader.ForeColor = Color.FromArgb(88, 28, 135)
-            lblHeader.BackColor = Color.FromArgb(233, 213, 255)
-            lblHeader.Dock = DockStyle.Top : lblHeader.Height = 70
-            lblHeader.TextAlign = ContentAlignment.MiddleCenter
-
-            dtpDate = New DateTimePicker With {.Font = New Font("Tahoma", 10.5!), .Value = Today}
-            cboFromFund = New ComboBox With {.DropDownStyle = ComboBoxStyle.DropDownList, .Font = New Font("Tahoma", 10.5!)}
-            cboFromBank = New ComboBox With {.DropDownStyle = ComboBoxStyle.DropDownList, .Font = New Font("Tahoma", 10.5!)}
-            cboToFund = New ComboBox With {.DropDownStyle = ComboBoxStyle.DropDownList, .Font = New Font("Tahoma", 10.5!)}
-            cboToBank = New ComboBox With {.DropDownStyle = ComboBoxStyle.DropDownList, .Font = New Font("Tahoma", 10.5!)}
-            txtAmount = New TextBox With {.Font = New Font("Tahoma", 11.5!, FontStyle.Bold), .ForeColor = Color.FromArgb(88, 28, 135), .TextAlign = HorizontalAlignment.Right}
-            txtRemark = New TextBox With {.Font = New Font("Tahoma", 10.5!), .Multiline = True, .ScrollBars = ScrollBars.Vertical}
-            btnSave = New Button With {.Text = "💾 บันทึกการโอน", .ForeColor = Color.White, .BackColor = Color.FromArgb(126, 34, 206), .FlatStyle = FlatStyle.Flat, .Size = New Size(260, 56), .Font = New Font("Tahoma", 11.0!, FontStyle.Bold), .Cursor = Cursors.Hand}
-            btnCancel = New Button With {.Text = "❌ เคลียร์", .ForeColor = Color.White, .BackColor = Color.FromArgb(75, 85, 99), .FlatStyle = FlatStyle.Flat, .Size = New Size(180, 56), .Font = New Font("Tahoma", 11.0!, FontStyle.Bold), .Cursor = Cursors.Hand}
-
-            Dim y As Integer = 110, lx = 40, tx = 260, fw = 520, gap = 20
-            l1 = MakeLbl("วันที่โอน:", New Point(lx, y))
-            dtpDate.Location = New Point(tx, y) : dtpDate.Size = New Size(fw, 40)
-            y += 62
-            l2 = MakeLbl("จากกองทุน:", New Point(lx, y))
-            cboFromFund.Location = New Point(tx, y) : cboFromFund.Size = New Size(fw, 40)
-            y += 62
-            l3 = MakeLbl("จากบัญชีธนาคาร:", New Point(lx, y))
-            cboFromBank.Location = New Point(tx, y) : cboFromBank.Size = New Size(fw, 40)
-            y += 62
-            l4 = MakeLbl("ไปยังกองทุน:", New Point(lx, y))
-            cboToFund.Location = New Point(tx, y) : cboToFund.Size = New Size(fw, 40)
-            y += 62
-            l5 = MakeLbl("ไปยังบัญชี:", New Point(lx, y))
-            cboToBank.Location = New Point(tx, y) : cboToBank.Size = New Size(fw, 40)
-            y += 62
-            l6 = MakeLbl("จำนวนเงินที่โอน:", New Point(lx, y))
-            txtAmount.Location = New Point(tx, y) : txtAmount.Size = New Size(260, 40)
-            y += 62
-            Dim lr = MakeLbl("เหตุผลการโอน:", New Point(lx, y))
-            txtRemark.Location = New Point(tx, y) : txtRemark.Size = New Size(fw, 100)
-            y += 130
-            btnSave.Location = New Point(tx, y)
-            btnCancel.Location = New Point(tx + 280, y)
-
-            Me.Controls.AddRange(New Control() {lblHeader, l1, l2, l3, l4, l5, l6, lr,
-                dtpDate, cboFromFund, cboFromBank, cboToFund, cboToBank, txtAmount, txtRemark,
-                btnSave, btnCancel})
         End Sub
 
         Private Function MakeLbl(t As String, p As Point) As Label

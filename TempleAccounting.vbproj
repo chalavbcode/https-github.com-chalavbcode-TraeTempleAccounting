@@ -54,12 +54,33 @@
     <Compile Include="Forms\FrmIncome.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Forms\FrmIncome.Designer.vb">
+      <DependentUpon>FrmIncome.vb</DependentUpon>
+      <SubType>Form</SubType>
+    </Compile>
+    <EmbeddedResource Include="Forms\FrmIncome.resx">
+      <DependentUpon>FrmIncome.vb</DependentUpon>
+    </EmbeddedResource>
     <Compile Include="Forms\FrmExpense.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Forms\FrmExpense.Designer.vb">
+      <DependentUpon>FrmExpense.vb</DependentUpon>
+      <SubType>Form</SubType>
+    </Compile>
+    <EmbeddedResource Include="Forms\FrmExpense.resx">
+      <DependentUpon>FrmExpense.vb</DependentUpon>
+    </EmbeddedResource>
     <Compile Include="Forms\FrmTransfer.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Forms\FrmTransfer.Designer.vb">
+      <DependentUpon>FrmTransfer.vb</DependentUpon>
+      <SubType>Form</SubType>
+    </Compile>
+    <EmbeddedResource Include="Forms\FrmTransfer.resx">
+      <DependentUpon>FrmTransfer.vb</DependentUpon>
+    </EmbeddedResource>
     <Compile Include="Forms\FrmTransactions.vb">
       <SubType>Form</SubType>
     </Compile>
@@ -78,12 +99,33 @@
     <Compile Include="Forms\FrmTempleSetting.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Forms\FrmTempleSetting.Designer.vb">
+      <DependentUpon>FrmTempleSetting.vb</DependentUpon>
+      <SubType>Form</SubType>
+    </Compile>
+    <EmbeddedResource Include="Forms\FrmTempleSetting.resx">
+      <DependentUpon>FrmTempleSetting.vb</DependentUpon>
+    </EmbeddedResource>
     <Compile Include="Forms\FrmLocationImport.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Forms\FrmLocationImport.Designer.vb">
+      <DependentUpon>FrmLocationImport.vb</DependentUpon>
+      <SubType>Form</SubType>
+    </Compile>
+    <EmbeddedResource Include="Forms\FrmLocationImport.resx">
+      <DependentUpon>FrmLocationImport.vb</DependentUpon>
+    </EmbeddedResource>
     <Compile Include="Forms\FrmReports.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Forms\FrmReports.Designer.vb">
+      <DependentUpon>FrmReports.vb</DependentUpon>
+      <SubType>Form</SubType>
+    </Compile>
+    <EmbeddedResource Include="Forms\FrmReports.resx">
+      <DependentUpon>FrmReports.vb</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
