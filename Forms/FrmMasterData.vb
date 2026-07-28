@@ -49,12 +49,13 @@ Namespace TempleAccounting
         End Sub
 
         Private Sub InitializeComponent()
-            Dim DataGridViewCellStyle4 As DataGridViewCellStyle = New DataGridViewCellStyle()
-            Dim DataGridViewCellStyle5 As DataGridViewCellStyle = New DataGridViewCellStyle()
-            Dim DataGridViewCellStyle6 As DataGridViewCellStyle = New DataGridViewCellStyle()
+            Dim DataGridViewCellStyle1 As DataGridViewCellStyle = New DataGridViewCellStyle()
+            Dim DataGridViewCellStyle2 As DataGridViewCellStyle = New DataGridViewCellStyle()
+            Dim DataGridViewCellStyle3 As DataGridViewCellStyle = New DataGridViewCellStyle()
             lblHeader = New Label()
             TabControl1 = New TabControl()
             tpCategory = New TabPage()
+            dgvCategory = New DataGridView()
             pCatTop = New Panel()
             lblCatName = New Label()
             txtCatName = New TextBox()
@@ -63,15 +64,15 @@ Namespace TempleAccounting
             btnCatAdd = New Button()
             btnCatEdit = New Button()
             btnCatDel = New Button()
-            dgvCategory = New DataGridView()
             tpFund = New TabPage()
+            dgvFund = New DataGridView()
             pFundTop = New Panel()
             lblFundName = New Label()
             txtFundName = New TextBox()
             btnFundAdd = New Button()
             btnFundDel = New Button()
-            dgvFund = New DataGridView()
             tpBank = New TabPage()
+            dgvBank = New DataGridView()
             pBankTop = New Panel()
             lblBankName = New Label()
             txtBankName = New TextBox()
@@ -81,17 +82,16 @@ Namespace TempleAccounting
             txtBankAccountName = New TextBox()
             btnBankAdd = New Button()
             btnBankDel = New Button()
-            dgvBank = New DataGridView()
             TabControl1.SuspendLayout()
             tpCategory.SuspendLayout()
-            pCatTop.SuspendLayout()
             CType(dgvCategory, ISupportInitialize).BeginInit()
+            pCatTop.SuspendLayout()
             tpFund.SuspendLayout()
-            pFundTop.SuspendLayout()
             CType(dgvFund, ISupportInitialize).BeginInit()
+            pFundTop.SuspendLayout()
             tpBank.SuspendLayout()
-            pBankTop.SuspendLayout()
             CType(dgvBank, ISupportInitialize).BeginInit()
+            pBankTop.SuspendLayout()
             SuspendLayout()
             ' 
             ' lblHeader
@@ -102,7 +102,7 @@ Namespace TempleAccounting
             lblHeader.ForeColor = Color.FromArgb(CByte(69), CByte(26), CByte(3))
             lblHeader.Location = New Point(0, 0)
             lblHeader.Name = "lblHeader"
-            lblHeader.Size = New Size(1111, 42)
+            lblHeader.Size = New Size(1178, 42)
             lblHeader.TabIndex = 1
             lblHeader.Text = "🗂️ จัดการข้อมูลหลัก ประเภทรายการ / กองทุน / บัญชีธนาคาร"
             lblHeader.TextAlign = ContentAlignment.MiddleCenter
@@ -117,22 +117,43 @@ Namespace TempleAccounting
             TabControl1.Location = New Point(0, 42)
             TabControl1.Name = "TabControl1"
             TabControl1.SelectedIndex = 0
-            TabControl1.Size = New Size(1111, 463)
+            TabControl1.Size = New Size(1178, 630)
             TabControl1.TabIndex = 0
             ' 
             ' tpCategory
             ' 
             tpCategory.BackColor = Color.FromArgb(CByte(254), CByte(249), CByte(235))
-            tpCategory.Controls.Add(pCatTop)
             tpCategory.Controls.Add(dgvCategory)
+            tpCategory.Controls.Add(pCatTop)
             tpCategory.Location = New Point(4, 33)
             tpCategory.Name = "tpCategory"
-            tpCategory.Size = New Size(1103, 426)
+            tpCategory.Size = New Size(1170, 593)
             tpCategory.TabIndex = 0
             tpCategory.Text = "ประเภทรายการ (Category)"
             ' 
+            ' dgvCategory
+            ' 
+            dgvCategory.AllowUserToAddRows = False
+            DataGridViewCellStyle1.BackColor = Color.FromArgb(CByte(255), CByte(251), CByte(235))
+            dgvCategory.AlternatingRowsDefaultCellStyle = DataGridViewCellStyle1
+            dgvCategory.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
+            dgvCategory.BackgroundColor = Color.White
+            dgvCategory.BorderStyle = BorderStyle.None
+            dgvCategory.ColumnHeadersHeight = 34
+            dgvCategory.Dock = DockStyle.Fill
+            dgvCategory.Font = New Font("Tahoma", 10F)
+            dgvCategory.Location = New Point(0, 90)
+            dgvCategory.Name = "dgvCategory"
+            dgvCategory.ReadOnly = True
+            dgvCategory.RowHeadersWidth = 62
+            dgvCategory.RowTemplate.Height = 32
+            dgvCategory.SelectionMode = DataGridViewSelectionMode.FullRowSelect
+            dgvCategory.Size = New Size(1170, 503)
+            dgvCategory.TabIndex = 1
+            ' 
             ' pCatTop
             ' 
+            pCatTop.BackColor = Color.FromArgb(CByte(254), CByte(249), CByte(235))
             pCatTop.Controls.Add(lblCatName)
             pCatTop.Controls.Add(txtCatName)
             pCatTop.Controls.Add(lblCatType)
@@ -140,146 +161,217 @@ Namespace TempleAccounting
             pCatTop.Controls.Add(btnCatAdd)
             pCatTop.Controls.Add(btnCatEdit)
             pCatTop.Controls.Add(btnCatDel)
+            pCatTop.Dock = DockStyle.Top
             pCatTop.Location = New Point(0, 0)
             pCatTop.Name = "pCatTop"
-            pCatTop.Size = New Size(200, 100)
+            pCatTop.Padding = New Padding(12, 10, 12, 10)
+            pCatTop.Size = New Size(1170, 90)
             pCatTop.TabIndex = 0
             ' 
             ' lblCatName
             ' 
-            lblCatName.Location = New Point(0, 0)
+            lblCatName.AutoSize = True
+            lblCatName.ForeColor = Color.FromArgb(CByte(69), CByte(26), CByte(3))
+            lblCatName.Location = New Point(12, 14)
             lblCatName.Name = "lblCatName"
-            lblCatName.Size = New Size(100, 23)
+            lblCatName.Size = New Size(116, 24)
             lblCatName.TabIndex = 0
+            lblCatName.Text = "ชื่อประเภท:"
             ' 
             ' txtCatName
             ' 
-            txtCatName.Location = New Point(0, 0)
+            txtCatName.Font = New Font("Tahoma", 10.5F)
+            txtCatName.Location = New Point(110, 10)
             txtCatName.Name = "txtCatName"
-            txtCatName.Size = New Size(100, 32)
+            txtCatName.Size = New Size(420, 33)
             txtCatName.TabIndex = 1
             ' 
             ' lblCatType
             ' 
-            lblCatType.Location = New Point(0, 0)
+            lblCatType.AutoSize = True
+            lblCatType.Location = New Point(542, 14)
             lblCatType.Name = "lblCatType"
-            lblCatType.Size = New Size(100, 23)
+            lblCatType.Size = New Size(60, 24)
             lblCatType.TabIndex = 2
+            lblCatType.Text = "ชนิด:"
             ' 
             ' cboCatType
             ' 
+            cboCatType.DropDownStyle = ComboBoxStyle.DropDownList
+            cboCatType.Font = New Font("Tahoma", 10F)
             cboCatType.Items.AddRange(New Object() {"Income (รายรับ)", "Expense (รายจ่าย)"})
-            cboCatType.Location = New Point(0, 0)
+            cboCatType.Location = New Point(592, 10)
             cboCatType.Name = "cboCatType"
-            cboCatType.Size = New Size(121, 32)
+            cboCatType.Size = New Size(200, 32)
             cboCatType.TabIndex = 3
             ' 
             ' btnCatAdd
             ' 
-            btnCatAdd.Location = New Point(0, 0)
+            btnCatAdd.BackColor = Color.FromArgb(CByte(22), CByte(163), CByte(74))
+            btnCatAdd.Cursor = Cursors.Hand
+            btnCatAdd.FlatStyle = FlatStyle.Flat
+            btnCatAdd.Font = New Font("Tahoma", 9.5F, FontStyle.Bold)
+            btnCatAdd.ForeColor = Color.White
+            btnCatAdd.Location = New Point(12, 48)
             btnCatAdd.Name = "btnCatAdd"
-            btnCatAdd.Size = New Size(75, 23)
+            btnCatAdd.Size = New Size(130, 34)
             btnCatAdd.TabIndex = 4
+            btnCatAdd.Text = "➕ เพิ่ม"
+            btnCatAdd.UseVisualStyleBackColor = False
             ' 
             ' btnCatEdit
             ' 
-            btnCatEdit.Location = New Point(0, 0)
+            btnCatEdit.BackColor = Color.FromArgb(CByte(217), CByte(119), CByte(6))
+            btnCatEdit.Cursor = Cursors.Hand
+            btnCatEdit.FlatStyle = FlatStyle.Flat
+            btnCatEdit.Font = New Font("Tahoma", 9.5F, FontStyle.Bold)
+            btnCatEdit.ForeColor = Color.White
+            btnCatEdit.Location = New Point(148, 48)
             btnCatEdit.Name = "btnCatEdit"
-            btnCatEdit.Size = New Size(75, 23)
+            btnCatEdit.Size = New Size(130, 34)
             btnCatEdit.TabIndex = 5
+            btnCatEdit.Text = "📝 แก้ไข"
+            btnCatEdit.UseVisualStyleBackColor = False
             ' 
             ' btnCatDel
             ' 
-            btnCatDel.Location = New Point(0, 0)
+            btnCatDel.BackColor = Color.FromArgb(CByte(153), CByte(27), CByte(27))
+            btnCatDel.Cursor = Cursors.Hand
+            btnCatDel.FlatStyle = FlatStyle.Flat
+            btnCatDel.Font = New Font("Tahoma", 9.5F, FontStyle.Bold)
+            btnCatDel.ForeColor = Color.White
+            btnCatDel.Location = New Point(284, 48)
             btnCatDel.Name = "btnCatDel"
-            btnCatDel.Size = New Size(75, 23)
+            btnCatDel.Size = New Size(150, 34)
             btnCatDel.TabIndex = 6
-            ' 
-            ' dgvCategory
-            ' 
-            DataGridViewCellStyle4.BackColor = Color.FromArgb(CByte(255), CByte(251), CByte(235))
-            dgvCategory.AlternatingRowsDefaultCellStyle = DataGridViewCellStyle4
-            dgvCategory.ColumnHeadersHeight = 34
-            dgvCategory.Location = New Point(0, 0)
-            dgvCategory.Name = "dgvCategory"
-            dgvCategory.RowHeadersWidth = 62
-            dgvCategory.Size = New Size(240, 150)
-            dgvCategory.TabIndex = 1
+            btnCatDel.Text = "🗑️ ลบที่เลือก"
+            btnCatDel.UseVisualStyleBackColor = False
             ' 
             ' tpFund
             ' 
             tpFund.BackColor = Color.FromArgb(CByte(254), CByte(249), CByte(235))
-            tpFund.Controls.Add(pFundTop)
             tpFund.Controls.Add(dgvFund)
+            tpFund.Controls.Add(pFundTop)
             tpFund.Location = New Point(4, 33)
             tpFund.Name = "tpFund"
-            tpFund.Size = New Size(192, 63)
+            tpFund.Size = New Size(1103, 426)
             tpFund.TabIndex = 1
             tpFund.Text = "กองทุน (Funds)"
             ' 
+            ' dgvFund
+            ' 
+            dgvFund.AllowUserToAddRows = False
+            DataGridViewCellStyle2.BackColor = Color.FromArgb(CByte(255), CByte(251), CByte(235))
+            dgvFund.AlternatingRowsDefaultCellStyle = DataGridViewCellStyle2
+            dgvFund.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
+            dgvFund.BackgroundColor = Color.White
+            dgvFund.BorderStyle = BorderStyle.None
+            dgvFund.ColumnHeadersHeight = 34
+            dgvFund.Dock = DockStyle.Fill
+            dgvFund.Font = New Font("Tahoma", 10F)
+            dgvFund.Location = New Point(0, 78)
+            dgvFund.Name = "dgvFund"
+            dgvFund.ReadOnly = True
+            dgvFund.RowHeadersWidth = 62
+            dgvFund.RowTemplate.Height = 32
+            dgvFund.SelectionMode = DataGridViewSelectionMode.FullRowSelect
+            dgvFund.Size = New Size(1103, 348)
+            dgvFund.TabIndex = 1
+            ' 
             ' pFundTop
             ' 
+            pFundTop.BackColor = Color.FromArgb(CByte(254), CByte(249), CByte(235))
             pFundTop.Controls.Add(lblFundName)
             pFundTop.Controls.Add(txtFundName)
             pFundTop.Controls.Add(btnFundAdd)
             pFundTop.Controls.Add(btnFundDel)
+            pFundTop.Dock = DockStyle.Top
             pFundTop.Location = New Point(0, 0)
             pFundTop.Name = "pFundTop"
-            pFundTop.Size = New Size(200, 100)
+            pFundTop.Padding = New Padding(12, 10, 12, 10)
+            pFundTop.Size = New Size(1103, 78)
             pFundTop.TabIndex = 0
             ' 
             ' lblFundName
             ' 
-            lblFundName.Location = New Point(0, 0)
+            lblFundName.AutoSize = True
+            lblFundName.ForeColor = Color.FromArgb(CByte(69), CByte(26), CByte(3))
+            lblFundName.Location = New Point(12, 14)
             lblFundName.Name = "lblFundName"
-            lblFundName.Size = New Size(100, 23)
+            lblFundName.Size = New Size(112, 24)
             lblFundName.TabIndex = 0
+            lblFundName.Text = "ชื่อกองทุน:"
             ' 
             ' txtFundName
             ' 
-            txtFundName.Location = New Point(0, 0)
+            txtFundName.Font = New Font("Tahoma", 10.5F)
+            txtFundName.Location = New Point(110, 10)
             txtFundName.Name = "txtFundName"
-            txtFundName.Size = New Size(100, 32)
+            txtFundName.Size = New Size(520, 33)
             txtFundName.TabIndex = 1
             ' 
             ' btnFundAdd
             ' 
-            btnFundAdd.Location = New Point(0, 0)
+            btnFundAdd.BackColor = Color.FromArgb(CByte(22), CByte(163), CByte(74))
+            btnFundAdd.Cursor = Cursors.Hand
+            btnFundAdd.FlatStyle = FlatStyle.Flat
+            btnFundAdd.Font = New Font("Tahoma", 9.5F, FontStyle.Bold)
+            btnFundAdd.ForeColor = Color.White
+            btnFundAdd.Location = New Point(12, 44)
             btnFundAdd.Name = "btnFundAdd"
-            btnFundAdd.Size = New Size(75, 23)
+            btnFundAdd.Size = New Size(190, 30)
             btnFundAdd.TabIndex = 2
+            btnFundAdd.Text = "➕ เพิ่ม/อัปเดต"
+            btnFundAdd.UseVisualStyleBackColor = False
             ' 
             ' btnFundDel
             ' 
-            btnFundDel.Location = New Point(0, 0)
+            btnFundDel.BackColor = Color.FromArgb(CByte(153), CByte(27), CByte(27))
+            btnFundDel.Cursor = Cursors.Hand
+            btnFundDel.FlatStyle = FlatStyle.Flat
+            btnFundDel.Font = New Font("Tahoma", 9.5F, FontStyle.Bold)
+            btnFundDel.ForeColor = Color.White
+            btnFundDel.Location = New Point(208, 44)
             btnFundDel.Name = "btnFundDel"
-            btnFundDel.Size = New Size(75, 23)
+            btnFundDel.Size = New Size(160, 30)
             btnFundDel.TabIndex = 3
-            ' 
-            ' dgvFund
-            ' 
-            DataGridViewCellStyle5.BackColor = Color.FromArgb(CByte(255), CByte(251), CByte(235))
-            dgvFund.AlternatingRowsDefaultCellStyle = DataGridViewCellStyle5
-            dgvFund.ColumnHeadersHeight = 34
-            dgvFund.Location = New Point(0, 0)
-            dgvFund.Name = "dgvFund"
-            dgvFund.RowHeadersWidth = 62
-            dgvFund.Size = New Size(240, 150)
-            dgvFund.TabIndex = 1
+            btnFundDel.Text = "🗑️ ลบที่เลือก"
+            btnFundDel.UseVisualStyleBackColor = False
             ' 
             ' tpBank
             ' 
             tpBank.BackColor = Color.FromArgb(CByte(254), CByte(249), CByte(235))
-            tpBank.Controls.Add(pBankTop)
             tpBank.Controls.Add(dgvBank)
+            tpBank.Controls.Add(pBankTop)
             tpBank.Location = New Point(4, 33)
             tpBank.Name = "tpBank"
-            tpBank.Size = New Size(192, 63)
+            tpBank.Size = New Size(1103, 426)
             tpBank.TabIndex = 2
             tpBank.Text = "บัญชีธนาคาร (Bank Accounts)"
             ' 
+            ' dgvBank
+            ' 
+            dgvBank.AllowUserToAddRows = False
+            DataGridViewCellStyle3.BackColor = Color.FromArgb(CByte(255), CByte(251), CByte(235))
+            dgvBank.AlternatingRowsDefaultCellStyle = DataGridViewCellStyle3
+            dgvBank.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
+            dgvBank.BackgroundColor = Color.White
+            dgvBank.BorderStyle = BorderStyle.None
+            dgvBank.ColumnHeadersHeight = 34
+            dgvBank.Dock = DockStyle.Fill
+            dgvBank.Font = New Font("Tahoma", 10F)
+            dgvBank.Location = New Point(0, 114)
+            dgvBank.Name = "dgvBank"
+            dgvBank.ReadOnly = True
+            dgvBank.RowHeadersWidth = 62
+            dgvBank.RowTemplate.Height = 32
+            dgvBank.SelectionMode = DataGridViewSelectionMode.FullRowSelect
+            dgvBank.Size = New Size(1103, 312)
+            dgvBank.TabIndex = 1
+            ' 
             ' pBankTop
             ' 
+            pBankTop.BackColor = Color.FromArgb(CByte(254), CByte(249), CByte(235))
             pBankTop.Controls.Add(lblBankName)
             pBankTop.Controls.Add(txtBankName)
             pBankTop.Controls.Add(lblBankAccountNo)
@@ -288,82 +380,97 @@ Namespace TempleAccounting
             pBankTop.Controls.Add(txtBankAccountName)
             pBankTop.Controls.Add(btnBankAdd)
             pBankTop.Controls.Add(btnBankDel)
+            pBankTop.Dock = DockStyle.Top
             pBankTop.Location = New Point(0, 0)
             pBankTop.Name = "pBankTop"
-            pBankTop.Size = New Size(200, 100)
+            pBankTop.Padding = New Padding(12, 10, 12, 10)
+            pBankTop.Size = New Size(1103, 114)
             pBankTop.TabIndex = 0
             ' 
             ' lblBankName
             ' 
-            lblBankName.Location = New Point(0, 0)
+            lblBankName.AutoSize = True
+            lblBankName.ForeColor = Color.FromArgb(CByte(69), CByte(26), CByte(3))
+            lblBankName.Location = New Point(12, 14)
             lblBankName.Name = "lblBankName"
-            lblBankName.Size = New Size(100, 23)
+            lblBankName.Size = New Size(118, 24)
             lblBankName.TabIndex = 0
+            lblBankName.Text = "ชื่อธนาคาร:"
             ' 
             ' txtBankName
             ' 
-            txtBankName.Location = New Point(0, 0)
+            txtBankName.Font = New Font("Tahoma", 10.5F)
+            txtBankName.Location = New Point(110, 10)
             txtBankName.Name = "txtBankName"
-            txtBankName.Size = New Size(100, 32)
+            txtBankName.Size = New Size(520, 33)
             txtBankName.TabIndex = 1
             ' 
             ' lblBankAccountNo
             ' 
-            lblBankAccountNo.Location = New Point(0, 0)
+            lblBankAccountNo.AutoSize = True
+            lblBankAccountNo.Location = New Point(12, 50)
             lblBankAccountNo.Name = "lblBankAccountNo"
-            lblBankAccountNo.Size = New Size(100, 23)
+            lblBankAccountNo.Size = New Size(114, 24)
             lblBankAccountNo.TabIndex = 2
+            lblBankAccountNo.Text = "เลขที่บัญชี:"
             ' 
             ' txtBankAccountNo
             ' 
-            txtBankAccountNo.Location = New Point(0, 0)
+            txtBankAccountNo.Font = New Font("Tahoma", 10.5F)
+            txtBankAccountNo.Location = New Point(110, 46)
             txtBankAccountNo.Name = "txtBankAccountNo"
-            txtBankAccountNo.Size = New Size(100, 32)
+            txtBankAccountNo.Size = New Size(220, 33)
             txtBankAccountNo.TabIndex = 3
             ' 
             ' lblBankAccountName
             ' 
-            lblBankAccountName.Location = New Point(0, 0)
+            lblBankAccountName.AutoSize = True
+            lblBankAccountName.Location = New Point(344, 50)
             lblBankAccountName.Name = "lblBankAccountName"
-            lblBankAccountName.Size = New Size(100, 23)
+            lblBankAccountName.Size = New Size(93, 24)
             lblBankAccountName.TabIndex = 4
+            lblBankAccountName.Text = "ชื่อบัญชี:"
             ' 
             ' txtBankAccountName
             ' 
-            txtBankAccountName.Location = New Point(0, 0)
+            txtBankAccountName.Font = New Font("Tahoma", 10.5F)
+            txtBankAccountName.Location = New Point(412, 46)
             txtBankAccountName.Name = "txtBankAccountName"
-            txtBankAccountName.Size = New Size(100, 32)
+            txtBankAccountName.Size = New Size(280, 33)
             txtBankAccountName.TabIndex = 5
             ' 
             ' btnBankAdd
             ' 
-            btnBankAdd.Location = New Point(0, 0)
+            btnBankAdd.BackColor = Color.FromArgb(CByte(22), CByte(163), CByte(74))
+            btnBankAdd.Cursor = Cursors.Hand
+            btnBankAdd.FlatStyle = FlatStyle.Flat
+            btnBankAdd.Font = New Font("Tahoma", 9.5F, FontStyle.Bold)
+            btnBankAdd.ForeColor = Color.White
+            btnBankAdd.Location = New Point(12, 80)
             btnBankAdd.Name = "btnBankAdd"
-            btnBankAdd.Size = New Size(75, 23)
+            btnBankAdd.Size = New Size(190, 30)
             btnBankAdd.TabIndex = 6
+            btnBankAdd.Text = "➕ เพิ่ม/อัปเดต"
+            btnBankAdd.UseVisualStyleBackColor = False
             ' 
             ' btnBankDel
             ' 
-            btnBankDel.Location = New Point(0, 0)
+            btnBankDel.BackColor = Color.FromArgb(CByte(153), CByte(27), CByte(27))
+            btnBankDel.Cursor = Cursors.Hand
+            btnBankDel.FlatStyle = FlatStyle.Flat
+            btnBankDel.Font = New Font("Tahoma", 9.5F, FontStyle.Bold)
+            btnBankDel.ForeColor = Color.White
+            btnBankDel.Location = New Point(208, 80)
             btnBankDel.Name = "btnBankDel"
-            btnBankDel.Size = New Size(75, 23)
+            btnBankDel.Size = New Size(210, 30)
             btnBankDel.TabIndex = 7
-            ' 
-            ' dgvBank
-            ' 
-            DataGridViewCellStyle6.BackColor = Color.FromArgb(CByte(255), CByte(251), CByte(235))
-            dgvBank.AlternatingRowsDefaultCellStyle = DataGridViewCellStyle6
-            dgvBank.ColumnHeadersHeight = 34
-            dgvBank.Location = New Point(0, 0)
-            dgvBank.Name = "dgvBank"
-            dgvBank.RowHeadersWidth = 62
-            dgvBank.Size = New Size(240, 150)
-            dgvBank.TabIndex = 1
+            btnBankDel.Text = "🗑️ ลบบัญชีที่เลือก"
+            btnBankDel.UseVisualStyleBackColor = False
             ' 
             ' FrmMasterData
             ' 
             BackColor = Color.FromArgb(CByte(254), CByte(249), CByte(235))
-            ClientSize = New Size(1111, 505)
+            ClientSize = New Size(1178, 672)
             Controls.Add(TabControl1)
             Controls.Add(lblHeader)
             Font = New Font("Tahoma", 10.5F)
@@ -372,17 +479,17 @@ Namespace TempleAccounting
             Text = "จัดการข้อมูลหลัก"
             TabControl1.ResumeLayout(False)
             tpCategory.ResumeLayout(False)
+            CType(dgvCategory, ISupportInitialize).EndInit()
             pCatTop.ResumeLayout(False)
             pCatTop.PerformLayout()
-            CType(dgvCategory, ISupportInitialize).EndInit()
             tpFund.ResumeLayout(False)
+            CType(dgvFund, ISupportInitialize).EndInit()
             pFundTop.ResumeLayout(False)
             pFundTop.PerformLayout()
-            CType(dgvFund, ISupportInitialize).EndInit()
             tpBank.ResumeLayout(False)
+            CType(dgvBank, ISupportInitialize).EndInit()
             pBankTop.ResumeLayout(False)
             pBankTop.PerformLayout()
-            CType(dgvBank, ISupportInitialize).EndInit()
             ResumeLayout(False)
         End Sub
 
