@@ -11,6 +11,7 @@ Namespace TempleAccounting
 
         Private _currentActiveButton As Button
         Private _currentChildForm As Form
+        Private _compactOverviewMode As Boolean = False
 
         Public Sub New()
             Try
@@ -85,9 +86,11 @@ Namespace TempleAccounting
 
             Select Case clickedBtn.Name
                 Case "btnDashboard"
+                    SetOverviewCompactMode(False)
                     ShowDashboard()
 
                 Case "btnDonation"
+                    SetOverviewCompactMode(False)
                     ShowFormInPanel(New FrmIncome(), "💰 บันทึกรายรับเงินบริจาค")
                     Try
                         LoadDonationSample()
@@ -95,6 +98,7 @@ Namespace TempleAccounting
                     End Try
 
                 Case "btnExpense"
+                    SetOverviewCompactMode(False)
                     ShowFormInPanel(New FrmExpense(), "💸 บันทึกรายจ่ายของวัด")
                     Try
                         LoadExpenseSample()
@@ -102,6 +106,7 @@ Namespace TempleAccounting
                     End Try
 
                 Case "btnReport"
+                    SetOverviewCompactMode(False)
                     ShowFormInPanel(New FrmReports(), "📊 ศูนย์รายงานและส่งออก CSV/Excel")
                     Try
                         LoadReportSample()
@@ -109,6 +114,7 @@ Namespace TempleAccounting
                     End Try
 
                 Case "btnMember"
+                    SetOverviewCompactMode(True)
                     ShowFormInPanel(New FrmTransactions(), "👥 รายการเงินรับ-จ่ายทั้งหมด (ค้นหา/แก้ไข/ลบ)")
                     Try
                         LoadTransactionOverview()
@@ -116,6 +122,7 @@ Namespace TempleAccounting
                     End Try
 
                 Case "btnVip"
+                    SetOverviewCompactMode(False)
                     ShowFormInPanel(New FrmTempleSetting(), "🥇 ข้อมูลวัด - พระ/อาวาส/ผู้ทำบัญชี/พร้อมเพย์")
                     Try
                         LoadMonkSample()
@@ -123,6 +130,7 @@ Namespace TempleAccounting
                     End Try
 
                 Case "btnActivity"
+                    SetOverviewCompactMode(False)
                     ShowFormInPanel(New FrmTransfer(), "🎎 โอนเงินภายในระหว่างกองทุน/บัญชีธนาคาร")
                     Try
                         LoadActivitySample()
@@ -130,6 +138,7 @@ Namespace TempleAccounting
                     End Try
 
                 Case "btnSetting"
+                    SetOverviewCompactMode(False)
                     ShowFormInPanel(New FrmMasterData(), "⚙️ จัดการข้อมูลหลัก ประเภท/กองทุน/บัญชี  และนำเข้าจังหวัด")
                     Try
                         LoadSettingSample()
