@@ -146,7 +146,29 @@ Namespace TempleAccounting
                 cboCategory.ValueMember = "ID"
                 cboCategory.DataSource = dt
                 cboCategory.SelectedIndex = 0
+
+                Dim bounds = Db.GetTable(conn, "SELECT MIN(TranDate) AS MinTranDate, MAX(TranDate) AS MaxTranDate FROM Transactions")
+                If bounds.Rows.Count > 0 Then
+                    Dim minValue = bounds.Rows(0)("MinTranDate")
+                    Dim maxValue = bounds.Rows(0)("MaxTranDate")
+
+                    If minValue IsNot DBNull.Value Then
+                        dtpFrom.Value = Db.NormalizeGregorianDate(Convert.ToDateTime(minValue))
+                    End If
+
+                    If maxValue IsNot DBNull.Value Then
+                        dtpTo.Value = Db.NormalizeGregorianDate(Convert.ToDateTime(maxValue))
+                    Else
+                        dtpTo.Value = Db.NormalizeGregorianDate(Date.Today)
+                    End If
+                Else
+                    dtpFrom.Value = New Date(Date.Today.Year, 1, 1)
+                    dtpTo.Value = Db.NormalizeGregorianDate(Date.Today)
+                End If
             End Using
+
+            cboType.SelectedIndex = 0
+            txtSearch.Clear()
         End Sub
 
         Private Sub LoadData()
