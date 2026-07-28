@@ -51,7 +51,7 @@ Namespace TempleAccounting
             Me.Font = New Font("Tahoma", 10.5!)
             Me.FormBorderStyle = FormBorderStyle.None
             Me.Dock = DockStyle.Fill
-            Me.AutoScroll = True
+            Me.AutoScroll = False
 
             lblHeader = New Label()
             lblHeader.Text = "🗂️ จัดการข้อมูลหลัก ประเภทรายการ / กองทุน / บัญชีธนาคาร"
@@ -70,11 +70,14 @@ Namespace TempleAccounting
             tpCategory.BackColor = Color.FromArgb(254, 249, 235)
             tpFund.BackColor = Color.FromArgb(254, 249, 235)
             tpBank.BackColor = Color.FromArgb(254, 249, 235)
+            tpCategory.AutoScroll = False
+            tpFund.AutoScroll = False
+            tpBank.AutoScroll = False
             TabControl1.TabPages.AddRange({tpCategory, tpFund, tpBank})
             TabControl1.Dock = DockStyle.Fill
 
             ' ===== Category Tab =====
-            dgvCategory = New DataGridView With {.Location = New Point(16, 110), .Size = New Size(880, 420), .AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, .ReadOnly = True, .AllowUserToAddRows = False, .SelectionMode = DataGridViewSelectionMode.FullRowSelect, .BackgroundColor = Color.White, .Font = New Font("Tahoma", 10.0!), .BorderStyle = BorderStyle.None, .RowTemplate = New DataGridViewRow() With {.Height = 32}}
+            dgvCategory = New DataGridView With {.Location = New Point(16, 110), .Size = New Size(880, 420), .Anchor = AnchorStyles.Top Or AnchorStyles.Bottom Or AnchorStyles.Left Or AnchorStyles.Right, .ScrollBars = ScrollBars.Both, .AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, .ReadOnly = True, .AllowUserToAddRows = False, .SelectionMode = DataGridViewSelectionMode.FullRowSelect, .BackgroundColor = Color.White, .Font = New Font("Tahoma", 10.0!), .BorderStyle = BorderStyle.None, .RowTemplate = New DataGridViewRow() With {.Height = 32}}
             dgvCategory.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(255, 251, 235)
 
             lblCatName = New Label With {.Text = "ชื่อประเภท:", .Location = New Point(16, 20), .AutoSize = True, .ForeColor = Color.FromArgb(69, 26, 3)}
@@ -88,7 +91,7 @@ Namespace TempleAccounting
             tpCategory.Controls.AddRange(New Control() {dgvCategory, lblCatName, txtCatName, lblCatType, cboCatType, btnCatAdd, btnCatEdit, btnCatDel})
 
             ' ===== Fund Tab =====
-            dgvFund = New DataGridView With {.Location = New Point(16, 100), .Size = New Size(880, 420), .AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, .ReadOnly = True, .AllowUserToAddRows = False, .SelectionMode = DataGridViewSelectionMode.FullRowSelect, .BackgroundColor = Color.White, .Font = New Font("Tahoma", 10.0!), .BorderStyle = BorderStyle.None, .RowTemplate = New DataGridViewRow() With {.Height = 32}}
+            dgvFund = New DataGridView With {.Location = New Point(16, 100), .Size = New Size(880, 420), .Anchor = AnchorStyles.Top Or AnchorStyles.Bottom Or AnchorStyles.Left Or AnchorStyles.Right, .ScrollBars = ScrollBars.Both, .AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, .ReadOnly = True, .AllowUserToAddRows = False, .SelectionMode = DataGridViewSelectionMode.FullRowSelect, .BackgroundColor = Color.White, .Font = New Font("Tahoma", 10.0!), .BorderStyle = BorderStyle.None, .RowTemplate = New DataGridViewRow() With {.Height = 32}}
             dgvFund.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(255, 251, 235)
             lblFundName = New Label With {.Text = "ชื่อกองทุน:", .Location = New Point(16, 20), .AutoSize = True, .ForeColor = Color.FromArgb(69, 26, 3)}
             txtFundName = New TextBox With {.Location = New Point(140, 16), .Size = New Size(520, 40), .Font = New Font("Tahoma", 10.5!)}
@@ -97,7 +100,7 @@ Namespace TempleAccounting
             tpFund.Controls.AddRange(New Control() {dgvFund, lblFundName, txtFundName, btnFundAdd, btnFundDel})
 
             ' ===== Bank Tab =====
-            dgvBank = New DataGridView With {.Location = New Point(16, 130), .Size = New Size(880, 390), .AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, .ReadOnly = True, .AllowUserToAddRows = False, .SelectionMode = DataGridViewSelectionMode.FullRowSelect, .BackgroundColor = Color.White, .Font = New Font("Tahoma", 10.0!), .BorderStyle = BorderStyle.None, .RowTemplate = New DataGridViewRow() With {.Height = 32}}
+            dgvBank = New DataGridView With {.Location = New Point(16, 130), .Size = New Size(880, 390), .Anchor = AnchorStyles.Top Or AnchorStyles.Bottom Or AnchorStyles.Left Or AnchorStyles.Right, .ScrollBars = ScrollBars.Both, .AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, .ReadOnly = True, .AllowUserToAddRows = False, .SelectionMode = DataGridViewSelectionMode.FullRowSelect, .BackgroundColor = Color.White, .Font = New Font("Tahoma", 10.0!), .BorderStyle = BorderStyle.None, .RowTemplate = New DataGridViewRow() With {.Height = 32}}
             dgvBank.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(255, 251, 235)
             lblBankName = New Label With {.Text = "ชื่อธนาคาร:", .Location = New Point(16, 16), .AutoSize = True, .ForeColor = Color.FromArgb(69, 26, 3)}
             txtBankName = New TextBox With {.Location = New Point(150, 12), .Size = New Size(480, 40), .Font = New Font("Tahoma", 10.5!)}
