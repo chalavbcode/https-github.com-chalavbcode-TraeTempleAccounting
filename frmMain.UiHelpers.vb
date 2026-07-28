@@ -141,29 +141,35 @@ Namespace TempleAccounting
             End If
         End Sub
 
+        Private Sub SetOverviewCompactMode(isCompact As Boolean)
+            _compactOverviewMode = isCompact
+            RefreshOverviewLayout()
+        End Sub
+
         Private Sub ConfigureOverviewCardLayout()
             Dim cardPanels = {pnlCard1, pnlCard2, pnlCard3, pnlCard4}
             Dim titleLabels = {lblCard1Title, lblCard2Title, lblCard3Title, lblCard4Title}
             Dim valueLabels = {lblCard1Value, lblCard2Value, lblCard3Value, lblCard4Value}
             Dim iconLabels = {lblCard1Icon, lblCard2Icon, lblCard3Icon, lblCard4Icon}
 
-            Dim iconFont As New Font("Segoe UI Emoji", 26.0!, FontStyle.Regular, GraphicsUnit.Point, 0)
+            Dim iconFontSize As Single = If(_compactOverviewMode, 20.0!, 26.0!)
+            Dim iconFont As New Font("Segoe UI Emoji", iconFontSize, FontStyle.Regular, GraphicsUnit.Point, 0)
             Dim maxIconHeight As Integer = 0
             Dim maxValueHeight As Integer = 0
             For Each iconLabel In iconLabels
                 If iconLabel Is Nothing Then Continue For
                 iconLabel.Font = iconFont
-                iconLabel.Padding = New Padding(0, 0, 0, 6)
-                maxIconHeight = Math.Max(maxIconHeight, TextRenderer.MeasureText("🗃️", iconLabel.Font).Height + 14)
+                iconLabel.Padding = If(_compactOverviewMode, New Padding(0, 0, 0, 2), New Padding(0, 0, 0, 6))
+                maxIconHeight = Math.Max(maxIconHeight, TextRenderer.MeasureText("🗃️", iconLabel.Font).Height + If(_compactOverviewMode, 8, 14))
             Next
-            maxIconHeight = Math.Max(maxIconHeight, 54)
+            maxIconHeight = Math.Max(maxIconHeight, If(_compactOverviewMode, 40, 54))
 
             For Each valueLabel In valueLabels
                 If valueLabel Is Nothing Then Continue For
-                valueLabel.Padding = New Padding(0, 2, 0, 6)
-                maxValueHeight = Math.Max(maxValueHeight, TextRenderer.MeasureText("213,750.00", valueLabel.Font).Height + 10)
+                valueLabel.Padding = If(_compactOverviewMode, New Padding(0, 0, 0, 2), New Padding(0, 2, 0, 6))
+                maxValueHeight = Math.Max(maxValueHeight, TextRenderer.MeasureText("213,750.00", valueLabel.Font).Height + If(_compactOverviewMode, 6, 10))
             Next
-            maxValueHeight = Math.Max(maxValueHeight, 40)
+            maxValueHeight = Math.Max(maxValueHeight, If(_compactOverviewMode, 28, 40))
 
             Dim targetCardHeight As Integer = 0
             For i As Integer = 0 To iconLabels.Length - 1
@@ -175,7 +181,7 @@ Namespace TempleAccounting
                 End If
             Next
 
-            targetCardHeight = Math.Max(targetCardHeight, 150)
+            targetCardHeight = Math.Max(targetCardHeight, If(_compactOverviewMode, 108, 150))
 
             If pnlCards IsNot Nothing Then
                 pnlCards.Height = targetCardHeight
@@ -192,7 +198,7 @@ Namespace TempleAccounting
             If pnlOverview Is Nothing OrElse lblOverviewTitle Is Nothing OrElse pnlCards Is Nothing Then Return
 
             ' เผื่อช่องว่างใต้การ์ดสรุปให้ฟอร์มงานด้านล่างไม่ชนหรือถูกบังเมื่อใช้ฟอนต์/DPI ใหญ่ขึ้น
-            Dim desiredHeight = lblOverviewTitle.Height + pnlCards.Height + 28
+            Dim desiredHeight = lblOverviewTitle.Height + pnlCards.Height + If(_compactOverviewMode, 10, 28)
             pnlOverview.Height = desiredHeight
         End Sub
 
