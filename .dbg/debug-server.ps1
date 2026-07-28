@@ -13,6 +13,7 @@ $logFile = Join-Path $outDir ("trae-debug-log-" + $sessionId + ".ndjson")
 $envFile = Join-Path $outDir ($sessionId + ".env")
 
 if ($clean -and (Test-Path $logFile)) { Clear-Content -Path $logFile }
+if (-not (Test-Path $logFile)) { New-Item -ItemType File -Path $logFile | Out-Null }
 
 $listener = New-Object System.Net.HttpListener
 $selectedPort = $null
