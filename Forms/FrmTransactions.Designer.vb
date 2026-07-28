@@ -69,9 +69,9 @@ Namespace TempleAccounting
             CType(dgvTransactions, ISupportInitialize).BeginInit()
             pActions.SuspendLayout()
             SuspendLayout()
-            '
+            ' 
             ' lblHeader
-            '
+            ' 
             lblHeader.BackColor = Color.FromArgb(CByte(253), CByte(230), CByte(138))
             lblHeader.Dock = DockStyle.Top
             lblHeader.Font = New Font("Tahoma", 15F, FontStyle.Bold)
@@ -82,9 +82,9 @@ Namespace TempleAccounting
             lblHeader.TabIndex = 4
             lblHeader.Text = "📋 รายการรับ-จ่ายทั้งหมด"
             lblHeader.TextAlign = ContentAlignment.MiddleCenter
-            '
+            ' 
             ' pFilter
-            '
+            ' 
             pFilter.BackColor = Color.White
             pFilter.Controls.Add(lblCategory)
             pFilter.Controls.Add(cboCategory)
@@ -103,87 +103,87 @@ Namespace TempleAccounting
             pFilter.Padding = New Padding(16)
             pFilter.Size = New Size(1648, 130)
             pFilter.TabIndex = 3
-            '
+            ' 
             ' lblCategory
-            '
+            ' 
             lblCategory.Location = New Point(0, 0)
             lblCategory.Name = "lblCategory"
             lblCategory.Size = New Size(100, 23)
             lblCategory.TabIndex = 0
-            '
+            ' 
             ' cboCategory
-            '
+            ' 
             cboCategory.Location = New Point(0, 0)
             cboCategory.Name = "cboCategory"
             cboCategory.Size = New Size(121, 33)
             cboCategory.TabIndex = 1
-            '
+            ' 
             ' lblType
-            '
+            ' 
             lblType.Location = New Point(0, 0)
             lblType.Name = "lblType"
             lblType.Size = New Size(100, 23)
             lblType.TabIndex = 2
-            '
+            ' 
             ' cboType
-            '
+            ' 
             cboType.Items.AddRange(New Object() {"ทั้งหมด", "Income รายรับ", "Expense รายจ่าย", "Transfer โอนภายใน"})
             cboType.Location = New Point(0, 0)
             cboType.Name = "cboType"
             cboType.Size = New Size(121, 33)
             cboType.TabIndex = 3
-            '
+            ' 
             ' lblDate
-            '
+            ' 
             lblDate.Location = New Point(0, 0)
             lblDate.Name = "lblDate"
             lblDate.Size = New Size(100, 23)
             lblDate.TabIndex = 4
-            '
+            ' 
             ' dtpFrom
-            '
+            ' 
             dtpFrom.Location = New Point(0, 0)
             dtpFrom.Name = "dtpFrom"
             dtpFrom.Size = New Size(200, 33)
             dtpFrom.TabIndex = 5
-            '
+            ' 
             ' dtpTo
-            '
+            ' 
             dtpTo.Location = New Point(0, 0)
             dtpTo.Name = "dtpTo"
             dtpTo.Size = New Size(200, 33)
             dtpTo.TabIndex = 6
-            '
+            ' 
             ' lblSearch
-            '
+            ' 
             lblSearch.Location = New Point(0, 0)
             lblSearch.Name = "lblSearch"
             lblSearch.Size = New Size(100, 23)
             lblSearch.TabIndex = 7
-            '
+            ' 
             ' txtSearch
-            '
+            ' 
             txtSearch.Location = New Point(0, 0)
             txtSearch.Name = "txtSearch"
             txtSearch.Size = New Size(100, 33)
             txtSearch.TabIndex = 8
-            '
+            ' 
             ' btnSearch
-            '
+            ' 
             btnSearch.Location = New Point(0, 0)
             btnSearch.Name = "btnSearch"
             btnSearch.Size = New Size(75, 23)
             btnSearch.TabIndex = 9
-            '
+            ' 
             ' btnRefresh
-            '
+            ' 
             btnRefresh.Location = New Point(0, 0)
             btnRefresh.Name = "btnRefresh"
             btnRefresh.Size = New Size(75, 23)
             btnRefresh.TabIndex = 10
-            '
+            ' 
             ' lblSummary
-            '
+            ' 
             lblSummary.BackColor = Color.FromArgb(CByte(254), CByte(240), CByte(138))
             lblSummary.Dock = DockStyle.Top
             lblSummary.Font = New Font("Tahoma", 11F, FontStyle.Bold)
@@ -194,9 +194,9 @@ Namespace TempleAccounting
             lblSummary.TabIndex = 2
             lblSummary.Text = "รายรับเดือนนี้: 0.00 บาท   |   รายจ่าย: 0.00 บาท   |   คงเหลือ: 0.00 บาท   |   โอนภายใน: 0.00 บาท"
             lblSummary.TextAlign = ContentAlignment.MiddleCenter
-            '
+            ' 
             ' dgvTransactions
-            '
+            ' 
             dgvTransactions.AllowUserToAddRows = False
             dgvTransactions.AllowUserToDeleteRows = False
             DataGridViewCellStyle1.BackColor = Color.FromArgb(CByte(255), CByte(251), CByte(235))
@@ -216,9 +216,9 @@ Namespace TempleAccounting
             dgvTransactions.SelectionMode = DataGridViewSelectionMode.FullRowSelect
             dgvTransactions.Size = New Size(1648, 397)
             dgvTransactions.TabIndex = 0
-            '
+            ' 
             ' pActions
-            '
+            ' 
             pActions.BackColor = Color.FromArgb(CByte(245), CByte(240), CByte(220))
             pActions.Controls.Add(btnClose)
             pActions.Controls.Add(btnDelete)
@@ -232,51 +232,51 @@ Namespace TempleAccounting
             pActions.Padding = New Padding(14)
             pActions.Size = New Size(1648, 80)
             pActions.TabIndex = 1
-            '
+            ' 
             ' btnClose
-            '
+            ' 
             btnClose.Location = New Point(0, 0)
             btnClose.Name = "btnClose"
             btnClose.Size = New Size(75, 23)
             btnClose.TabIndex = 0
-            '
+            ' 
             ' btnDelete
-            '
+            ' 
             btnDelete.Location = New Point(0, 0)
             btnDelete.Name = "btnDelete"
             btnDelete.Size = New Size(75, 23)
             btnDelete.TabIndex = 1
-            '
+            ' 
             ' btnEdit
-            '
+            ' 
             btnEdit.Location = New Point(0, 0)
             btnEdit.Name = "btnEdit"
             btnEdit.Size = New Size(75, 23)
             btnEdit.TabIndex = 2
-            '
+            ' 
             ' btnAddTrans
-            '
+            ' 
             btnAddTrans.Location = New Point(0, 0)
             btnAddTrans.Name = "btnAddTrans"
             btnAddTrans.Size = New Size(75, 23)
             btnAddTrans.TabIndex = 3
-            '
+            ' 
             ' btnAddExp
-            '
+            ' 
             btnAddExp.Location = New Point(0, 0)
             btnAddExp.Name = "btnAddExp"
             btnAddExp.Size = New Size(75, 23)
             btnAddExp.TabIndex = 4
-            '
+            ' 
             ' btnAddInc
-            '
+            ' 
             btnAddInc.Location = New Point(0, 0)
             btnAddInc.Name = "btnAddInc"
             btnAddInc.Size = New Size(75, 23)
             btnAddInc.TabIndex = 5
-            '
+            ' 
             ' FrmTransactions
-            '
+            ' 
             AutoScroll = True
             BackColor = Color.FromArgb(CByte(254), CByte(249), CByte(235))
             ClientSize = New Size(1648, 723)
