@@ -165,6 +165,9 @@ Namespace TempleAccounting
                 dgvTransactions.Font = New Font("Tahoma", 9.25!)
                 dgvTransactions.ColumnHeadersHeight = 30
                 dgvTransactions.RowTemplate.Height = 30
+                dgvTransactions.ScrollBars = ScrollBars.Both
+                dgvTransactions.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None
+                dgvTransactions.AllowUserToResizeColumns = True
 
                 ' Setup panels and forms layout
                 pActions.Dock = DockStyle.Bottom
@@ -443,7 +446,6 @@ Namespace TempleAccounting
                     If dgvTransactions.Columns.Count > 0 Then
                         ConfigureGridColumns()
                     End If
-                    dgvTransactions.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
 
                     Dim sumInc As Decimal = 0D
                     Dim sumExp As Decimal = 0D
@@ -498,6 +500,9 @@ Namespace TempleAccounting
                 {"ToBankName", "ToBank"}
             }
 
+            dgvTransactions.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None
+            dgvTransactions.ScrollBars = ScrollBars.Both
+
             For Each pair In headers
                 If dgvTransactions.Columns.Contains(pair.Key) Then
                     dgvTransactions.Columns(pair.Key).HeaderText = pair.Value
@@ -519,6 +524,35 @@ Namespace TempleAccounting
                 If dgvTransactions.Columns.Contains(readOnlyName) Then
                     dgvTransactions.Columns(readOnlyName).ReadOnly = True
                     dgvTransactions.Columns(readOnlyName).DefaultCellStyle.BackColor = Color.FromArgb(245, 245, 245)
+                End If
+            Next
+
+            Dim widths As New Dictionary(Of String, Integer) From {
+                {"ID", 70},
+                {"TranDate", 95},
+                {"TranType", 90},
+                {"CategoryID", 90},
+                {"CategoryName", 160},
+                {"FundID", 90},
+                {"FundName", 150},
+                {"BankID", 90},
+                {"BankName", 180},
+                {"Detail", 240},
+                {"Amount", 120},
+                {"Note", 220},
+                {"CreateDate", 150},
+                {"ToFundID", 90},
+                {"ToFundName", 150},
+                {"ToBankID", 90},
+                {"ToBankName", 180}
+            }
+
+            For Each kv In widths
+                If dgvTransactions.Columns.Contains(kv.Key) Then
+                    Dim col = dgvTransactions.Columns(kv.Key)
+                    col.AutoSizeMode = DataGridViewAutoSizeColumnMode.None
+                    col.Width = kv.Value
+                    col.MinimumWidth = Math.Min(90, kv.Value)
                 End If
             Next
         End Sub
