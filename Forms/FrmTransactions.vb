@@ -257,65 +257,95 @@ Namespace TempleAccounting
         Private Sub LoadData()
             Dim keepSelectedId As Integer = If(_editingTransactionId > 0, _editingTransactionId, GetSelectedTransactionId())
 
-            Using conn = Db.OpenConn()
-                Dim tranDateExpr = "IIF(Year(t.TranDate)>2400, DateAdd('yyyy',-543,t.TranDate), t.TranDate)"
-                Dim sql = "SELECT t.ID, t.TranDate, t.TranType, t.CategoryID, IIF(c.CategoryName IS NULL,'',c.CategoryName) AS CategoryName, " &
-                          "t.FundID, IIF(f.FundName IS NULL,'',f.FundName) AS FundName, " &
-                          "t.BankID, IIF(b.BankName IS NULL,'',b.BankName & IIF(b.AccountNo IS NULL,'',' ' & b.AccountNo)) AS BankName, " &
-                          "t.Detail, t.Amount, t.Note, t.CreateDate, t.ToFundID, IIF(f2.FundName IS NULL,'',f2.FundName) AS ToFundName, " &
-                          "t.ToBankID, IIF(b2.BankName IS NULL,'',b2.BankName & IIF(b2.AccountNo IS NULL,'',' ' & b2.AccountNo)) AS ToBankName " &
-                          "FROM ((((Transactions t " &
-                          "LEFT JOIN Categories c ON t.CategoryID=c.ID) " &
-                          "LEFT JOIN Funds f ON t.FundID=f.ID) " &
-                          "LEFT JOIN BankAccounts b ON t.BankID=b.ID) " &
-                          "LEFT JOIN Funds f2 ON t.ToFundID=f2.ID) " &
-                          "LEFT JOIN BankAccounts b2 ON t.ToBankID=b2.ID " &
-                          "WHERE " & tranDateExpr & " BETWEEN @d1 AND @d2 "
+            Try
+#Region "debug-point B:loaddata-start"
+                DebugReport("B", "LoadData", "loaddata-start", New Dictionary(Of String, Object) From {
+                    {"dbPath", AppPaths.DatabaseFile},
+                    {"dbExists", File.Exists(AppPaths.DatabaseFile)},
+                    {"from", dtpFrom.Value.Date.ToString("yyyy-MM-dd")},
+                    {"to", dtpTo.Value.Date.ToString("yyyy-MM-dd")},
+                    {"categoryId", If(cboCategory.SelectedValue, 0)},
+                    {"typeIndex", cboType.SelectedIndex},
+                    {"search", txtSearch.Text}
+                })
+#End Region
 
-                Dim ps As New List(Of Tuple(Of String, Object))
-                ps.Add(New Tuple(Of String, Object)("@d1", dtpFrom.Value.Date))
-                ps.Add(New Tuple(Of String, Object)("@d2", dtpTo.Value.Date.AddDays(1).AddSeconds(-1)))
+                Using conn = Db.OpenConn()
+                    Dim tranDateExpr = "IIF(Year(t.TranDate)>2400, DateAdd('yyyy',-543,t.TranDate), t.TranDate)"
+                    Dim sql = "SELECT t.ID, t.TranDate, t.TranType, t.CategoryID, IIF(c.CategoryName IS NULL,'',c.CategoryName) AS CategoryName, " &
+                              "t.FundID, IIF(f.FundName IS NULL,'',f.FundName) AS FundName, " &
+                              "t.BankID, IIF(b.BankName IS NULL,'',b.BankName & IIF(b.AccountNo IS NULL,'',' ' & b.AccountNo)) AS BankName, " &
+                              "t.Detail, t.Amount, t.Note, t.CreateDate, t.ToFundID, IIF(f2.FundName IS NULL,'',f2.FundName) AS ToFundName, " &
+                              "t.ToBankID, IIF(b2.BankName IS NULL,'',b2.BankName & IIF(b2.AccountNo IS NULL,'',' ' & b2.AccountNo)) AS ToBankName " &
+                              "FROM ((((Transactions t " &
+                              "LEFT JOIN Categories c ON t.CategoryID=c.ID) " &
+                              "LEFT JOIN Funds f ON t.FundID=f.ID) " &
+                              "LEFT JOIN BankAccounts b ON t.BankID=b.ID) " &
+                              "LEFT JOIN Funds f2 ON t.ToFundID=f2.ID) " &
+                              "LEFT JOIN BankAccounts b2 ON t.ToBankID=b2.ID " &
+                              "WHERE " & tranDateExpr & " BETWEEN @d1 AND @d2 "
 
-                If cboCategory.SelectedValue IsNot Nothing AndAlso CInt(cboCategory.SelectedValue) <> 0 Then
-                    sql &= " AND t.CategoryID=@cat "
-                    ps.Add(New Tuple(Of String, Object)("@cat", CInt(cboCategory.SelectedValue)))
-                End If
-                If cboType.SelectedIndex = 1 Then
-                    sql &= " AND t.TranType='Income'"
-                ElseIf cboType.SelectedIndex = 2 Then
-                    sql &= " AND t.TranType='Expense'"
-                ElseIf cboType.SelectedIndex = 3 Then
-                    sql &= " AND t.TranType='Transfer'"
-                End If
-                If Not String.IsNullOrWhiteSpace(txtSearch.Text) Then
-                    sql &= " AND (t.Detail LIKE @s OR t.Note LIKE @s OR t.TranType LIKE @s OR c.CategoryName LIKE @s OR f.FundName LIKE @s OR b.BankName LIKE @s OR f2.FundName LIKE @s OR b2.BankName LIKE @s) "
-                    ps.Add(New Tuple(Of String, Object)("@s", "*" & txtSearch.Text.Trim() & "*"))
-                End If
-                sql &= " ORDER BY " & tranDateExpr & " DESC, t.ID DESC"
+                    Dim ps As New List(Of Tuple(Of String, Object))
+                    ps.Add(New Tuple(Of String, Object)("@d1", dtpFrom.Value.Date))
+                    ps.Add(New Tuple(Of String, Object)("@d2", dtpTo.Value.Date.AddDays(1).AddSeconds(-1)))
 
-                Dim dt = Db.GetTable(conn, sql, ps.ToArray())
-                dgvTransactions.DataSource = dt
-                If dgvTransactions.Columns.Count > 0 Then
-                    ConfigureGridColumns()
-                End If
-                dgvTransactions.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
-
-                Dim sumInc As Decimal = 0D
-                Dim sumExp As Decimal = 0D
-                Dim sumTrf As Decimal = 0D
-                For Each row As DataRow In dt.Rows
-                    Dim amount = Db.ToDecimalOrZero(row("Amount"))
-                    Dim tranType = Convert.ToString(row("TranType"))
-                    If tranType = "Income" Then
-                        sumInc += amount
-                    ElseIf tranType = "Expense" Then
-                        sumExp += amount
-                    ElseIf tranType = "Transfer" Then
-                        sumTrf += amount
+                    If cboCategory.SelectedValue IsNot Nothing AndAlso CInt(cboCategory.SelectedValue) <> 0 Then
+                        sql &= " AND t.CategoryID=@cat "
+                        ps.Add(New Tuple(Of String, Object)("@cat", CInt(cboCategory.SelectedValue)))
                     End If
-                Next
-                lblSummary.Text = $"รายรับ: {sumInc:n2} บาท  |  รายจ่าย: {sumExp:n2} บาท  |  คงเหลือ: {(sumInc - sumExp):n2} บาท  |  โอนภายใน: {sumTrf:n2} บาท"
-            End Using
+                    If cboType.SelectedIndex = 1 Then
+                        sql &= " AND t.TranType='Income'"
+                    ElseIf cboType.SelectedIndex = 2 Then
+                        sql &= " AND t.TranType='Expense'"
+                    ElseIf cboType.SelectedIndex = 3 Then
+                        sql &= " AND t.TranType='Transfer'"
+                    End If
+                    If Not String.IsNullOrWhiteSpace(txtSearch.Text) Then
+                        sql &= " AND (t.Detail LIKE @s OR t.Note LIKE @s OR t.TranType LIKE @s OR c.CategoryName LIKE @s OR f.FundName LIKE @s OR b.BankName LIKE @s OR f2.FundName LIKE @s OR b2.BankName LIKE @s) "
+                        ps.Add(New Tuple(Of String, Object)("@s", "*" & txtSearch.Text.Trim() & "*"))
+                    End If
+                    sql &= " ORDER BY " & tranDateExpr & " DESC, t.ID DESC"
+
+                    Dim dt = Db.GetTable(conn, sql, ps.ToArray())
+
+#Region "debug-point C:loaddata-result"
+                    DebugReport("C", "LoadData", "query-result", New Dictionary(Of String, Object) From {
+                        {"rowCount", dt.Rows.Count},
+                        {"colCount", dt.Columns.Count}
+                    })
+#End Region
+
+                    dgvTransactions.DataSource = dt
+                    If dgvTransactions.Columns.Count > 0 Then
+                        ConfigureGridColumns()
+                    End If
+                    dgvTransactions.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
+
+                    Dim sumInc As Decimal = 0D
+                    Dim sumExp As Decimal = 0D
+                    Dim sumTrf As Decimal = 0D
+                    For Each row As DataRow In dt.Rows
+                        Dim amount = Db.ToDecimalOrZero(row("Amount"))
+                        Dim tranType = Convert.ToString(row("TranType"))
+                        If tranType = "Income" Then
+                            sumInc += amount
+                        ElseIf tranType = "Expense" Then
+                            sumExp += amount
+                        ElseIf tranType = "Transfer" Then
+                            sumTrf += amount
+                        End If
+                    Next
+                    lblSummary.Text = $"รายรับ: {sumInc:n2} บาท  |  รายจ่าย: {sumExp:n2} บาท  |  คงเหลือ: {(sumInc - sumExp):n2} บาท  |  โอนภายใน: {sumTrf:n2} บาท"
+                End Using
+            Catch ex As Exception
+#Region "debug-point D:loaddata-ex"
+                DebugReport("D", "LoadData", "exception", New Dictionary(Of String, Object) From {
+                    {"type", ex.GetType().FullName},
+                    {"message", ex.Message}
+                })
+#End Region
+                Throw
+            End Try
 
             RestoreSelectionById(keepSelectedId)
             If _isEditing Then
