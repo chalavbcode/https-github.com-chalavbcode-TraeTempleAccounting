@@ -81,9 +81,7 @@
     <EmbeddedResource Include="Forms\FrmTransfer.resx">
       <DependentUpon>FrmTransfer.vb</DependentUpon>
     </EmbeddedResource>
-    <Compile Include="Forms\FrmTransactions.vb">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="Forms\FrmTransactions.vb" />
     <Compile Include="Forms\FrmTransactions.Designer.vb">
       <DependentUpon>FrmTransactions.vb</DependentUpon>
       <SubType>Form</SubType>
