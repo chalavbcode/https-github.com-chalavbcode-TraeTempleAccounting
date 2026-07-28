@@ -42,7 +42,7 @@ Namespace TempleAccounting
 
         <DebuggerStepThrough()>
         Private Sub InitializeComponent()
-            Dim DataGridViewCellStyle1 As DataGridViewCellStyle = New DataGridViewCellStyle()
+            Dim DataGridViewCellStyle2 As DataGridViewCellStyle = New DataGridViewCellStyle()
             lblHeader = New Label()
             pFilter = New Panel()
             lblCategory = New Label()
@@ -106,21 +106,21 @@ Namespace TempleAccounting
             ' 
             ' lblCategory
             ' 
-            lblCategory.Location = New Point(0, 0)
+            lblCategory.Location = New Point(468, 6)
             lblCategory.Name = "lblCategory"
             lblCategory.Size = New Size(100, 23)
             lblCategory.TabIndex = 0
             ' 
             ' cboCategory
             ' 
-            cboCategory.Location = New Point(0, 0)
+            cboCategory.Location = New Point(574, 3)
             cboCategory.Name = "cboCategory"
             cboCategory.Size = New Size(121, 33)
             cboCategory.TabIndex = 1
             ' 
             ' lblType
             ' 
-            lblType.Location = New Point(0, 0)
+            lblType.Location = New Point(275, 6)
             lblType.Name = "lblType"
             lblType.Size = New Size(100, 23)
             lblType.TabIndex = 2
@@ -128,56 +128,56 @@ Namespace TempleAccounting
             ' cboType
             ' 
             cboType.Items.AddRange(New Object() {"ทั้งหมด", "Income รายรับ", "Expense รายจ่าย", "Transfer โอนภายใน"})
-            cboType.Location = New Point(0, 0)
+            cboType.Location = New Point(314, 3)
             cboType.Name = "cboType"
             cboType.Size = New Size(121, 33)
             cboType.TabIndex = 3
             ' 
             ' lblDate
             ' 
-            lblDate.Location = New Point(0, 0)
+            lblDate.Location = New Point(608, 6)
             lblDate.Name = "lblDate"
             lblDate.Size = New Size(100, 23)
             lblDate.TabIndex = 4
             ' 
             ' dtpFrom
             ' 
-            dtpFrom.Location = New Point(0, 0)
+            dtpFrom.Location = New Point(714, 0)
             dtpFrom.Name = "dtpFrom"
             dtpFrom.Size = New Size(200, 33)
             dtpFrom.TabIndex = 5
             ' 
             ' dtpTo
             ' 
-            dtpTo.Location = New Point(0, 0)
+            dtpTo.Location = New Point(920, 0)
             dtpTo.Name = "dtpTo"
             dtpTo.Size = New Size(200, 33)
             dtpTo.TabIndex = 6
             ' 
             ' lblSearch
             ' 
-            lblSearch.Location = New Point(0, 0)
+            lblSearch.Location = New Point(364, 64)
             lblSearch.Name = "lblSearch"
             lblSearch.Size = New Size(100, 23)
             lblSearch.TabIndex = 7
             ' 
             ' txtSearch
             ' 
-            txtSearch.Location = New Point(0, 0)
+            txtSearch.Location = New Point(245, 61)
             txtSearch.Name = "txtSearch"
             txtSearch.Size = New Size(100, 33)
             txtSearch.TabIndex = 8
             ' 
             ' btnSearch
             ' 
-            btnSearch.Location = New Point(0, 0)
+            btnSearch.Location = New Point(1442, 10)
             btnSearch.Name = "btnSearch"
             btnSearch.Size = New Size(75, 23)
             btnSearch.TabIndex = 9
             ' 
             ' btnRefresh
             ' 
-            btnRefresh.Location = New Point(0, 0)
+            btnRefresh.Location = New Point(1523, 10)
             btnRefresh.Name = "btnRefresh"
             btnRefresh.Size = New Size(75, 23)
             btnRefresh.TabIndex = 10
@@ -199,8 +199,8 @@ Namespace TempleAccounting
             ' 
             dgvTransactions.AllowUserToAddRows = False
             dgvTransactions.AllowUserToDeleteRows = False
-            DataGridViewCellStyle1.BackColor = Color.FromArgb(CByte(255), CByte(251), CByte(235))
-            dgvTransactions.AlternatingRowsDefaultCellStyle = DataGridViewCellStyle1
+            DataGridViewCellStyle2.BackColor = Color.FromArgb(CByte(255), CByte(251), CByte(235))
+            dgvTransactions.AlternatingRowsDefaultCellStyle = DataGridViewCellStyle2
             dgvTransactions.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
             dgvTransactions.BackgroundColor = Color.White
             dgvTransactions.BorderStyle = BorderStyle.None
@@ -286,7 +286,6 @@ Namespace TempleAccounting
             Controls.Add(pFilter)
             Controls.Add(lblHeader)
             Font = New Font("Tahoma", 10.5F)
-            FormBorderStyle = FormBorderStyle.Sizable
             MinimumSize = New Size(1180, 760)
             Name = "FrmTransactions"
             StartPosition = FormStartPosition.CenterScreen
