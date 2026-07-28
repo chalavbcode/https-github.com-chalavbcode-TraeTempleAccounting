@@ -71,16 +71,13 @@ Namespace TempleAccounting
                     {"ts", DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}
                 }
 
+                ' โค้ดใหม่ (ใช้ HttpClient)
                 Dim json = JsonSerializer.Serialize(payload)
-                Dim bytes = Encoding.UTF8.GetBytes(json)
-                Dim req = CType(WebRequest.Create(url), HttpWebRequest)
-                req.Method = "POST"
-                req.ContentType = "application/json"
-                req.Timeout = 500
-                Using s = req.GetRequestStream()
-                    s.Write(bytes, 0, bytes.Length)
-                End Using
-                Using resp = CType(req.GetResponse(), HttpWebResponse)
+                Using client As New System.Net.Http.HttpClient()
+                    client.Timeout = TimeSpan.FromMilliseconds(500)
+                    Dim content As New System.Net.Http.StringContent(json, Encoding.UTF8, "application/json")
+                    ' ส่งแบบ Sync สำหรับฟังก์ชั่น Debug
+                    Dim response = client.PostAsync(url, content).GetAwaiter().GetResult()
                 End Using
             Catch
             End Try
@@ -114,16 +111,9 @@ Namespace TempleAccounting
 
         Private Sub SetupRuntimeLayout()
             Try
-                AutoScroll = False
-
+                ' ปรับแต่งเฉพาะ Font/สี/สไตล์ เพื่อไม่ให้กระทบตำแหน่งพิกัดที่วางใน Visual Designer
                 lblHeader.Text = "📋 รายการรับ-จ่ายทั้งหมด"
-                lblHeader.Height = 42
                 lblHeader.Font = New Font("Tahoma", 12.5!, FontStyle.Bold)
-
-                pFilter.Dock = DockStyle.Top
-                pFilter.Height = 72
-                pFilter.Padding = New Padding(12, 10, 12, 10)
-                pFilter.BackColor = Color.White
 
                 lblCategory.Text = "ประเภท:"
                 lblType.Text = "ชนิด:"
@@ -131,16 +121,12 @@ Namespace TempleAccounting
                 lblSearch.Text = "ค้นหา:"
 
                 For Each lbl In New Label() {lblCategory, lblType, lblDate, lblSearch}
-                    lbl.AutoSize = False
-                    lbl.TextAlign = ContentAlignment.MiddleLeft
                     lbl.Font = New Font("Tahoma", 9.5!, FontStyle.Bold)
                     lbl.ForeColor = Color.FromArgb(120, 53, 15)
-                    lbl.Height = 28
                 Next
 
                 For Each ctrl As Control In New Control() {cboCategory, cboType, dtpFrom, dtpTo, txtSearch}
                     ctrl.Font = New Font("Tahoma", 9.5!, FontStyle.Regular)
-                    ctrl.Height = 30
                 Next
 
                 btnSearch.Text = "🔎 ค้นหา"
@@ -149,7 +135,6 @@ Namespace TempleAccounting
                 btnSearch.FlatStyle = FlatStyle.Flat
                 btnSearch.Font = New Font("Tahoma", 9.5!, FontStyle.Bold)
                 btnSearch.Cursor = Cursors.Hand
-                btnSearch.Size = New Size(98, 34)
 
                 btnRefresh.Text = "🔄 รีเฟรช"
                 btnRefresh.BackColor = Color.FromArgb(5, 150, 105)
@@ -157,9 +142,7 @@ Namespace TempleAccounting
                 btnRefresh.FlatStyle = FlatStyle.Flat
                 btnRefresh.Font = New Font("Tahoma", 9.5!, FontStyle.Bold)
                 btnRefresh.Cursor = Cursors.Hand
-                btnRefresh.Size = New Size(104, 34)
 
-                lblSummary.Height = 36
                 lblSummary.Font = New Font("Tahoma", 10.0!, FontStyle.Bold)
 
                 dgvTransactions.Font = New Font("Tahoma", 9.25!)
@@ -169,16 +152,8 @@ Namespace TempleAccounting
                 dgvTransactions.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None
                 dgvTransactions.AllowUserToResizeColumns = True
 
-                ' Setup panels and forms layout
-                pActions.Dock = DockStyle.Bottom
-                pActions.Height = 80
-                pActions.BackColor = Color.FromArgb(245, 240, 220)
-                pActions.Padding = New Padding(14)
-
-                ' Style buttons programmatically to prevent VS designer from losing their properties
+                ' ปรับเฉพาะสีและ Font ของปุ่ม Action (ปล่อยเรื่อง Dock/Location ให้เป็นหน้าที่ของ Designer)
                 btnAddInc.Text = "➕ รายรับใหม่"
-                btnAddInc.Dock = DockStyle.Left
-                btnAddInc.Size = New Size(160, 52)
                 btnAddInc.BackColor = Color.FromArgb(22, 163, 74)
                 btnAddInc.ForeColor = Color.White
                 btnAddInc.FlatStyle = FlatStyle.Flat
@@ -186,8 +161,6 @@ Namespace TempleAccounting
                 btnAddInc.Cursor = Cursors.Hand
 
                 btnAddExp.Text = "➕ รายจ่ายใหม่"
-                btnAddExp.Dock = DockStyle.Left
-                btnAddExp.Size = New Size(160, 52)
                 btnAddExp.BackColor = Color.FromArgb(190, 18, 60)
                 btnAddExp.ForeColor = Color.White
                 btnAddExp.FlatStyle = FlatStyle.Flat
@@ -195,8 +168,6 @@ Namespace TempleAccounting
                 btnAddExp.Cursor = Cursors.Hand
 
                 btnAddTrans.Text = "🔁 โอนเงินใหม่"
-                btnAddTrans.Dock = DockStyle.Left
-                btnAddTrans.Size = New Size(170, 52)
                 btnAddTrans.BackColor = Color.FromArgb(126, 34, 206)
                 btnAddTrans.ForeColor = Color.White
                 btnAddTrans.FlatStyle = FlatStyle.Flat
@@ -204,8 +175,6 @@ Namespace TempleAccounting
                 btnAddTrans.Cursor = Cursors.Hand
 
                 btnEdit.Text = "📝 แก้ไข"
-                btnEdit.Dock = DockStyle.Left
-                btnEdit.Size = New Size(120, 52)
                 btnEdit.BackColor = Color.FromArgb(245, 158, 11)
                 btnEdit.ForeColor = Color.White
                 btnEdit.FlatStyle = FlatStyle.Flat
@@ -213,8 +182,6 @@ Namespace TempleAccounting
                 btnEdit.Cursor = Cursors.Hand
 
                 btnDelete.Text = "🗑️ ลบรายการ"
-                btnDelete.Dock = DockStyle.Left
-                btnDelete.Size = New Size(150, 52)
                 btnDelete.BackColor = Color.FromArgb(153, 27, 27)
                 btnDelete.ForeColor = Color.White
                 btnDelete.FlatStyle = FlatStyle.Flat
@@ -222,75 +189,15 @@ Namespace TempleAccounting
                 btnDelete.Cursor = Cursors.Hand
 
                 btnClose.Text = "ปิดหน้านี้"
-                btnClose.Dock = DockStyle.Right
-                btnClose.Size = New Size(140, 52)
                 btnClose.BackColor = Color.FromArgb(75, 85, 99)
                 btnClose.ForeColor = Color.White
                 btnClose.FlatStyle = FlatStyle.Flat
                 btnClose.Font = New Font("Tahoma", 10.0!, FontStyle.Bold)
                 btnClose.Cursor = Cursors.Hand
 
-                ' Clear and re-add controls in pActions to guarantee correct visual ordering
-                pActions.Controls.Clear()
-                pActions.Controls.Add(btnAddInc)
-                pActions.Controls.Add(btnAddExp)
-                pActions.Controls.Add(btnAddTrans)
-                pActions.Controls.Add(btnEdit)
-                pActions.Controls.Add(btnDelete)
-                pActions.Controls.Add(btnClose)
-
-                LayoutFilterControls()
-                AddHandler pFilter.Resize, AddressOf FilterPanel_Resize
-
-                ' Ensure DataGridView (DockStyle.Fill) fills the REMAINING space and does not hide behind docked panels
-                dgvTransactions.BringToFront()
             Catch ex As Exception
                 AppPaths.LogCrash(ex, "FrmTransactions.SetupRuntimeLayout")
             End Try
-        End Sub
-
-        Private Sub FilterPanel_Resize(sender As Object, e As EventArgs)
-            LayoutFilterControls()
-        End Sub
-
-        Private Sub LayoutFilterControls()
-            If pFilter Is Nothing Then Return
-
-            Dim y As Integer = 18
-            Dim x As Integer = 12
-            Dim gap As Integer = 8
-            Dim labelW As Integer = 52
-            Dim controlH As Integer = 30
-            Dim buttonTop As Integer = 14
-
-            lblCategory.SetBounds(x, y + 2, labelW, 28)
-            x += labelW
-            cboCategory.SetBounds(x, y, 165, controlH)
-            x += cboCategory.Width + 14
-
-            lblType.SetBounds(x, y + 2, 36, 28)
-            x += 36
-            cboType.SetBounds(x, y, 150, controlH)
-            x += cboType.Width + 14
-
-            lblDate.SetBounds(x, y + 2, 44, 28)
-            x += 44
-            dtpFrom.SetBounds(x, y, 150, controlH)
-            x += dtpFrom.Width + gap
-            dtpTo.SetBounds(x, y, 150, controlH)
-            x += dtpTo.Width + 14
-
-            lblSearch.SetBounds(x, y + 2, 44, 28)
-            x += 44
-
-            Dim buttonsWidth = btnSearch.Width + gap + btnRefresh.Width
-            Dim searchWidth = Math.Max(220, pFilter.ClientSize.Width - x - buttonsWidth - 24)
-            txtSearch.SetBounds(x, y, searchWidth, controlH)
-            x += txtSearch.Width + gap
-
-            btnSearch.SetBounds(x, buttonTop, btnSearch.Width, btnSearch.Height)
-            x += btnSearch.Width + gap
-            btnRefresh.SetBounds(x, buttonTop, btnRefresh.Width, btnRefresh.Height)
         End Sub
 
         Private Sub SetupSearchEnterNavigation()
