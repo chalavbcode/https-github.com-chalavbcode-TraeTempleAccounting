@@ -286,9 +286,12 @@ Namespace TempleAccounting
             Controls.Add(pFilter)
             Controls.Add(lblHeader)
             Font = New Font("Tahoma", 10.5F)
-            FormBorderStyle = FormBorderStyle.None
+            FormBorderStyle = FormBorderStyle.Sizable
+            MinimumSize = New Size(1180, 760)
             Name = "FrmTransactions"
+            StartPosition = FormStartPosition.CenterScreen
             Text = "รายการทั้งหมด"
+            WindowState = FormWindowState.Maximized
             pFilter.ResumeLayout(False)
             pFilter.PerformLayout()
             CType(dgvTransactions, ISupportInitialize).EndInit()
