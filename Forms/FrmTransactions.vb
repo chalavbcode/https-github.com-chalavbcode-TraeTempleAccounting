@@ -4,6 +4,10 @@ Option Explicit On
 Imports System
 Imports System.Collections.Generic
 Imports System.Drawing
+Imports System.IO
+Imports System.Net
+Imports System.Text
+Imports System.Text.Json
 Imports System.Windows.Forms
 Imports System.Data
 Imports System.Data.OleDb
@@ -16,13 +20,92 @@ Namespace TempleAccounting
         Private _isEditing As Boolean = False
         Private _editingTransactionId As Integer = 0
 
+#Region "debug-point Z:debug-report"
+        Private Const DebugSessionId As String = "transactions-grid-empty"
+        Private Const DebugRunId As String = "pre-fix"
+
+        Private Shared Function FindUpwards(startDir As String, relativePath As String) As String
+            Try
+                Dim dir = startDir
+                If String.IsNullOrWhiteSpace(dir) Then Return ""
+                For i As Integer = 0 To 12
+                    Dim candidate = Path.Combine(dir, relativePath)
+                    If File.Exists(candidate) Then Return candidate
+                    Dim parent = Directory.GetParent(dir)
+                    If parent Is Nothing Then Exit For
+                    dir = parent.FullName
+                Next
+            Catch
+            End Try
+            Return ""
+        End Function
+
+        Private Shared Function GetDebugServerUrl() As String
+            Dim fallback = "http://127.0.0.1:7777/event"
+            Try
+                Dim envPath = FindUpwards(AppDomain.CurrentDomain.BaseDirectory, Path.Combine(".dbg", DebugSessionId & ".env"))
+                If String.IsNullOrWhiteSpace(envPath) OrElse Not File.Exists(envPath) Then Return fallback
+                Dim lines = File.ReadAllLines(envPath, Encoding.UTF8)
+                For Each line In lines
+                    If line.StartsWith("DEBUG_SERVER_URL=", StringComparison.OrdinalIgnoreCase) Then
+                        Dim url = line.Substring("DEBUG_SERVER_URL=".Length).Trim()
+                        If url <> "" Then Return url
+                    End If
+                Next
+            Catch
+            End Try
+            Return fallback
+        End Function
+
+        Private Shared Sub DebugReport(hypothesisId As String, location As String, msg As String, data As Dictionary(Of String, Object))
+            Try
+                Dim url = GetDebugServerUrl()
+                Dim payload As New Dictionary(Of String, Object) From {
+                    {"sessionId", DebugSessionId},
+                    {"runId", DebugRunId},
+                    {"hypothesisId", hypothesisId},
+                    {"location", location},
+                    {"msg", "[DEBUG] " & msg},
+                    {"data", If(data, New Dictionary(Of String, Object)())},
+                    {"ts", DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}
+                }
+
+                Dim json = JsonSerializer.Serialize(payload)
+                Dim bytes = Encoding.UTF8.GetBytes(json)
+                Dim req = CType(WebRequest.Create(url), HttpWebRequest)
+                req.Method = "POST"
+                req.ContentType = "application/json"
+                req.Timeout = 500
+                Using s = req.GetRequestStream()
+                    s.Write(bytes, 0, bytes.Length)
+                End Using
+                Using resp = CType(req.GetResponse(), HttpWebResponse)
+                End Using
+            Catch
+            End Try
+        End Sub
+#End Region
+
         Public Sub New()
             InitializeComponent()
         End Sub
 
         Private Sub FrmTransactions_Load(sender As Object, e As EventArgs) Handles MyBase.Load
             SetupRuntimeLayout()
+#Region "debug-point A:form-load"
+            DebugReport("A", "FrmTransactions_Load", "load-start", New Dictionary(Of String, Object) From {
+                {"baseDir", AppDomain.CurrentDomain.BaseDirectory},
+                {"dbPath", AppPaths.DatabaseFile},
+                {"dbExists", File.Exists(AppPaths.DatabaseFile)}
+            })
+#End Region
             Db.EnsureSchema()
+#Region "debug-point A:ensure-schema"
+            DebugReport("A", "FrmTransactions_Load", "ensure-schema-ok", New Dictionary(Of String, Object) From {
+                {"dbPath", AppPaths.DatabaseFile},
+                {"dbExists", File.Exists(AppPaths.DatabaseFile)}
+            })
+#End Region
             LoadFilters()
             SetupSearchEnterNavigation()
             LoadData()
