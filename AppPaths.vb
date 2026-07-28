@@ -67,14 +67,51 @@ Namespace TempleAccounting
         Public ReadOnly Property DatabaseFile As String
             Get
                 If String.IsNullOrEmpty(_databaseFile) Then
-                    Dim dbDir = Path.Combine(AppRoot, "Database")
-                    If Not Directory.Exists(dbDir) Then Directory.CreateDirectory(dbDir)
-                    _databaseFile = Path.Combine(dbDir, "TempleAccounting.accdb")
-                    ' Database is stored alongside the executable output so the whole folder stays portable.
+                    Dim preferred = FindPreferredDatabaseFile(AppDomain.CurrentDomain.BaseDirectory)
+                    If Not String.IsNullOrWhiteSpace(preferred) Then
+                        _databaseFile = preferred
+                    Else
+                        Dim dbDir = Path.Combine(AppRoot, "Database")
+                        If Not Directory.Exists(dbDir) Then Directory.CreateDirectory(dbDir)
+                        _databaseFile = Path.Combine(dbDir, "TempleAccounting.accdb")
+                    End If
                 End If
                 Return _databaseFile
             End Get
         End Property
+
+        Private Function FindPreferredDatabaseFile(startDirectory As String) As String
+            Try
+                Dim dir = startDirectory
+                If String.IsNullOrWhiteSpace(dir) Then Return ""
+
+                Dim candidateDbDir As String = ""
+                For i As Integer = 0 To 10
+                    Dim dbDir = Path.Combine(dir, "Database")
+                    Dim dbFile = Path.Combine(dbDir, "TempleAccounting.accdb")
+
+                    If File.Exists(dbFile) Then
+                        Return dbFile
+                    End If
+
+                    If candidateDbDir = "" AndAlso Directory.Exists(dbDir) Then
+                        candidateDbDir = dbDir
+                    End If
+
+                    Dim parent = Directory.GetParent(dir)
+                    If parent Is Nothing Then Exit For
+                    dir = parent.FullName
+                Next
+
+                If candidateDbDir <> "" Then
+                    Return Path.Combine(candidateDbDir, "TempleAccounting.accdb")
+                End If
+
+                Return ""
+            Catch
+                Return ""
+            End Try
+        End Function
 
         Public ReadOnly Property ImportFolder As String
             Get
