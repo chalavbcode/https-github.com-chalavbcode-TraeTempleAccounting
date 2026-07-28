@@ -42,6 +42,9 @@
       <DependentUpon>frmMain.vb</DependentUpon>
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="frmMain.UiHelpers.vb">
+      <DependentUpon>frmMain.vb</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="frmMain.resx">
       <DependentUpon>frmMain.vb</DependentUpon>
     </EmbeddedResource>
@@ -59,6 +62,13 @@
     <Compile Include="Forms\FrmTransactions.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Forms\FrmTransactions.Designer.vb">
+      <DependentUpon>FrmTransactions.vb</DependentUpon>
+      <SubType>Form</SubType>
+    </Compile>
+    <EmbeddedResource Include="Forms\FrmTransactions.resx">
+      <DependentUpon>FrmTransactions.vb</DependentUpon>
+    </EmbeddedResource>
 
     <!-- ===== Master / Setting / Location / Reports ===== -->
     <Compile Include="Forms\FrmMasterData.vb">
