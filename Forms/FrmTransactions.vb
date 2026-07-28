@@ -8,6 +8,7 @@ Imports System.IO
 Imports System.Net
 Imports System.Text
 Imports System.Text.Json
+Imports System.Globalization
 Imports System.Windows.Forms
 Imports System.Data
 Imports System.Data.OleDb
@@ -262,8 +263,10 @@ Namespace TempleAccounting
                 DebugReport("B", "LoadData", "loaddata-start", New Dictionary(Of String, Object) From {
                     {"dbPath", AppPaths.DatabaseFile},
                     {"dbExists", File.Exists(AppPaths.DatabaseFile)},
-                    {"from", dtpFrom.Value.Date.ToString("yyyy-MM-dd")},
-                    {"to", dtpTo.Value.Date.ToString("yyyy-MM-dd")},
+                    {"from", dtpFrom.Value.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)},
+                    {"to", dtpTo.Value.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)},
+                    {"fromYear", dtpFrom.Value.Year},
+                    {"toYear", dtpTo.Value.Year},
                     {"categoryId", If(cboCategory.SelectedValue, 0)},
                     {"typeIndex", cboType.SelectedIndex},
                     {"search", txtSearch.Text}
@@ -272,6 +275,30 @@ Namespace TempleAccounting
 
                 Using conn = Db.OpenConn()
                     Dim tranDateExpr = "IIF(Year(t.TranDate)>2400, DateAdd('yyyy',-543,t.TranDate), t.TranDate)"
+
+#Region "debug-point B:db-stats"
+                    Dim totalCount = Db.DbScalar(conn, "SELECT COUNT(*) FROM Transactions")
+                    Dim minDb = Db.DbScalar(conn, "SELECT MIN(TranDate) FROM Transactions")
+                    Dim maxDb = Db.DbScalar(conn, "SELECT MAX(TranDate) FROM Transactions")
+                    Dim minYearDb = Db.DbScalar(conn, "SELECT MIN(Year(TranDate)) FROM Transactions")
+                    Dim maxYearDb = Db.DbScalar(conn, "SELECT MAX(Year(TranDate)) FROM Transactions")
+                    Dim rawBetweenCount = Db.DbScalar(conn, "SELECT COUNT(*) FROM Transactions WHERE TranDate BETWEEN @d1 AND @d2",
+                                                     New Tuple(Of String, Object)("@d1", dtpFrom.Value.Date),
+                                                     New Tuple(Of String, Object)("@d2", dtpTo.Value.Date.AddDays(1).AddSeconds(-1)))
+                    Dim exprBetweenCount = Db.DbScalar(conn, "SELECT COUNT(*) FROM Transactions t WHERE " & tranDateExpr & " BETWEEN @d1 AND @d2",
+                                                      New Tuple(Of String, Object)("@d1", dtpFrom.Value.Date),
+                                                      New Tuple(Of String, Object)("@d2", dtpTo.Value.Date.AddDays(1).AddSeconds(-1)))
+                    DebugReport("B", "LoadData", "db-stats", New Dictionary(Of String, Object) From {
+                        {"totalCount", totalCount},
+                        {"minDb", If(minDb, "")},
+                        {"maxDb", If(maxDb, "")},
+                        {"minYearDb", If(minYearDb, "")},
+                        {"maxYearDb", If(maxYearDb, "")},
+                        {"rawBetweenCount", rawBetweenCount},
+                        {"exprBetweenCount", exprBetweenCount}
+                    })
+#End Region
+
                     Dim sql = "SELECT t.ID, t.TranDate, t.TranType, t.CategoryID, IIF(c.CategoryName IS NULL,'',c.CategoryName) AS CategoryName, " &
                               "t.FundID, IIF(f.FundName IS NULL,'',f.FundName) AS FundName, " &
                               "t.BankID, IIF(b.BankName IS NULL,'',b.BankName & IIF(b.AccountNo IS NULL,'',' ' & b.AccountNo)) AS BankName, " &
