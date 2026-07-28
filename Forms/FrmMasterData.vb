@@ -181,9 +181,9 @@ Namespace TempleAccounting
             ' txtCatName
             ' 
             txtCatName.Font = New Font("Tahoma", 10.5F)
-            txtCatName.Location = New Point(110, 10)
+            txtCatName.Location = New Point(134, 14)
             txtCatName.Name = "txtCatName"
-            txtCatName.Size = New Size(420, 33)
+            txtCatName.Size = New Size(385, 33)
             txtCatName.TabIndex = 1
             ' 
             ' lblCatType
@@ -200,7 +200,7 @@ Namespace TempleAccounting
             cboCatType.DropDownStyle = ComboBoxStyle.DropDownList
             cboCatType.Font = New Font("Tahoma", 10F)
             cboCatType.Items.AddRange(New Object() {"Income (รายรับ)", "Expense (รายจ่าย)"})
-            cboCatType.Location = New Point(592, 10)
+            cboCatType.Location = New Point(608, 11)
             cboCatType.Name = "cboCatType"
             cboCatType.Size = New Size(200, 32)
             cboCatType.TabIndex = 3
@@ -254,7 +254,7 @@ Namespace TempleAccounting
             tpFund.Controls.Add(pFundTop)
             tpFund.Location = New Point(4, 33)
             tpFund.Name = "tpFund"
-            tpFund.Size = New Size(1103, 426)
+            tpFund.Size = New Size(1170, 593)
             tpFund.TabIndex = 1
             tpFund.Text = "กองทุน (Funds)"
             ' 
@@ -275,7 +275,7 @@ Namespace TempleAccounting
             dgvFund.RowHeadersWidth = 62
             dgvFund.RowTemplate.Height = 32
             dgvFund.SelectionMode = DataGridViewSelectionMode.FullRowSelect
-            dgvFund.Size = New Size(1103, 348)
+            dgvFund.Size = New Size(1170, 515)
             dgvFund.TabIndex = 1
             ' 
             ' pFundTop
@@ -289,7 +289,7 @@ Namespace TempleAccounting
             pFundTop.Location = New Point(0, 0)
             pFundTop.Name = "pFundTop"
             pFundTop.Padding = New Padding(12, 10, 12, 10)
-            pFundTop.Size = New Size(1103, 78)
+            pFundTop.Size = New Size(1170, 78)
             pFundTop.TabIndex = 0
             ' 
             ' lblFundName
@@ -345,7 +345,7 @@ Namespace TempleAccounting
             tpBank.Controls.Add(pBankTop)
             tpBank.Location = New Point(4, 33)
             tpBank.Name = "tpBank"
-            tpBank.Size = New Size(1103, 426)
+            tpBank.Size = New Size(1170, 593)
             tpBank.TabIndex = 2
             tpBank.Text = "บัญชีธนาคาร (Bank Accounts)"
             ' 
@@ -366,7 +366,7 @@ Namespace TempleAccounting
             dgvBank.RowHeadersWidth = 62
             dgvBank.RowTemplate.Height = 32
             dgvBank.SelectionMode = DataGridViewSelectionMode.FullRowSelect
-            dgvBank.Size = New Size(1103, 312)
+            dgvBank.Size = New Size(1170, 479)
             dgvBank.TabIndex = 1
             ' 
             ' pBankTop
@@ -384,7 +384,7 @@ Namespace TempleAccounting
             pBankTop.Location = New Point(0, 0)
             pBankTop.Name = "pBankTop"
             pBankTop.Padding = New Padding(12, 10, 12, 10)
-            pBankTop.Size = New Size(1103, 114)
+            pBankTop.Size = New Size(1170, 114)
             pBankTop.TabIndex = 0
             ' 
             ' lblBankName
