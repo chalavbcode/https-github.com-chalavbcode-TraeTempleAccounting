@@ -23,7 +23,7 @@ Namespace TempleAccounting
 
 #Region "debug-point Z:debug-report"
         Private Const DebugSessionId As String = "transactions-grid-empty"
-        Private Const DebugRunId As String = "pre-fix"
+        Private Const DebugRunId As String = "post-fix"
 
         Private Shared Function FindUpwards(startDir As String, relativePath As String) As String
             Try
@@ -275,6 +275,10 @@ Namespace TempleAccounting
 
                 Using conn = Db.OpenConn()
                     Dim tranDateExpr = "IIF(Year(t.TranDate)>2400, DateAdd('yyyy',-543,t.TranDate), t.TranDate)"
+                    Dim d1 = dtpFrom.Value.Date
+                    Dim d2 = dtpTo.Value.Date.AddDays(1).AddSeconds(-1)
+                    Dim d1Literal = Db.AccessDateLiteral(d1)
+                    Dim d2Literal = Db.AccessDateLiteral(d2)
 
 #Region "debug-point B:db-stats"
                     Dim totalCount = Db.DbScalar(conn, "SELECT COUNT(*) FROM Transactions")
@@ -282,12 +286,8 @@ Namespace TempleAccounting
                     Dim maxDb = Db.DbScalar(conn, "SELECT MAX(TranDate) FROM Transactions")
                     Dim minYearDb = Db.DbScalar(conn, "SELECT MIN(Year(TranDate)) FROM Transactions")
                     Dim maxYearDb = Db.DbScalar(conn, "SELECT MAX(Year(TranDate)) FROM Transactions")
-                    Dim rawBetweenCount = Db.DbScalar(conn, "SELECT COUNT(*) FROM Transactions WHERE TranDate BETWEEN @d1 AND @d2",
-                                                     New Tuple(Of String, Object)("@d1", dtpFrom.Value.Date),
-                                                     New Tuple(Of String, Object)("@d2", dtpTo.Value.Date.AddDays(1).AddSeconds(-1)))
-                    Dim exprBetweenCount = Db.DbScalar(conn, "SELECT COUNT(*) FROM Transactions t WHERE " & tranDateExpr & " BETWEEN @d1 AND @d2",
-                                                      New Tuple(Of String, Object)("@d1", dtpFrom.Value.Date),
-                                                      New Tuple(Of String, Object)("@d2", dtpTo.Value.Date.AddDays(1).AddSeconds(-1)))
+                    Dim rawBetweenCount = Db.DbScalar(conn, "SELECT COUNT(*) FROM Transactions WHERE TranDate BETWEEN " & d1Literal & " AND " & d2Literal)
+                    Dim exprBetweenCount = Db.DbScalar(conn, "SELECT COUNT(*) FROM Transactions t WHERE " & tranDateExpr & " BETWEEN " & d1Literal & " AND " & d2Literal)
                     DebugReport("B", "LoadData", "db-stats", New Dictionary(Of String, Object) From {
                         {"totalCount", totalCount},
                         {"minDb", If(minDb, "")},
@@ -310,11 +310,9 @@ Namespace TempleAccounting
                               "LEFT JOIN BankAccounts b ON t.BankID=b.ID) " &
                               "LEFT JOIN Funds f2 ON t.ToFundID=f2.ID) " &
                               "LEFT JOIN BankAccounts b2 ON t.ToBankID=b2.ID " &
-                              "WHERE " & tranDateExpr & " BETWEEN @d1 AND @d2 "
+                              "WHERE " & tranDateExpr & " BETWEEN " & d1Literal & " AND " & d2Literal & " "
 
                     Dim ps As New List(Of Tuple(Of String, Object))
-                    ps.Add(New Tuple(Of String, Object)("@d1", dtpFrom.Value.Date))
-                    ps.Add(New Tuple(Of String, Object)("@d2", dtpTo.Value.Date.AddDays(1).AddSeconds(-1)))
 
                     If cboCategory.SelectedValue IsNot Nothing AndAlso CInt(cboCategory.SelectedValue) <> 0 Then
                         sql &= " AND t.CategoryID=@cat "
