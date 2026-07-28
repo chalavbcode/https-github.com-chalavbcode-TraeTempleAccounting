@@ -85,17 +85,18 @@ Namespace TempleAccounting
                 Dim dir = startDirectory
                 If String.IsNullOrWhiteSpace(dir) Then Return ""
 
-                Dim candidateDbDir As String = ""
-                For i As Integer = 0 To 10
-                    Dim dbDir = Path.Combine(dir, "Database")
-                    Dim dbFile = Path.Combine(dbDir, "TempleAccounting.accdb")
+                Dim projectRoot As String = ""
+                Dim lastDbFileFound As String = ""
 
-                    If File.Exists(dbFile) Then
-                        Return dbFile
+                For i As Integer = 0 To 12
+                    If File.Exists(Path.Combine(dir, "TempleAccounting.vbproj")) OrElse File.Exists(Path.Combine(dir, "TempleAccounting.slnx")) Then
+                        projectRoot = dir
+                        Exit For
                     End If
 
-                    If candidateDbDir = "" AndAlso Directory.Exists(dbDir) Then
-                        candidateDbDir = dbDir
+                    Dim dbFile = Path.Combine(dir, "Database", "TempleAccounting.accdb")
+                    If File.Exists(dbFile) Then
+                        lastDbFileFound = dbFile
                     End If
 
                     Dim parent = Directory.GetParent(dir)
@@ -103,9 +104,12 @@ Namespace TempleAccounting
                     dir = parent.FullName
                 Next
 
-                If candidateDbDir <> "" Then
-                    Return Path.Combine(candidateDbDir, "TempleAccounting.accdb")
+                If projectRoot <> "" Then
+                    Dim projectDb = Path.Combine(projectRoot, "Database", "TempleAccounting.accdb")
+                    If File.Exists(projectDb) Then Return projectDb
                 End If
+
+                If lastDbFileFound <> "" Then Return lastDbFileFound
 
                 Return ""
             Catch
