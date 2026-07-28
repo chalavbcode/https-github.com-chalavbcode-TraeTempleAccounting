@@ -143,6 +143,12 @@ Namespace TempleAccounting
 
         Private Sub SetOverviewCompactMode(isCompact As Boolean)
             _compactOverviewMode = isCompact
+            If pnlOverview IsNot Nothing Then
+                pnlOverview.Visible = Not isCompact
+                If isCompact Then
+                    pnlOverview.Height = 0
+                End If
+            End If
             RefreshOverviewLayout()
         End Sub
 
@@ -196,6 +202,11 @@ Namespace TempleAccounting
 
         Private Sub AdjustContentLayoutSpacing()
             If pnlOverview Is Nothing OrElse lblOverviewTitle Is Nothing OrElse pnlCards Is Nothing Then Return
+
+            If _compactOverviewMode Then
+                pnlOverview.Height = 0
+                Return
+            End If
 
             ' เผื่อช่องว่างใต้การ์ดสรุปให้ฟอร์มงานด้านล่างไม่ชนหรือถูกบังเมื่อใช้ฟอนต์/DPI ใหญ่ขึ้น
             Dim desiredHeight = lblOverviewTitle.Height + pnlCards.Height + If(_compactOverviewMode, 10, 28)
