@@ -183,6 +183,21 @@ Namespace TempleAccounting
             ReloadBank()
         End Sub
 
+        Private Function CategoryExists(conn As OleDbConnection, categoryName As String, tranType As String, Optional excludeId As Integer = -1) As Boolean
+            Dim sql = "SELECT COUNT(*) FROM Categories WHERE UCASE(TRIM(CategoryName))=UCASE(TRIM(@n)) AND TranType=@t"
+            Dim params As New List(Of Tuple(Of String, Object)) From {
+                New Tuple(Of String, Object)("@n", categoryName.Trim()),
+                New Tuple(Of String, Object)("@t", tranType)
+            }
+
+            If excludeId >= 0 Then
+                sql &= " AND ID<>@id"
+                params.Add(New Tuple(Of String, Object)("@id", excludeId))
+            End If
+
+            Return Db.ToIntOrZero(Db.DbScalar(conn, sql, params.ToArray())) > 0
+        End Function
+
         Private Sub ReloadCategory()
             Using conn = Db.OpenConn()
                 Dim dt = Db.GetTable(conn, "SELECT ID, CategoryName AS ชื่อประเภท, TranType AS ชนิด FROM Categories ORDER BY TranType, CategoryName")
@@ -231,6 +246,12 @@ Namespace TempleAccounting
             If String.IsNullOrWhiteSpace(txtCatName.Text) Then MessageBox.Show("กรุณาใส่ชื่อประเภท", "แจ้งเตือน") : Return
             Dim tt = If(cboCatType.SelectedIndex = 0, "Income", "Expense")
             Using conn = Db.OpenConn()
+                If CategoryExists(conn, txtCatName.Text, tt) Then
+                    MessageBox.Show("มีชื่อประเภทนี้อยู่แล้วในชนิดเดียวกัน ระบบจะไม่เพิ่มข้อมูลซ้ำ", "ข้อมูลซ้ำ", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                    txtCatName.Focus()
+                    txtCatName.SelectAll()
+                    Return
+                End If
                 Db.ExecuteNonQuery(conn, "INSERT INTO Categories (CategoryName, TranType) VALUES (@n,@t)",
                                    New Tuple(Of String, Object)("@n", txtCatName.Text.Trim()),
                                    New Tuple(Of String, Object)("@t", tt))
@@ -244,6 +265,12 @@ Namespace TempleAccounting
             If String.IsNullOrWhiteSpace(txtCatName.Text) Then MessageBox.Show("กรุณาใส่ชื่อประเภท", "แจ้งเตือน") : Return
             Dim tt = If(cboCatType.SelectedIndex = 0, "Income", "Expense")
             Using conn = Db.OpenConn()
+                If CategoryExists(conn, txtCatName.Text, tt, selCatId) Then
+                    MessageBox.Show("มีชื่อประเภทนี้อยู่แล้วในชนิดเดียวกัน ระบบจะไม่บันทึกข้อมูลซ้ำ", "ข้อมูลซ้ำ", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                    txtCatName.Focus()
+                    txtCatName.SelectAll()
+                    Return
+                End If
                 Db.ExecuteNonQuery(conn, "UPDATE Categories SET CategoryName=@n, TranType=@t WHERE ID=@id",
                                    New Tuple(Of String, Object)("@n", txtCatName.Text.Trim()),
                                    New Tuple(Of String, Object)("@t", tt),
