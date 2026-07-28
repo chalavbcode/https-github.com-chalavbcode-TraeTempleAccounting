@@ -42,7 +42,7 @@ Namespace TempleAccounting
 
         <DebuggerStepThrough()>
         Private Sub InitializeComponent()
-            Dim DataGridViewCellStyle2 As DataGridViewCellStyle = New DataGridViewCellStyle()
+            Dim DataGridViewCellStyle1 As DataGridViewCellStyle = New DataGridViewCellStyle()
             lblHeader = New Label()
             pFilter = New Panel()
             lblCategory = New Label()
@@ -120,7 +120,7 @@ Namespace TempleAccounting
             ' 
             ' lblType
             ' 
-            lblType.Location = New Point(275, 6)
+            lblType.Location = New Point(216, 13)
             lblType.Name = "lblType"
             lblType.Size = New Size(100, 23)
             lblType.TabIndex = 2
@@ -128,7 +128,7 @@ Namespace TempleAccounting
             ' cboType
             ' 
             cboType.Items.AddRange(New Object() {"ทั้งหมด", "Income รายรับ", "Expense รายจ่าย", "Transfer โอนภายใน"})
-            cboType.Location = New Point(314, 3)
+            cboType.Location = New Point(379, 10)
             cboType.Name = "cboType"
             cboType.Size = New Size(121, 33)
             cboType.TabIndex = 3
@@ -163,7 +163,7 @@ Namespace TempleAccounting
             ' 
             ' txtSearch
             ' 
-            txtSearch.Location = New Point(245, 61)
+            txtSearch.Location = New Point(92, 10)
             txtSearch.Name = "txtSearch"
             txtSearch.Size = New Size(100, 33)
             txtSearch.TabIndex = 8
@@ -199,8 +199,8 @@ Namespace TempleAccounting
             ' 
             dgvTransactions.AllowUserToAddRows = False
             dgvTransactions.AllowUserToDeleteRows = False
-            DataGridViewCellStyle2.BackColor = Color.FromArgb(CByte(255), CByte(251), CByte(235))
-            dgvTransactions.AlternatingRowsDefaultCellStyle = DataGridViewCellStyle2
+            DataGridViewCellStyle1.BackColor = Color.FromArgb(CByte(255), CByte(251), CByte(235))
+            dgvTransactions.AlternatingRowsDefaultCellStyle = DataGridViewCellStyle1
             dgvTransactions.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
             dgvTransactions.BackgroundColor = Color.White
             dgvTransactions.BorderStyle = BorderStyle.None
