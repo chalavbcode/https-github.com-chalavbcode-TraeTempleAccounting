@@ -114,6 +114,58 @@ Namespace TempleAccounting
 
         Private Sub SetupRuntimeLayout()
             Try
+                AutoScroll = False
+
+                lblHeader.Text = "📋 รายการรับ-จ่ายทั้งหมด"
+                lblHeader.Height = 42
+                lblHeader.Font = New Font("Tahoma", 12.5!, FontStyle.Bold)
+
+                pFilter.Dock = DockStyle.Top
+                pFilter.Height = 72
+                pFilter.Padding = New Padding(12, 10, 12, 10)
+                pFilter.BackColor = Color.White
+
+                lblCategory.Text = "ประเภท:"
+                lblType.Text = "ชนิด:"
+                lblDate.Text = "วันที่:"
+                lblSearch.Text = "ค้นหา:"
+
+                For Each lbl In New Label() {lblCategory, lblType, lblDate, lblSearch}
+                    lbl.AutoSize = False
+                    lbl.TextAlign = ContentAlignment.MiddleLeft
+                    lbl.Font = New Font("Tahoma", 9.5!, FontStyle.Bold)
+                    lbl.ForeColor = Color.FromArgb(120, 53, 15)
+                    lbl.Height = 28
+                Next
+
+                For Each ctrl As Control In New Control() {cboCategory, cboType, dtpFrom, dtpTo, txtSearch}
+                    ctrl.Font = New Font("Tahoma", 9.5!, FontStyle.Regular)
+                    ctrl.Height = 30
+                Next
+
+                btnSearch.Text = "🔎 ค้นหา"
+                btnSearch.BackColor = Color.FromArgb(37, 99, 235)
+                btnSearch.ForeColor = Color.White
+                btnSearch.FlatStyle = FlatStyle.Flat
+                btnSearch.Font = New Font("Tahoma", 9.5!, FontStyle.Bold)
+                btnSearch.Cursor = Cursors.Hand
+                btnSearch.Size = New Size(98, 34)
+
+                btnRefresh.Text = "🔄 รีเฟรช"
+                btnRefresh.BackColor = Color.FromArgb(5, 150, 105)
+                btnRefresh.ForeColor = Color.White
+                btnRefresh.FlatStyle = FlatStyle.Flat
+                btnRefresh.Font = New Font("Tahoma", 9.5!, FontStyle.Bold)
+                btnRefresh.Cursor = Cursors.Hand
+                btnRefresh.Size = New Size(104, 34)
+
+                lblSummary.Height = 36
+                lblSummary.Font = New Font("Tahoma", 10.0!, FontStyle.Bold)
+
+                dgvTransactions.Font = New Font("Tahoma", 9.25!)
+                dgvTransactions.ColumnHeadersHeight = 30
+                dgvTransactions.RowTemplate.Height = 30
+
                 ' Setup panels and forms layout
                 pActions.Dock = DockStyle.Bottom
                 pActions.Height = 80
@@ -184,11 +236,58 @@ Namespace TempleAccounting
                 pActions.Controls.Add(btnDelete)
                 pActions.Controls.Add(btnClose)
 
+                LayoutFilterControls()
+                AddHandler pFilter.Resize, AddressOf FilterPanel_Resize
+
                 ' Ensure DataGridView (DockStyle.Fill) fills the REMAINING space and does not hide behind docked panels
                 dgvTransactions.BringToFront()
             Catch ex As Exception
                 AppPaths.LogCrash(ex, "FrmTransactions.SetupRuntimeLayout")
             End Try
+        End Sub
+
+        Private Sub FilterPanel_Resize(sender As Object, e As EventArgs)
+            LayoutFilterControls()
+        End Sub
+
+        Private Sub LayoutFilterControls()
+            If pFilter Is Nothing Then Return
+
+            Dim y As Integer = 18
+            Dim x As Integer = 12
+            Dim gap As Integer = 8
+            Dim labelW As Integer = 52
+            Dim controlH As Integer = 30
+            Dim buttonTop As Integer = 14
+
+            lblCategory.SetBounds(x, y + 2, labelW, 28)
+            x += labelW
+            cboCategory.SetBounds(x, y, 165, controlH)
+            x += cboCategory.Width + 14
+
+            lblType.SetBounds(x, y + 2, 36, 28)
+            x += 36
+            cboType.SetBounds(x, y, 150, controlH)
+            x += cboType.Width + 14
+
+            lblDate.SetBounds(x, y + 2, 44, 28)
+            x += 44
+            dtpFrom.SetBounds(x, y, 150, controlH)
+            x += dtpFrom.Width + gap
+            dtpTo.SetBounds(x, y, 150, controlH)
+            x += dtpTo.Width + 14
+
+            lblSearch.SetBounds(x, y + 2, 44, 28)
+            x += 44
+
+            Dim buttonsWidth = btnSearch.Width + gap + btnRefresh.Width
+            Dim searchWidth = Math.Max(220, pFilter.ClientSize.Width - x - buttonsWidth - 24)
+            txtSearch.SetBounds(x, y, searchWidth, controlH)
+            x += txtSearch.Width + gap
+
+            btnSearch.SetBounds(x, buttonTop, btnSearch.Width, btnSearch.Height)
+            x += btnSearch.Width + gap
+            btnRefresh.SetBounds(x, buttonTop, btnRefresh.Width, btnRefresh.Height)
         End Sub
 
         Private Sub SetupSearchEnterNavigation()
