@@ -23,6 +23,7 @@ Namespace TempleAccounting
         Private Sub FrmExpense_Load(sender As Object, e As EventArgs) Handles MyBase.Load
             Db.EnsureSchema()
             LoadMasters()
+            SelectCashFundDefault()
             SetupEnterNavigation()
             ResetEntry(True)
             FocusStartField()
@@ -48,16 +49,16 @@ Namespace TempleAccounting
                 cboBank.DisplayMember = "Disp"
                 cboBank.ValueMember = "ID"
                 cboBank.DataSource = banks
-
-                ' เลือกกองทุนเงินสดเป็นค่าเริ่มต้น
-                SelectCashFundDefault()
             End Using
         End Sub
 
         Private Sub SelectCashFundDefault()
-            For i As Integer = 0 To cboFund.Items.Count - 1
-                Dim row = DirectCast(cboFund.Items(i), DataRowView)
-                If row("FundName").ToString().Contains("เงินสด") Then
+            If cboFund.DataSource Is Nothing Then Return
+            Dim dt = TryCast(cboFund.DataSource, DataTable)
+            If dt Is Nothing Then Return
+
+            For i As Integer = 0 To dt.Rows.Count - 1
+                If dt.Rows(i)("FundName").ToString().Contains("เงินสด") Then
                     cboFund.SelectedIndex = i
                     Exit For
                 End If
