@@ -29,7 +29,7 @@ Namespace TempleAccounting
         Private Sub FrmTransfer_Load(sender As Object, e As EventArgs) Handles MyBase.Load
             Db.EnsureSchema()
             Using conn = Db.OpenConn()
-                Dim funds = Db.GetTable(conn, "SELECT ID, FundName FROM Funds ORDER BY IIF(FundName LIKE '%เงินสด%', 0, 1), FundName")
+                Dim funds = Db.GetTable(conn, "SELECT ID, FundName FROM Funds ORDER BY FundName")
                 AddBlankOption(funds, "FundName")
                 cboFromFund.DisplayMember = "FundName" : cboFromFund.ValueMember = "ID" : cboFromFund.DataSource = funds.Copy()
                 cboToFund.DisplayMember = "FundName" : cboToFund.ValueMember = "ID" : cboToFund.DataSource = funds
