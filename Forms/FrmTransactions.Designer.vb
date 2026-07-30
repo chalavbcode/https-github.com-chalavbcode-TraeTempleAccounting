@@ -106,80 +106,80 @@ Namespace TempleAccounting
             ' 
             ' lblCategory
             ' 
-            lblCategory.Location = New Point(233, -1)
+            lblCategory.Location = New Point(0, 0)
             lblCategory.Name = "lblCategory"
-            lblCategory.Size = New Size(100, 36)
+            lblCategory.Size = New Size(100, 23)
             lblCategory.TabIndex = 0
             ' 
             ' cboCategory
             ' 
-            cboCategory.Location = New Point(349, 3)
+            cboCategory.Location = New Point(0, 0)
             cboCategory.Name = "cboCategory"
             cboCategory.Size = New Size(121, 33)
             cboCategory.TabIndex = 1
             ' 
             ' lblType
             ' 
-            lblType.Location = New Point(0, 5)
+            lblType.Location = New Point(0, 0)
             lblType.Name = "lblType"
-            lblType.Size = New Size(100, 31)
+            lblType.Size = New Size(100, 23)
             lblType.TabIndex = 2
             ' 
             ' cboType
             ' 
             cboType.Items.AddRange(New Object() {"ทั้งหมด", "Income รายรับ", "Expense รายจ่าย", "Transfer โอนภายใน"})
-            cboType.Location = New Point(106, 2)
+            cboType.Location = New Point(0, 0)
             cboType.Name = "cboType"
             cboType.Size = New Size(121, 33)
             cboType.TabIndex = 3
             ' 
             ' lblDate
             ' 
-            lblDate.Location = New Point(730, 5)
+            lblDate.Location = New Point(0, 0)
             lblDate.Name = "lblDate"
-            lblDate.Size = New Size(100, 31)
+            lblDate.Size = New Size(100, 23)
             lblDate.TabIndex = 4
             ' 
             ' dtpFrom
             ' 
-            dtpFrom.Location = New Point(858, 0)
+            dtpFrom.Location = New Point(0, 0)
             dtpFrom.Name = "dtpFrom"
             dtpFrom.Size = New Size(200, 33)
             dtpFrom.TabIndex = 5
             ' 
             ' dtpTo
             ' 
-            dtpTo.Location = New Point(1064, 0)
+            dtpTo.Location = New Point(0, 0)
             dtpTo.Name = "dtpTo"
             dtpTo.Size = New Size(200, 33)
             dtpTo.TabIndex = 6
             ' 
             ' lblSearch
             ' 
-            lblSearch.Location = New Point(1139, 3)
+            lblSearch.Location = New Point(0, 0)
             lblSearch.Name = "lblSearch"
-            lblSearch.Size = New Size(196, 30)
+            lblSearch.Size = New Size(100, 23)
             lblSearch.TabIndex = 7
             ' 
             ' txtSearch
             ' 
-            txtSearch.Location = New Point(476, 3)
+            txtSearch.Location = New Point(0, 0)
             txtSearch.Name = "txtSearch"
-            txtSearch.Size = New Size(248, 33)
+            txtSearch.Size = New Size(100, 33)
             txtSearch.TabIndex = 8
             ' 
             ' btnSearch
             ' 
-            btnSearch.Location = New Point(1357, 5)
+            btnSearch.Location = New Point(0, 0)
             btnSearch.Name = "btnSearch"
-            btnSearch.Size = New Size(109, 38)
+            btnSearch.Size = New Size(75, 23)
             btnSearch.TabIndex = 9
             ' 
             ' btnRefresh
             ' 
-            btnRefresh.Location = New Point(1491, 6)
+            btnRefresh.Location = New Point(0, 0)
             btnRefresh.Name = "btnRefresh"
-            btnRefresh.Size = New Size(109, 37)
+            btnRefresh.Size = New Size(75, 23)
             btnRefresh.TabIndex = 10
             ' 
             ' lblSummary
@@ -235,44 +235,44 @@ Namespace TempleAccounting
             ' 
             ' btnClose
             ' 
-            btnClose.Location = New Point(999, 6)
+            btnClose.Location = New Point(0, 0)
             btnClose.Name = "btnClose"
-            btnClose.Size = New Size(121, 36)
+            btnClose.Size = New Size(75, 23)
             btnClose.TabIndex = 0
             ' 
             ' btnDelete
             ' 
-            btnDelete.Location = New Point(587, 0)
+            btnDelete.Location = New Point(0, 0)
             btnDelete.Name = "btnDelete"
-            btnDelete.Size = New Size(121, 36)
+            btnDelete.Size = New Size(75, 23)
             btnDelete.TabIndex = 1
             ' 
             ' btnEdit
             ' 
-            btnEdit.Location = New Point(447, 0)
+            btnEdit.Location = New Point(0, 0)
             btnEdit.Name = "btnEdit"
-            btnEdit.Size = New Size(121, 36)
+            btnEdit.Size = New Size(75, 23)
             btnEdit.TabIndex = 2
             ' 
             ' btnAddTrans
             ' 
-            btnAddTrans.Location = New Point(166, 0)
+            btnAddTrans.Location = New Point(0, 0)
             btnAddTrans.Name = "btnAddTrans"
-            btnAddTrans.Size = New Size(121, 36)
+            btnAddTrans.Size = New Size(75, 23)
             btnAddTrans.TabIndex = 3
             ' 
             ' btnAddExp
             ' 
-            btnAddExp.Location = New Point(311, 0)
+            btnAddExp.Location = New Point(0, 0)
             btnAddExp.Name = "btnAddExp"
-            btnAddExp.Size = New Size(121, 36)
+            btnAddExp.Size = New Size(75, 23)
             btnAddExp.TabIndex = 4
             ' 
             ' btnAddInc
             ' 
-            btnAddInc.Location = New Point(17, 0)
+            btnAddInc.Location = New Point(0, 0)
             btnAddInc.Name = "btnAddInc"
-            btnAddInc.Size = New Size(121, 36)
+            btnAddInc.Size = New Size(75, 23)
             btnAddInc.TabIndex = 5
             ' 
             ' FrmTransactions
@@ -286,6 +286,7 @@ Namespace TempleAccounting
             Controls.Add(pFilter)
             Controls.Add(lblHeader)
             Font = New Font("Tahoma", 10.5F)
+            FormBorderStyle = FormBorderStyle.Sizable
             MinimumSize = New Size(1180, 760)
             Name = "FrmTransactions"
             StartPosition = FormStartPosition.CenterScreen
