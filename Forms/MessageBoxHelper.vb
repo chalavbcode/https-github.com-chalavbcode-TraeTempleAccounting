@@ -24,8 +24,21 @@ Public Module MessageBoxHelper
         Return FrmMessageBox.ShowMessage(text, caption, buttons, icon, Nothing)
     End Function
 
+    ' Overloads that include default button and options
+    Public Function Show(text As String, caption As String, buttons As MessageBoxButtons, icon As MessageBoxIcon, defaultButton As MessageBoxDefaultButton) As DialogResult
+        Return Show(text, caption, buttons, icon, defaultButton, MessageBoxOptions.None)
+    End Function
+
+    Public Function Show(text As String, caption As String, buttons As MessageBoxButtons, icon As MessageBoxIcon, defaultButton As MessageBoxDefaultButton, options As MessageBoxOptions) As DialogResult
+        Return FrmMessageBox.ShowMessageWithDefault(text, caption, buttons, icon, defaultButton, Nothing)
+    End Function
+
     Public Function Show(owner As IWin32Window, text As String, caption As String, buttons As MessageBoxButtons, icon As MessageBoxIcon) As DialogResult
         Return FrmMessageBox.ShowMessage(text, caption, buttons, icon, owner)
+    End Function
+
+    Public Function Show(owner As IWin32Window, text As String, caption As String, buttons As MessageBoxButtons, icon As MessageBoxIcon, defaultButton As MessageBoxDefaultButton, options As MessageBoxOptions) As DialogResult
+        Return FrmMessageBox.ShowMessageWithDefault(text, caption, buttons, icon, defaultButton, owner)
     End Function
 
     ' Optional convenience wrappers matching common patterns
