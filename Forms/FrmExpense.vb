@@ -6,7 +6,6 @@ Imports System.Collections.Generic
 Imports System.ComponentModel
 Imports System.Drawing
 Imports System.Windows.Forms
-Imports System.Data
 Imports System.Data.OleDb
 
 Namespace TempleAccounting
@@ -35,7 +34,7 @@ Namespace TempleAccounting
                 cboCategory.ValueMember = "ID"
                 cboCategory.DataSource = cats
 
-                Dim funds = Db.GetTable(conn, "SELECT ID, FundName FROM Funds ORDER BY IIF(FundName LIKE '%เงินสด%', 0, 1), FundName")
+                Dim funds = Db.GetTable(conn, "SELECT ID, FundName FROM Funds ORDER BY FundName")
                 cboFund.DisplayMember = "FundName"
                 cboFund.ValueMember = "ID"
                 cboFund.DataSource = funds

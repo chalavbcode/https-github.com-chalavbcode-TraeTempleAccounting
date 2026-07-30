@@ -68,14 +68,11 @@ Namespace TempleAccounting
             Public IsCategorySummary As Boolean
         End Structure
 
-        Public Sub New(fromDate As Date, toDate As Date, Optional mode As ReportModes = ReportModes.Detailed, Optional openingBalance As Decimal = -1)
+        Public Sub New(fromDate As Date, toDate As Date, Optional mode As ReportModes = ReportModes.Detailed)
             MyBase.New()
             _fromDate = Db.NormalizeGregorianDate(fromDate)
             _toDate = Db.NormalizeGregorianDate(toDate)
             _mode = mode
-            If openingBalance >= 0 Then
-                _openingBalance = openingBalance
-            End If
             Me.DocumentName = If(_mode = ReportModes.Summary, "สรุปบัญชีรายรับ-รายจ่าย (ย่อ)", "สรุปบัญชีรายรับ-รายจ่าย (ละเอียด)")
             ConfigurePageSettings()
             LoadData()
@@ -127,9 +124,7 @@ Namespace TempleAccounting
                     _expenseRows.Clear()
                     _totalIncome = 0
                     _totalExpense = 0
-                    If _openingBalance < 0 Then
-                        _openingBalance = GetBalanceBeforeDate(conn, _fromDate)
-                    End If
+                    _openingBalance = GetBalanceBeforeDate(conn, _fromDate)
 
                     LoadRowsByMode(conn, "Income", _incomeRows, _totalIncome)
                     LoadRowsByMode(conn, "Expense", _expenseRows, _totalExpense)
@@ -687,9 +682,9 @@ Namespace TempleAccounting
             _pageY = y
         End Sub
 
-        Public Shared Sub ShowPreview(fromDate As Date, toDate As Date, Optional owner As IWin32Window = Nothing, Optional mode As ReportModes = ReportModes.Detailed, Optional openingBalance As Decimal = -1)
+        Public Shared Sub ShowPreview(fromDate As Date, toDate As Date, Optional owner As IWin32Window = Nothing, Optional mode As ReportModes = ReportModes.Detailed)
             Try
-                Dim doc As New IncomeExpenseReport(fromDate, toDate, mode, openingBalance)
+                Dim doc As New IncomeExpenseReport(fromDate, toDate, mode)
                 Using ppd As New PrintPreviewDialog()
                     ppd.Document = doc
                     ppd.WindowState = FormWindowState.Maximized
