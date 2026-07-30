@@ -35,15 +35,45 @@ Namespace TempleAccounting
                     cboBank.DisplayMember = "Disp" : cboBank.ValueMember = "ID" : cboBank.DataSource = bt
                 End Using
                 SetupFilterEnterNavigation()
+                txtBalance.Text = "0.00"
+                AddHandler txtBalance.KeyPress, AddressOf txtBalance_KeyPress
                 btnLedger_Click(Nothing, EventArgs.Empty)
             Catch ex As Exception
                 Throw
             End Try
         End Sub
 
+        Private Sub txtBalance_KeyPress(sender As Object, e As KeyPressEventArgs)
+            ' อนุญาตให้กรอกเฉพาะตัวเลข, จุดทศนิยม, และปุ่มควบคุม
+            If Not Char.IsDigit(e.KeyChar) AndAlso e.KeyChar <> "." AndAlso e.KeyChar <> ControlChars.Back AndAlso e.KeyChar <> "-" Then
+                e.Handled = True
+            End If
+        End Sub
+
+        Private Sub btnCalcBalance_Click(sender As Object, e As EventArgs) Handles btnCalcBalance.Click
+            Try
+                Dim fromDate = Db.NormalizeGregorianDate(dtpFrom.Value.Date)
+                Using conn = Db.OpenConn()
+                    Dim sql = "SELECT SUM(IIF(t.TranType='Income', t.Amount, -t.Amount)) " &
+                              "FROM Transactions t " &
+                              "WHERE DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate), Day(t.TranDate)) < " &
+                              Db.AccessDateLiteral(fromDate)
+                    Dim result = Db.DbScalar(conn, sql)
+                    Dim balance As Decimal = 0
+                    If result IsNot Nothing AndAlso Not IsDBNull(result) Then
+                        balance = Convert.ToDecimal(result)
+                    End If
+                    txtBalance.Text = balance.ToString("N2")
+                    MessageBox.Show("คำนวณยอดยกมาเรียบร้อย: " & balance.ToString("N2") & " บาท", "สำเร็จ", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                End Using
+            Catch ex As Exception
+                MessageBox.Show("คำนวณยอดยกมาไม่ได้: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            End Try
+        End Sub
+
         Private Sub SetupFilterEnterNavigation()
             If _filterFlow.Count > 0 Then Return
-            _filterFlow.AddRange({dtpFrom, dtpTo, cboType, cboFund, cboBank, btnRefresh})
+            _filterFlow.AddRange({dtpFrom, dtpTo, cboType, cboFund, cboBank, txtBalance, btnRefresh})
             For Each ctrl In _filterFlow
                 AddHandler ctrl.KeyDown, AddressOf HandleFilterEnterAdvance
             Next
@@ -181,7 +211,12 @@ Namespace TempleAccounting
 
         Private Sub btnPrintDetail_Click(sender As Object, e As EventArgs) Handles btnPrintDetail.Click
             Try
-                IncomeExpenseReport.ShowPreview(Db.NormalizeGregorianDate(dtpFrom.Value.Date), Db.NormalizeGregorianDate(dtpTo.Value.Date), Me, IncomeExpenseReport.ReportModes.Detailed)
+                Dim openingBalance As Decimal = 0
+                If Decimal.TryParse(txtBalance.Text, openingBalance) Then
+                    IncomeExpenseReport.ShowPreview(Db.NormalizeGregorianDate(dtpFrom.Value.Date), Db.NormalizeGregorianDate(dtpTo.Value.Date), Me, IncomeExpenseReport.ReportModes.Detailed, openingBalance)
+                Else
+                    MessageBox.Show("กรุณากรอกยอดยกมาเป็นตัวเลขที่ถูกต้อง", "แจ้งเตือน", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                End If
             Catch ex As Exception
                 MessageBox.Show("เกิดข้อผิดพลาด: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
             End Try
@@ -189,7 +224,12 @@ Namespace TempleAccounting
 
         Private Sub btnPrintSummary_Click(sender As Object, e As EventArgs) Handles btnPrintSummary.Click
             Try
-                IncomeExpenseReport.ShowPreview(Db.NormalizeGregorianDate(dtpFrom.Value.Date), Db.NormalizeGregorianDate(dtpTo.Value.Date), Me, IncomeExpenseReport.ReportModes.Summary)
+                Dim openingBalance As Decimal = 0
+                If Decimal.TryParse(txtBalance.Text, openingBalance) Then
+                    IncomeExpenseReport.ShowPreview(Db.NormalizeGregorianDate(dtpFrom.Value.Date), Db.NormalizeGregorianDate(dtpTo.Value.Date), Me, IncomeExpenseReport.ReportModes.Summary, openingBalance)
+                Else
+                    MessageBox.Show("กรุณากรอกยอดยกมาเป็นตัวเลขที่ถูกต้อง", "แจ้งเตือน", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                End If
             Catch ex As Exception
                 MessageBox.Show("เกิดข้อผิดพลาด: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
             End Try
