@@ -38,19 +38,20 @@ Namespace TempleAccounting
                 AddBlankOption(banks, "Disp")
                 cboFromBank.DisplayMember = "Disp" : cboFromBank.ValueMember = "ID" : cboFromBank.DataSource = banks.Copy()
                 cboToBank.DisplayMember = "Disp" : cboToBank.ValueMember = "ID" : cboToBank.DataSource = banks
-
-                ' เลือกกองทุนเงินสดเป็นค่าเริ่มต้น
-                SelectCashFundDefault()
             End Using
+            SelectCashFundDefault()
             SetupEnterNavigation()
             ResetEntry(True)
             FocusStartField()
         End Sub
 
         Private Sub SelectCashFundDefault()
-            For i As Integer = 0 To cboFromFund.Items.Count - 1
-                Dim row = DirectCast(cboFromFund.Items(i), DataRowView)
-                If row("FundName").ToString().Contains("เงินสด") Then
+            If cboFromFund.DataSource Is Nothing Then Return
+            Dim dt = TryCast(cboFromFund.DataSource, DataTable)
+            If dt Is Nothing Then Return
+
+            For i As Integer = 0 To dt.Rows.Count - 1
+                If dt.Rows(i)("FundName").ToString().Contains("เงินสด") Then
                     cboFromFund.SelectedIndex = i
                     Exit For
                 End If
