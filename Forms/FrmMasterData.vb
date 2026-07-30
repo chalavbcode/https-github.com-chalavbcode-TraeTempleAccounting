@@ -592,6 +592,18 @@ Namespace TempleAccounting
             Return Db.ToIntOrZero(Db.DbScalar(conn, sql, params.ToArray())) > 0
         End Function
 
+        Private Function CategoryInUse(conn As OleDbConnection, categoryId As Integer) As Boolean
+            Dim sql = "SELECT COUNT(*) FROM Transactions WHERE CategoryID=@id"
+            Dim result = Db.DbScalar(conn, sql, New Tuple(Of String, Object)("@id", categoryId))
+            Return Db.ToIntOrZero(result) > 0
+        End Function
+
+        Private Function FundInUse(conn As OleDbConnection, fundId As Integer) As Boolean
+            Dim sql = "SELECT COUNT(*) FROM Transactions WHERE FundID=@id OR ToFundID=@id"
+            Dim result = Db.DbScalar(conn, sql, New Tuple(Of String, Object)("@id", fundId))
+            Return Db.ToIntOrZero(result) > 0
+        End Function
+
         Private Sub ReloadCategory()
             Using conn = Db.OpenConn()
                 Dim dt = Db.GetTable(conn, "SELECT ID, CategoryName AS ชื่อประเภท, TranType AS ชนิด FROM Categories ORDER BY TranType, CategoryName")
@@ -641,7 +653,7 @@ Namespace TempleAccounting
             Dim tt = If(cboCatType.SelectedIndex = 0, "Income", "Expense")
             Using conn = Db.OpenConn()
                 If CategoryExists(conn, txtCatName.Text, tt) Then
-                    MessageBox.Show("มีชื่อประเภทนี้อยู่แล้วในชนิดเดียวกัน ระบบจะไม่เพิ่มข้อมูลซ้ำ", "ข้อมูลซ้ำ", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                    MessageBoxHelper.ShowLargeMessageBox("มีชื่อประเภทนี้อยู่แล้วในชนิดเดียวกัน ระบบจะไม่เพิ่มข้อมูลซ้ำ", "ข้อมูลซ้ำ", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                     txtCatName.Focus()
                     txtCatName.SelectAll()
                     Return
@@ -660,7 +672,7 @@ Namespace TempleAccounting
             Dim tt = If(cboCatType.SelectedIndex = 0, "Income", "Expense")
             Using conn = Db.OpenConn()
                 If CategoryExists(conn, txtCatName.Text, tt, selCatId) Then
-                    MessageBox.Show("มีชื่อประเภทนี้อยู่แล้วในชนิดเดียวกัน ระบบจะไม่บันทึกข้อมูลซ้ำ", "ข้อมูลซ้ำ", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                    MessageBoxHelper.ShowLargeMessageBox("มีชื่อประเภทนี้อยู่แล้วในชนิดเดียวกัน ระบบจะไม่บันทึกข้อมูลซ้ำ", "ข้อมูลซ้ำ", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                     txtCatName.Focus()
                     txtCatName.SelectAll()
                     Return
@@ -675,6 +687,12 @@ Namespace TempleAccounting
         End Sub
         Private Sub btnCatDel_Click(sender As Object, e As EventArgs) Handles btnCatDel.Click
             If selCatId < 0 Then MessageBox.Show("เลือกรายการก่อน", "แจ้งเตือน") : Return
+            Using conn = Db.OpenConn()
+                If CategoryInUse(conn, selCatId) Then
+                    MessageBoxHelper.ShowLargeMessageBox("ไม่สามารถลบประเภทรายการนี้ได้ เนื่องจากมีการใช้งานในรายการรับ-จ่าย กรุณาลบรายการรับ-จ่ายที่ใช้ประเภทนี้ก่อน", "ห้ามลบ", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                    Return
+                End If
+            End Using
             If MessageBox.Show("ลบรายการนี้ใช่หรือไม่?", "ยืนยัน", MessageBoxButtons.YesNo) <> DialogResult.Yes Then Return
             Using conn = Db.OpenConn()
                 Db.ExecuteNonQuery(conn, "DELETE FROM Categories WHERE ID=@id", New Tuple(Of String, Object)("@id", selCatId))
@@ -689,7 +707,7 @@ Namespace TempleAccounting
                 If selFundId >= 0 Then
                     ' แก้ไขข้อมูลที่มีอยู่แล้ว
                     If FundExists(conn, txtFundName.Text, selFundId) Then
-                        MessageBox.Show("มีชื่อกองทุนนี้อยู่แล้ว ระบบจะไม่บันทึกข้อมูลซ้ำ", "ข้อมูลซ้ำ", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                        MessageBoxHelper.ShowLargeMessageBox("มีชื่อกองทุนนี้อยู่แล้ว ระบบจะไม่บันทึกข้อมูลซ้ำ", "ข้อมูลซ้ำ", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                         txtFundName.Focus()
                         txtFundName.SelectAll()
                         Return
@@ -700,7 +718,7 @@ Namespace TempleAccounting
                 Else
                     ' เพิ่มข้อมูลใหม่
                     If FundExists(conn, txtFundName.Text) Then
-                        MessageBox.Show("มีชื่อกองทุนนี้อยู่แล้ว ระบบจะไม่เพิ่มข้อมูลซ้ำ", "ข้อมูลซ้ำ", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                        MessageBoxHelper.ShowLargeMessageBox("มีชื่อกองทุนนี้อยู่แล้ว ระบบจะไม่เพิ่มข้อมูลซ้ำ", "ข้อมูลซ้ำ", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                         txtFundName.Focus()
                         txtFundName.SelectAll()
                         Return
@@ -714,6 +732,12 @@ Namespace TempleAccounting
         End Sub
         Private Sub btnFundDel_Click(sender As Object, e As EventArgs) Handles btnFundDel.Click
             If selFundId < 0 Then MessageBox.Show("เลือกก่อน", "แจ้งเตือน") : Return
+            Using conn = Db.OpenConn()
+                If FundInUse(conn, selFundId) Then
+                    MessageBoxHelper.ShowLargeMessageBox("ไม่สามารถลบกองทุนนี้ได้ เนื่องจากมีการใช้งานในรายการรับ-จ่าย กรุณาลบรายการรับ-จ่ายที่ใช้กองทุนนี้ก่อน", "ห้ามลบ", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                    Return
+                End If
+            End Using
             If MessageBox.Show("ลบกองทุนนี้ใช่หรือไม่?", "ยืนยัน", MessageBoxButtons.YesNo) <> DialogResult.Yes Then Return
             Using conn = Db.OpenConn()
                 Db.ExecuteNonQuery(conn, "DELETE FROM Funds WHERE ID=@id", New Tuple(Of String, Object)("@id", selFundId))
