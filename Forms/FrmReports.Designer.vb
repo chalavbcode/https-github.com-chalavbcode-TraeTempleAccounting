@@ -85,7 +85,7 @@ Namespace TempleAccounting
             cboBank = New ComboBox With {.Location = New Point(510, 54), .Size = New Size(260, 40), .DropDownStyle = ComboBoxStyle.DropDownList, .Font = New Font("Tahoma", 10.0!)}
             lblBalance = MakeLbl("ยอดยกมา:", New Point(790, 58))
             txtBalance = New TextBox With {.Location = New Point(890, 54), .Size = New Size(100, 40), .Font = New Font("Tahoma", 10.0!), .Text = "0.00", .TextAlign = HorizontalAlignment.Right}
-            btnCalcBalance = New Button With {.Text = "🧮", .Location = New Point(995, 54), .Size = New Size(40, 40), .BackColor = Color.FromArgb(107, 114, 128), .ForeColor = Color.White, .FlatStyle = FlatStyle.Flat, .Font = New Font("Tahoma", 10.0!, FontStyle.Bold), .Cursor = Cursors.Hand, .ToolTipText = "คำนวณยอดยกมาอัตโนมัติ"}
+            btnCalcBalance = New Button With {.Text = "🧮", .Location = New Point(995, 54), .Size = New Size(40, 40), .BackColor = Color.FromArgb(107, 114, 128), .ForeColor = Color.White, .FlatStyle = FlatStyle.Flat, .Font = New Font("Tahoma", 10.0!, FontStyle.Bold), .Cursor = Cursors.Hand}
             btnRefresh = New Button With {.Text = "🔍 ดูรายงาน", .Location = New Point(1040, 54), .Size = New Size(170, 44), .BackColor = Color.FromArgb(37, 99, 235), .ForeColor = Color.White, .FlatStyle = FlatStyle.Flat, .Font = New Font("Tahoma", 10.0!, FontStyle.Bold), .Cursor = Cursors.Hand}
             p.Controls.AddRange(New Control() {lbl1, dtpFrom, lbl2, dtpTo, lbl3, cboType, lbl4, cboFund, lbl5, cboBank, lblBalance, txtBalance, btnCalcBalance, btnRefresh})
 
