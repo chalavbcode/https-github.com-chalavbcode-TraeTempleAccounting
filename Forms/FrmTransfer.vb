@@ -29,7 +29,7 @@ Namespace TempleAccounting
         Private Sub FrmTransfer_Load(sender As Object, e As EventArgs) Handles MyBase.Load
             Db.EnsureSchema()
             Using conn = Db.OpenConn()
-                Dim funds = Db.GetTable(conn, "SELECT ID, FundName FROM Funds ORDER BY FundName")
+                Dim funds = Db.GetTable(conn, "SELECT ID, FundName FROM Funds ORDER BY IIF(FundName LIKE '%เงินสด%', 0, 1), FundName")
                 AddBlankOption(funds, "FundName")
                 cboFromFund.DisplayMember = "FundName" : cboFromFund.ValueMember = "ID" : cboFromFund.DataSource = funds.Copy()
                 cboToFund.DisplayMember = "FundName" : cboToFund.ValueMember = "ID" : cboToFund.DataSource = funds
@@ -39,23 +39,9 @@ Namespace TempleAccounting
                 cboFromBank.DisplayMember = "Disp" : cboFromBank.ValueMember = "ID" : cboFromBank.DataSource = banks.Copy()
                 cboToBank.DisplayMember = "Disp" : cboToBank.ValueMember = "ID" : cboToBank.DataSource = banks
             End Using
-            SelectCashFundDefault()
             SetupEnterNavigation()
             ResetEntry(True)
             FocusStartField()
-        End Sub
-
-        Private Sub SelectCashFundDefault()
-            If cboFromFund.DataSource Is Nothing Then Return
-            Dim dt = TryCast(cboFromFund.DataSource, DataTable)
-            If dt Is Nothing Then Return
-
-            For i As Integer = 0 To dt.Rows.Count - 1
-                If dt.Rows(i)("FundName").ToString().Contains("เงินสด") Then
-                    cboFromFund.SelectedIndex = i
-                    Exit For
-                End If
-            Next
         End Sub
 
         Private Sub AddBlankOption(table As DataTable, displayColumn As String)
