@@ -6,6 +6,8 @@ Imports System.Data.OleDb
 Imports System.IO
 Imports System.Text
 Imports System.Globalization
+Imports System.Windows.Forms
+Imports System.Drawing
 
 Namespace TempleAccounting
     Public Module Db
@@ -206,5 +208,96 @@ Namespace TempleAccounting
             Dim dst = Path.Combine(targetDir, fn)
             File.Copy(src, dst, True)
         End Sub
+    End Module
+
+    Public Module MessageBoxHelper
+        Public Function ShowLargeMessageBox(text As String, caption As String, Optional buttons As MessageBoxButtons = MessageBoxButtons.OK, Optional icon As MessageBoxIcon = MessageBoxIcon.None, Optional defaultButton As MessageBoxDefaultButton = MessageBoxDefaultButton.Button1) As DialogResult
+            Using form As New Form()
+                form.Text = caption
+                form.FormBorderStyle = FormBorderStyle.FixedDialog
+                form.MaximizeBox = False
+                form.MinimizeBox = False
+                form.StartPosition = FormStartPosition.CenterScreen
+                form.Width = 500
+                form.Height = 250
+                form.BackColor = Color.White
+
+                Dim messageLabel As New Label()
+                messageLabel.Text = text
+                messageLabel.Font = New Font("Tahoma", 16.0!, FontStyle.Regular)
+                messageLabel.TextAlign = ContentAlignment.MiddleCenter
+                messageLabel.Dock = DockStyle.Fill
+                messageLabel.Padding = New Padding(20)
+
+                Dim buttonPanel As New Panel()
+                buttonPanel.Height = 60
+                buttonPanel.Dock = DockStyle.Bottom
+                buttonPanel.BackColor = Color.FromArgb(245, 245, 245)
+
+                Dim okButton As New Button()
+                okButton.Text = "ตกลง"
+                okButton.Font = New Font("Tahoma", 14.0!, FontStyle.Bold)
+                okButton.Size = New Size(120, 45)
+                okButton.UseVisualStyleBackColor = True
+                okButton.DialogResult = DialogResult.OK
+
+                Dim cancelButton As New Button()
+                cancelButton.Text = "ยกเลิก"
+                cancelButton.Font = New Font("Tahoma", 14.0!, FontStyle.Bold)
+                cancelButton.Size = New Size(120, 45)
+                cancelButton.UseVisualStyleBackColor = True
+                cancelButton.DialogResult = DialogResult.Cancel
+
+                Dim yesButton As New Button()
+                yesButton.Text = "ใช่"
+                yesButton.Font = New Font("Tahoma", 14.0!, FontStyle.Bold)
+                yesButton.Size = New Size(120, 45)
+                yesButton.UseVisualStyleBackColor = True
+                yesButton.DialogResult = DialogResult.Yes
+
+                Dim noButton As New Button()
+                noButton.Text = "ไม่"
+                noButton.Font = New Font("Tahoma", 14.0!, FontStyle.Bold)
+                noButton.Size = New Size(120, 45)
+                noButton.UseVisualStyleBackColor = True
+                noButton.DialogResult = DialogResult.No
+
+                Select Case buttons
+                    Case MessageBoxButtons.OK
+                        buttonPanel.Controls.Add(okButton)
+                        okButton.Location = New Point((buttonPanel.Width - okButton.Width) \ 2, 8)
+                    Case MessageBoxButtons.OKCancel
+                        buttonPanel.Controls.AddRange({okButton, cancelButton})
+                        okButton.Location = New Point(buttonPanel.Width \ 2 - okButton.Width - 10, 8)
+                        cancelButton.Location = New Point(buttonPanel.Width \ 2 + 10, 8)
+                    Case MessageBoxButtons.YesNo
+                        buttonPanel.Controls.AddRange({yesButton, noButton})
+                        yesButton.Location = New Point(buttonPanel.Width \ 2 - yesButton.Width - 10, 8)
+                        noButton.Location = New Point(buttonPanel.Width \ 2 + 10, 8)
+                    Case MessageBoxButtons.YesNoCancel
+                        buttonPanel.Controls.AddRange({yesButton, noButton, cancelButton})
+                        yesButton.Location = New Point(buttonPanel.Width \ 2 - yesButton.Width - 10 - noButton.Width - 10, 8)
+                        noButton.Location = New Point(buttonPanel.Width \ 2 - noButton.Width \ 2, 8)
+                        cancelButton.Location = New Point(buttonPanel.Width \ 2 + noButton.Width \ 2 + 10, 8)
+                End Select
+
+                form.Controls.AddRange({messageLabel, buttonPanel})
+                form.AcceptButton = okButton
+                form.CancelButton = cancelButton
+
+                Select Case icon
+                    Case MessageBoxIcon.Warning
+                        messageLabel.ForeColor = Color.FromArgb(180, 100, 0)
+                    Case MessageBoxIcon.Error
+                        messageLabel.ForeColor = Color.FromArgb(180, 0, 0)
+                    Case MessageBoxIcon.Information
+                        messageLabel.ForeColor = Color.FromArgb(0, 100, 180)
+                    Case MessageBoxIcon.Question
+                        messageLabel.ForeColor = Color.FromArgb(0, 100, 0)
+                End Select
+
+                Return form.ShowDialog()
+            End Using
+        End Function
     End Module
 End Namespace
