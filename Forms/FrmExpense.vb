@@ -34,7 +34,7 @@ Namespace TempleAccounting
                 cboCategory.ValueMember = "ID"
                 cboCategory.DataSource = cats
 
-                Dim funds = Db.GetTable(conn, "SELECT ID, FundName FROM Funds ORDER BY IIF(FundName='กองทุนเงินสด',0,1), FundName")
+                Dim funds = Db.GetTable(conn, "SELECT ID, FundName FROM Funds ORDER BY FundName")
                 cboFund.DisplayMember = "FundName"
                 cboFund.ValueMember = "ID"
                 cboFund.DataSource = funds
@@ -47,7 +47,20 @@ Namespace TempleAccounting
                 cboBank.DisplayMember = "Disp"
                 cboBank.ValueMember = "ID"
                 cboBank.DataSource = banks
+
+                ' เลือกกองทุนเงินสดเป็นค่าเริ่มต้น
+                SelectCashFundDefault()
             End Using
+        End Sub
+
+        Private Sub SelectCashFundDefault()
+            For i As Integer = 0 To cboFund.Items.Count - 1
+                Dim row = DirectCast(cboFund.Items(i), DataRowView)
+                If row("FundName").ToString().Contains("เงินสด") Then
+                    cboFund.SelectedIndex = i
+                    Exit For
+                End If
+            Next
         End Sub
 
         Private Sub ResetEntry(resetToToday As Boolean)
