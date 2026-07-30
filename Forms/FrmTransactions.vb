@@ -388,23 +388,23 @@ Namespace TempleAccounting
 
         Private Sub ConfigureGridColumns()
             Dim headers As New Dictionary(Of String, String) From {
-                {"ID", "ID"},
-                {"TranDate", "TranDate"},
-                {"TranType", "TranType"},
-                {"CategoryID", "CategoryID"},
-                {"CategoryName", "Category"},
-                {"FundID", "FundID"},
-                {"FundName", "Fund"},
-                {"BankID", "BankID"},
-                {"BankName", "Bank"},
-                {"Detail", "Detail"},
-                {"Amount", "Amount"},
-                {"Note", "Note"},
-                {"CreateDate", "CreateDate"},
-                {"ToFundID", "ToFundID"},
-                {"ToFundName", "ToFund"},
-                {"ToBankID", "ToBankID"},
-                {"ToBankName", "ToBank"}
+                {"ID", "รหัส"},
+                {"TranDate", "วันที่"},
+                {"TranType", "ชนิด"},
+                {"CategoryID", "รหัสประเภท"},
+                {"CategoryName", "ประเภท"},
+                {"FundID", "รหัสกองทุน"},
+                {"FundName", "กองทุน"},
+                {"BankID", "รหัสธนาคาร"},
+                {"BankName", "ธนาคาร"},
+                {"Detail", "รายละเอียด"},
+                {"Amount", "จำนวนเงิน"},
+                {"Note", "หมายเหตุ"},
+                {"CreateDate", "วันที่สร้าง"},
+                {"ToFundID", "รหัสกองทุนปลายทาง"},
+                {"ToFundName", "กองทุนปลายทาง"},
+                {"ToBankID", "รหัสธนาคารปลายทาง"},
+                {"ToBankName", "ธนาคารปลายทาง"}
             }
 
             dgvTransactions.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None
