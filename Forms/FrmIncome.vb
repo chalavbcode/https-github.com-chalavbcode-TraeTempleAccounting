@@ -150,7 +150,7 @@ New Tuple(Of String, Object)("@b", bankValue),
 New Tuple(Of String, Object)("@de", txtDescription.Text.Trim),
 New Tuple(Of String, Object)("@a", amt),
 New Tuple(Of String, Object)("@n", txtRemark.Text.Trim))
-                    MessageBox.Show("✅ บันทึกรายรับสำเร็จ แล้ว!", "สำเร็จ", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                    MessageBoxHelper.ShowLargeMessageBox("✅ บันทึกรายรับสำเร็จ แล้ว!", "สำเร็จ", MessageBoxButtons.OK, MessageBoxIcon.Information)
                     ResetEntry(False)
                     dtpDate.Value = keepDate
                     dtpDate.Focus()
