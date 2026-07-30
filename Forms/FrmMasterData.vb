@@ -181,7 +181,7 @@ Namespace TempleAccounting
             ' txtCatName
             ' 
             txtCatName.Font = New Font("Tahoma", 10.5F)
-            txtCatName.Location = New Point(134, 14)
+            txtCatName.Location = New Point(151, 11)
             txtCatName.Name = "txtCatName"
             txtCatName.Size = New Size(385, 33)
             txtCatName.TabIndex = 1
@@ -189,7 +189,7 @@ Namespace TempleAccounting
             ' lblCatType
             ' 
             lblCatType.AutoSize = True
-            lblCatType.Location = New Point(542, 14)
+            lblCatType.Location = New Point(567, 14)
             lblCatType.Name = "lblCatType"
             lblCatType.Size = New Size(60, 24)
             lblCatType.TabIndex = 2
@@ -200,7 +200,7 @@ Namespace TempleAccounting
             cboCatType.DropDownStyle = ComboBoxStyle.DropDownList
             cboCatType.Font = New Font("Tahoma", 10F)
             cboCatType.Items.AddRange(New Object() {"Income (รายรับ)", "Expense (รายจ่าย)"})
-            cboCatType.Location = New Point(608, 11)
+            cboCatType.Location = New Point(660, 11)
             cboCatType.Name = "cboCatType"
             cboCatType.Size = New Size(200, 32)
             cboCatType.TabIndex = 3
@@ -305,7 +305,7 @@ Namespace TempleAccounting
             ' txtFundName
             ' 
             txtFundName.Font = New Font("Tahoma", 10.5F)
-            txtFundName.Location = New Point(110, 10)
+            txtFundName.Location = New Point(146, 10)
             txtFundName.Name = "txtFundName"
             txtFundName.Size = New Size(520, 33)
             txtFundName.TabIndex = 1
@@ -578,6 +578,20 @@ Namespace TempleAccounting
             Return Db.ToIntOrZero(Db.DbScalar(conn, sql, params.ToArray())) > 0
         End Function
 
+        Private Function FundExists(conn As OleDbConnection, fundName As String, Optional excludeId As Integer = -1) As Boolean
+            Dim sql = "SELECT COUNT(*) FROM Funds WHERE UCASE(TRIM(FundName))=UCASE(TRIM(@n))"
+            Dim params As New List(Of Tuple(Of String, Object)) From {
+                New Tuple(Of String, Object)("@n", fundName.Trim())
+            }
+
+            If excludeId >= 0 Then
+                sql &= " AND ID<>@id"
+                params.Add(New Tuple(Of String, Object)("@id", excludeId))
+            End If
+
+            Return Db.ToIntOrZero(Db.DbScalar(conn, sql, params.ToArray())) > 0
+        End Function
+
         Private Sub ReloadCategory()
             Using conn = Db.OpenConn()
                 Dim dt = Db.GetTable(conn, "SELECT ID, CategoryName AS ชื่อประเภท, TranType AS ชนิด FROM Categories ORDER BY TranType, CategoryName")
@@ -673,10 +687,24 @@ Namespace TempleAccounting
             If String.IsNullOrWhiteSpace(txtFundName.Text) Then MessageBox.Show("กรุณาใส่ชื่อกองทุน", "แจ้งเตือน") : Return
             Using conn = Db.OpenConn()
                 If selFundId >= 0 Then
+                    ' แก้ไขข้อมูลที่มีอยู่แล้ว
+                    If FundExists(conn, txtFundName.Text, selFundId) Then
+                        MessageBox.Show("มีชื่อกองทุนนี้อยู่แล้ว ระบบจะไม่บันทึกข้อมูลซ้ำ", "ข้อมูลซ้ำ", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                        txtFundName.Focus()
+                        txtFundName.SelectAll()
+                        Return
+                    End If
                     Db.ExecuteNonQuery(conn, "UPDATE Funds SET FundName=@n WHERE ID=@id",
                                        New Tuple(Of String, Object)("@n", txtFundName.Text.Trim()),
                                        New Tuple(Of String, Object)("@id", selFundId))
                 Else
+                    ' เพิ่มข้อมูลใหม่
+                    If FundExists(conn, txtFundName.Text) Then
+                        MessageBox.Show("มีชื่อกองทุนนี้อยู่แล้ว ระบบจะไม่เพิ่มข้อมูลซ้ำ", "ข้อมูลซ้ำ", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                        txtFundName.Focus()
+                        txtFundName.SelectAll()
+                        Return
+                    End If
                     Db.ExecuteNonQuery(conn, "INSERT INTO Funds (FundName) VALUES (@n)", New Tuple(Of String, Object)("@n", txtFundName.Text.Trim()))
                 End If
             End Using
