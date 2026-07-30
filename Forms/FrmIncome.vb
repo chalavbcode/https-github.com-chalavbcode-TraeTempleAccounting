@@ -34,7 +34,7 @@ Namespace TempleAccounting
                 cboCategory.ValueMember = "ID"
                 cboCategory.DataSource = cats
 
-                Dim funds = Db.GetTable(conn, "SELECT ID, FundName FROM Funds ORDER BY FundName")
+                Dim funds = Db.GetTable(conn, "SELECT ID, FundName FROM Funds ORDER BY IIF(FundName='กองทุนเงินสด',0,1), FundName")
                 cboFund.DisplayMember = "FundName"
                 cboFund.ValueMember = "ID"
                 cboFund.DataSource = funds
