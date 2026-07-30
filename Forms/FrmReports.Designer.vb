@@ -34,9 +34,6 @@ Namespace TempleAccounting
         Friend WithEvents btnPrintSummary As Button
         Friend WithEvents dgvReport As DataGridView
         Friend WithEvents lblSummary As Label
-        Friend WithEvents lblBalance As Label
-        Friend WithEvents txtBalance As TextBox
-        Friend WithEvents btnCalcBalance As Button
 
         <DebuggerNonUserCode()>
         Protected Overrides Sub Dispose(disposing As Boolean)
@@ -54,8 +51,8 @@ Namespace TempleAccounting
             Text = "รายงาน"
             BackColor = Color.FromArgb(254, 249, 235)
             Font = New Font("Tahoma", 10.5!)
-            ClientSize = New Size(1500, 860)
-            MinimumSize = New Size(1280, 760)
+            ClientSize = New Size(1400, 860)
+            MinimumSize = New Size(1180, 760)
             StartPosition = FormStartPosition.CenterScreen
             WindowState = FormWindowState.Maximized
             FormBorderStyle = FormBorderStyle.Sizable
@@ -83,11 +80,8 @@ Namespace TempleAccounting
             cboFund = New ComboBox With {.Location = New Point(130, 54), .Size = New Size(260, 40), .DropDownStyle = ComboBoxStyle.DropDownList, .Font = New Font("Tahoma", 10.0!)}
             lbl5 = MakeLbl("ธนาคาร:", New Point(410, 58))
             cboBank = New ComboBox With {.Location = New Point(510, 54), .Size = New Size(260, 40), .DropDownStyle = ComboBoxStyle.DropDownList, .Font = New Font("Tahoma", 10.0!)}
-            lblBalance = MakeLbl("ยอดยกมา:", New Point(790, 58))
-            txtBalance = New TextBox With {.Location = New Point(890, 54), .Size = New Size(100, 40), .Font = New Font("Tahoma", 10.0!), .Text = "0.00", .TextAlign = HorizontalAlignment.Right}
-            btnCalcBalance = New Button With {.Text = "🧮", .Location = New Point(995, 54), .Size = New Size(40, 40), .BackColor = Color.FromArgb(107, 114, 128), .ForeColor = Color.White, .FlatStyle = FlatStyle.Flat, .Font = New Font("Tahoma", 10.0!, FontStyle.Bold), .Cursor = Cursors.Hand}
-            btnRefresh = New Button With {.Text = "🔍 ดูรายงาน", .Location = New Point(1040, 54), .Size = New Size(170, 44), .BackColor = Color.FromArgb(37, 99, 235), .ForeColor = Color.White, .FlatStyle = FlatStyle.Flat, .Font = New Font("Tahoma", 10.0!, FontStyle.Bold), .Cursor = Cursors.Hand}
-            p.Controls.AddRange(New Control() {lbl1, dtpFrom, lbl2, dtpTo, lbl3, cboType, lbl4, cboFund, lbl5, cboBank, lblBalance, txtBalance, btnCalcBalance, btnRefresh})
+            btnRefresh = New Button With {.Text = "🔍 ดูรายงาน", .Location = New Point(790, 54), .Size = New Size(170, 44), .BackColor = Color.FromArgb(37, 99, 235), .ForeColor = Color.White, .FlatStyle = FlatStyle.Flat, .Font = New Font("Tahoma", 10.0!, FontStyle.Bold), .Cursor = Cursors.Hand}
+            p.Controls.AddRange(New Control() {lbl1, dtpFrom, lbl2, dtpTo, lbl3, cboType, lbl4, cboFund, lbl5, cboBank, btnRefresh})
 
             Dim pa = New Panel With {.Dock = DockStyle.Top, .Height = 76, .BackColor = Color.FromArgb(245, 240, 220), .Padding = New Padding(14, 14, 14, 14)}
             btnPrintDetail = New Button With {.Text = "📜 พิมพ์รายงานละเอียด", .Dock = DockStyle.Left, .Size = New Size(240, 48), .BackColor = Color.FromArgb(185, 28, 28), .ForeColor = Color.White, .FlatStyle = FlatStyle.Flat, .Font = New Font("Tahoma", 9.5!, FontStyle.Bold), .Cursor = Cursors.Hand}

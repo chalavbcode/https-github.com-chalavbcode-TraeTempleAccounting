@@ -6,7 +6,6 @@ Imports System.Collections.Generic
 Imports System.ComponentModel
 Imports System.Drawing
 Imports System.Windows.Forms
-Imports System.Data
 Imports System.Data.OleDb
 
 Namespace TempleAccounting
@@ -35,7 +34,7 @@ Namespace TempleAccounting
                 cboCategory.ValueMember = "ID"
                 cboCategory.DataSource = cats
 
-                Dim funds = Db.GetTable(conn, "SELECT ID, FundName FROM Funds ORDER BY IIF(FundName LIKE '%เงินสด%', 0, 1), FundName")
+                Dim funds = Db.GetTable(conn, "SELECT ID, FundName FROM Funds ORDER BY FundName")
                 cboFund.DisplayMember = "FundName"
                 cboFund.ValueMember = "ID"
                 cboFund.DataSource = funds
@@ -150,7 +149,7 @@ New Tuple(Of String, Object)("@b", bankValue),
 New Tuple(Of String, Object)("@de", txtDescription.Text.Trim),
 New Tuple(Of String, Object)("@a", amt),
 New Tuple(Of String, Object)("@n", txtRemark.Text.Trim))
-                    MessageBoxHelper.ShowLargeMessageBox("✅ บันทึกรายรับสำเร็จ แล้ว!", "สำเร็จ", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                    MessageBox.Show("✅ บันทึกรายรับสำเร็จ แล้ว!", "สำเร็จ", MessageBoxButtons.OK, MessageBoxIcon.Information)
                     ResetEntry(False)
                     dtpDate.Value = keepDate
                     dtpDate.Focus()
