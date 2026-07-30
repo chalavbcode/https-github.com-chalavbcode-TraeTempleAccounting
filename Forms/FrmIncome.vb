@@ -23,7 +23,6 @@ Namespace TempleAccounting
         Private Sub FrmIncome_Load(sender As Object, e As EventArgs) Handles MyBase.Load
             Db.EnsureSchema()
             LoadMasters()
-            SelectCashFundDefault()
             SetupEnterNavigation()
             ResetEntry(True)
             FocusStartField()
@@ -36,7 +35,7 @@ Namespace TempleAccounting
                 cboCategory.ValueMember = "ID"
                 cboCategory.DataSource = cats
 
-                Dim funds = Db.GetTable(conn, "SELECT ID, FundName FROM Funds ORDER BY FundName")
+                Dim funds = Db.GetTable(conn, "SELECT ID, FundName FROM Funds ORDER BY IIF(FundName LIKE '%เงินสด%', 0, 1), FundName")
                 cboFund.DisplayMember = "FundName"
                 cboFund.ValueMember = "ID"
                 cboFund.DataSource = funds
@@ -50,19 +49,6 @@ Namespace TempleAccounting
                 cboBank.ValueMember = "ID"
                 cboBank.DataSource = banks
             End Using
-        End Sub
-
-        Private Sub SelectCashFundDefault()
-            If cboFund.DataSource Is Nothing Then Return
-            Dim dt = TryCast(cboFund.DataSource, DataTable)
-            If dt Is Nothing Then Return
-
-            For i As Integer = 0 To dt.Rows.Count - 1
-                If dt.Rows(i)("FundName").ToString().Contains("เงินสด") Then
-                    cboFund.SelectedIndex = i
-                    Exit For
-                End If
-            Next
         End Sub
 
         Private Sub ResetEntry(resetToToday As Boolean)
