@@ -169,8 +169,12 @@ Namespace TempleAccounting
             maxIconHeight = If(_compactOverviewMode, 40, 60)
             maxIconHeight = Math.Max(maxIconHeight, If(_compactOverviewMode, 40, 54))
 
+            Dim valueFontSize As Single = If(_compactOverviewMode, 11.0!, 13.0!)   ' เดิม 17pt → ลดเหลือ 13pt (ปกติ) / 11pt (compact)
+            Dim valueFont As New Font("Tahoma", valueFontSize, FontStyle.Bold, GraphicsUnit.Point, 222)
+
             For Each valueLabel In valueLabels
                 If valueLabel Is Nothing Then Continue For
+                valueLabel.Font = valueFont
                 valueLabel.Padding = If(_compactOverviewMode, New Padding(0, 0, 0, 2), New Padding(0, 2, 0, 6))
                 maxValueHeight = Math.Max(maxValueHeight, TextRenderer.MeasureText("213,750.00", valueLabel.Font).Height + If(_compactOverviewMode, 6, 10))
             Next
