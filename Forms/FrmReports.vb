@@ -153,6 +153,52 @@ Namespace TempleAccounting
             End Try
         End Sub
 
+        Private Sub dtpFrom_ValueChanged(sender As Object, e As EventArgs) Handles dtpFrom.ValueChanged
+            If Not Me.IsHandleCreated Then Return
+            
+            ' ป้องกันการถามซ้ำซ้อนตอน Load
+            Static lastDate As Date = Date.MinValue
+            If dtpFrom.Value.Date = lastDate Then Return
+            lastDate = dtpFrom.Value.Date
+
+            Dim result = MessageBox.Show($"คุณเปลี่ยนวันที่เริ่มต้นเป็น {dtpFrom.Value:dd/MM/yyyy} ต้องการกรอก 'ยอดยกมา' เองหรือไม่?{vbCrLf}{vbCrLf}(ถ้าเลือก 'ไม่ใช่' ระบบจะคำนวณจากฐานข้อมูลให้อัตโนมัติ)", "ยอดยกมา", MessageBoxButtons.YesNo, MessageBoxIcon.Question)
+            
+            If result = DialogResult.Yes Then
+                txtBalance.Focus()
+                txtBalance.SelectAll()
+                
+                ' ทำให้ช่องกรอกยอดยกมาเด่นขึ้น (Blink effect แบบง่าย)
+                Dim originalColor = txtBalance.BackColor
+                Dim blinkTimer As New Timer() With {.Interval = 300}
+                Dim count = 0
+                AddHandler blinkTimer.Tick, Sub()
+                    count += 1
+                    If count Mod 2 = 1 Then
+                        txtBalance.BackColor = Color.Yellow
+                    Else
+                        txtBalance.BackColor = originalColor
+                    End If
+                    If count >= 6 Then
+                        blinkTimer.Stop()
+                        txtBalance.BackColor = originalColor
+                        blinkTimer.Dispose()
+                    End If
+                End Sub
+                blinkTimer.Start()
+            End If
+        End Sub
+
+        Private Sub btnCalcBalance_Click(sender As Object, e As EventArgs) Handles btnCalcBalance.Click
+            Try
+                Using conn = Db.OpenConn()
+                    Dim bal = Db.ToDecimalOrZero(Db.DbScalar(conn, "SELECT SUM(IIF(t.TranType='Income', t.Amount, -t.Amount)) FROM Transactions t WHERE DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate), Day(t.TranDate)) < " & Db.AccessDateLiteral(dtpFrom.Value.Date)))
+                    txtBalance.Text = bal.ToString("n2")
+                End Using
+            Catch ex As Exception
+                MessageBox.Show("คำนวณยอดยกมาไม่ได้: " & ex.Message)
+            End Try
+        End Sub
+
         Private Sub btnPrint_Click(sender As Object, e As EventArgs) Handles btnPrint.Click
             Try
                 Dim fn = Path.Combine(AppPaths.ExportFolder, $"Report_{DateTime.Now:yyyyMMdd_HHmmss}.csv")
@@ -179,9 +225,17 @@ Namespace TempleAccounting
             End Try
         End Sub
 
+        Private Function GetManualBalance() As Decimal?
+            Dim balance As Decimal
+            If Decimal.TryParse(txtBalance.Text, balance) AndAlso balance <> 0 Then
+                Return balance
+            End If
+            Return Nothing
+        End Function
+
         Private Sub btnPrintDetail_Click(sender As Object, e As EventArgs) Handles btnPrintDetail.Click
             Try
-                IncomeExpenseReport.ShowPreview(Db.NormalizeGregorianDate(dtpFrom.Value.Date), Db.NormalizeGregorianDate(dtpTo.Value.Date), Me, IncomeExpenseReport.ReportModes.Detailed)
+                IncomeExpenseReport.ShowPreview(Db.NormalizeGregorianDate(dtpFrom.Value.Date), Db.NormalizeGregorianDate(dtpTo.Value.Date), Me, IncomeExpenseReport.ReportModes.Detailed, GetManualBalance())
             Catch ex As Exception
                 MessageBox.Show("เกิดข้อผิดพลาด: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
             End Try
@@ -189,7 +243,7 @@ Namespace TempleAccounting
 
         Private Sub btnPrintSummary_Click(sender As Object, e As EventArgs) Handles btnPrintSummary.Click
             Try
-                IncomeExpenseReport.ShowPreview(Db.NormalizeGregorianDate(dtpFrom.Value.Date), Db.NormalizeGregorianDate(dtpTo.Value.Date), Me, IncomeExpenseReport.ReportModes.Summary)
+                IncomeExpenseReport.ShowPreview(Db.NormalizeGregorianDate(dtpFrom.Value.Date), Db.NormalizeGregorianDate(dtpTo.Value.Date), Me, IncomeExpenseReport.ReportModes.Summary, GetManualBalance())
             Catch ex As Exception
                 MessageBox.Show("เกิดข้อผิดพลาด: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
             End Try
