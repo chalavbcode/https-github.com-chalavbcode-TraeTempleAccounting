@@ -44,8 +44,16 @@ Namespace TempleAccounting
             Db.EnsureSchema()
             LoadLocations()
             LoadTempleData()
+            SetupToolTips()
             SetupEnterNavigation()
             txtTempleCode.Focus()
+        End Sub
+
+        Private Sub SetupToolTips()
+            ttMain.SetToolTip(btnSave, "บันทึกข้อมูลวัดและบุคลากรลงในฐานข้อมูล (Enter)")
+            ttMain.SetToolTip(btnCancel, "โหลดข้อมูลวัดล่าสุดจากฐานข้อมูลมาแสดงใหม่อีกครั้ง")
+            ttMain.SetToolTip(btnLocationImport, "เปิดหน้าจอนำเข้าข้อมูลที่อยู่ (จังหวัด/อำเภอ/ตำบล) จากไฟล์ CSV")
+            ttMain.SetToolTip(btnClose, "ปิดหน้าจอนี้และกลับไปที่หน้าหลัก")
         End Sub
 
         Private Sub SetupEnterNavigation()
