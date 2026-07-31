@@ -115,7 +115,7 @@ Namespace TempleAccounting
             lbl1.AutoSize = True
             lbl1.Font = New Font("Tahoma", 9F, FontStyle.Bold)
             lbl1.ForeColor = Color.FromArgb(CByte(69), CByte(26), CByte(3))
-            lbl1.Location = New Point(12, 8)
+            lbl1.Location = New Point(15, 5)
             lbl1.Name = "lbl1"
             lbl1.Size = New Size(85, 22)
             lbl1.TabIndex = 0
@@ -124,7 +124,7 @@ Namespace TempleAccounting
             ' dtpFrom
             ' 
             dtpFrom.Font = New Font("Tahoma", 9F)
-            dtpFrom.Location = New Point(102, 5)
+            dtpFrom.Location = New Point(138, 3)
             dtpFrom.Name = "dtpFrom"
             dtpFrom.Size = New Size(140, 29)
             dtpFrom.TabIndex = 1
@@ -135,7 +135,7 @@ Namespace TempleAccounting
             lbl2.AutoSize = True
             lbl2.Font = New Font("Tahoma", 9F, FontStyle.Bold)
             lbl2.ForeColor = Color.FromArgb(CByte(69), CByte(26), CByte(3))
-            lbl2.Location = New Point(248, 5)
+            lbl2.Location = New Point(349, 5)
             lbl2.Name = "lbl2"
             lbl2.Size = New Size(74, 22)
             lbl2.TabIndex = 2
@@ -144,7 +144,7 @@ Namespace TempleAccounting
             ' dtpTo
             ' 
             dtpTo.Font = New Font("Tahoma", 9F)
-            dtpTo.Location = New Point(344, 3)
+            dtpTo.Location = New Point(444, 3)
             dtpTo.Name = "dtpTo"
             dtpTo.Size = New Size(140, 29)
             dtpTo.TabIndex = 3
@@ -155,7 +155,7 @@ Namespace TempleAccounting
             lbl3.AutoSize = True
             lbl3.Font = New Font("Tahoma", 9F, FontStyle.Bold)
             lbl3.ForeColor = Color.FromArgb(CByte(69), CByte(26), CByte(3))
-            lbl3.Location = New Point(503, 3)
+            lbl3.Location = New Point(649, 5)
             lbl3.Name = "lbl3"
             lbl3.Size = New Size(79, 22)
             lbl3.TabIndex = 4
@@ -166,7 +166,7 @@ Namespace TempleAccounting
             cboType.DropDownStyle = ComboBoxStyle.DropDownList
             cboType.Font = New Font("Tahoma", 9F)
             cboType.Items.AddRange(New Object() {"ทั้งหมด", "รายรับ", "รายจ่าย", "โอนภายใน"})
-            cboType.Location = New Point(598, 0)
+            cboType.Location = New Point(775, -3)
             cboType.Name = "cboType"
             cboType.Size = New Size(120, 30)
             cboType.TabIndex = 5
