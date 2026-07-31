@@ -841,5 +841,9 @@ New Tuple(Of String, Object)("@id", id))
         Private Sub dgvTransactions_CellContentClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvTransactions.CellContentClick
 
         End Sub
+
+        Private Sub lblSearch_Click(sender As Object, e As EventArgs) Handles lblSearch.Click
+
+        End Sub
     End Class
 End Namespace
