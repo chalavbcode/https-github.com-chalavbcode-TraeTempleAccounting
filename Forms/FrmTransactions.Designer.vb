@@ -118,7 +118,7 @@ Namespace TempleAccounting
             tblFilter.ColumnStyles.Add(New ColumnStyle(SizeType.Absolute, 237F))
             tblFilter.ColumnStyles.Add(New ColumnStyle(SizeType.Absolute, 137F))
             tblFilter.ColumnStyles.Add(New ColumnStyle(SizeType.Percent, 100F))
-            tblFilter.ColumnStyles.Add(New ColumnStyle(SizeType.Absolute, 183F))
+            tblFilter.ColumnStyles.Add(New ColumnStyle(SizeType.Absolute, 202F))
             tblFilter.Controls.Add(lblCategory, 0, 0)
             tblFilter.Controls.Add(cboCategory, 1, 0)
             tblFilter.Controls.Add(cboType, 3, 0)
@@ -130,7 +130,7 @@ Namespace TempleAccounting
             tblFilter.Controls.Add(lblType, 2, 0)
             tblFilter.Controls.Add(btnRefresh, 4, 1)
             tblFilter.Controls.Add(btnSearch, 6, 1)
-            tblFilter.Controls.Add(lblSearch, 5, 1)
+            tblFilter.Controls.Add(lblSearch, 6, 0)
             tblFilter.Dock = DockStyle.Fill
             tblFilter.GrowStyle = TableLayoutPanelGrowStyle.AddColumns
             tblFilter.Location = New Point(10, 10)
@@ -212,7 +212,7 @@ Namespace TempleAccounting
             txtSearch.Dock = DockStyle.Fill
             txtSearch.Location = New Point(679, 8)
             txtSearch.Name = "txtSearch"
-            txtSearch.Size = New Size(510, 33)
+            txtSearch.Size = New Size(491, 33)
             txtSearch.TabIndex = 9
             ' 
             ' lblType
@@ -245,16 +245,16 @@ Namespace TempleAccounting
             btnSearch.FlatStyle = FlatStyle.Flat
             btnSearch.Font = New Font("Tahoma", 9F, FontStyle.Bold)
             btnSearch.ForeColor = Color.White
-            btnSearch.Location = New Point(1195, 58)
+            btnSearch.Location = New Point(1176, 58)
             btnSearch.Name = "btnSearch"
-            btnSearch.Size = New Size(177, 54)
+            btnSearch.Size = New Size(196, 54)
             btnSearch.TabIndex = 10
             btnSearch.Text = "🔍 ค้นหา"
             btnSearch.UseVisualStyleBackColor = False
             ' 
             ' lblSearch
             ' 
-            lblSearch.Location = New Point(816, 55)
+            lblSearch.Location = New Point(1176, 5)
             lblSearch.Name = "lblSearch"
             lblSearch.Size = New Size(100, 36)
             lblSearch.TabIndex = 8
@@ -269,7 +269,7 @@ Namespace TempleAccounting
             lblSummary.ForeColor = Color.FromArgb(CByte(69), CByte(26), CByte(3))
             lblSummary.Location = New Point(0, 204)
             lblSummary.Name = "lblSummary"
-            lblSummary.Size = New Size(1400, 88)
+            lblSummary.Size = New Size(1400, 66)
             lblSummary.TabIndex = 2
             lblSummary.Text = "รายรับ: 0.00 บาท   |   รายจ่าย: 0.00 บาท   |   คงเหลือ: 0.00 บาท   |   โอน: 0.00 บาท"
             lblSummary.TextAlign = ContentAlignment.MiddleCenter
@@ -288,14 +288,14 @@ Namespace TempleAccounting
             dgvTransactions.Dock = DockStyle.Fill
             dgvTransactions.EditMode = DataGridViewEditMode.EditOnEnter
             dgvTransactions.Font = New Font("Tahoma", 10F)
-            dgvTransactions.Location = New Point(0, 292)
+            dgvTransactions.Location = New Point(0, 270)
             dgvTransactions.Name = "dgvTransactions"
             dgvTransactions.ReadOnly = True
             dgvTransactions.RowHeadersWidth = 62
             dgvTransactions.RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.DisableResizing
             dgvTransactions.RowTemplate.Height = 34
             dgvTransactions.SelectionMode = DataGridViewSelectionMode.FullRowSelect
-            dgvTransactions.Size = New Size(1400, 428)
+            dgvTransactions.Size = New Size(1400, 450)
             dgvTransactions.TabIndex = 0
             ' 
             ' pActions
