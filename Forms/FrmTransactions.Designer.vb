@@ -53,23 +53,23 @@ Namespace TempleAccounting
         <DebuggerStepThrough()>
         Private Sub InitializeComponent()
             components = New Container()
-            Dim DataGridViewCellStyle5 As DataGridViewCellStyle = New DataGridViewCellStyle()
+            Dim DataGridViewCellStyle1 As DataGridViewCellStyle = New DataGridViewCellStyle()
             ttMain = New ToolTip(components)
             lblHeader = New Label()
             pFilter = New Panel()
             tblFilter = New TableLayoutPanel()
             lblCategory = New Label()
             cboCategory = New ComboBox()
-            lblType = New Label()
             cboType = New ComboBox()
             lblDate = New Label()
             dtpFrom = New DateTimePicker()
             lblTo = New Label()
             dtpTo = New DateTimePicker()
-            lblSearch = New Label()
             txtSearch = New TextBox()
-            btnSearch = New Button()
+            lblType = New Label()
             btnRefresh = New Button()
+            btnSearch = New Button()
+            lblSearch = New Label()
             lblSummary = New Label()
             dgvTransactions = New DataGridView()
             pActions = New Panel()
@@ -106,7 +106,7 @@ Namespace TempleAccounting
             pFilter.Location = New Point(0, 64)
             pFilter.Name = "pFilter"
             pFilter.Padding = New Padding(10)
-            pFilter.Size = New Size(1400, 130)
+            pFilter.Size = New Size(1400, 140)
             pFilter.TabIndex = 3
             ' 
             ' tblFilter
@@ -139,7 +139,7 @@ Namespace TempleAccounting
             tblFilter.RowCount = 2
             tblFilter.RowStyles.Add(New RowStyle(SizeType.Absolute, 50F))
             tblFilter.RowStyles.Add(New RowStyle(SizeType.Absolute, 50F))
-            tblFilter.Size = New Size(1380, 110)
+            tblFilter.Size = New Size(1380, 120)
             tblFilter.TabIndex = 0
             ' 
             ' lblCategory
@@ -159,15 +159,6 @@ Namespace TempleAccounting
             cboCategory.Name = "cboCategory"
             cboCategory.Size = New Size(203, 33)
             cboCategory.TabIndex = 1
-            ' 
-            ' lblType
-            ' 
-            lblType.Location = New Point(323, 5)
-            lblType.Name = "lblType"
-            lblType.Size = New Size(60, 36)
-            lblType.TabIndex = 2
-            lblType.Text = "ชนิด:"
-            lblType.TextAlign = ContentAlignment.MiddleRight
             ' 
             ' cboType
             ' 
@@ -215,15 +206,6 @@ Namespace TempleAccounting
             dtpTo.Size = New Size(231, 33)
             dtpTo.TabIndex = 7
             ' 
-            ' lblSearch
-            ' 
-            lblSearch.Location = New Point(816, 55)
-            lblSearch.Name = "lblSearch"
-            lblSearch.Size = New Size(100, 36)
-            lblSearch.TabIndex = 8
-            lblSearch.Text = "ค้นหา:"
-            lblSearch.TextAlign = ContentAlignment.MiddleRight
-            ' 
             ' txtSearch
             ' 
             tblFilter.SetColumnSpan(txtSearch, 2)
@@ -233,19 +215,14 @@ Namespace TempleAccounting
             txtSearch.Size = New Size(510, 33)
             txtSearch.TabIndex = 9
             ' 
-            ' btnSearch
+            ' lblType
             ' 
-            btnSearch.BackColor = Color.FromArgb(CByte(37), CByte(99), CByte(235))
-            btnSearch.Dock = DockStyle.Fill
-            btnSearch.FlatStyle = FlatStyle.Flat
-            btnSearch.Font = New Font("Tahoma", 9F, FontStyle.Bold)
-            btnSearch.ForeColor = Color.White
-            btnSearch.Location = New Point(1195, 58)
-            btnSearch.Name = "btnSearch"
-            btnSearch.Size = New Size(177, 44)
-            btnSearch.TabIndex = 10
-            btnSearch.Text = "🔍 ค้นหา"
-            btnSearch.UseVisualStyleBackColor = False
+            lblType.Location = New Point(323, 5)
+            lblType.Name = "lblType"
+            lblType.Size = New Size(60, 36)
+            lblType.TabIndex = 2
+            lblType.Text = "ชนิด:"
+            lblType.TextAlign = ContentAlignment.MiddleRight
             ' 
             ' btnRefresh
             ' 
@@ -256,10 +233,33 @@ Namespace TempleAccounting
             btnRefresh.ForeColor = Color.White
             btnRefresh.Location = New Point(679, 58)
             btnRefresh.Name = "btnRefresh"
-            btnRefresh.Size = New Size(131, 44)
+            btnRefresh.Size = New Size(131, 54)
             btnRefresh.TabIndex = 11
             btnRefresh.Text = "� รีเฟรช"
             btnRefresh.UseVisualStyleBackColor = False
+            ' 
+            ' btnSearch
+            ' 
+            btnSearch.BackColor = Color.FromArgb(CByte(37), CByte(99), CByte(235))
+            btnSearch.Dock = DockStyle.Fill
+            btnSearch.FlatStyle = FlatStyle.Flat
+            btnSearch.Font = New Font("Tahoma", 9F, FontStyle.Bold)
+            btnSearch.ForeColor = Color.White
+            btnSearch.Location = New Point(1195, 58)
+            btnSearch.Name = "btnSearch"
+            btnSearch.Size = New Size(177, 54)
+            btnSearch.TabIndex = 10
+            btnSearch.Text = "🔍 ค้นหา"
+            btnSearch.UseVisualStyleBackColor = False
+            ' 
+            ' lblSearch
+            ' 
+            lblSearch.Location = New Point(816, 55)
+            lblSearch.Name = "lblSearch"
+            lblSearch.Size = New Size(100, 36)
+            lblSearch.TabIndex = 8
+            lblSearch.Text = "ค้นหา:"
+            lblSearch.TextAlign = ContentAlignment.MiddleRight
             ' 
             ' lblSummary
             ' 
@@ -267,9 +267,9 @@ Namespace TempleAccounting
             lblSummary.Dock = DockStyle.Top
             lblSummary.Font = New Font("Tahoma", 11F, FontStyle.Bold)
             lblSummary.ForeColor = Color.FromArgb(CByte(69), CByte(26), CByte(3))
-            lblSummary.Location = New Point(0, 194)
+            lblSummary.Location = New Point(0, 204)
             lblSummary.Name = "lblSummary"
-            lblSummary.Size = New Size(1400, 48)
+            lblSummary.Size = New Size(1400, 88)
             lblSummary.TabIndex = 2
             lblSummary.Text = "รายรับ: 0.00 บาท   |   รายจ่าย: 0.00 บาท   |   คงเหลือ: 0.00 บาท   |   โอน: 0.00 บาท"
             lblSummary.TextAlign = ContentAlignment.MiddleCenter
@@ -278,8 +278,8 @@ Namespace TempleAccounting
             ' 
             dgvTransactions.AllowUserToAddRows = False
             dgvTransactions.AllowUserToDeleteRows = False
-            DataGridViewCellStyle5.BackColor = Color.FromArgb(CByte(255), CByte(251), CByte(235))
-            dgvTransactions.AlternatingRowsDefaultCellStyle = DataGridViewCellStyle5
+            DataGridViewCellStyle1.BackColor = Color.FromArgb(CByte(255), CByte(251), CByte(235))
+            dgvTransactions.AlternatingRowsDefaultCellStyle = DataGridViewCellStyle1
             dgvTransactions.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
             dgvTransactions.BackgroundColor = Color.White
             dgvTransactions.BorderStyle = BorderStyle.None
@@ -288,14 +288,14 @@ Namespace TempleAccounting
             dgvTransactions.Dock = DockStyle.Fill
             dgvTransactions.EditMode = DataGridViewEditMode.EditOnEnter
             dgvTransactions.Font = New Font("Tahoma", 10F)
-            dgvTransactions.Location = New Point(0, 242)
+            dgvTransactions.Location = New Point(0, 292)
             dgvTransactions.Name = "dgvTransactions"
             dgvTransactions.ReadOnly = True
             dgvTransactions.RowHeadersWidth = 62
             dgvTransactions.RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.DisableResizing
             dgvTransactions.RowTemplate.Height = 34
             dgvTransactions.SelectionMode = DataGridViewSelectionMode.FullRowSelect
-            dgvTransactions.Size = New Size(1400, 478)
+            dgvTransactions.Size = New Size(1400, 428)
             dgvTransactions.TabIndex = 0
             ' 
             ' pActions
