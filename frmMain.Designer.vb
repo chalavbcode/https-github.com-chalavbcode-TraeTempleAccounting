@@ -32,19 +32,15 @@ Namespace TempleAccounting
         Private pnlCard1 As Panel
         Private lblCard1Title As Label
         Private lblCard1Value As Label
-        Private lblCard1Icon As Label
         Private pnlCard2 As Panel
         Private lblCard2Title As Label
         Private lblCard2Value As Label
-        Private lblCard2Icon As Label
         Private pnlCard3 As Panel
         Private lblCard3Title As Label
         Private lblCard3Value As Label
-        Private lblCard3Icon As Label
         Private pnlCard4 As Panel
         Private lblCard4Title As Label
         Private lblCard4Value As Label
-        Private lblCard4Icon As Label
         Private pnlFormHost As Panel
         Private pnlFormHostHeader As Panel
         Private lblFormHostTitle As Label
@@ -105,19 +101,15 @@ Namespace TempleAccounting
             pnlOverview = New Panel()
             pnlCards = New Panel()
             pnlCard4 = New Panel()
-            lblCard4Icon = New Label()
             lblCard4Value = New Label()
             lblCard4Title = New Label()
             pnlCard3 = New Panel()
-            lblCard3Icon = New Label()
             lblCard3Value = New Label()
             lblCard3Title = New Label()
             pnlCard2 = New Panel()
-            lblCard2Icon = New Label()
             lblCard2Value = New Label()
             lblCard2Title = New Label()
             pnlCard1 = New Panel()
-            lblCard1Icon = New Label()
             lblCard1Value = New Label()
             lblCard1Title = New Label()
             lblOverviewTitle = New Label()
@@ -254,9 +246,9 @@ Namespace TempleAccounting
             lblSubtitle.ForeColor = Color.FromArgb(CByte(255), CByte(230), CByte(150))
             lblSubtitle.Location = New Point(96, 52)
             lblSubtitle.Name = "lblSubtitle"
-            lblSubtitle.Size = New Size(476, 25)
+            lblSubtitle.Size = New Size(414, 25)
             lblSubtitle.TabIndex = 2
-            lblSubtitle.Text = "ระบบบัญชีเงินทองวัดฯ - Temple Accounting Software"
+            lblSubtitle.Text = "ระบบบัญชีวัด - Temple Accounting Software"
             ' 
             ' lblTitle
             ' 
@@ -265,7 +257,7 @@ Namespace TempleAccounting
             lblTitle.ForeColor = Color.FromArgb(CByte(255), CByte(215), CByte(0))
             lblTitle.Location = New Point(94, 8)
             lblTitle.Name = "lblTitle"
-            lblTitle.Size = New Size(334, 48)
+            lblTitle.Size = New Size(329, 48)
             lblTitle.TabIndex = 1
             lblTitle.Text = "📿 ระบบบัญชีวัดฯ"
             ' 
@@ -286,7 +278,7 @@ Namespace TempleAccounting
             pnlSidebar.Location = New Point(0, 84)
             pnlSidebar.Name = "pnlSidebar"
             pnlSidebar.Padding = New Padding(12, 16, 12, 14)
-            pnlSidebar.Size = New Size(210, 716)
+            pnlSidebar.Size = New Size(251, 726)
             pnlSidebar.TabIndex = 1
             ' 
             ' btnLogout
@@ -300,10 +292,10 @@ Namespace TempleAccounting
             btnLogout.Font = New Font("Tahoma", 11.25F, FontStyle.Bold, GraphicsUnit.Point, CByte(222))
             btnLogout.ForeColor = Color.White
             btnLogout.ImageAlign = ContentAlignment.MiddleLeft
-            btnLogout.Location = New Point(12, 654)
+            btnLogout.Location = New Point(12, 660)
             btnLogout.Name = "btnLogout"
             btnLogout.Padding = New Padding(14, 0, 8, 0)
-            btnLogout.Size = New Size(186, 48)
+            btnLogout.Size = New Size(227, 48)
             btnLogout.TabIndex = 10
             btnLogout.Text = "🚪 ออกจากระบบ"
             btnLogout.TextAlign = ContentAlignment.MiddleLeft
@@ -312,9 +304,9 @@ Namespace TempleAccounting
             ' pnlSidebarSpacer
             ' 
             pnlSidebarSpacer.Dock = DockStyle.Bottom
-            pnlSidebarSpacer.Location = New Point(12, 702)
+            pnlSidebarSpacer.Location = New Point(12, 708)
             pnlSidebarSpacer.Name = "pnlSidebarSpacer"
-            pnlSidebarSpacer.Size = New Size(186, 4)
+            pnlSidebarSpacer.Size = New Size(227, 4)
             pnlSidebarSpacer.TabIndex = 9
             ' 
             ' btnSetting
@@ -328,10 +320,10 @@ Namespace TempleAccounting
             btnSetting.Font = New Font("Tahoma", 11.25F, FontStyle.Regular, GraphicsUnit.Point, CByte(222))
             btnSetting.ForeColor = Color.White
             btnSetting.ImageAlign = ContentAlignment.MiddleLeft
-            btnSetting.Location = New Point(12, 386)
+            btnSetting.Location = New Point(12, 483)
             btnSetting.Name = "btnSetting"
             btnSetting.Padding = New Padding(14, 0, 8, 0)
-            btnSetting.Size = New Size(186, 50)
+            btnSetting.Size = New Size(227, 62)
             btnSetting.TabIndex = 8
             btnSetting.Text = "⚙️ ตั้งค่าระบบ"
             btnSetting.TextAlign = ContentAlignment.MiddleLeft
@@ -348,10 +340,10 @@ Namespace TempleAccounting
             btnActivity.Font = New Font("Tahoma", 11.25F, FontStyle.Regular, GraphicsUnit.Point, CByte(222))
             btnActivity.ForeColor = Color.White
             btnActivity.ImageAlign = ContentAlignment.MiddleLeft
-            btnActivity.Location = New Point(12, 336)
+            btnActivity.Location = New Point(12, 419)
             btnActivity.Name = "btnActivity"
             btnActivity.Padding = New Padding(14, 0, 8, 0)
-            btnActivity.Size = New Size(186, 50)
+            btnActivity.Size = New Size(227, 64)
             btnActivity.TabIndex = 7
             btnActivity.Text = "🎎 กิจกรรม / บุญ"
             btnActivity.TextAlign = ContentAlignment.MiddleLeft
@@ -368,10 +360,10 @@ Namespace TempleAccounting
             btnVip.Font = New Font("Tahoma", 11.25F, FontStyle.Regular, GraphicsUnit.Point, CByte(222))
             btnVip.ForeColor = Color.White
             btnVip.ImageAlign = ContentAlignment.MiddleLeft
-            btnVip.Location = New Point(12, 286)
+            btnVip.Location = New Point(12, 345)
             btnVip.Name = "btnVip"
             btnVip.Padding = New Padding(14, 0, 8, 0)
-            btnVip.Size = New Size(186, 50)
+            btnVip.Size = New Size(227, 74)
             btnVip.TabIndex = 6
             btnVip.Text = ChrW(55358) & ChrW(56647) & " พระ / อาวาส"
             btnVip.TextAlign = ContentAlignment.MiddleLeft
@@ -388,10 +380,10 @@ Namespace TempleAccounting
             btnMember.Font = New Font("Tahoma", 11.25F, FontStyle.Regular, GraphicsUnit.Point, CByte(222))
             btnMember.ForeColor = Color.White
             btnMember.ImageAlign = ContentAlignment.MiddleLeft
-            btnMember.Location = New Point(12, 236)
+            btnMember.Location = New Point(12, 276)
             btnMember.Name = "btnMember"
             btnMember.Padding = New Padding(14, 0, 8, 0)
-            btnMember.Size = New Size(186, 50)
+            btnMember.Size = New Size(227, 69)
             btnMember.TabIndex = 5
             btnMember.Text = "� สมาชิกผู้บริจาค"
             btnMember.TextAlign = ContentAlignment.MiddleLeft
@@ -408,10 +400,10 @@ Namespace TempleAccounting
             btnReport.Font = New Font("Tahoma", 11.25F, FontStyle.Regular, GraphicsUnit.Point, CByte(222))
             btnReport.ForeColor = Color.White
             btnReport.ImageAlign = ContentAlignment.MiddleLeft
-            btnReport.Location = New Point(12, 186)
+            btnReport.Location = New Point(12, 212)
             btnReport.Name = "btnReport"
             btnReport.Padding = New Padding(14, 0, 8, 0)
-            btnReport.Size = New Size(186, 50)
+            btnReport.Size = New Size(227, 64)
             btnReport.TabIndex = 4
             btnReport.Text = "� พิมพ์รายงาน"
             btnReport.TextAlign = ContentAlignment.MiddleLeft
@@ -428,10 +420,10 @@ Namespace TempleAccounting
             btnExpense.Font = New Font("Tahoma", 11.25F, FontStyle.Regular, GraphicsUnit.Point, CByte(222))
             btnExpense.ForeColor = Color.White
             btnExpense.ImageAlign = ContentAlignment.MiddleLeft
-            btnExpense.Location = New Point(12, 136)
+            btnExpense.Location = New Point(12, 141)
             btnExpense.Name = "btnExpense"
             btnExpense.Padding = New Padding(14, 0, 8, 0)
-            btnExpense.Size = New Size(186, 50)
+            btnExpense.Size = New Size(227, 71)
             btnExpense.TabIndex = 3
             btnExpense.Text = "💸 บันทึกจ่ายเงิน"
             btnExpense.TextAlign = ContentAlignment.MiddleLeft
@@ -448,10 +440,10 @@ Namespace TempleAccounting
             btnDonation.Font = New Font("Tahoma", 11.25F, FontStyle.Regular, GraphicsUnit.Point, CByte(222))
             btnDonation.ForeColor = Color.White
             btnDonation.ImageAlign = ContentAlignment.MiddleLeft
-            btnDonation.Location = New Point(12, 86)
+            btnDonation.Location = New Point(12, 70)
             btnDonation.Name = "btnDonation"
             btnDonation.Padding = New Padding(14, 0, 8, 0)
-            btnDonation.Size = New Size(186, 50)
+            btnDonation.Size = New Size(227, 71)
             btnDonation.TabIndex = 2
             btnDonation.Text = "💰 บันทึกเงินบริจาค"
             btnDonation.TextAlign = ContentAlignment.MiddleLeft
@@ -471,7 +463,7 @@ Namespace TempleAccounting
             btnDashboard.Location = New Point(12, 16)
             btnDashboard.Name = "btnDashboard"
             btnDashboard.Padding = New Padding(14, 0, 8, 0)
-            btnDashboard.Size = New Size(186, 54)
+            btnDashboard.Size = New Size(227, 54)
             btnDashboard.TabIndex = 1
             btnDashboard.Text = "🏠 หน้าหลัก"
             btnDashboard.TextAlign = ContentAlignment.MiddleLeft
@@ -484,10 +476,10 @@ Namespace TempleAccounting
             pnlContent.Controls.Add(pnlFormHost)
             pnlContent.Controls.Add(pnlOverview)
             pnlContent.Dock = DockStyle.Fill
-            pnlContent.Location = New Point(210, 88)
+            pnlContent.Location = New Point(251, 88)
             pnlContent.Name = "pnlContent"
             pnlContent.Padding = New Padding(16, 16, 16, 12)
-            pnlContent.Size = New Size(1230, 712)
+            pnlContent.Size = New Size(1189, 722)
             pnlContent.TabIndex = 2
             ' 
             ' pnlFormHost
@@ -496,20 +488,20 @@ Namespace TempleAccounting
             pnlFormHost.Controls.Add(pnlFormHostBody)
             pnlFormHost.Controls.Add(pnlFormHostHeader)
             pnlFormHost.Dock = DockStyle.Fill
-            pnlFormHost.Location = New Point(28, 292)
+            pnlFormHost.Location = New Point(16, 149)
             pnlFormHost.Name = "pnlFormHost"
-            pnlFormHost.Size = New Size(1124, 384)
+            pnlFormHost.Size = New Size(1157, 561)
             pnlFormHost.TabIndex = 2
             ' 
             ' pnlFormHostBody
-            '
+            ' 
             pnlFormHostBody.BackColor = Color.FromArgb(CByte(255), CByte(253), CByte(244))
             pnlFormHostBody.Dock = DockStyle.Fill
-            pnlFormHostBody.Location = New Point(0, 90)
+            pnlFormHostBody.Location = New Point(0, 84)
             pnlFormHostBody.Name = "pnlFormHostBody"
-            pnlFormHostBody.Size = New Size(1124, 294)
+            pnlFormHostBody.Size = New Size(1157, 477)
             pnlFormHostBody.TabIndex = 1
-            '
+            ' 
             ' pnlFormHostHeader
             ' 
             pnlFormHostHeader.BackColor = Color.FromArgb(CByte(250), CByte(240), CByte(210))
@@ -520,16 +512,16 @@ Namespace TempleAccounting
             pnlFormHostHeader.Location = New Point(0, 0)
             pnlFormHostHeader.Name = "pnlFormHostHeader"
             pnlFormHostHeader.Padding = New Padding(20, 12, 20, 12)
-            pnlFormHostHeader.Size = New Size(1160, 90)
+            pnlFormHostHeader.Size = New Size(1157, 84)
             pnlFormHostHeader.TabIndex = 0
             ' 
             ' pnlSeparator2
             ' 
             pnlSeparator2.BackColor = Color.FromArgb(CByte(217), CByte(119), CByte(6))
             pnlSeparator2.Dock = DockStyle.Bottom
-            pnlSeparator2.Location = New Point(20, 80)
+            pnlSeparator2.Location = New Point(20, 71)
             pnlSeparator2.Name = "pnlSeparator2"
-            pnlSeparator2.Size = New Size(1120, 1)
+            pnlSeparator2.Size = New Size(1117, 1)
             pnlSeparator2.TabIndex = 2
             ' 
             ' lblFormHostHint
@@ -540,7 +532,7 @@ Namespace TempleAccounting
             lblFormHostHint.Location = New Point(20, 12)
             lblFormHostHint.Name = "lblFormHostHint"
             lblFormHostHint.Padding = New Padding(0, 4, 0, 0)
-            lblFormHostHint.Size = New Size(1120, 44)
+            lblFormHostHint.Size = New Size(1117, 62)
             lblFormHostHint.TabIndex = 1
             lblFormHostHint.Text = "📌 เลือกเมนูทางด้านซ้ายเพื่อเปิดหน้าจองานต่างๆ" & vbCrLf & "ระบบจะแสดงฟอร์มงานที่นี่ โดยขนาดฟอนต์และปุ่มจะถูกปรับขนาดตามนี้ทั้งหมด"
             ' 
@@ -551,7 +543,7 @@ Namespace TempleAccounting
             lblFormHostTitle.ForeColor = Color.FromArgb(CByte(120), CByte(53), CByte(15))
             lblFormHostTitle.Location = New Point(20, 12)
             lblFormHostTitle.Name = "lblFormHostTitle"
-            lblFormHostTitle.Size = New Size(214, 35)
+            lblFormHostTitle.Size = New Size(193, 35)
             lblFormHostTitle.TabIndex = 0
             lblFormHostTitle.Text = ChrW(55358) & ChrW(56991) & " พื้นที่ทำงาน"
             ' 
@@ -561,9 +553,9 @@ Namespace TempleAccounting
             pnlOverview.Controls.Add(pnlCards)
             pnlOverview.Controls.Add(lblOverviewTitle)
             pnlOverview.Dock = DockStyle.Top
-            pnlOverview.Location = New Point(24, 20)
+            pnlOverview.Location = New Point(16, 16)
             pnlOverview.Name = "pnlOverview"
-            pnlOverview.Size = New Size(1198, 204)
+            pnlOverview.Size = New Size(1157, 133)
             pnlOverview.TabIndex = 1
             ' 
             ' pnlCards
@@ -573,37 +565,23 @@ Namespace TempleAccounting
             pnlCards.Controls.Add(pnlCard2)
             pnlCards.Controls.Add(pnlCard1)
             pnlCards.Dock = DockStyle.Top
-            pnlCards.Location = New Point(0, 33)
+            pnlCards.Location = New Point(0, 31)
             pnlCards.Name = "pnlCards"
-            pnlCards.Size = New Size(1198, 154)
+            pnlCards.Size = New Size(1157, 95)
             pnlCards.TabIndex = 1
             ' 
             ' pnlCard4
             ' 
             pnlCard4.BackColor = Color.White
-            pnlCard4.Controls.Add(lblCard4Icon)
             pnlCard4.Controls.Add(lblCard4Value)
             pnlCard4.Controls.Add(lblCard4Title)
             pnlCard4.Cursor = Cursors.Hand
             pnlCard4.Dock = DockStyle.Right
-            pnlCard4.Location = New Point(332, 0)
+            pnlCard4.Location = New Point(413, 0)
             pnlCard4.Name = "pnlCard4"
             pnlCard4.Padding = New Padding(12, 10, 12, 10)
-            pnlCard4.Size = New Size(248, 154)
+            pnlCard4.Size = New Size(248, 95)
             pnlCard4.TabIndex = 3
-            ' 
-            ' lblCard4Icon
-            ' 
-            lblCard4Icon.BackColor = Color.FromArgb(CByte(255), CByte(237), CByte(213))
-            lblCard4Icon.Dock = DockStyle.Top
-            lblCard4Icon.Font = New Font("Segoe UI Emoji", 24F, FontStyle.Regular, GraphicsUnit.Point, CByte(0))
-            lblCard4Icon.ForeColor = Color.FromArgb(CByte(194), CByte(65), CByte(12))
-            lblCard4Icon.Location = New Point(12, 78)
-            lblCard4Icon.Name = "lblCard4Icon"
-            lblCard4Icon.Size = New Size(224, 54)
-            lblCard4Icon.TabIndex = 2
-            lblCard4Icon.Text = "💵"
-            lblCard4Icon.TextAlign = ContentAlignment.MiddleCenter
             ' 
             ' lblCard4Value
             ' 
@@ -634,29 +612,15 @@ Namespace TempleAccounting
             ' pnlCard3
             ' 
             pnlCard3.BackColor = Color.White
-            pnlCard3.Controls.Add(lblCard3Icon)
             pnlCard3.Controls.Add(lblCard3Value)
             pnlCard3.Controls.Add(lblCard3Title)
             pnlCard3.Cursor = Cursors.Hand
             pnlCard3.Dock = DockStyle.Right
-            pnlCard3.Location = New Point(614, 0)
+            pnlCard3.Location = New Point(661, 0)
             pnlCard3.Name = "pnlCard3"
             pnlCard3.Padding = New Padding(12, 10, 12, 10)
-            pnlCard3.Size = New Size(248, 154)
+            pnlCard3.Size = New Size(248, 95)
             pnlCard3.TabIndex = 2
-            ' 
-            ' lblCard3Icon
-            ' 
-            lblCard3Icon.BackColor = Color.FromArgb(CByte(243), CByte(232), CByte(255))
-            lblCard3Icon.Dock = DockStyle.Top
-            lblCard3Icon.Font = New Font("Segoe UI Emoji", 24F, FontStyle.Regular, GraphicsUnit.Point, CByte(0))
-            lblCard3Icon.ForeColor = Color.FromArgb(CByte(126), CByte(34), CByte(206))
-            lblCard3Icon.Location = New Point(12, 78)
-            lblCard3Icon.Name = "lblCard3Icon"
-            lblCard3Icon.Size = New Size(224, 54)
-            lblCard3Icon.TabIndex = 2
-            lblCard3Icon.Text = "💸"
-            lblCard3Icon.TextAlign = ContentAlignment.MiddleCenter
             ' 
             ' lblCard3Value
             ' 
@@ -687,29 +651,15 @@ Namespace TempleAccounting
             ' pnlCard2
             ' 
             pnlCard2.BackColor = Color.White
-            pnlCard2.Controls.Add(lblCard2Icon)
             pnlCard2.Controls.Add(lblCard2Value)
             pnlCard2.Controls.Add(lblCard2Title)
             pnlCard2.Cursor = Cursors.Hand
             pnlCard2.Dock = DockStyle.Right
-            pnlCard2.Location = New Point(896, 0)
+            pnlCard2.Location = New Point(909, 0)
             pnlCard2.Name = "pnlCard2"
             pnlCard2.Padding = New Padding(12, 10, 12, 10)
-            pnlCard2.Size = New Size(248, 154)
+            pnlCard2.Size = New Size(248, 95)
             pnlCard2.TabIndex = 1
-            ' 
-            ' lblCard2Icon
-            ' 
-            lblCard2Icon.BackColor = Color.FromArgb(CByte(220), CByte(252), CByte(231))
-            lblCard2Icon.Dock = DockStyle.Top
-            lblCard2Icon.Font = New Font("Segoe UI Emoji", 24F, FontStyle.Regular, GraphicsUnit.Point, CByte(0))
-            lblCard2Icon.ForeColor = Color.FromArgb(CByte(22), CByte(101), CByte(52))
-            lblCard2Icon.Location = New Point(12, 78)
-            lblCard2Icon.Name = "lblCard2Icon"
-            lblCard2Icon.Size = New Size(224, 54)
-            lblCard2Icon.TabIndex = 2
-            lblCard2Icon.Text = "💰"
-            lblCard2Icon.TextAlign = ContentAlignment.MiddleCenter
             ' 
             ' lblCard2Value
             ' 
@@ -740,7 +690,6 @@ Namespace TempleAccounting
             ' pnlCard1
             ' 
             pnlCard1.BackColor = Color.White
-            pnlCard1.Controls.Add(lblCard1Icon)
             pnlCard1.Controls.Add(lblCard1Value)
             pnlCard1.Controls.Add(lblCard1Title)
             pnlCard1.Cursor = Cursors.Hand
@@ -748,21 +697,8 @@ Namespace TempleAccounting
             pnlCard1.Location = New Point(0, 0)
             pnlCard1.Name = "pnlCard1"
             pnlCard1.Padding = New Padding(12, 10, 12, 10)
-            pnlCard1.Size = New Size(248, 154)
+            pnlCard1.Size = New Size(248, 95)
             pnlCard1.TabIndex = 0
-            ' 
-            ' lblCard1Icon
-            ' 
-            lblCard1Icon.BackColor = Color.FromArgb(CByte(254), CByte(249), CByte(195))
-            lblCard1Icon.Dock = DockStyle.Top
-            lblCard1Icon.Font = New Font("Segoe UI Emoji", 24F, FontStyle.Regular, GraphicsUnit.Point, CByte(0))
-            lblCard1Icon.ForeColor = Color.FromArgb(CByte(161), CByte(98), CByte(7))
-            lblCard1Icon.Location = New Point(12, 78)
-            lblCard1Icon.Name = "lblCard1Icon"
-            lblCard1Icon.Size = New Size(224, 54)
-            lblCard1Icon.TabIndex = 2
-            lblCard1Icon.Text = "📿"
-            lblCard1Icon.TextAlign = ContentAlignment.MiddleCenter
             ' 
             ' lblCard1Value
             ' 
@@ -799,7 +735,7 @@ Namespace TempleAccounting
             lblOverviewTitle.Location = New Point(0, 0)
             lblOverviewTitle.Margin = New Padding(0, 0, 0, 8)
             lblOverviewTitle.Name = "lblOverviewTitle"
-            lblOverviewTitle.Size = New Size(214, 31)
+            lblOverviewTitle.Size = New Size(200, 31)
             lblOverviewTitle.TabIndex = 0
             lblOverviewTitle.Text = "🏁 ภาพรวมวันนี้"
             ' 
@@ -854,14 +790,14 @@ Namespace TempleAccounting
             ' 
             pnlSeparator1.BackColor = Color.FromArgb(CByte(234), CByte(179), CByte(8))
             pnlSeparator1.Dock = DockStyle.Top
-            pnlSeparator1.Location = New Point(210, 84)
+            pnlSeparator1.Location = New Point(251, 84)
             pnlSeparator1.Name = "pnlSeparator1"
-            pnlSeparator1.Size = New Size(1230, 4)
+            pnlSeparator1.Size = New Size(1189, 4)
             pnlSeparator1.TabIndex = 2
             ' 
             ' frmMain
             ' 
-            AutoScaleDimensions = New SizeF(11F, 24F)
+            AutoScaleDimensions = New SizeF(12F, 25F)
             AutoScaleMode = AutoScaleMode.Font
             BackColor = Color.FromArgb(CByte(254), CByte(249), CByte(235))
             ClientSize = New Size(1440, 840)
