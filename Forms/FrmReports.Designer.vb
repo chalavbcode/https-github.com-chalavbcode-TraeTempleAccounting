@@ -53,9 +53,9 @@ Namespace TempleAccounting
 
         <DebuggerStepThrough()>
         Private Sub InitializeComponent()
-            Me.components = New Container()
-            Me.ttMain = New ToolTip(Me.components)
+            components = New Container()
             Dim DataGridViewCellStyle1 As DataGridViewCellStyle = New DataGridViewCellStyle()
+            ttMain = New ToolTip(components)
             p = New Panel()
             lbl1 = New Label()
             dtpFrom = New DateTimePicker()
@@ -238,9 +238,9 @@ Namespace TempleAccounting
             btnCalcBalance.FlatStyle = FlatStyle.Flat
             btnCalcBalance.Font = New Font("Tahoma", 9F, FontStyle.Bold)
             btnCalcBalance.ForeColor = Color.White
-            btnCalcBalance.Location = New Point(734, 44)
+            btnCalcBalance.Location = New Point(746, 45)
             btnCalcBalance.Name = "btnCalcBalance"
-            btnCalcBalance.Size = New Size(35, 30)
+            btnCalcBalance.Size = New Size(79, 30)
             btnCalcBalance.TabIndex = 12
             btnCalcBalance.Text = ChrW(55358) & ChrW(56814)
             btnCalcBalance.UseVisualStyleBackColor = False
@@ -251,7 +251,7 @@ Namespace TempleAccounting
             btnRefresh.FlatStyle = FlatStyle.Flat
             btnRefresh.Font = New Font("Tahoma", 9F, FontStyle.Bold)
             btnRefresh.ForeColor = Color.White
-            btnRefresh.Location = New Point(775, 44)
+            btnRefresh.Location = New Point(831, 45)
             btnRefresh.Name = "btnRefresh"
             btnRefresh.Size = New Size(100, 30)
             btnRefresh.TabIndex = 13
