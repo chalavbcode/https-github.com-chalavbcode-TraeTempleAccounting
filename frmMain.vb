@@ -166,19 +166,19 @@ Namespace TempleAccounting
                 lblOverviewTitle.Text = "🏁 ภาพรวมวันนี้ (คลิกการ์ดเพื่อไปหน้าโดยตรง) — ข้อมูลอัปเดตจากฐานข้อมูลจริง"
                 lblCard1Title.Text = "รายการเงินรับ เดือนนี้"
                 lblCard1Value.Text = Db.ToIntOrZero(trCount) & " รายการ"
-                lblCard1Icon.Text = "📿"
+                ' ลบการใช้ lblCard1Icon เนื่องไม่มีการประกาศใน Designer.vb
 
                 lblCard2Title.Text = "ยอดเงินรับ เดือนนี้"
                 lblCard2Value.Text = Db.ToDecimalOrZero(trIn).ToString("#,##0.00")
-                lblCard2Icon.Text = "💰"
+                ' ลบการใช้ lblCard2Icon เนื่องไม่มีการประกาศใน Designer.vb
 
                 lblCard3Title.Text = "ยอดเงินจ่าย เดือนนี้"
                 lblCard3Value.Text = Db.ToDecimalOrZero(trOut).ToString("#,##0.00")
-                lblCard3Icon.Text = "💸"
+                ' ลบการใช้ lblCard3Icon เนื่องไม่มีการประกาศใน Designer.vb
 
                 lblCard4Title.Text = "ยอดคงเหลือทั้งหมด"
                 lblCard4Value.Text = Db.ToDecimalOrZero(bal).ToString("#,##0.00")
-                lblCard4Icon.Text = "💵"
+                ' ลบการใช้ lblCard4Icon เนื่องไม่มีการประกาศใน Designer.vb
                 RefreshOverviewLayout()
 
                 Try
@@ -313,19 +313,19 @@ Namespace TempleAccounting
             lblOverviewTitle.Text = "🏁 ภาพรวมวันนี้ (คลิกการ์ดเพื่อไปหน้าโดยตรง)"
             lblCard1Title.Text = "ผู้บริจาคเดือนนี้"
             lblCard1Value.Text = "128 คน"
-            lblCard1Icon.Text = "📿"
+            ' lblCard1Icon.Text = "📿"
 
             lblCard2Title.Text = "ยอดรับเงินเดือนนี้"
             lblCard2Value.Text = "248,500"
-            lblCard2Icon.Text = "💰"
+            ' lblCard2Icon.Text = "💰"
 
             lblCard3Title.Text = "ยอดจ่ายเงินเดือนนี้"
             lblCard3Value.Text = "86,250"
-            lblCard3Icon.Text = "💸"
+            ' lblCard3Icon.Text = "💸"
 
             lblCard4Title.Text = "ยอดคงเหลือทั้งหมด"
             lblCard4Value.Text = "1,892,750"
-            lblCard4Icon.Text = "💵"
+            ' lblCard4Icon.Text = "💵"
             RefreshOverviewLayout()
         End Sub
 
@@ -333,19 +333,19 @@ Namespace TempleAccounting
             lblOverviewTitle.Text = "💰 ภาพรวมเงินรับเดือนนี้"
             lblCard1Title.Text = "จำนวนใบเสร็จรับเงิน"
             lblCard1Value.Text = "76 ใบ"
-            lblCard1Icon.Text = "🧾"
+            ' lblCard1Icon.Text = "🧾"
 
             lblCard2Title.Text = "ยอดรับเดือนนี้ (บาท)"
             lblCard2Value.Text = "248,500"
-            lblCard2Icon.Text = "💰"
+            ' lblCard2Icon.Text = "💰"
 
             lblCard3Title.Text = "ค่าเฉลี่ย / คน"
             lblCard3Value.Text = "3,270"
-            lblCard3Icon.Text = "📊"
+            ' lblCard3Icon.Text = "📊"
 
             lblCard4Title.Text = "บริจาคสูงสุด"
             lblCard4Value.Text = "50,000"
-            lblCard4Icon.Text = "🌟"
+            ' lblCard4Icon.Text = "🌟"
             RefreshOverviewLayout()
         End Sub
 
@@ -353,19 +353,19 @@ Namespace TempleAccounting
             lblOverviewTitle.Text = "💸 ภาพรวมเงินจ่ายเดือนนี้"
             lblCard1Title.Text = "จำนวนรายการจ่าย"
             lblCard1Value.Text = "32 รายการ"
-            lblCard1Icon.Text = "📝"
+            ' lblCard1Icon.Text = "📝"
 
             lblCard2Title.Text = "ยอดจ่ายเดือนนี้"
             lblCard2Value.Text = "86,250"
-            lblCard2Icon.Text = "💸"
+            ' lblCard2Icon.Text = "💸"
 
             lblCard3Title.Text = "ค่าเฉลี่ย / รายการ"
             lblCard3Value.Text = "2,695"
-            lblCard3Icon.Text = "📊"
+            ' lblCard3Icon.Text = "📊"
 
             lblCard4Title.Text = "งบคงเหลือ"
             lblCard4Value.Text = "213,750"
-            lblCard4Icon.Text = "🗓️"
+            ' lblCard4Icon.Text = "🗓️"
             RefreshOverviewLayout()
         End Sub
 
@@ -373,19 +373,19 @@ Namespace TempleAccounting
             lblOverviewTitle.Text = "📊 ภาพรวมรายงาน 6 เดือน"
             lblCard1Title.Text = "รายการรับ-จ่ายรวม"
             lblCard1Value.Text = "756 รายการ"
-            lblCard1Icon.Text = "📑"
+            ' lblCard1Icon.Text = "📑"
 
             lblCard2Title.Text = "รายได้สุทธิ YTD"
             lblCard2Value.Text = "840,150"
-            lblCard2Icon.Text = "📈"
+            ' lblCard2Icon.Text = "📈"
 
             lblCard3Title.Text = "เป้าหมายเดือนนี้"
             lblCard3Value.Text = "78.5 %"
-            lblCard3Icon.Text = "🎯"
+            ' lblCard3Icon.Text = "🎯"
 
             lblCard4Title.Text = "ยอดรวมต้นปี"
             lblCard4Value.Text = "1,285,400"
-            lblCard4Icon.Text = "🗃️"
+            ' lblCard4Icon.Text = "🗃️"
             RefreshOverviewLayout()
         End Sub
 
@@ -400,38 +400,38 @@ Namespace TempleAccounting
                     lblOverviewTitle.Text = "📒 ภาพรวมรายการเงินรับ-จ่าย"
                     lblCard1Title.Text = "รายการทั้งหมด"
                     lblCard1Value.Text = totalItems.ToString("#,##0") & " รายการ"
-                    lblCard1Icon.Text = "📋"
+                    ' lblCard1Icon.Text = "📋"
 
                     lblCard2Title.Text = "รายรับสะสม"
                     lblCard2Value.Text = incomeAmount.ToString("#,##0.00")
-                    lblCard2Icon.Text = "💰"
+                    ' lblCard2Icon.Text = "💰"
 
                     lblCard3Title.Text = "รายจ่ายสะสม"
                     lblCard3Value.Text = expenseAmount.ToString("#,##0.00")
-                    lblCard3Icon.Text = "💸"
+                    ' lblCard3Icon.Text = "💸"
 
                     lblCard4Title.Text = "โอนภายในสะสม"
                     lblCard4Value.Text = transferAmount.ToString("#,##0.00")
-                    lblCard4Icon.Text = "🔁"
+                    ' lblCard4Icon.Text = "🔁"
                     RefreshOverviewLayout()
                 End Using
             Catch
                 lblOverviewTitle.Text = "📒 ภาพรวมรายการเงินรับ-จ่าย"
                 lblCard1Title.Text = "รายการทั้งหมด"
                 lblCard1Value.Text = "0 รายการ"
-                lblCard1Icon.Text = "📋"
+                ' lblCard1Icon.Text = "📋"
 
                 lblCard2Title.Text = "รายรับสะสม"
                 lblCard2Value.Text = "0.00"
-                lblCard2Icon.Text = "💰"
+                ' lblCard2Icon.Text = "💰"
 
                 lblCard3Title.Text = "รายจ่ายสะสม"
                 lblCard3Value.Text = "0.00"
-                lblCard3Icon.Text = "💸"
+                ' lblCard3Icon.Text = "💸"
 
                 lblCard4Title.Text = "โอนภายในสะสม"
                 lblCard4Value.Text = "0.00"
-                lblCard4Icon.Text = "🔁"
+                ' lblCard4Icon.Text = "🔁"
                 RefreshOverviewLayout()
             End Try
         End Sub
@@ -440,19 +440,19 @@ Namespace TempleAccounting
             lblOverviewTitle.Text = "👥 ภาพรวมสมาชิกผู้บริจาค"
             lblCard1Title.Text = "สมาชิกทั้งหมด"
             lblCard1Value.Text = "342 คน"
-            lblCard1Icon.Text = "👥"
+            ' lblCard1Icon.Text = "👥"
 
             lblCard2Title.Text = "เพิ่มเดือนนี้"
             lblCard2Value.Text = "18 คน"
-            lblCard2Icon.Text = "➕"
+            ' lblCard2Icon.Text = "➕"
 
             lblCard3Title.Text = "ระดับทอง"
             lblCard3Value.Text = "24 คน"
-            lblCard3Icon.Text = "🏅"
+            ' lblCard3Icon.Text = "🏅"
 
             lblCard4Title.Text = "บริจาคประจำเดือน"
             lblCard4Value.Text = "128 คน"
-            lblCard4Icon.Text = "🔔"
+            ' lblCard4Icon.Text = "🔔"
             RefreshOverviewLayout()
         End Sub
 
@@ -460,19 +460,19 @@ Namespace TempleAccounting
             lblOverviewTitle.Text = "🥇 ภาพรวมพระ / อาวาส / คณะสงฆ์"
             lblCard1Title.Text = "จำนวนพระภิกษุ"
             lblCard1Value.Text = "12 รูป"
-            lblCard1Icon.Text = "🧘"
+            ' lblCard1Icon.Text = "🧘"
 
             lblCard2Title.Text = "จำนวนสามเณร"
             lblCard2Value.Text = "4 รูป"
-            lblCard2Icon.Text = "🙏"
+            ' lblCard2Icon.Text = "🙏"
 
             lblCard3Title.Text = "ผู้อุปัฏฐาก"
             lblCard3Value.Text = "2 รูป"
-            lblCard3Icon.Text = "🥇"
+            ' lblCard3Icon.Text = "🥇"
 
             lblCard4Title.Text = "หออาศรมทั้งหมด"
             lblCard4Value.Text = "8 แห่ง"
-            lblCard4Icon.Text = "🏠"
+            ' lblCard4Icon.Text = "🏠"
             RefreshOverviewLayout()
         End Sub
 
@@ -480,19 +480,19 @@ Namespace TempleAccounting
             lblOverviewTitle.Text = "🎎 ภาพรวมกิจกรรมงานบุญ"
             lblCard1Title.Text = "งานบุญเดือนนี้"
             lblCard1Value.Text = "6 งาน"
-            lblCard1Icon.Text = "🎎"
+            ' lblCard1Icon.Text = "🎎"
 
             lblCard2Title.Text = "งานกำลังจะจัด"
             lblCard2Value.Text = "2 งาน"
-            lblCard2Icon.Text = "⏰"
+            ' lblCard2Icon.Text = "⏰"
 
             lblCard3Title.Text = "ผู้เข้ารวมทั้งหมด"
             lblCard3Value.Text = "2,450 คน"
-            lblCard3Icon.Text = "👥"
+            ' lblCard3Icon.Text = "👥"
 
             lblCard4Title.Text = "รายได้จากงาน"
             lblCard4Value.Text = "528,900"
-            lblCard4Icon.Text = "💵"
+            ' lblCard4Icon.Text = "💵"
             RefreshOverviewLayout()
         End Sub
 
@@ -500,19 +500,19 @@ Namespace TempleAccounting
             lblOverviewTitle.Text = "⚙️ ภาพรวมการตั้งค่าระบบ"
             lblCard1Title.Text = "ผู้ใช้งานระบบ"
             lblCard1Value.Text = "3 คน"
-            lblCard1Icon.Text = "🔐"
+            ' lblCard1Icon.Text = "🔐"
 
             lblCard2Title.Text = "ฐานข้อมูล"
             lblCard2Value.Text = "ปกติ"
-            lblCard2Icon.Text = "🗄️"
+            ' lblCard2Icon.Text = "🗄️"
 
             lblCard3Title.Text = "สำรองข้อมูล"
             lblCard3Value.Text = "รายวัน"
-            lblCard3Icon.Text = "💾"
+            ' lblCard3Icon.Text = "💾"
 
             lblCard4Title.Text = "ภาษาที่ใช้งาน"
             lblCard4Value.Text = "ไทย"
-            lblCard4Icon.Text = "🇹🇭"
+            ' lblCard4Icon.Text = "🇹🇭"
             RefreshOverviewLayout()
         End Sub
 
