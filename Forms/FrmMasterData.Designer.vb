@@ -26,6 +26,7 @@ Namespace TempleAccounting
         Friend WithEvents pCatTop As Panel
         Friend WithEvents pFundTop As Panel
         Friend WithEvents pBankTop As Panel
+        Friend WithEvents ttMain As ToolTip
 
         <DebuggerNonUserCode()>
         Protected Overrides Sub Dispose(disposing As Boolean)
@@ -40,6 +41,8 @@ Namespace TempleAccounting
 
         <DebuggerStepThrough()>
         Private Sub InitializeComponent()
+            Me.components = New Container()
+            Me.ttMain = New ToolTip(Me.components)
             Dim DataGridViewCellStyle1 As DataGridViewCellStyle = New DataGridViewCellStyle()
             Dim DataGridViewCellStyle2 As DataGridViewCellStyle = New DataGridViewCellStyle()
             Dim DataGridViewCellStyle3 As DataGridViewCellStyle = New DataGridViewCellStyle()

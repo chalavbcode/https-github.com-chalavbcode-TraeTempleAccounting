@@ -22,9 +22,16 @@ Namespace TempleAccounting
         Private Sub FrmIncome_Load(sender As Object, e As EventArgs) Handles MyBase.Load
             Db.EnsureSchema()
             LoadMasters()
+            SetupToolTips()
             SetupEnterNavigation()
             ResetEntry(True)
             FocusStartField()
+        End Sub
+
+        Private Sub SetupToolTips()
+            ttMain.SetToolTip(btnSave, "บันทึกข้อมูลรายรับที่กรอกลงในฐานข้อมูล (Enter)")
+            ttMain.SetToolTip(btnCancel, "ล้างข้อมูลที่กรอกไว้ทั้งหมดเพื่อเริ่มกรอกใหม่")
+            ttMain.SetToolTip(btnImportExcel, "นำข้อมูลรายรับจำนวนมากเข้ามาจากไฟล์ Excel (.xlsx)")
         End Sub
 
         Private Sub LoadMasters()

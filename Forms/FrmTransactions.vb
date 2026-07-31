@@ -93,6 +93,7 @@ Namespace TempleAccounting
 
         Private Sub FrmTransactions_Load(sender As Object, e As EventArgs) Handles MyBase.Load
             SetupRuntimeLayout()
+            SetupToolTips()
 #Region "debug-point A:form-load"
             DebugReport("A", "FrmTransactions_Load", "load-start", New Dictionary(Of String, Object) From {
                 {"baseDir", AppDomain.CurrentDomain.BaseDirectory},
@@ -247,6 +248,17 @@ Namespace TempleAccounting
             Catch ex As Exception
                 AppPaths.LogCrash(ex, "FrmTransactions.SetupRuntimeLayout")
             End Try
+        End Sub
+
+        Private Sub SetupToolTips()
+            ttMain.SetToolTip(btnSearch, "ค้นหารายการตามช่วงวันที่ ประเภท และคำค้นหาที่ระบุ")
+            ttMain.SetToolTip(btnRefresh, "ล้างการค้นหาและดึงข้อมูลใหม่ทั้งหมด")
+            ttMain.SetToolTip(btnAddInc, "เปิดหน้าจอสำหรับบันทึกรายรับใหม่")
+            ttMain.SetToolTip(btnAddExp, "เปิดหน้าจอสำหรับบันทึกรายจ่ายใหม่")
+            ttMain.SetToolTip(btnAddTrans, "เปิดหน้าจอสำหรับบันทึกการโอนเงินภายใน")
+            ttMain.SetToolTip(btnEdit, "แก้ไขข้อมูลรายการที่เลือกในตาราง (กดซ้ำเพื่อบันทึก)")
+            ttMain.SetToolTip(btnDelete, "ลบรายการที่เลือกออกจากฐานข้อมูล")
+            ttMain.SetToolTip(btnClose, "ปิดหน้าจอรายการนี้และกลับไปหน้าหลัก")
         End Sub
 
         Private Sub FilterPanel_Resize(sender As Object, e As EventArgs)

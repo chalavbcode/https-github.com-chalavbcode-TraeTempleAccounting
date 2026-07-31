@@ -25,8 +25,19 @@ Namespace TempleAccounting
 
         Private Sub FrmMasterData_Load(sender As Object, e As EventArgs) Handles MyBase.Load
             Db.EnsureSchema()
+            SetupToolTips()
             LoadAll()
             SetupEnterNavigation()
+        End Sub
+
+        Private Sub SetupToolTips()
+            ttMain.SetToolTip(btnCatAdd, "เพิ่มประเภทรายการใหม่ (รายรับ/รายจ่าย)")
+            ttMain.SetToolTip(btnCatEdit, "แก้ไขชื่อหรือประเภทของรายการที่เลือกในตาราง")
+            ttMain.SetToolTip(btnCatDel, "ลบประเภทรายการที่เลือกออกจากระบบ")
+            ttMain.SetToolTip(btnFundAdd, "เพิ่มชื่อกองทุนใหม่")
+            ttMain.SetToolTip(btnFundDel, "ลบกองทุนที่เลือกออกจากระบบ")
+            ttMain.SetToolTip(btnBankAdd, "เพิ่มบัญชีธนาคารใหม่")
+            ttMain.SetToolTip(btnBankDel, "ลบบัญชีธนาคารที่เลือกออกจากระบบ")
         End Sub
 
         Private Sub LoadAll()
