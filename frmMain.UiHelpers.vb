@@ -156,18 +156,17 @@ Namespace TempleAccounting
             Dim cardPanels = {pnlCard1, pnlCard2, pnlCard3, pnlCard4}
             Dim titleLabels = {lblCard1Title, lblCard2Title, lblCard3Title, lblCard4Title}
             Dim valueLabels = {lblCard1Value, lblCard2Value, lblCard3Value, lblCard4Value}
-            Dim iconLabels = {lblCard1Icon, lblCard2Icon, lblCard3Icon, lblCard4Icon}
+            ' ลบ iconLabels เนื่องไม่มีการประกาศใน Designer.vb
+            ' Dim iconLabels = {lblCard1Icon, lblCard2Icon, lblCard3Icon, lblCard4Icon}
 
+            ' ปรับ layout โดยไม่ใช้ icon labels
             Dim iconFontSize As Single = If(_compactOverviewMode, 20.0!, 26.0!)
             Dim iconFont As New Font("Segoe UI Emoji", iconFontSize, FontStyle.Regular, GraphicsUnit.Point, 0)
             Dim maxIconHeight As Integer = 0
             Dim maxValueHeight As Integer = 0
-            For Each iconLabel In iconLabels
-                If iconLabel Is Nothing Then Continue For
-                iconLabel.Font = iconFont
-                iconLabel.Padding = If(_compactOverviewMode, New Padding(0, 0, 0, 2), New Padding(0, 0, 0, 6))
-                maxIconHeight = Math.Max(maxIconHeight, TextRenderer.MeasureText("🗃️", iconLabel.Font).Height + If(_compactOverviewMode, 8, 14))
-            Next
+            
+            ' ตั้งค่า default height (เนื่องไม่มี iconLabels)
+            maxIconHeight = If(_compactOverviewMode, 40, 60)
             maxIconHeight = Math.Max(maxIconHeight, If(_compactOverviewMode, 40, 54))
 
             For Each valueLabel In valueLabels
@@ -178,8 +177,7 @@ Namespace TempleAccounting
             maxValueHeight = Math.Max(maxValueHeight, If(_compactOverviewMode, 28, 40))
 
             Dim targetCardHeight As Integer = 0
-            For i As Integer = 0 To iconLabels.Length - 1
-                If iconLabels(i) IsNot Nothing Then iconLabels(i).Height = maxIconHeight
+            For i As Integer = 0 To titleLabels.Length - 1
                 If valueLabels(i) IsNot Nothing Then valueLabels(i).Height = maxValueHeight
                 If titleLabels(i) IsNot Nothing AndAlso valueLabels(i) IsNot Nothing AndAlso cardPanels(i) IsNot Nothing Then
                     Dim desiredHeight = cardPanels(i).Padding.Top + titleLabels(i).Height + maxValueHeight + maxIconHeight + cardPanels(i).Padding.Bottom
