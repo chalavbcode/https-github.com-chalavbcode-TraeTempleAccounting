@@ -9,6 +9,8 @@ Imports System.Windows.Forms
 Namespace TempleAccounting
     <Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
     Partial Public Class FrmTransactions
+        Inherits Form
+
         Private components As IContainer = Nothing
 
         Friend WithEvents lblHeader As Label
@@ -38,358 +40,395 @@ Namespace TempleAccounting
 
         <DebuggerNonUserCode()>
         Protected Overrides Sub Dispose(disposing As Boolean)
-            If disposing AndAlso components IsNot Nothing Then components.Dispose()
-            MyBase.Dispose(disposing)
+            Try
+                If disposing AndAlso components IsNot Nothing Then
+                    components.Dispose()
+                End If
+            Finally
+                MyBase.Dispose(disposing)
+            End Try
         End Sub
 
         <DebuggerStepThrough()>
         Private Sub InitializeComponent()
-            components = New Container()
-            Dim DataGridViewCellStyle2 As DataGridViewCellStyle = New DataGridViewCellStyle()
-            ttMain = New ToolTip(components)
-            lblHeader = New Label()
-            pFilter = New Panel()
-            lblCategory = New Label()
-            cboCategory = New ComboBox()
-            lblType = New Label()
-            cboType = New ComboBox()
-            lblDate = New Label()
-            dtpFrom = New DateTimePicker()
-            lblTo = New Label()
-            dtpTo = New DateTimePicker()
-            lblSearch = New Label()
-            txtSearch = New TextBox()
-            btnSearch = New Button()
-            btnRefresh = New Button()
-            lblSummary = New Label()
-            dgvTransactions = New DataGridView()
-            pActions = New Panel()
-            btnClose = New Button()
-            btnDelete = New Button()
-            btnEdit = New Button()
-            btnAddTrans = New Button()
-            btnAddExp = New Button()
-            btnAddInc = New Button()
-            pFilter.SuspendLayout()
-            CType(dgvTransactions, ISupportInitialize).BeginInit()
-            pActions.SuspendLayout()
-            SuspendLayout()
+            Me.components = New System.ComponentModel.Container()
+            Me.ttMain = New System.Windows.Forms.ToolTip(Me.components)
+
+            ' === Create all controls ===
+            Me.lblHeader = New System.Windows.Forms.Label()
+            Me.pFilter = New System.Windows.Forms.Panel()
+            Me.lblCategory = New System.Windows.Forms.Label()
+            Me.cboCategory = New System.Windows.Forms.ComboBox()
+            Me.lblType = New System.Windows.Forms.Label()
+            Me.cboType = New System.Windows.Forms.ComboBox()
+            Me.lblDate = New System.Windows.Forms.Label()
+            Me.dtpFrom = New System.Windows.Forms.DateTimePicker()
+            Me.lblTo = New System.Windows.Forms.Label()
+            Me.dtpTo = New System.Windows.Forms.DateTimePicker()
+            Me.lblSearch = New System.Windows.Forms.Label()
+            Me.txtSearch = New System.Windows.Forms.TextBox()
+            Me.btnSearch = New System.Windows.Forms.Button()
+            Me.btnRefresh = New System.Windows.Forms.Button()
+            Me.lblSummary = New System.Windows.Forms.Label()
+            Me.dgvTransactions = New System.Windows.Forms.DataGridView()
+            Me.pActions = New System.Windows.Forms.Panel()
+            Me.btnClose = New System.Windows.Forms.Button()
+            Me.btnDelete = New System.Windows.Forms.Button()
+            Me.btnEdit = New System.Windows.Forms.Button()
+            Me.btnAddTrans = New System.Windows.Forms.Button()
+            Me.btnAddExp = New System.Windows.Forms.Button()
+            Me.btnAddInc = New System.Windows.Forms.Button()
+
+            ' === Suspend layouts ===
+            Me.pFilter.SuspendLayout()
+            CType(Me.dgvTransactions, System.ComponentModel.ISupportInitialize).BeginInit()
+            Me.pActions.SuspendLayout()
+            Me.SuspendLayout()
+
             ' 
             ' lblHeader
             ' 
-            lblHeader.BackColor = Color.FromArgb(CByte(253), CByte(230), CByte(138))
-            lblHeader.Dock = DockStyle.Top
-            lblHeader.Font = New Font("Tahoma", 15F, FontStyle.Bold)
-            lblHeader.ForeColor = Color.FromArgb(CByte(69), CByte(26), CByte(3))
-            lblHeader.Location = New Point(0, 0)
-            lblHeader.Name = "lblHeader"
-            lblHeader.Size = New Size(1400, 64)
-            lblHeader.TabIndex = 4
-            lblHeader.Text = "📋 รายการรับ-จ่ายทั้งหมด"
-            lblHeader.TextAlign = ContentAlignment.MiddleCenter
+            Me.lblHeader.BackColor = System.Drawing.Color.FromArgb(CType(253, Byte), CType(230, Byte), CType(138, Byte))
+            Me.lblHeader.Dock = System.Windows.Forms.DockStyle.Top
+            Me.lblHeader.Font = New System.Drawing.Font("Tahoma", 15.0!, System.Drawing.FontStyle.Bold)
+            Me.lblHeader.ForeColor = System.Drawing.Color.FromArgb(CType(69, Byte), CType(26, Byte), CType(3, Byte))
+            Me.lblHeader.Location = New System.Drawing.Point(0, 0)
+            Me.lblHeader.Name = "lblHeader"
+            Me.lblHeader.Size = New System.Drawing.Size(1400, 64)
+            Me.lblHeader.TabIndex = 4
+            Me.lblHeader.Text = "📋 รายการรับ-จ่ายทั้งหมด"
+            Me.lblHeader.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+
             ' 
             ' pFilter
             ' 
-            pFilter.BackColor = Color.White
-            pFilter.Controls.Add(lblCategory)
-            pFilter.Controls.Add(cboCategory)
-            pFilter.Controls.Add(lblType)
-            pFilter.Controls.Add(cboType)
-            pFilter.Controls.Add(lblDate)
-            pFilter.Controls.Add(dtpFrom)
-            pFilter.Controls.Add(lblTo)
-            pFilter.Controls.Add(dtpTo)
-            pFilter.Controls.Add(lblSearch)
-            pFilter.Controls.Add(txtSearch)
-            pFilter.Controls.Add(btnSearch)
-            pFilter.Controls.Add(btnRefresh)
-            pFilter.Dock = DockStyle.Top
-            pFilter.Location = New Point(0, 64)
-            pFilter.Name = "pFilter"
-            pFilter.Padding = New Padding(16)
-            pFilter.Size = New Size(1400, 130)
-            pFilter.TabIndex = 3
+            Me.pFilter.BackColor = System.Drawing.Color.White
+            Me.pFilter.Controls.Add(Me.lblCategory)
+            Me.pFilter.Controls.Add(Me.cboCategory)
+            Me.pFilter.Controls.Add(Me.lblType)
+            Me.pFilter.Controls.Add(Me.cboType)
+            Me.pFilter.Controls.Add(Me.lblDate)
+            Me.pFilter.Controls.Add(Me.dtpFrom)
+            Me.pFilter.Controls.Add(Me.lblTo)
+            Me.pFilter.Controls.Add(Me.dtpTo)
+            Me.pFilter.Controls.Add(Me.lblSearch)
+            Me.pFilter.Controls.Add(Me.txtSearch)
+            Me.pFilter.Controls.Add(Me.btnSearch)
+            Me.pFilter.Controls.Add(Me.btnRefresh)
+            Me.pFilter.Dock = System.Windows.Forms.DockStyle.Top
+            Me.pFilter.Location = New System.Drawing.Point(0, 64)
+            Me.pFilter.Name = "pFilter"
+            Me.pFilter.Padding = New System.Windows.Forms.Padding(16)
+            Me.pFilter.Size = New System.Drawing.Size(1400, 130)
+            Me.pFilter.TabIndex = 3
+
             ' 
             ' lblCategory
             ' 
-            lblCategory.Font = New Font("Tahoma", 10F)
-            lblCategory.Location = New Point(16, 16)
-            lblCategory.Name = "lblCategory"
-            lblCategory.Size = New Size(80, 28)
-            lblCategory.TabIndex = 0
-            lblCategory.Text = "ประเภท:"
-            lblCategory.TextAlign = ContentAlignment.MiddleRight
+            Me.lblCategory.Font = New System.Drawing.Font("Tahoma", 10.0!)
+            Me.lblCategory.Location = New System.Drawing.Point(16, 16)
+            Me.lblCategory.Name = "lblCategory"
+            Me.lblCategory.Size = New System.Drawing.Size(80, 28)
+            Me.lblCategory.TabIndex = 0
+            Me.lblCategory.Text = "ประเภท:"
+            Me.lblCategory.TextAlign = System.Drawing.ContentAlignment.MiddleRight
+
             ' 
             ' cboCategory
             ' 
-            cboCategory.DropDownStyle = ComboBoxStyle.DropDownList
-            cboCategory.Font = New Font("Tahoma", 10F)
-            cboCategory.Location = New Point(118, 12)
-            cboCategory.Name = "cboCategory"
-            cboCategory.Size = New Size(200, 32)
-            cboCategory.TabIndex = 1
+            Me.cboCategory.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+            Me.cboCategory.Font = New System.Drawing.Font("Tahoma", 10.0!)
+            Me.cboCategory.Location = New System.Drawing.Point(118, 12)
+            Me.cboCategory.Name = "cboCategory"
+            Me.cboCategory.Size = New System.Drawing.Size(200, 32)
+            Me.cboCategory.TabIndex = 1
+
             ' 
             ' lblType
             ' 
-            lblType.Font = New Font("Tahoma", 10F)
-            lblType.Location = New Point(386, 12)
-            lblType.Name = "lblType"
-            lblType.Size = New Size(60, 28)
-            lblType.TabIndex = 2
-            lblType.Text = "ชนิด:"
-            lblType.TextAlign = ContentAlignment.MiddleRight
+            Me.lblType.Font = New System.Drawing.Font("Tahoma", 10.0!)
+            Me.lblType.Location = New System.Drawing.Point(386, 12)
+            Me.lblType.Name = "lblType"
+            Me.lblType.Size = New System.Drawing.Size(60, 28)
+            Me.lblType.TabIndex = 2
+            Me.lblType.Text = "ชนิด:"
+            Me.lblType.TextAlign = System.Drawing.ContentAlignment.MiddleRight
+
             ' 
             ' cboType
             ' 
-            cboType.DropDownStyle = ComboBoxStyle.DropDownList
-            cboType.Font = New Font("Tahoma", 10F)
-            cboType.Items.AddRange(New Object() {"ทั้งหมด", "รายรับ", "รายจ่าย", "โอนภายใน"})
-            cboType.Location = New Point(485, 12)
-            cboType.Name = "cboType"
-            cboType.Size = New Size(180, 32)
-            cboType.TabIndex = 3
+            Me.cboType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+            Me.cboType.Font = New System.Drawing.Font("Tahoma", 10.0!)
+            Me.cboType.Items.AddRange(New Object() {"ทั้งหมด", "รายรับ", "รายจ่าย", "โอนภายใน"})
+            Me.cboType.Location = New System.Drawing.Point(485, 12)
+            Me.cboType.Name = "cboType"
+            Me.cboType.Size = New System.Drawing.Size(180, 32)
+            Me.cboType.TabIndex = 3
+
             ' 
             ' lblDate
             ' 
-            lblDate.Font = New Font("Tahoma", 10F)
-            lblDate.Location = New Point(16, 54)
-            lblDate.Name = "lblDate"
-            lblDate.Size = New Size(80, 28)
-            lblDate.TabIndex = 4
-            lblDate.Text = "ตั้งแต่:"
-            lblDate.TextAlign = ContentAlignment.MiddleRight
+            Me.lblDate.Font = New System.Drawing.Font("Tahoma", 10.0!)
+            Me.lblDate.Location = New System.Drawing.Point(16, 54)
+            Me.lblDate.Name = "lblDate"
+            Me.lblDate.Size = New System.Drawing.Size(80, 28)
+            Me.lblDate.TabIndex = 4
+            Me.lblDate.Text = "ตั้งแต่:"
+            Me.lblDate.TextAlign = System.Drawing.ContentAlignment.MiddleRight
+
             ' 
             ' dtpFrom
             ' 
-            dtpFrom.Font = New Font("Tahoma", 10F)
-            dtpFrom.Format = DateTimePickerFormat.Short
-            dtpFrom.Location = New Point(118, 56)
-            dtpFrom.Name = "dtpFrom"
-            dtpFrom.Size = New Size(160, 32)
-            dtpFrom.TabIndex = 5
+            Me.dtpFrom.Font = New System.Drawing.Font("Tahoma", 10.0!)
+            Me.dtpFrom.Format = System.Windows.Forms.DateTimePickerFormat.Short
+            Me.dtpFrom.Location = New System.Drawing.Point(118, 56)
+            Me.dtpFrom.Name = "dtpFrom"
+            Me.dtpFrom.Size = New System.Drawing.Size(160, 32)
+            Me.dtpFrom.TabIndex = 5
+
             ' 
             ' lblTo
             ' 
-            lblTo.Font = New Font("Tahoma", 10F)
-            lblTo.Location = New Point(294, 56)
-            lblTo.Name = "lblTo"
-            lblTo.Size = New Size(40, 28)
-            lblTo.TabIndex = 6
-            lblTo.Text = "ถึง:"
-            lblTo.TextAlign = ContentAlignment.MiddleRight
+            Me.lblTo.Font = New System.Drawing.Font("Tahoma", 10.0!)
+            Me.lblTo.Location = New System.Drawing.Point(294, 56)
+            Me.lblTo.Name = "lblTo"
+            Me.lblTo.Size = New System.Drawing.Size(40, 28)
+            Me.lblTo.TabIndex = 6
+            Me.lblTo.Text = "ถึง:"
+            Me.lblTo.TextAlign = System.Drawing.ContentAlignment.MiddleRight
+
             ' 
             ' dtpTo
             ' 
-            dtpTo.Font = New Font("Tahoma", 10F)
-            dtpTo.Format = DateTimePickerFormat.Short
-            dtpTo.Location = New Point(362, 55)
-            dtpTo.Name = "dtpTo"
-            dtpTo.Size = New Size(160, 32)
-            dtpTo.TabIndex = 7
+            Me.dtpTo.Font = New System.Drawing.Font("Tahoma", 10.0!)
+            Me.dtpTo.Format = System.Windows.Forms.DateTimePickerFormat.Short
+            Me.dtpTo.Location = New System.Drawing.Point(362, 55)
+            Me.dtpTo.Name = "dtpTo"
+            Me.dtpTo.Size = New System.Drawing.Size(160, 32)
+            Me.dtpTo.TabIndex = 7
+
             ' 
             ' lblSearch
             ' 
-            lblSearch.Font = New Font("Tahoma", 10F)
-            lblSearch.Location = New Point(528, 56)
-            lblSearch.Name = "lblSearch"
-            lblSearch.Size = New Size(60, 28)
-            lblSearch.TabIndex = 8
-            lblSearch.Text = "ค้นหา:"
-            lblSearch.TextAlign = ContentAlignment.MiddleRight
+            Me.lblSearch.Font = New System.Drawing.Font("Tahoma", 10.0!)
+            Me.lblSearch.Location = New System.Drawing.Point(528, 56)
+            Me.lblSearch.Name = "lblSearch"
+            Me.lblSearch.Size = New System.Drawing.Size(60, 28)
+            Me.lblSearch.TabIndex = 8
+            Me.lblSearch.Text = "ค้นหา:"
+            Me.lblSearch.TextAlign = System.Drawing.ContentAlignment.MiddleRight
+
             ' 
             ' txtSearch
             ' 
-            txtSearch.Font = New Font("Tahoma", 10F)
-            txtSearch.Location = New Point(594, 58)
-            txtSearch.Name = "txtSearch"
-            txtSearch.Size = New Size(258, 32)
-            txtSearch.TabIndex = 9
+            Me.txtSearch.Font = New System.Drawing.Font("Tahoma", 10.0!)
+            Me.txtSearch.Location = New System.Drawing.Point(594, 58)
+            Me.txtSearch.Name = "txtSearch"
+            Me.txtSearch.Size = New System.Drawing.Size(258, 32)
+            Me.txtSearch.TabIndex = 9
+
             ' 
             ' btnSearch
             ' 
-            btnSearch.BackColor = Color.FromArgb(CByte(37), CByte(99), CByte(235))
-            btnSearch.Cursor = Cursors.Hand
-            btnSearch.FlatStyle = FlatStyle.Flat
-            btnSearch.Font = New Font("Tahoma", 10F, FontStyle.Bold)
-            btnSearch.ForeColor = Color.White
-            btnSearch.Location = New Point(858, 56)
-            btnSearch.Name = "btnSearch"
-            btnSearch.Size = New Size(100, 36)
-            btnSearch.TabIndex = 10
-            btnSearch.Text = "🔍 ค้นหา"
-            btnSearch.UseVisualStyleBackColor = False
+            Me.btnSearch.BackColor = System.Drawing.Color.FromArgb(CType(37, Byte), CType(99, Byte), CType(235, Byte))
+            Me.btnSearch.Cursor = System.Windows.Forms.Cursors.Hand
+            Me.btnSearch.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+            Me.btnSearch.Font = New System.Drawing.Font("Tahoma", 10.0!, System.Drawing.FontStyle.Bold)
+            Me.btnSearch.ForeColor = System.Drawing.Color.White
+            Me.btnSearch.Location = New System.Drawing.Point(858, 56)
+            Me.btnSearch.Name = "btnSearch"
+            Me.btnSearch.Size = New System.Drawing.Size(100, 36)
+            Me.btnSearch.TabIndex = 10
+            Me.btnSearch.Text = "🔍 ค้นหา"
+            Me.btnSearch.UseVisualStyleBackColor = False
+
             ' 
             ' btnRefresh
             ' 
-            btnRefresh.BackColor = Color.FromArgb(CByte(5), CByte(150), CByte(105))
-            btnRefresh.Cursor = Cursors.Hand
-            btnRefresh.FlatStyle = FlatStyle.Flat
-            btnRefresh.Font = New Font("Tahoma", 10F, FontStyle.Bold)
-            btnRefresh.ForeColor = Color.White
-            btnRefresh.Location = New Point(964, 58)
-            btnRefresh.Name = "btnRefresh"
-            btnRefresh.Size = New Size(100, 36)
-            btnRefresh.TabIndex = 11
-            btnRefresh.Text = "🔄 รีเฟรช"
-            btnRefresh.UseVisualStyleBackColor = False
+            Me.btnRefresh.BackColor = System.Drawing.Color.FromArgb(CType(5, Byte), CType(150, Byte), CType(105, Byte))
+            Me.btnRefresh.Cursor = System.Windows.Forms.Cursors.Hand
+            Me.btnRefresh.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+            Me.btnRefresh.Font = New System.Drawing.Font("Tahoma", 10.0!, System.Drawing.FontStyle.Bold)
+            Me.btnRefresh.ForeColor = System.Drawing.Color.White
+            Me.btnRefresh.Location = New System.Drawing.Point(964, 58)
+            Me.btnRefresh.Name = "btnRefresh"
+            Me.btnRefresh.Size = New System.Drawing.Size(100, 36)
+            Me.btnRefresh.TabIndex = 11
+            Me.btnRefresh.Text = "🔄 รีเฟรช"
+            Me.btnRefresh.UseVisualStyleBackColor = False
+
             ' 
             ' lblSummary
             ' 
-            lblSummary.BackColor = Color.FromArgb(CByte(254), CByte(240), CByte(138))
-            lblSummary.Dock = DockStyle.Top
-            lblSummary.Font = New Font("Tahoma", 11F, FontStyle.Bold)
-            lblSummary.ForeColor = Color.FromArgb(CByte(69), CByte(26), CByte(3))
-            lblSummary.Location = New Point(0, 194)
-            lblSummary.Name = "lblSummary"
-            lblSummary.Size = New Size(1400, 48)
-            lblSummary.TabIndex = 2
-            lblSummary.Text = "รายรับ: 0.00 บาท   |   รายจ่าย: 0.00 บาท   |   คงเหลือ: 0.00 บาท   |   โอน: 0.00 บาท"
-            lblSummary.TextAlign = ContentAlignment.MiddleCenter
+            Me.lblSummary.BackColor = System.Drawing.Color.FromArgb(CType(254, Byte), CType(240, Byte), CType(138, Byte))
+            Me.lblSummary.Dock = System.Windows.Forms.DockStyle.Top
+            Me.lblSummary.Font = New System.Drawing.Font("Tahoma", 11.0!, System.Drawing.FontStyle.Bold)
+            Me.lblSummary.ForeColor = System.Drawing.Color.FromArgb(CType(69, Byte), CType(26, Byte), CType(3, Byte))
+            Me.lblSummary.Location = New System.Drawing.Point(0, 194)
+            Me.lblSummary.Name = "lblSummary"
+            Me.lblSummary.Size = New System.Drawing.Size(1400, 48)
+            Me.lblSummary.TabIndex = 2
+            Me.lblSummary.Text = "รายรับ: 0.00 บาท   |   รายจ่าย: 0.00 บาท   |   คงเหลือ: 0.00 บาท   |   โอน: 0.00 บาท"
+            Me.lblSummary.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+
             ' 
             ' dgvTransactions
             ' 
-            dgvTransactions.AllowUserToAddRows = False
-            dgvTransactions.AllowUserToDeleteRows = False
-            DataGridViewCellStyle2.BackColor = Color.FromArgb(CByte(255), CByte(251), CByte(235))
-            dgvTransactions.AlternatingRowsDefaultCellStyle = DataGridViewCellStyle2
-            dgvTransactions.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
-            dgvTransactions.BackgroundColor = Color.White
-            dgvTransactions.BorderStyle = BorderStyle.None
-            dgvTransactions.ColumnHeadersHeight = 34
-            dgvTransactions.Dock = DockStyle.Fill
-            dgvTransactions.EditMode = DataGridViewEditMode.EditOnEnter
-            dgvTransactions.Font = New Font("Tahoma", 10F)
-            dgvTransactions.Location = New Point(0, 242)
-            dgvTransactions.Name = "dgvTransactions"
-            dgvTransactions.ReadOnly = True
-            dgvTransactions.RowHeadersWidth = 62
-            dgvTransactions.RowTemplate.Height = 34
-            dgvTransactions.SelectionMode = DataGridViewSelectionMode.FullRowSelect
-            dgvTransactions.Size = New Size(1400, 478)
-            dgvTransactions.TabIndex = 0
+            Dim DataGridViewCellStyle1 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+            DataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(CType(255, Byte), CType(251, Byte), CType(235, Byte))
+            Me.dgvTransactions.AllowUserToAddRows = False
+            Me.dgvTransactions.AllowUserToDeleteRows = False
+            Me.dgvTransactions.AlternatingRowsDefaultCellStyle = DataGridViewCellStyle1
+            Me.dgvTransactions.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill
+            Me.dgvTransactions.BackgroundColor = System.Drawing.Color.White
+            Me.dgvTransactions.BorderStyle = System.Windows.Forms.BorderStyle.None
+            Me.dgvTransactions.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing
+            Me.dgvTransactions.ColumnHeadersHeight = 34
+            Me.dgvTransactions.Dock = System.Windows.Forms.DockStyle.Fill
+            Me.dgvTransactions.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnEnter
+            Me.dgvTransactions.Font = New System.Drawing.Font("Tahoma", 10.0!)
+            Me.dgvTransactions.Location = New System.Drawing.Point(0, 242)
+            Me.dgvTransactions.Name = "dgvTransactions"
+            Me.dgvTransactions.ReadOnly = True
+            Me.dgvTransactions.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing
+            Me.dgvTransactions.RowHeadersWidth = 62
+            Me.dgvTransactions.RowTemplate.Height = 34
+            Me.dgvTransactions.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
+            Me.dgvTransactions.Size = New System.Drawing.Size(1400, 478)
+            Me.dgvTransactions.TabIndex = 0
+
             ' 
             ' pActions
             ' 
-            pActions.BackColor = Color.FromArgb(CByte(245), CByte(240), CByte(220))
-            pActions.Controls.Add(btnClose)
-            pActions.Controls.Add(btnDelete)
-            pActions.Controls.Add(btnEdit)
-            pActions.Controls.Add(btnAddTrans)
-            pActions.Controls.Add(btnAddExp)
-            pActions.Controls.Add(btnAddInc)
-            pActions.Dock = DockStyle.Bottom
-            pActions.Location = New Point(0, 720)
-            pActions.Name = "pActions"
-            pActions.Padding = New Padding(16, 12, 16, 12)
-            pActions.Size = New Size(1400, 80)
-            pActions.TabIndex = 1
+            Me.pActions.BackColor = System.Drawing.Color.FromArgb(CType(245, Byte), CType(240, Byte), CType(220, Byte))
+            Me.pActions.Controls.Add(Me.btnClose)
+            Me.pActions.Controls.Add(Me.btnDelete)
+            Me.pActions.Controls.Add(Me.btnEdit)
+            Me.pActions.Controls.Add(Me.btnAddTrans)
+            Me.pActions.Controls.Add(Me.btnAddExp)
+            Me.pActions.Controls.Add(Me.btnAddInc)
+            Me.pActions.Dock = System.Windows.Forms.DockStyle.Bottom
+            Me.pActions.Location = New System.Drawing.Point(0, 720)
+            Me.pActions.Name = "pActions"
+            Me.pActions.Padding = New System.Windows.Forms.Padding(16, 12, 16, 12)
+            Me.pActions.Size = New System.Drawing.Size(1400, 80)
+            Me.pActions.TabIndex = 1
+
             ' 
             ' btnClose
             ' 
-            btnClose.BackColor = Color.FromArgb(CByte(75), CByte(85), CByte(99))
-            btnClose.Cursor = Cursors.Hand
-            btnClose.FlatStyle = FlatStyle.Flat
-            btnClose.Font = New Font("Tahoma", 10F, FontStyle.Bold)
-            btnClose.ForeColor = Color.White
-            btnClose.Location = New Point(1376, 12)
-            btnClose.Name = "btnClose"
-            btnClose.Size = New Size(80, 50)
-            btnClose.TabIndex = 0
-            btnClose.Text = "ปิด"
-            btnClose.UseVisualStyleBackColor = False
+            Me.btnClose.BackColor = System.Drawing.Color.FromArgb(CType(75, Byte), CType(85, Byte), CType(99, Byte))
+            Me.btnClose.Cursor = System.Windows.Forms.Cursors.Hand
+            Me.btnClose.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+            Me.btnClose.Font = New System.Drawing.Font("Tahoma", 10.0!, System.Drawing.FontStyle.Bold)
+            Me.btnClose.ForeColor = System.Drawing.Color.White
+            Me.btnClose.Location = New System.Drawing.Point(1376, 12)
+            Me.btnClose.Name = "btnClose"
+            Me.btnClose.Size = New System.Drawing.Size(80, 50)
+            Me.btnClose.TabIndex = 0
+            Me.btnClose.Text = "ปิด"
+            Me.btnClose.UseVisualStyleBackColor = False
+
             ' 
             ' btnDelete
             ' 
-            btnDelete.BackColor = Color.FromArgb(CByte(220), CByte(38), CByte(38))
-            btnDelete.Cursor = Cursors.Hand
-            btnDelete.FlatStyle = FlatStyle.Flat
-            btnDelete.Font = New Font("Tahoma", 10F, FontStyle.Bold)
-            btnDelete.ForeColor = Color.White
-            btnDelete.Location = New Point(1268, 12)
-            btnDelete.Name = "btnDelete"
-            btnDelete.Size = New Size(100, 50)
-            btnDelete.TabIndex = 1
-            btnDelete.Text = "🗑️ ลบ"
-            btnDelete.UseVisualStyleBackColor = False
+            Me.btnDelete.BackColor = System.Drawing.Color.FromArgb(CType(220, Byte), CType(38, Byte), CType(38, Byte))
+            Me.btnDelete.Cursor = System.Windows.Forms.Cursors.Hand
+            Me.btnDelete.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+            Me.btnDelete.Font = New System.Drawing.Font("Tahoma", 10.0!, System.Drawing.FontStyle.Bold)
+            Me.btnDelete.ForeColor = System.Drawing.Color.White
+            Me.btnDelete.Location = New System.Drawing.Point(1268, 12)
+            Me.btnDelete.Name = "btnDelete"
+            Me.btnDelete.Size = New System.Drawing.Size(100, 50)
+            Me.btnDelete.TabIndex = 1
+            Me.btnDelete.Text = "🗑️ ลบ"
+            Me.btnDelete.UseVisualStyleBackColor = False
+
             ' 
             ' btnEdit
             ' 
-            btnEdit.BackColor = Color.FromArgb(CByte(37), CByte(99), CByte(235))
-            btnEdit.Cursor = Cursors.Hand
-            btnEdit.FlatStyle = FlatStyle.Flat
-            btnEdit.Font = New Font("Tahoma", 10F, FontStyle.Bold)
-            btnEdit.ForeColor = Color.White
-            btnEdit.Location = New Point(1140, 12)
-            btnEdit.Name = "btnEdit"
-            btnEdit.Size = New Size(120, 50)
-            btnEdit.TabIndex = 2
-            btnEdit.Text = "✏️ แก้ไข"
-            btnEdit.UseVisualStyleBackColor = False
+            Me.btnEdit.BackColor = System.Drawing.Color.FromArgb(CType(37, Byte), CType(99, Byte), CType(235, Byte))
+            Me.btnEdit.Cursor = System.Windows.Forms.Cursors.Hand
+            Me.btnEdit.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+            Me.btnEdit.Font = New System.Drawing.Font("Tahoma", 10.0!, System.Drawing.FontStyle.Bold)
+            Me.btnEdit.ForeColor = System.Drawing.Color.White
+            Me.btnEdit.Location = New System.Drawing.Point(1140, 12)
+            Me.btnEdit.Name = "btnEdit"
+            Me.btnEdit.Size = New System.Drawing.Size(120, 50)
+            Me.btnEdit.TabIndex = 2
+            Me.btnEdit.Text = "✏️ แก้ไข"
+            Me.btnEdit.UseVisualStyleBackColor = False
+
             ' 
             ' btnAddTrans
             ' 
-            btnAddTrans.BackColor = Color.FromArgb(CByte(126), CByte(34), CByte(206))
-            btnAddTrans.Cursor = Cursors.Hand
-            btnAddTrans.FlatStyle = FlatStyle.Flat
-            btnAddTrans.Font = New Font("Tahoma", 10F, FontStyle.Bold)
-            btnAddTrans.ForeColor = Color.White
-            btnAddTrans.Location = New Point(352, 12)
-            btnAddTrans.Name = "btnAddTrans"
-            btnAddTrans.Size = New Size(140, 50)
-            btnAddTrans.TabIndex = 3
-            btnAddTrans.Text = "🔁 โอนเงิน"
-            btnAddTrans.UseVisualStyleBackColor = False
+            Me.btnAddTrans.BackColor = System.Drawing.Color.FromArgb(CType(126, Byte), CType(34, Byte), CType(206, Byte))
+            Me.btnAddTrans.Cursor = System.Windows.Forms.Cursors.Hand
+            Me.btnAddTrans.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+            Me.btnAddTrans.Font = New System.Drawing.Font("Tahoma", 10.0!, System.Drawing.FontStyle.Bold)
+            Me.btnAddTrans.ForeColor = System.Drawing.Color.White
+            Me.btnAddTrans.Location = New System.Drawing.Point(352, 12)
+            Me.btnAddTrans.Name = "btnAddTrans"
+            Me.btnAddTrans.Size = New System.Drawing.Size(140, 50)
+            Me.btnAddTrans.TabIndex = 3
+            Me.btnAddTrans.Text = "🔁 โอนเงิน"
+            Me.btnAddTrans.UseVisualStyleBackColor = False
+
             ' 
             ' btnAddExp
             ' 
-            btnAddExp.BackColor = Color.FromArgb(CByte(180), CByte(83), CByte(9))
-            btnAddExp.Cursor = Cursors.Hand
-            btnAddExp.FlatStyle = FlatStyle.Flat
-            btnAddExp.Font = New Font("Tahoma", 10F, FontStyle.Bold)
-            btnAddExp.ForeColor = Color.White
-            btnAddExp.Location = New Point(184, 12)
-            btnAddExp.Name = "btnAddExp"
-            btnAddExp.Size = New Size(160, 50)
-            btnAddExp.TabIndex = 4
-            btnAddExp.Text = "💸 บันทึกรายจ่าย"
-            btnAddExp.UseVisualStyleBackColor = False
+            Me.btnAddExp.BackColor = System.Drawing.Color.FromArgb(CType(180, Byte), CType(83, Byte), CType(9, Byte))
+            Me.btnAddExp.Cursor = System.Windows.Forms.Cursors.Hand
+            Me.btnAddExp.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+            Me.btnAddExp.Font = New System.Drawing.Font("Tahoma", 10.0!, System.Drawing.FontStyle.Bold)
+            Me.btnAddExp.ForeColor = System.Drawing.Color.White
+            Me.btnAddExp.Location = New System.Drawing.Point(184, 12)
+            Me.btnAddExp.Name = "btnAddExp"
+            Me.btnAddExp.Size = New System.Drawing.Size(160, 50)
+            Me.btnAddExp.TabIndex = 4
+            Me.btnAddExp.Text = "💸 บันทึกรายจ่าย"
+            Me.btnAddExp.UseVisualStyleBackColor = False
+
             ' 
             ' btnAddInc
             ' 
-            btnAddInc.BackColor = Color.FromArgb(CByte(22), CByte(163), CByte(74))
-            btnAddInc.Cursor = Cursors.Hand
-            btnAddInc.FlatStyle = FlatStyle.Flat
-            btnAddInc.Font = New Font("Tahoma", 10F, FontStyle.Bold)
-            btnAddInc.ForeColor = Color.White
-            btnAddInc.Location = New Point(16, 12)
-            btnAddInc.Name = "btnAddInc"
-            btnAddInc.Size = New Size(160, 50)
-            btnAddInc.TabIndex = 5
-            btnAddInc.Text = "💰 บันทึกรายรับ"
-            btnAddInc.UseVisualStyleBackColor = False
+            Me.btnAddInc.BackColor = System.Drawing.Color.FromArgb(CType(22, Byte), CType(163, Byte), CType(74, Byte))
+            Me.btnAddInc.Cursor = System.Windows.Forms.Cursors.Hand
+            Me.btnAddInc.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+            Me.btnAddInc.Font = New System.Drawing.Font("Tahoma", 10.0!, System.Drawing.FontStyle.Bold)
+            Me.btnAddInc.ForeColor = System.Drawing.Color.White
+            Me.btnAddInc.Location = New System.Drawing.Point(16, 12)
+            Me.btnAddInc.Name = "btnAddInc"
+            Me.btnAddInc.Size = New System.Drawing.Size(160, 50)
+            Me.btnAddInc.TabIndex = 5
+            Me.btnAddInc.Text = "💰 บันทึกรายรับ"
+            Me.btnAddInc.UseVisualStyleBackColor = False
+
             ' 
             ' FrmTransactions
             ' 
-            AutoScroll = True
-            BackColor = Color.FromArgb(CByte(254), CByte(249), CByte(235))
-            ClientSize = New Size(1400, 800)
-            Controls.Add(dgvTransactions)
-            Controls.Add(pActions)
-            Controls.Add(lblSummary)
-            Controls.Add(pFilter)
-            Controls.Add(lblHeader)
-            Font = New Font("Tahoma", 10.5F)
-            FormBorderStyle = FormBorderStyle.Sizable
-            MinimumSize = New Size(1180, 760)
-            Name = "FrmTransactions"
-            StartPosition = FormStartPosition.CenterScreen
-            Text = "รายการรับ-จ่ายทั้งหมด"
-            WindowState = FormWindowState.Maximized
-            pFilter.ResumeLayout(False)
-            pFilter.PerformLayout()
-            CType(dgvTransactions, ISupportInitialize).EndInit()
-            pActions.ResumeLayout(False)
-            ResumeLayout(False)
+            Me.AutoScroll = True
+            Me.BackColor = System.Drawing.Color.FromArgb(CType(254, Byte), CType(249, Byte), CType(235, Byte))
+            Me.ClientSize = New System.Drawing.Size(1400, 800)
+            Me.Controls.Add(Me.dgvTransactions)
+            Me.Controls.Add(Me.pActions)
+            Me.Controls.Add(Me.lblSummary)
+            Me.Controls.Add(Me.pFilter)
+            Me.Controls.Add(Me.lblHeader)
+            Me.Font = New System.Drawing.Font("Tahoma", 10.5!)
+            Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Sizable
+            Me.MinimumSize = New System.Drawing.Size(1180, 760)
+            Me.Name = "FrmTransactions"
+            Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
+            Me.Text = "รายการรับ-จ่ายทั้งหมด"
+            Me.WindowState = System.Windows.Forms.FormWindowState.Maximized
+
+            ' === Resume layouts ===
+            Me.pFilter.ResumeLayout(False)
+            Me.pFilter.PerformLayout()
+            CType(Me.dgvTransactions, System.ComponentModel.ISupportInitialize).EndInit()
+            Me.pActions.ResumeLayout(False)
+            Me.ResumeLayout(False)
         End Sub
     End Class
 End Namespace
