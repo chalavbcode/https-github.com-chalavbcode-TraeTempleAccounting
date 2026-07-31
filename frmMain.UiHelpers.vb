@@ -56,7 +56,6 @@ Namespace TempleAccounting
 
         Private Sub SetupIconsAndImages()
             Try
-                ilIcons.ImageSize = New Size(28, 28)
                 ilIcons.Images.Clear()
                 ilIcons.Images.Add("home", MakeIconBitmap("🏠", Color.FromArgb(69, 26, 3)))
                 ilIcons.Images.Add("donation", MakeIconBitmap("💰", Color.FromArgb(22, 101, 52)))
@@ -79,8 +78,6 @@ Namespace TempleAccounting
             End Try
 
             Try
-                picLogo.SizeMode = PictureBoxSizeMode.Zoom
-                picLogoBadge.SizeMode = PictureBoxSizeMode.Zoom
                 picLogo.Image = MakeIconBitmap("📿", Color.FromArgb(69, 26, 3), New Size(48, 48), 28)
                 picLogoBadge.Image = MakeIconBitmap("🏛️", Color.FromArgb(120, 53, 15), New Size(44, 44), 26)
             Catch
@@ -115,104 +112,16 @@ Namespace TempleAccounting
             If ilIcons.Images.ContainsKey(imageKey) Then
                 btn.ImageList = ilIcons
                 btn.ImageKey = imageKey
-                btn.ImageAlign = ContentAlignment.MiddleLeft
-                btn.TextImageRelation = TextImageRelation.ImageBeforeText
-                btn.Padding = New Padding(14, 0, 8, 0)
             End If
         End Sub
 
         Private Sub ApplyInitialState()
-            ConfigureOverviewCardLayout()
-            lblStatusRight.Text = $"v1.0.0 | {DateTime.Now:yyyy}"
             UpdateStatusTime()
-            AdjustContentLayoutSpacing()
 
             Dim tmrStatus As New WinTimer()
             tmrStatus.Interval = 1000
             AddHandler tmrStatus.Tick, Sub(s, e) UpdateStatusTime()
             tmrStatus.Start()
-        End Sub
-
-        Private Sub RefreshOverviewLayout()
-            ConfigureOverviewCardLayout()
-            AdjustContentLayoutSpacing()
-            If pnlOverview IsNot Nothing Then
-                pnlOverview.PerformLayout()
-            End If
-        End Sub
-
-        Private Sub SetOverviewCompactMode(isCompact As Boolean)
-            _compactOverviewMode = isCompact
-            If pnlOverview IsNot Nothing Then
-                pnlOverview.Visible = Not isCompact
-                If isCompact Then
-                    pnlOverview.Height = 0
-                End If
-            End If
-            RefreshOverviewLayout()
-        End Sub
-
-        Private Sub ConfigureOverviewCardLayout()
-            Dim cardPanels = {pnlCard1, pnlCard2, pnlCard3, pnlCard4}
-            Dim titleLabels = {lblCard1Title, lblCard2Title, lblCard3Title, lblCard4Title}
-            Dim valueLabels = {lblCard1Value, lblCard2Value, lblCard3Value, lblCard4Value}
-            ' ลบ iconLabels เนื่องไม่มีการประกาศใน Designer.vb
-            ' Dim iconLabels = {lblCard1Icon, lblCard2Icon, lblCard3Icon, lblCard4Icon}
-
-            ' ปรับ layout โดยไม่ใช้ icon labels
-            Dim iconFontSize As Single = If(_compactOverviewMode, 20.0!, 26.0!)
-            Dim iconFont As New Font("Segoe UI Emoji", iconFontSize, FontStyle.Regular, GraphicsUnit.Point, 0)
-            Dim maxIconHeight As Integer = 0
-            Dim maxValueHeight As Integer = 0
-            
-            ' ตั้งค่า default height (เนื่องไม่มี iconLabels)
-            maxIconHeight = If(_compactOverviewMode, 40, 60)
-            maxIconHeight = Math.Max(maxIconHeight, If(_compactOverviewMode, 40, 54))
-
-            Dim valueFontSize As Single = If(_compactOverviewMode, 11.0!, 13.0!)   ' เดิม 17pt → ลดเหลือ 13pt (ปกติ) / 11pt (compact)
-            Dim valueFont As New Font("Tahoma", valueFontSize, FontStyle.Bold, GraphicsUnit.Point, 222)
-
-            For Each valueLabel In valueLabels
-                If valueLabel Is Nothing Then Continue For
-                valueLabel.Font = valueFont
-                valueLabel.Padding = If(_compactOverviewMode, New Padding(0, 0, 0, 2), New Padding(0, 2, 0, 6))
-                maxValueHeight = Math.Max(maxValueHeight, TextRenderer.MeasureText("213,750.00", valueLabel.Font).Height + If(_compactOverviewMode, 6, 10))
-            Next
-            maxValueHeight = Math.Max(maxValueHeight, If(_compactOverviewMode, 28, 40))
-
-            Dim targetCardHeight As Integer = 0
-            For i As Integer = 0 To titleLabels.Length - 1
-                If valueLabels(i) IsNot Nothing Then valueLabels(i).Height = maxValueHeight
-                If titleLabels(i) IsNot Nothing AndAlso valueLabels(i) IsNot Nothing AndAlso cardPanels(i) IsNot Nothing Then
-                    Dim desiredHeight = cardPanels(i).Padding.Top + titleLabels(i).Height + maxValueHeight + maxIconHeight + cardPanels(i).Padding.Bottom
-                    targetCardHeight = Math.Max(targetCardHeight, desiredHeight)
-                End If
-            Next
-
-            targetCardHeight = Math.Max(targetCardHeight, If(_compactOverviewMode, 108, 150))
-
-            If pnlCards IsNot Nothing Then
-                pnlCards.Height = targetCardHeight
-            End If
-
-            For Each cardPanel In cardPanels
-                If cardPanel IsNot Nothing Then
-                    cardPanel.Height = targetCardHeight
-                End If
-            Next
-        End Sub
-
-        Private Sub AdjustContentLayoutSpacing()
-            If pnlOverview Is Nothing OrElse lblOverviewTitle Is Nothing OrElse pnlCards Is Nothing Then Return
-
-            If _compactOverviewMode Then
-                pnlOverview.Height = 0
-                Return
-            End If
-
-            ' เผื่อช่องว่างใต้การ์ดสรุปให้ฟอร์มงานด้านล่างไม่ชนหรือถูกบังเมื่อใช้ฟอนต์/DPI ใหญ่ขึ้น
-            Dim desiredHeight = lblOverviewTitle.Height + pnlCards.Height + If(_compactOverviewMode, 10, 28)
-            pnlOverview.Height = desiredHeight
         End Sub
 
         Private Sub UpdateStatusTime()
