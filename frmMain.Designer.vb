@@ -567,7 +567,7 @@ Namespace TempleAccounting
             pnlCards.Dock = DockStyle.Top
             pnlCards.Location = New Point(0, 31)
             pnlCards.Name = "pnlCards"
-            pnlCards.Size = New Size(1157, 95)
+            pnlCards.Size = New Size(1157, 75)
             pnlCards.TabIndex = 1
             ' 
             ' pnlCard4
@@ -580,7 +580,7 @@ Namespace TempleAccounting
             pnlCard4.Location = New Point(413, 0)
             pnlCard4.Name = "pnlCard4"
             pnlCard4.Padding = New Padding(12, 10, 12, 10)
-            pnlCard4.Size = New Size(248, 95)
+            pnlCard4.Size = New Size(248, 75)
             pnlCard4.TabIndex = 3
             ' 
             ' lblCard4Value
@@ -619,7 +619,7 @@ Namespace TempleAccounting
             pnlCard3.Location = New Point(661, 0)
             pnlCard3.Name = "pnlCard3"
             pnlCard3.Padding = New Padding(12, 10, 12, 10)
-            pnlCard3.Size = New Size(248, 95)
+            pnlCard3.Size = New Size(248, 75)
             pnlCard3.TabIndex = 2
             ' 
             ' lblCard3Value
@@ -658,7 +658,7 @@ Namespace TempleAccounting
             pnlCard2.Location = New Point(909, 0)
             pnlCard2.Name = "pnlCard2"
             pnlCard2.Padding = New Padding(12, 10, 12, 10)
-            pnlCard2.Size = New Size(248, 95)
+            pnlCard2.Size = New Size(248, 75)
             pnlCard2.TabIndex = 1
             ' 
             ' lblCard2Value
@@ -697,7 +697,7 @@ Namespace TempleAccounting
             pnlCard1.Location = New Point(0, 0)
             pnlCard1.Name = "pnlCard1"
             pnlCard1.Padding = New Padding(12, 10, 12, 10)
-            pnlCard1.Size = New Size(248, 95)
+            pnlCard1.Size = New Size(248, 75)
             pnlCard1.TabIndex = 0
             ' 
             ' lblCard1Value
