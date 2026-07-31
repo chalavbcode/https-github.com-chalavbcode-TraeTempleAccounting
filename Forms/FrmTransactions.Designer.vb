@@ -118,7 +118,8 @@ Namespace TempleAccounting
             tblFilter.ColumnStyles.Add(New ColumnStyle(SizeType.Absolute, 237F))
             tblFilter.ColumnStyles.Add(New ColumnStyle(SizeType.Absolute, 137F))
             tblFilter.ColumnStyles.Add(New ColumnStyle(SizeType.Percent, 100F))
-            tblFilter.ColumnStyles.Add(New ColumnStyle(SizeType.Absolute, 202F))
+            tblFilter.ColumnStyles.Add(New ColumnStyle(SizeType.Absolute, 146F))
+            tblFilter.ColumnStyles.Add(New ColumnStyle(SizeType.Absolute, 408F))
             tblFilter.Controls.Add(lblCategory, 0, 0)
             tblFilter.Controls.Add(cboCategory, 1, 0)
             tblFilter.Controls.Add(cboType, 3, 0)
@@ -126,19 +127,19 @@ Namespace TempleAccounting
             tblFilter.Controls.Add(dtpFrom, 1, 1)
             tblFilter.Controls.Add(lblTo, 2, 1)
             tblFilter.Controls.Add(dtpTo, 3, 1)
-            tblFilter.Controls.Add(txtSearch, 4, 0)
             tblFilter.Controls.Add(lblType, 2, 0)
             tblFilter.Controls.Add(btnRefresh, 4, 1)
             tblFilter.Controls.Add(btnSearch, 6, 1)
-            tblFilter.Controls.Add(lblSearch, 6, 0)
+            tblFilter.Controls.Add(txtSearch, 6, 0)
+            tblFilter.Controls.Add(lblSearch, 4, 0)
             tblFilter.Dock = DockStyle.Fill
             tblFilter.GrowStyle = TableLayoutPanelGrowStyle.AddColumns
             tblFilter.Location = New Point(10, 10)
             tblFilter.Name = "tblFilter"
             tblFilter.Padding = New Padding(5)
             tblFilter.RowCount = 2
-            tblFilter.RowStyles.Add(New RowStyle(SizeType.Absolute, 50F))
-            tblFilter.RowStyles.Add(New RowStyle(SizeType.Absolute, 50F))
+            tblFilter.RowStyles.Add(New RowStyle(SizeType.Absolute, 65F))
+            tblFilter.RowStyles.Add(New RowStyle(SizeType.Absolute, 35F))
             tblFilter.Size = New Size(1380, 120)
             tblFilter.TabIndex = 0
             ' 
@@ -172,7 +173,7 @@ Namespace TempleAccounting
             ' 
             ' lblDate
             ' 
-            lblDate.Location = New Point(8, 55)
+            lblDate.Location = New Point(8, 70)
             lblDate.Name = "lblDate"
             lblDate.Size = New Size(71, 36)
             lblDate.TabIndex = 4
@@ -183,14 +184,14 @@ Namespace TempleAccounting
             ' 
             dtpFrom.Dock = DockStyle.Fill
             dtpFrom.Format = DateTimePickerFormat.Short
-            dtpFrom.Location = New Point(114, 58)
+            dtpFrom.Location = New Point(114, 73)
             dtpFrom.Name = "dtpFrom"
             dtpFrom.Size = New Size(203, 33)
             dtpFrom.TabIndex = 5
             ' 
             ' lblTo
             ' 
-            lblTo.Location = New Point(323, 55)
+            lblTo.Location = New Point(323, 70)
             lblTo.Name = "lblTo"
             lblTo.Size = New Size(50, 36)
             lblTo.TabIndex = 6
@@ -201,7 +202,7 @@ Namespace TempleAccounting
             ' 
             dtpTo.Dock = DockStyle.Fill
             dtpTo.Format = DateTimePickerFormat.Short
-            dtpTo.Location = New Point(442, 58)
+            dtpTo.Location = New Point(442, 73)
             dtpTo.Name = "dtpTo"
             dtpTo.Size = New Size(231, 33)
             dtpTo.TabIndex = 7
@@ -210,9 +211,9 @@ Namespace TempleAccounting
             ' 
             tblFilter.SetColumnSpan(txtSearch, 2)
             txtSearch.Dock = DockStyle.Fill
-            txtSearch.Location = New Point(679, 8)
+            txtSearch.Location = New Point(824, 8)
             txtSearch.Name = "txtSearch"
-            txtSearch.Size = New Size(491, 33)
+            txtSearch.Size = New Size(548, 33)
             txtSearch.TabIndex = 9
             ' 
             ' lblType
@@ -231,9 +232,9 @@ Namespace TempleAccounting
             btnRefresh.FlatStyle = FlatStyle.Flat
             btnRefresh.Font = New Font("Tahoma", 9F, FontStyle.Bold)
             btnRefresh.ForeColor = Color.White
-            btnRefresh.Location = New Point(679, 58)
+            btnRefresh.Location = New Point(679, 73)
             btnRefresh.Name = "btnRefresh"
-            btnRefresh.Size = New Size(131, 54)
+            btnRefresh.Size = New Size(131, 39)
             btnRefresh.TabIndex = 11
             btnRefresh.Text = "� รีเฟรช"
             btnRefresh.UseVisualStyleBackColor = False
@@ -245,16 +246,16 @@ Namespace TempleAccounting
             btnSearch.FlatStyle = FlatStyle.Flat
             btnSearch.Font = New Font("Tahoma", 9F, FontStyle.Bold)
             btnSearch.ForeColor = Color.White
-            btnSearch.Location = New Point(1176, 58)
+            btnSearch.Location = New Point(824, 73)
             btnSearch.Name = "btnSearch"
-            btnSearch.Size = New Size(196, 54)
+            btnSearch.Size = New Size(140, 39)
             btnSearch.TabIndex = 10
             btnSearch.Text = "🔍 ค้นหา"
             btnSearch.UseVisualStyleBackColor = False
             ' 
             ' lblSearch
             ' 
-            lblSearch.Location = New Point(1176, 5)
+            lblSearch.Location = New Point(679, 5)
             lblSearch.Name = "lblSearch"
             lblSearch.Size = New Size(100, 36)
             lblSearch.TabIndex = 8
