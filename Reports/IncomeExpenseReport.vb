@@ -28,6 +28,7 @@ Namespace TempleAccounting
         Private _totalIncome As Decimal
         Private _totalExpense As Decimal
         Private _openingBalance As Decimal
+        Private _manualOpeningBalance As Decimal? = Nothing
         Private _reportGrandTotal As Decimal
         Private _balance As Decimal
         Private _templeName As String = ""
@@ -68,11 +69,12 @@ Namespace TempleAccounting
             Public IsCategorySummary As Boolean
         End Structure
 
-        Public Sub New(fromDate As Date, toDate As Date, Optional mode As ReportModes = ReportModes.Detailed)
+        Public Sub New(fromDate As Date, toDate As Date, Optional mode As ReportModes = ReportModes.Detailed, Optional manualOpeningBalance As Decimal? = Nothing)
             MyBase.New()
             _fromDate = Db.NormalizeGregorianDate(fromDate)
             _toDate = Db.NormalizeGregorianDate(toDate)
             _mode = mode
+            _manualOpeningBalance = manualOpeningBalance
             Me.DocumentName = If(_mode = ReportModes.Summary, "สรุปบัญชีรายรับ-รายจ่าย (ย่อ)", "สรุปบัญชีรายรับ-รายจ่าย (ละเอียด)")
             ConfigurePageSettings()
             LoadData()
@@ -124,7 +126,12 @@ Namespace TempleAccounting
                     _expenseRows.Clear()
                     _totalIncome = 0
                     _totalExpense = 0
-                    _openingBalance = GetBalanceBeforeDate(conn, _fromDate)
+                    
+                    If _manualOpeningBalance.HasValue Then
+                        _openingBalance = _manualOpeningBalance.Value
+                    Else
+                        _openingBalance = GetBalanceBeforeDate(conn, _fromDate)
+                    End If
 
                     LoadRowsByMode(conn, "Income", _incomeRows, _totalIncome)
                     LoadRowsByMode(conn, "Expense", _expenseRows, _totalExpense)
@@ -682,9 +689,9 @@ Namespace TempleAccounting
             _pageY = y
         End Sub
 
-        Public Shared Sub ShowPreview(fromDate As Date, toDate As Date, Optional owner As IWin32Window = Nothing, Optional mode As ReportModes = ReportModes.Detailed)
+        Public Shared Sub ShowPreview(fromDate As Date, toDate As Date, Optional owner As IWin32Window = Nothing, Optional mode As ReportModes = ReportModes.Detailed, Optional manualOpeningBalance As Decimal? = Nothing)
             Try
-                Dim doc As New IncomeExpenseReport(fromDate, toDate, mode)
+                Dim doc As New IncomeExpenseReport(fromDate, toDate, mode, manualOpeningBalance)
                 Using ppd As New PrintPreviewDialog()
                     ppd.Document = doc
                     ppd.WindowState = FormWindowState.Maximized
