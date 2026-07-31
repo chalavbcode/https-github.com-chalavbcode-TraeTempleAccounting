@@ -124,6 +124,20 @@ Namespace TempleAccounting
             tmrStatus.Start()
         End Sub
 
+        Private Sub RefreshOverviewLayout()
+            If pnlOverview IsNot Nothing Then
+                pnlOverview.PerformLayout()
+            End If
+        End Sub
+
+        Private Sub SetOverviewCompactMode(isCompact As Boolean)
+            _compactOverviewMode = isCompact
+            If pnlOverview IsNot Nothing Then
+                pnlOverview.Visible = Not isCompact
+            End If
+            RefreshOverviewLayout()
+        End Sub
+
         Private Sub UpdateStatusTime()
             Try
                 Dim dbName = Path.GetFileName(AppPaths.DatabaseFile)
