@@ -347,7 +347,7 @@ Namespace TempleAccounting
             btnActivity.Padding = New Padding(14, 0, 8, 0)
             btnActivity.Size = New Size(227, 64)
             btnActivity.TabIndex = 7
-            btnActivity.Text = "🎎 กิจกรรม / บุญ"
+            btnActivity.Text = "🎎 โอนเงินภายใน"
             btnActivity.TextAlign = ContentAlignment.MiddleLeft
             btnActivity.UseVisualStyleBackColor = False
             ' 
@@ -387,7 +387,7 @@ Namespace TempleAccounting
             btnMember.Padding = New Padding(14, 0, 8, 0)
             btnMember.Size = New Size(227, 69)
             btnMember.TabIndex = 5
-            btnMember.Text = "� สมาชิกผู้บริจาค"
+            btnMember.Text = "� รายการทางบัญชี"
             btnMember.TextAlign = ContentAlignment.MiddleLeft
             btnMember.UseVisualStyleBackColor = False
             ' 
@@ -447,7 +447,7 @@ Namespace TempleAccounting
             btnDonation.Padding = New Padding(14, 0, 8, 0)
             btnDonation.Size = New Size(227, 71)
             btnDonation.TabIndex = 2
-            btnDonation.Text = "💰 บันทึกเงินบริจาค"
+            btnDonation.Text = "💰 บันทึกรับเงิน"
             btnDonation.TextAlign = ContentAlignment.MiddleLeft
             btnDonation.UseVisualStyleBackColor = False
             ' 
