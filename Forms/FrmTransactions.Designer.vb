@@ -379,6 +379,7 @@ Namespace TempleAccounting
             Controls.Add(pFilter)
             Controls.Add(lblHeader)
             Font = New Font("Tahoma", 10.5F)
+            FormBorderStyle = FormBorderStyle.Sizable
             MinimumSize = New Size(1180, 760)
             Name = "FrmTransactions"
             StartPosition = FormStartPosition.CenterScreen
