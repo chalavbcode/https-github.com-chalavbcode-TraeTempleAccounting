@@ -38,6 +38,7 @@ Namespace TempleAccounting
         Friend WithEvents lblSummary As Label
         Friend WithEvents p As Panel
         Friend WithEvents pa As Panel
+        Friend WithEvents ttMain As ToolTip
 
         <DebuggerNonUserCode()>
         Protected Overrides Sub Dispose(disposing As Boolean)
@@ -52,6 +53,8 @@ Namespace TempleAccounting
 
         <DebuggerStepThrough()>
         Private Sub InitializeComponent()
+            Me.components = New Container()
+            Me.ttMain = New ToolTip(Me.components)
             Dim DataGridViewCellStyle1 As DataGridViewCellStyle = New DataGridViewCellStyle()
             p = New Panel()
             lbl1 = New Label()
