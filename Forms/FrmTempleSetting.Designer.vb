@@ -34,6 +34,7 @@ Namespace TempleAccounting
         Friend WithEvents btnCancel As Button
         Friend WithEvents btnClose As Button
         Friend WithEvents btnLocationImport As Button
+        Friend WithEvents ttMain As ToolTip
         Friend WithEvents lblHeader As Label
 
         <DebuggerNonUserCode()>
@@ -49,6 +50,8 @@ Namespace TempleAccounting
 
         <DebuggerStepThrough()>
         Private Sub InitializeComponent()
+            Me.components = New Container()
+            Me.ttMain = New ToolTip(Me.components)
             Text = "ตั้งค่าข้อมูลวัด"
             BackColor = Color.FromArgb(254, 249, 235)
             Font = New Font("Tahoma", 10.5!)

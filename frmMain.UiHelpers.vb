@@ -117,6 +117,7 @@ Namespace TempleAccounting
 
         Private Sub ApplyInitialState()
             UpdateStatusTime()
+            SetupToolTips()
 
             Dim tmrStatus As New WinTimer()
             tmrStatus.Interval = 1000
@@ -145,6 +146,21 @@ Namespace TempleAccounting
             Catch
                 lblStatusCenter.Text = $"🟢 สถานะระบบ: ปกติ | ฐานข้อมูล: เชื่อมต่อแล้ว | {DateTime.Now:dd/MM/yyyy HH:mm:ss}"
             End Try
+        End Sub
+
+        Private Sub SetupToolTips()
+            If ttMain Is Nothing Then Return
+            ttMain.SetToolTip(btnDashboard, "กลับไปที่หน้าสรุปภาพรวมของระบบ (Dashboard)")
+            ttMain.SetToolTip(btnDonation, "บันทึกข้อมูลรายรับหรือเงินบริจาคเข้าวัด")
+            ttMain.SetToolTip(btnExpense, "บันทึกข้อมูลรายจ่ายต่างๆ ของวัด")
+            ttMain.SetToolTip(btnReport, "พิมพ์รายงานสรุปรายรับ-รายจ่าย (ย่อ/ละเอียด)")
+            ttMain.SetToolTip(btnMember, "จัดการข้อมูลรายชื่อผู้บริจาค/สมาชิก")
+            ttMain.SetToolTip(btnVip, "จัดการข้อมูลรายชื่อพระสงฆ์และไวยาวัจกร")
+            ttMain.SetToolTip(btnActivity, "บันทึกข้อมูลกิจกรรมงานบุญและเทศกาล")
+            ttMain.SetToolTip(btnSetting, "ตั้งค่าข้อมูลวัดและข้อมูลพื้นฐานของระบบ")
+            ttMain.SetToolTip(btnLogout, "ออกจากระบบและกลับไปหน้า Login")
+            ttMain.SetToolTip(btnClose, "ปิดโปรแกรม")
+            ttMain.SetToolTip(btnMinimize, "ย่อหน้าต่างโปรแกรมลง")
         End Sub
     End Class
 End Namespace

@@ -22,6 +22,7 @@ Namespace TempleAccounting
         Friend WithEvents btnSave As Button
         Friend WithEvents btnCancel As Button
         Friend WithEvents btnImportExcel As Button
+        Friend WithEvents ttMain As ToolTip
         Friend WithEvents lblHeader As Label
         Friend WithEvents lbl1 As Label
         Friend WithEvents lbl2 As Label
@@ -44,6 +45,8 @@ Namespace TempleAccounting
 
         <DebuggerStepThrough()>
         Private Sub InitializeComponent()
+            Me.components = New Container()
+            Me.ttMain = New ToolTip(Me.components)
             lblHeader = New Label()
             lbl1 = New Label()
             lbl2 = New Label()
