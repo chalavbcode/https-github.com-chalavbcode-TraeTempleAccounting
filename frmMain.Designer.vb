@@ -59,6 +59,7 @@ Namespace TempleAccounting
         Private pnlSeparator2 As Panel
         Private ilIcons As ImageList
         Private picLogoBadge As PictureBox
+        Private ttMain As ToolTip
 
         Protected Overrides Sub Dispose(disposing As Boolean)
             If disposing AndAlso (components IsNot Nothing) Then
@@ -69,6 +70,7 @@ Namespace TempleAccounting
 
         Private Sub InitializeComponent()
             components = New Container()
+            ttMain = New ToolTip(components)
             ilIcons = New ImageList(components)
             pnlHeader = New Panel()
             pnlHeaderRight = New Panel()

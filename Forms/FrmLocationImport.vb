@@ -44,7 +44,17 @@ Namespace TempleAccounting
             Db.EnsureSchema()
             CheckFiles()
             LoadLastImport()
+            SetupToolTips()
             btnCheck_Click(Nothing, EventArgs.Empty)
+        End Sub
+
+        Private Sub SetupToolTips()
+            ttMain.SetToolTip(btnImport, "นำเข้าข้อมูลจังหวัด/อำเภอ/ตำบลจากไฟล์ CSV ใหม่ (ล้างข้อมูลเก่าตามที่เลือก)")
+            ttMain.SetToolTip(btnUpdate, "อัปเดตหรือเพิ่มข้อมูลที่อยู่โดยไม่ลบข้อมูลเดิม")
+            ttMain.SetToolTip(btnRebuild, "ล้างข้อมูลที่อยู่ทั้งหมดและสร้างใหม่จากไฟล์ CSV ทันที")
+            ttMain.SetToolTip(btnCheck, "ตรวจสอบจำนวนข้อมูลจังหวัด อำเภอ และตำบลที่มีอยู่ในฐานข้อมูลปัจจุบัน")
+            ttMain.SetToolTip(btnClose, "ปิดหน้าจอนี้และกลับไปที่หน้าตั้งค่าข้อมูลวัด")
+            ttMain.SetToolTip(lnkOpenImportFolder, "เปิดโฟลเดอร์สำหรับใส่ไฟล์ province.csv, amphoe.csv, และ tambon.csv")
         End Sub
 
         Private Sub CheckFiles()
