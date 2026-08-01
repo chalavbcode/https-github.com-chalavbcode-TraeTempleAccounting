@@ -42,17 +42,20 @@ Namespace TempleAccounting
                 TryCreateTable(conn, "Categories", "CREATE TABLE Categories (ID COUNTER PRIMARY KEY, CategoryName TEXT(200) NOT NULL, TranType TEXT(10) NOT NULL)")
                 TryCreateTable(conn, "Funds", "CREATE TABLE Funds (ID COUNTER PRIMARY KEY, FundName TEXT(200) NOT NULL)")
                 TryCreateTable(conn, "BankAccounts", "CREATE TABLE BankAccounts (ID COUNTER PRIMARY KEY, BankName TEXT(100) NOT NULL, AccountNo TEXT(50), AccountName TEXT(200))")
-                TryCreateTable(conn, "Transactions", "CREATE TABLE Transactions (ID COUNTER PRIMARY KEY, TranDate DATETIME NOT NULL, TranType TEXT(10) NOT NULL, CategoryID INTEGER, FundID INTEGER, BankID INTEGER, Detail TEXT(255), Amount CURRENCY NOT NULL, Note MEMO, CreateDate DATETIME DEFAULT Now(), ToFundID INTEGER, ToBankID INTEGER)")
+                TryCreateTable(conn, "Transactions", "CREATE TABLE Transactions (ID COUNTER PRIMARY KEY, TranDate DATETIME NOT NULL, TranType TEXT(10) NOT NULL, CategoryID INTEGER, FundID INTEGER, BankID INTEGER, Detail TEXT(255), Amount CURRENCY NOT NULL, Note MEMO, CreateDate DATETIME DEFAULT Now(), ToFundID INTEGER, ToBankID INTEGER, ReceiptPath TEXT(255))")
 
                 ' Check and migrate missing columns in Transactions table (for older databases)
                 Try
                     Dim columns = conn.GetSchema("Columns", New String() {Nothing, Nothing, "Transactions", Nothing})
                     Dim hasToFundID As Boolean = False
                     Dim hasToBankID As Boolean = False
+                    Dim hasReceiptPath As Boolean = False
+
                     For Each row As DataRow In columns.Rows
                         Dim colName = Convert.ToString(row("COLUMN_NAME"))
                         If colName.Equals("ToFundID", StringComparison.OrdinalIgnoreCase) Then hasToFundID = True
                         If colName.Equals("ToBankID", StringComparison.OrdinalIgnoreCase) Then hasToBankID = True
+                        If colName.Equals("ReceiptPath", StringComparison.OrdinalIgnoreCase) Then hasReceiptPath = True
                     Next
 
                     If Not hasToFundID Then
@@ -61,12 +64,21 @@ Namespace TempleAccounting
                             cmd.ExecuteNonQuery()
                         End Using
                     End If
+
                     If Not hasToBankID Then
                         Using cmd = conn.CreateCommand()
                             cmd.CommandText = "ALTER TABLE Transactions ADD COLUMN ToBankID INTEGER"
                             cmd.ExecuteNonQuery()
                         End Using
                     End If
+
+                    If Not hasReceiptPath Then
+                        Using cmd = conn.CreateCommand()
+                            cmd.CommandText = "ALTER TABLE Transactions ADD COLUMN ReceiptPath TEXT(255)"
+                            cmd.ExecuteNonQuery()
+                        End Using
+                    End If
+
                 Catch ex As Exception
                     AppPaths.LogCrash(ex, "Db.EnsureSchema.Migration")
                 End Try
