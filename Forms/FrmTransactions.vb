@@ -121,6 +121,10 @@ Namespace TempleAccounting
             ttMain.SetToolTip(btnAddTrans, "เปิดหน้าจอสำหรับบันทึกการโอนเงินภายใน")
             ttMain.SetToolTip(btnEdit, "แก้ไขข้อมูลรายการที่เลือกในตาราง (กดซ้ำเพื่อบันทึก)")
             ttMain.SetToolTip(btnDelete, "ลบรายการที่เลือกออกจากฐานข้อมูล")
+            ttMain.SetToolTip(btnViewReceipt, "เปิดดูรูปภาพหลักฐานใบเสร็จที่แนบไว้")
+            ttMain.SetToolTip(btnPasteReceipt, "วางรูปภาพจาก LINE หรือคลิปบอร์ดเพื่อแนบเป็นใบเสร็จ")
+            ttMain.SetToolTip(btnBrowseReceipt, "เลือกไฟล์รูปภาพจากเครื่องเพื่อแนบเป็นใบเสร็จ")
+            ttMain.SetToolTip(btnDeleteReceipt, "ลบรูปภาพหลักฐานออกจากรายการที่เลือก")
             ttMain.SetToolTip(btnClose, "ปิดหน้าจอรายการนี้และกลับไปหน้าหลัก")
         End Sub
 
@@ -237,7 +241,7 @@ Namespace TempleAccounting
                               "t.BankID, IIF(b.BankName IS NULL,'',b.BankName & IIF(b.AccountNo IS NULL,'',' ' & b.AccountNo)) AS BankName, " &
                               "t.Detail, t.Amount, t.Note, t.CreateDate, t.ToFundID, IIF(f2.FundName IS NULL,'',f2.FundName) AS ToFundName, " &
                               "t.ToBankID, IIF(b2.BankName IS NULL,'',b2.BankName & IIF(b2.AccountNo IS NULL,'',' ' & b2.AccountNo)) AS ToBankName, " &
-                              "t.ReceiptPath " &
+                              "t.ReceiptPath, IIf(t.ReceiptPath IS NOT NULL AND t.ReceiptPath <> '', '📷 มีรูป', '-') AS HasReceiptDisplay " &
                               "FROM ((((Transactions t " &
                               "LEFT JOIN Categories c ON t.CategoryID=c.ID) " &
                               "LEFT JOIN Funds f ON t.FundID=f.ID) " &
@@ -277,17 +281,8 @@ Namespace TempleAccounting
                     dgvTransactions.DataSource = dt
                     If dgvTransactions.Columns.Count > 0 Then
                         ConfigureGridColumns()
-                        ' Fill icon column after configuration
-                        For Each row As DataGridViewRow In dgvTransactions.Rows
-                            Dim path = Convert.ToString(row.Cells("ReceiptPath").Value)
-                            If Not String.IsNullOrEmpty(path) Then
-                                row.Cells("HasReceipt").Value = "📄"
-                            Else
-                                row.Cells("HasReceipt").Value = ""
-                            End If
-                        Next
                     End If
-
+                    
                     Dim sumInc As Decimal = 0D
                     Dim sumExp As Decimal = 0D
                     Dim sumTrf As Decimal = 0D
@@ -322,7 +317,7 @@ Namespace TempleAccounting
 
         Private Sub ConfigureGridColumns()
             Dim headers As New Dictionary(Of String, String) From {
-                {"HasReceipt", "📸"},
+                {"HasReceiptDisplay", "ใบเสร็จ"},
                 {"ID", "ID"},
                 {"TranDate", "วันที่"},
                 {"TranTypeDisplay", "ชนิด"},
@@ -341,17 +336,6 @@ Namespace TempleAccounting
             dgvTransactions.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None
             dgvTransactions.ScrollBars = ScrollBars.Both
 
-            ' Add virtual column for receipt icon if not exists
-            If Not dgvTransactions.Columns.Contains("HasReceipt") Then
-                Dim iconCol As New DataGridViewTextBoxColumn With {
-                    .Name = "HasReceipt",
-                    .HeaderText = "📸",
-                    .ReadOnly = True,
-                    .Width = 40
-                }
-                dgvTransactions.Columns.Insert(0, iconCol)
-            End If
-
             ' Hide technical columns but keep them for logic
             For Each colName In New String() {"TranType", "CategoryID", "FundID", "BankID", "ToFundID", "ToBankID", "ReceiptPath"}
                 If dgvTransactions.Columns.Contains(colName) Then
@@ -362,16 +346,6 @@ Namespace TempleAccounting
             For Each pair In headers
                 If dgvTransactions.Columns.Contains(pair.Key) Then
                     dgvTransactions.Columns(pair.Key).HeaderText = pair.Value
-                End If
-            Next
-
-            ' Fill icon column
-            For Each row As DataGridViewRow In dgvTransactions.Rows
-                Dim path = Convert.ToString(row.Cells("ReceiptPath").Value)
-                If Not String.IsNullOrEmpty(path) Then
-                    row.Cells("HasReceipt").Value = "📄"
-                Else
-                    row.Cells("HasReceipt").Value = ""
                 End If
             Next
 
@@ -387,7 +361,7 @@ Namespace TempleAccounting
                 dgvTransactions.Columns("Amount").DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight
             End If
 
-            For Each readOnlyName In New String() {"HasReceipt", "CategoryName", "FundName", "BankName", "ToFundName", "ToBankName"}
+            For Each readOnlyName In New String() {"HasReceiptDisplay", "CategoryName", "FundName", "BankName", "ToFundName", "ToBankName"}
                 If dgvTransactions.Columns.Contains(readOnlyName) Then
                     dgvTransactions.Columns(readOnlyName).ReadOnly = True
                     dgvTransactions.Columns(readOnlyName).DefaultCellStyle.BackColor = Color.FromArgb(245, 245, 245)
@@ -395,7 +369,7 @@ Namespace TempleAccounting
             Next
 
             Dim widths As New Dictionary(Of String, Integer) From {
-                {"HasReceipt", 40},
+                {"HasReceiptDisplay", 90},
                 {"ID", 70},
                 {"TranDate", 95},
                 {"TranType", 90},
@@ -703,29 +677,146 @@ New Tuple(Of String, Object)("@id", id))
         End Sub
 
         Private Sub btnViewReceipt_Click(sender As Object, e As EventArgs) Handles btnViewReceipt.Click
-            ' 1. ตรวจสอบว่ามีการเลือกแถวใน DataGridView หรือไม่
-            If dgvTransactions.CurrentRow Is Nothing Then
-                MessageBox.Show("กรุณาเลือกรายการที่ต้องการดูใบเสร็จ", "แจ้งเตือน", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-                Exit Sub
-            End If
+            Try
+                ' 1. ตรวจสอบว่ามีการเลือกแถวใน DataGridView หรือไม่
+                If dgvTransactions.CurrentRow Is Nothing Then
+                    MessageBox.Show("กรุณาเลือกรายการที่ต้องการดูใบเสร็จ", "แจ้งเตือน", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                    Exit Sub
+                End If
 
-            ' 2. อ่านชื่อไฟล์จากคอลัมน์ ReceiptPath
-            Dim fileName As String = Convert.ToString(dgvTransactions.CurrentRow.Cells("ReceiptPath").Value)
+                ' 2. อ่านชื่อไฟล์จากคอลัมน์ ReceiptPath
+                Dim fileName As String = Convert.ToString(dgvTransactions.CurrentRow.Cells("ReceiptPath").Value)
 
-            If String.IsNullOrWhiteSpace(fileName) Then
-                MessageBox.Show("รายการนี้ไม่มีรูปภาพใบเสร็จแนบไว้", "แจ้งเตือน", MessageBoxButtons.OK, MessageBoxIcon.Information)
-                Exit Sub
-            End If
+                If String.IsNullOrWhiteSpace(fileName) Then
+                    MessageBox.Show("รายการนี้ไม่มีรูปภาพใบเสร็จแนบไว้", "แจ้งเตือน", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                    Exit Sub
+                End If
 
-            ' 3. หาตำแหน่งไฟล์จริงในโฟลเดอร์ Receipts
-            Dim fullPath As String = IO.Path.Combine(AppPaths.ReceiptsDir, fileName)
+                ' 3. หาตำแหน่งไฟล์จริงในโฟลเดอร์ Receipts
+                Dim fullPath As String = IO.Path.Combine(AppPaths.ReceiptsDir, fileName)
 
-            ' 4. ตรวจสอบไฟล์และสั่งเปิดดูรูปด้วยโปรแกรมมาตรฐานของ Windows
-            If IO.File.Exists(fullPath) Then
-                Process.Start(New ProcessStartInfo(fullPath) With {.UseShellExecute = True})
-            Else
-                MessageBox.Show($"ไม่พบไฟล์รูปภาพในระบบ: {fileName}", "ข้อผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
-            End If
+                ' 4. ตรวจสอบไฟล์และสั่งเปิดดูรูปด้วยโปรแกรมมาตรฐานของ Windows
+                If IO.File.Exists(fullPath) Then
+                    Process.Start(New ProcessStartInfo(fullPath) With {.UseShellExecute = True})
+                Else
+                    MessageBox.Show($"ไม่พบไฟล์รูปภาพในระบบ: {fileName}", "ข้อผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                End If
+            Catch ex As Exception
+                AppPaths.LogCrash(ex, "btnViewReceipt_Click")
+                MessageBox.Show("ไม่สามารถเปิดดูใบเสร็จได้: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            End Try
+        End Sub
+
+        Private Sub btnPasteReceipt_Click(sender As Object, e As EventArgs) Handles btnPasteReceipt.Click
+            Try
+                If dgvTransactions.CurrentRow Is Nothing Then
+                    MessageBox.Show("กรุณาเลือกรายการที่ต้องการแนบรูปใบเสร็จ", "แจ้งเตือน", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                    Return
+                End If
+
+                Dim id = CInt(dgvTransactions.CurrentRow.Cells("ID").Value)
+
+                If Not Clipboard.ContainsImage() Then
+                    MessageBox.Show("ไม่พบรูปภาพในคลิปบอร์ด กรุณากด Copy รูปภาพจาก LINE หรือโปรแกรมอื่นก่อน", "แจ้งเตือน", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                    Return
+                End If
+
+                AppPaths.EnsureDirectoriesExist()
+                Dim newFileName As String = $"Receipt_{id}.png"
+                Dim destPath As String = Path.Combine(AppPaths.ReceiptsDir, newFileName)
+
+                Using img = Clipboard.GetImage()
+                    img.Save(destPath, Imaging.ImageFormat.Png)
+                End Using
+
+                Using conn = Db.OpenConn()
+                    Db.ExecuteNonQuery(conn, "UPDATE Transactions SET ReceiptPath=@p WHERE ID=@id",
+                        New Tuple(Of String, Object)("@p", newFileName),
+                        New Tuple(Of String, Object)("@id", id))
+                End Using
+
+                MessageBox.Show("แนบรูปภาพจากคลิปบอร์ดเรียบร้อยแล้ว", "สำเร็จ", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                LoadData()
+            Catch ex As Exception
+                AppPaths.LogCrash(ex, "btnPasteReceipt_Click")
+                MessageBox.Show("แนบรูปภาพไม่สำเร็จ: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            End Try
+        End Sub
+
+        Private Sub btnBrowseReceipt_Click(sender As Object, e As EventArgs) Handles btnBrowseReceipt.Click
+            Try
+                If dgvTransactions.CurrentRow Is Nothing Then
+                    MessageBox.Show("กรุณาเลือกรายการที่ต้องการแนบรูปใบเสร็จ", "แจ้งเตือน", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                    Return
+                End If
+
+                Dim id = CInt(dgvTransactions.CurrentRow.Cells("ID").Value)
+
+                Using ofd As New OpenFileDialog()
+                    ofd.Title = "เลือกรูปภาพใบเสร็จ"
+                    ofd.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.gif;*.bmp|All Files|*.*"
+                    If ofd.ShowDialog(Me) <> DialogResult.OK Then Return
+
+                    AppPaths.EnsureDirectoriesExist()
+                    Dim ext = Path.GetExtension(ofd.FileName)
+                    If String.IsNullOrEmpty(ext) Then ext = ".jpg"
+                    Dim newFileName As String = $"Receipt_{id}{ext}"
+                    Dim destPath As String = Path.Combine(AppPaths.ReceiptsDir, newFileName)
+
+                    File.Copy(ofd.FileName, destPath, True)
+
+                    Using conn = Db.OpenConn()
+                        Db.ExecuteNonQuery(conn, "UPDATE Transactions SET ReceiptPath=@p WHERE ID=@id",
+                            New Tuple(Of String, Object)("@p", newFileName),
+                            New Tuple(Of String, Object)("@id", id))
+                    End Using
+
+                    MessageBox.Show("แนบรูปภาพเรียบร้อยแล้ว", "สำเร็จ", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                    LoadData()
+                End Using
+            Catch ex As Exception
+                AppPaths.LogCrash(ex, "btnBrowseReceipt_Click")
+                MessageBox.Show("เลือกรูปภาพไม่สำเร็จ: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            End Try
+        End Sub
+
+        Private Sub btnDeleteReceipt_Click(sender As Object, e As EventArgs) Handles btnDeleteReceipt.Click
+            Try
+                If dgvTransactions.CurrentRow Is Nothing Then
+                    MessageBox.Show("กรุณาเลือกรายการที่ต้องการลบรูปใบเสร็จ", "แจ้งเตือน", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                    Return
+                End If
+
+                Dim id = CInt(dgvTransactions.CurrentRow.Cells("ID").Value)
+                Dim fileName = Convert.ToString(dgvTransactions.CurrentRow.Cells("ReceiptPath").Value)
+
+                If String.IsNullOrWhiteSpace(fileName) Then
+                    MessageBox.Show("รายการนี้ไม่มีรูปภาพใบเสร็จให้ลบ", "แจ้งเตือน", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                    Return
+                End If
+
+                If MessageBox.Show("คุณแน่ใจว่าต้องการลบรูปภาพหลักฐานใบเสร็จนี้ใช่หรือไม่? (ไฟล์รูปจะถูกลบออกจากเครื่องด้วย)", "ยืนยันการลบ", MessageBoxButtons.YesNo, MessageBoxIcon.Question) <> DialogResult.Yes Then Return
+
+                Dim fullPath = Path.Combine(AppPaths.ReceiptsDir, fileName)
+                If File.Exists(fullPath) Then
+                    Try
+                        File.Delete(fullPath)
+                    Catch
+                        ' อาจติด lock แต่เราจะเคลียร์ใน DB อยู่ดี
+                    End Try
+                End If
+
+                Using conn = Db.OpenConn()
+                    Db.ExecuteNonQuery(conn, "UPDATE Transactions SET ReceiptPath=NULL WHERE ID=@id",
+                        New Tuple(Of String, Object)("@id", id))
+                End Using
+
+                MessageBox.Show("ลบรูปภาพหลักฐานเรียบร้อยแล้ว", "สำเร็จ", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                LoadData()
+            Catch ex As Exception
+                AppPaths.LogCrash(ex, "btnDeleteReceipt_Click")
+                MessageBox.Show("ลบรูปภาพไม่สำเร็จ: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            End Try
         End Sub
 
         Private Sub dgvTransactions_CellDoubleClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvTransactions.CellDoubleClick
