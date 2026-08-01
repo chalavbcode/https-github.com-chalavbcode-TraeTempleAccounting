@@ -8,8 +8,12 @@ Imports System.Drawing
 Imports System.Windows.Forms
 Imports System.Data.OleDb
 
+
+
 Namespace TempleAccounting
     <DesignerCategory("Form")>
+    ' ตัวแปรเก็บ Path รูปภาพต้นทางที่ผู้ใช้เลือก (เช่น จาก C:\LineDownloads)
+    Private selectedSourceReceiptPath As String = ""
     Partial Public Class FrmIncome
         Inherits Form
 
@@ -193,19 +197,30 @@ New Tuple(Of String, Object)("@n", txtRemark.Text.Trim))
             End Using
         End Sub
 
+        ' ตัวแปรเก็บ Path ของไฟล์รูปต้นทางที่ผู้ใช้เลือก
+        Private selectedSourceReceiptPath As String = ""
+
+        ' ปุ่มกดเลือกรูปภาพ
         Private Sub btnBrowseReceipt_Click(sender As Object, e As EventArgs) Handles btnBrowseReceipt.Click
             Using ofd As New OpenFileDialog()
-                ofd.Title = "เลือกรูปภาพหลักฐาน/ใบเสร็จ"
-                ofd.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.gif;*.bmp|All Files|*.*"
-                If ofd.ShowDialog(Me) = DialogResult.OK Then
-                    txtReceipt.Text = System.IO.Path.GetFileName(ofd.FileName)
-                    ' ในอนาคตสามารถเพิ่มโค้ดก๊อปปี้ไฟล์ไปไว้ในโฟลเดอร์โปรเจกต์ได้ที่นี่
-                    btnSave.Focus()
+                ' กำหนดโฟลเดอร์เริ่มต้นไปที่จุดดาวน์โหลดของ LINE Desktop
+                If IO.Directory.Exists("C:\LineDownloads") Then
+                    ofd.InitialDirectory = "C:\LineDownloads"
+                End If
+
+                ofd.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp"
+                ofd.Title = "เลือกรูปภาพใบเสร็จ"
+
+                If ofd.ShowDialog() = DialogResult.OK Then
+                    selectedSourceReceiptPath = ofd.FileName
+                    txtReceipt.Text = IO.Path.GetFileName(selectedSourceReceiptPath)
                 End If
             End Using
         End Sub
 
+        ' ปุ่มยกเลิกรูปภาพ (ถ้ามี)
         Private Sub btnClearReceipt_Click(sender As Object, e As EventArgs) Handles btnClearReceipt.Click
+            selectedSourceReceiptPath = ""
             txtReceipt.Clear()
         End Sub
 
