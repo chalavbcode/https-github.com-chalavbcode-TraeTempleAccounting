@@ -269,10 +269,10 @@ Namespace TempleAccounting
             pnlSidebar.Controls.Add(btnLogout)
             pnlSidebar.Controls.Add(pnlSidebarSpacer)
             pnlSidebar.Controls.Add(btnSetting)
-            pnlSidebar.Controls.Add(btnActivity)
             pnlSidebar.Controls.Add(btnVip)
-            pnlSidebar.Controls.Add(btnMember)
+            pnlSidebar.Controls.Add(btnActivity)
             pnlSidebar.Controls.Add(btnReport)
+            pnlSidebar.Controls.Add(btnMember)
             pnlSidebar.Controls.Add(btnExpense)
             pnlSidebar.Controls.Add(btnDonation)
             pnlSidebar.Controls.Add(btnDashboard)
@@ -322,7 +322,7 @@ Namespace TempleAccounting
             btnSetting.Font = New Font("Tahoma", 11.25F, FontStyle.Regular, GraphicsUnit.Point, CByte(222))
             btnSetting.ForeColor = Color.White
             btnSetting.ImageAlign = ContentAlignment.MiddleLeft
-            btnSetting.Location = New Point(12, 483)
+            btnSetting.Location = New Point(12, 477)
             btnSetting.Name = "btnSetting"
             btnSetting.Padding = New Padding(14, 0, 8, 0)
             btnSetting.Size = New Size(227, 62)
@@ -342,7 +342,7 @@ Namespace TempleAccounting
             btnActivity.Font = New Font("Tahoma", 11.25F, FontStyle.Regular, GraphicsUnit.Point, CByte(222))
             btnActivity.ForeColor = Color.White
             btnActivity.ImageAlign = ContentAlignment.MiddleLeft
-            btnActivity.Location = New Point(12, 419)
+            btnActivity.Location = New Point(12, 339)
             btnActivity.Name = "btnActivity"
             btnActivity.Padding = New Padding(14, 0, 8, 0)
             btnActivity.Size = New Size(227, 64)
@@ -362,7 +362,7 @@ Namespace TempleAccounting
             btnVip.Font = New Font("Tahoma", 11.25F, FontStyle.Regular, GraphicsUnit.Point, CByte(222))
             btnVip.ForeColor = Color.White
             btnVip.ImageAlign = ContentAlignment.MiddleLeft
-            btnVip.Location = New Point(12, 345)
+            btnVip.Location = New Point(12, 403)
             btnVip.Name = "btnVip"
             btnVip.Padding = New Padding(14, 0, 8, 0)
             btnVip.Size = New Size(227, 74)
@@ -382,10 +382,10 @@ Namespace TempleAccounting
             btnMember.Font = New Font("Tahoma", 11.25F, FontStyle.Regular, GraphicsUnit.Point, CByte(222))
             btnMember.ForeColor = Color.White
             btnMember.ImageAlign = ContentAlignment.MiddleLeft
-            btnMember.Location = New Point(12, 276)
+            btnMember.Location = New Point(12, 212)
             btnMember.Name = "btnMember"
             btnMember.Padding = New Padding(14, 0, 8, 0)
-            btnMember.Size = New Size(227, 69)
+            btnMember.Size = New Size(227, 63)
             btnMember.TabIndex = 5
             btnMember.Text = "� รายการทางบัญชี"
             btnMember.TextAlign = ContentAlignment.MiddleLeft
@@ -402,7 +402,7 @@ Namespace TempleAccounting
             btnReport.Font = New Font("Tahoma", 11.25F, FontStyle.Regular, GraphicsUnit.Point, CByte(222))
             btnReport.ForeColor = Color.White
             btnReport.ImageAlign = ContentAlignment.MiddleLeft
-            btnReport.Location = New Point(12, 212)
+            btnReport.Location = New Point(12, 275)
             btnReport.Name = "btnReport"
             btnReport.Padding = New Padding(14, 0, 8, 0)
             btnReport.Size = New Size(227, 64)
