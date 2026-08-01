@@ -236,7 +236,8 @@ Namespace TempleAccounting
                               "t.FundID, IIF(f.FundName IS NULL,'',f.FundName) AS FundName, " &
                               "t.BankID, IIF(b.BankName IS NULL,'',b.BankName & IIF(b.AccountNo IS NULL,'',' ' & b.AccountNo)) AS BankName, " &
                               "t.Detail, t.Amount, t.Note, t.CreateDate, t.ToFundID, IIF(f2.FundName IS NULL,'',f2.FundName) AS ToFundName, " &
-                              "t.ToBankID, IIF(b2.BankName IS NULL,'',b2.BankName & IIF(b2.AccountNo IS NULL,'',' ' & b2.AccountNo)) AS ToBankName " &
+                              "t.ToBankID, IIF(b2.BankName IS NULL,'',b2.BankName & IIF(b2.AccountNo IS NULL,'',' ' & b2.AccountNo)) AS ToBankName, " &
+                              "t.ReceiptPath " &
                               "FROM ((((Transactions t " &
                               "LEFT JOIN Categories c ON t.CategoryID=c.ID) " &
                               "LEFT JOIN Funds f ON t.FundID=f.ID) " &
@@ -323,14 +324,15 @@ Namespace TempleAccounting
                 {"Note", "หมายเหตุ"},
                 {"CreateDate", "วันที่บันทึก"},
                 {"ToFundName", "ไปยังกองทุน"},
-                {"ToBankName", "ไปยังธนาคาร"}
+                {"ToBankName", "ไปยังธนาคาร"},
+                {"ReceiptPath", "เอกสารแนบ"}
             }
 
             dgvTransactions.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None
             dgvTransactions.ScrollBars = ScrollBars.Both
 
             ' Hide technical columns but keep them for logic
-            For Each colName In New String() {"TranType", "CategoryID", "FundID", "BankID", "ToFundID", "ToBankID"}
+            For Each colName In New String() {"TranType", "CategoryID", "FundID", "BankID", "ToFundID", "ToBankID", "ReceiptPath"}
                 If dgvTransactions.Columns.Contains(colName) Then
                     dgvTransactions.Columns(colName).Visible = False
                 End If
