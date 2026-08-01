@@ -190,43 +190,18 @@ Namespace TempleAccounting
             End Try
         End Sub
 
-        ' --- ฟังก์ชันช่วยก๊อบปี้รูปภาพใบเสร็จไปยัง AppPaths.ReceiptsDir ---
+        ' --- ฟังก์ชันช่วยก๊อบปี้รูปภาพใบเสร็จไปยัง AppPaths.ReceiptsDir โดยการย่อขนาดและบีบอัด ---
         Private Function SaveReceiptFile(transactionID As Integer) As String
             If isImageFromClipboard Then
                 If clipboardImage Is Nothing Then Return ""
-                Try
-                    AppPaths.EnsureDirectoriesExist()
-                    Dim newFileName As String = $"Receipt_{transactionID}.jpg"
-                    Dim destPath As String = IO.Path.Combine(AppPaths.ReceiptsDir, newFileName)
-                    clipboardImage.Save(destPath, System.Drawing.Imaging.ImageFormat.Jpeg)
-                    Return newFileName
-                Catch ex As Exception
-                    AppPaths.LogCrash(ex, "SaveReceiptFile.Clipboard")
-                    Return ""
-                End Try
+                Return ReceiptImageHelper.SaveOptimizedReceipt(clipboardImage, transactionID)
             End If
 
             If String.IsNullOrWhiteSpace(selectedSourceReceiptPath) OrElse Not IO.File.Exists(selectedSourceReceiptPath) Then
                 Return ""
             End If
 
-            Try
-                AppPaths.EnsureDirectoriesExist()
-
-                ' ตั้งชื่อไฟล์ใหม่ตาม ID ของรายการ เช่น Receipt_105.jpg
-                Dim ext As String = IO.Path.GetExtension(selectedSourceReceiptPath)
-                If String.IsNullOrEmpty(ext) Then ext = ".jpg"
-                Dim newFileName As String = $"Receipt_{transactionID}{ext}"
-                Dim destPath As String = IO.Path.Combine(AppPaths.ReceiptsDir, newFileName)
-
-                ' ก๊อบปี้ไฟล์รูปจากโฟลเดอร์ต้นทางไปวางที่โฟลเดอร์ Receipts
-                IO.File.Copy(selectedSourceReceiptPath, destPath, True)
-
-                Return newFileName
-            Catch ex As Exception
-                AppPaths.LogCrash(ex, "SaveReceiptFile.File")
-                Return ""
-            End Try
+            Return ReceiptImageHelper.SaveOptimizedReceipt(selectedSourceReceiptPath, transactionID)
         End Function
 
         Private Sub btnImportExcel_Click(sender As Object, e As EventArgs) Handles btnImportExcel.Click

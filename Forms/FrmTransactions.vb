@@ -722,12 +722,12 @@ New Tuple(Of String, Object)("@id", id))
                 End If
 
                 AppPaths.EnsureDirectoriesExist()
-                Dim newFileName As String = $"Receipt_{id}.png"
-                Dim destPath As String = Path.Combine(AppPaths.ReceiptsDir, newFileName)
+                Dim newFileName = ReceiptImageHelper.SaveOptimizedReceipt(Clipboard.GetImage(), id)
 
-                Using img = Clipboard.GetImage()
-                    img.Save(destPath, Imaging.ImageFormat.Png)
-                End Using
+                If String.IsNullOrEmpty(newFileName) Then
+                    MessageBox.Show("ไม่สามารถประมวลผลรูปภาพได้", "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                    Return
+                End If
 
                 Using conn = Db.OpenConn()
                     Db.ExecuteNonQuery(conn, "UPDATE Transactions SET ReceiptPath=@p WHERE ID=@id",
@@ -758,12 +758,12 @@ New Tuple(Of String, Object)("@id", id))
                     If ofd.ShowDialog(Me) <> DialogResult.OK Then Return
 
                     AppPaths.EnsureDirectoriesExist()
-                    Dim ext = Path.GetExtension(ofd.FileName)
-                    If String.IsNullOrEmpty(ext) Then ext = ".jpg"
-                    Dim newFileName As String = $"Receipt_{id}{ext}"
-                    Dim destPath As String = Path.Combine(AppPaths.ReceiptsDir, newFileName)
+                    Dim newFileName = ReceiptImageHelper.SaveOptimizedReceipt(ofd.FileName, id)
 
-                    File.Copy(ofd.FileName, destPath, True)
+                    If String.IsNullOrEmpty(newFileName) Then
+                        MessageBox.Show("ไม่สามารถประมวลผลรูปภาพได้", "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                        Return
+                    End If
 
                     Using conn = Db.OpenConn()
                         Db.ExecuteNonQuery(conn, "UPDATE Transactions SET ReceiptPath=@p WHERE ID=@id",
