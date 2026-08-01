@@ -666,5 +666,32 @@ New Tuple(Of String, Object)("@id", id))
         Private Sub lblSearch_Click(sender As Object, e As EventArgs) Handles lblSearch.Click
 
         End Sub
+
+        Private Sub btnViewReceipt_Click(sender As Object, e As EventArgs) Handles btnViewReceipt.Click
+            Private Sub btnViewReceipt_Click(sender As Object, e As EventArgs) Handles btnViewReceipt.Click
+            ' 1. ตรวจสอบว่ามีการเลือกแถวใน DataGridView หรือไม่
+            If dgvTransactions.CurrentRow Is Nothing Then
+                MessageBox.Show("กรุณาเลือกรายการที่ต้องการดูใบเสร็จ", "แจ้งเตือน", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                Exit Sub
+            End If
+
+            ' 2. อ่านชื่อไฟล์จากคอลัมน์ ReceiptPath
+            Dim fileName As String = Convert.ToString(dgvTransactions.CurrentRow.Cells("ReceiptPath").Value)
+
+            If String.IsNullOrWhiteSpace(fileName) Then
+                MessageBox.Show("รายการนี้ไม่มีรูปภาพใบเสร็จแนบไว้", "แจ้งเตือน", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                Exit Sub
+            End If
+
+            ' 3. หาตำแหน่งไฟล์จริงในโฟลเดอร์ Receipts
+            Dim fullPath As String = IO.Path.Combine(AppPaths.ReceiptsDir, fileName)
+
+            ' 4. ตรวจสอบไฟล์และสั่งเปิดดูรูปด้วยโปรแกรมมาตรฐานของ Windows
+            If IO.File.Exists(fullPath) Then
+                Process.Start(New ProcessStartInfo(fullPath) With {.UseShellExecute = True})
+            Else
+                MessageBox.Show($"ไม่พบไฟล์รูปภาพในระบบ: {fileName}", "ข้อผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            End If
+        End Sub
     End Class
 End Namespace
