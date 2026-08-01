@@ -116,7 +116,7 @@ Namespace TempleAccounting
             btnRefresh.FlatStyle = FlatStyle.Flat
             btnRefresh.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             btnRefresh.ForeColor = Color.White
-            btnRefresh.Location = New Point(922, 22)
+            btnRefresh.Location = New Point(1059, 21)
             btnRefresh.Name = "btnRefresh"
             btnRefresh.Size = New Size(120, 35)
             btnRefresh.TabIndex = 11
@@ -129,7 +129,7 @@ Namespace TempleAccounting
             btnSearch.FlatStyle = FlatStyle.Flat
             btnSearch.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             btnSearch.ForeColor = Color.White
-            btnSearch.Location = New Point(796, 22)
+            btnSearch.Location = New Point(933, 20)
             btnSearch.Name = "btnSearch"
             btnSearch.Size = New Size(120, 35)
             btnSearch.TabIndex = 10
@@ -248,7 +248,6 @@ Namespace TempleAccounting
             dgvTransactions.EditMode = DataGridViewEditMode.EditOnEnter
             dgvTransactions.Font = New Font("Tahoma", 10F)
             dgvTransactions.Location = New Point(0, 160)
-            dgvTransactions.MultiSelect = True
             dgvTransactions.Name = "dgvTransactions"
             dgvTransactions.ReadOnly = True
             dgvTransactions.RowHeadersWidth = 50
