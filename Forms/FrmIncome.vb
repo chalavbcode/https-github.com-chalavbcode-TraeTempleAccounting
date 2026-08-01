@@ -155,16 +155,27 @@ Namespace TempleAccounting
             Dim bankValue = GetSelectedBankValue()
             Try
                 Using conn = Db.OpenConn()
-                    Db.InsertAndGetId(conn,
-"INSERT INTO Transactions (TranDate, TranType, CategoryID, FundID, BankID, [Detail], Amount, [Note]) VALUES (" & Db.AccessDateLiteral(dtpDate.Value.Date) & ",'Income',@c,@f,@b,@de,@a,@n)",
-New Tuple(Of String, Object)("@c", CInt(cboCategory.SelectedValue)),
-New Tuple(Of String, Object)("@f", CInt(cboFund.SelectedValue)),
-New Tuple(Of String, Object)("@b", bankValue),
-New Tuple(Of String, Object)("@de", txtDescription.Text.Trim),
-New Tuple(Of String, Object)("@a", amt),
-New Tuple(Of String, Object)("@n", txtRemark.Text.Trim))
-                    MessageBox.Show("✅ บันทึกรายรับสำเร็จ แล้ว!", "สำเร็จ", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                    ' 1. บันทึกรายการลงตาราง Transactions ( TranType = 'Income' ) และรับ newID กลับมา
+                    Dim newID As Integer = Db.InsertAndGetId(conn, "INSERT INTO Transactions (TranDate, TranType, CategoryID, FundID, BankID, [Detail], Amount, [Note]) VALUES (" & Db.AccessDateLiteral(dtpDate.Value.Date) & ",'Income',@c,@f,@b,@de,@a,@n)", New Tuple(Of String, Object)("@c", CInt(cboCategory.SelectedValue)), New Tuple(Of String, Object)("@f", CInt(cboFund.SelectedValue)), New Tuple(Of String, Object)("@b", bankValue), New Tuple(Of String, Object)("@de", txtDescription.Text.Trim), New Tuple(Of String, Object)("@a", amt), New Tuple(Of String, Object)("@n", txtRemark.Text.Trim))
+
+                    ' 2. หากมีการเลือกรูปภาพ ให้จัดการก๊อบปี้ไฟล์และอัปเดตชื่อไฟล์ลงคอลัมน์ ReceiptPath
+                    Dim savedFileName As String = SaveReceiptFile(newID)
+                    If Not String.IsNullOrEmpty(savedFileName) Then
+                        Using cmd = conn.CreateCommand()
+                            cmd.CommandText = "UPDATE Transactions SET ReceiptPath = @rp WHERE ID = @id"
+                            cmd.Parameters.AddWithValue("@rp", savedFileName)
+                            cmd.Parameters.AddWithValue("@id", newID)
+                            cmd.ExecuteNonQuery()
+                        End Using
+                    End If
+
+                    MessageBox.Show("✅ บันทึกรายรับสำเร็จ!", "สำเร็จ", MessageBoxButtons.OK, MessageBoxIcon.Information)
                     ResetEntry(False)
+
+                    ' ล้างค่าตัวแปรเก็บ Path รูปภาพที่เคยเลือกไว้
+                    selectedSourceReceiptPath = ""
+                    If txtReceipt IsNot Nothing Then txtReceipt.Clear()
+
                     dtpDate.Value = keepDate
                     dtpDate.Focus()
                 End Using
@@ -172,6 +183,30 @@ New Tuple(Of String, Object)("@n", txtRemark.Text.Trim))
                 MessageBox.Show("บันทึกไม่สำเร็จ: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
             End Try
         End Sub
+
+        ' --- ฟังก์ชันช่วยก๊อบปี้รูปภาพใบเสร็จไปยัง AppPaths.ReceiptsDir ---
+        Private Function SaveReceiptFile(transactionID As Integer) As String
+            If String.IsNullOrWhiteSpace(selectedSourceReceiptPath) OrElse Not IO.File.Exists(selectedSourceReceiptPath) Then
+                Return ""
+            End If
+
+            Try
+                AppPaths.EnsureDirectoriesExist()
+
+                ' ตั้งชื่อไฟล์ใหม่ตาม ID ของรายการ เช่น Receipt_105.jpg
+                Dim ext As String = IO.Path.GetExtension(selectedSourceReceiptPath)
+                Dim newFileName As String = $"Receipt_{transactionID}{ext}"
+                Dim destPath As String = IO.Path.Combine(AppPaths.ReceiptsDir, newFileName)
+
+                ' ก๊อบปี้ไฟล์รูปจากโฟลเดอร์ต้นทางไปวางที่โฟลเดอร์ Receipts
+                IO.File.Copy(selectedSourceReceiptPath, destPath, True)
+
+                Return newFileName
+            Catch ex As Exception
+                AppPaths.LogCrash(ex, "SaveReceiptFile")
+                Return ""
+            End Try
+        End Function
 
         Private Sub btnImportExcel_Click(sender As Object, e As EventArgs) Handles btnImportExcel.Click
             If cboCategory.SelectedValue Is Nothing OrElse cboFund.SelectedValue Is Nothing Then
