@@ -52,7 +52,7 @@ Namespace TempleAccounting
         <DebuggerStepThrough()>
         Private Sub InitializeComponent()
             components = New Container()
-            Dim DataGridViewCellStyle2 As DataGridViewCellStyle = New DataGridViewCellStyle()
+            Dim DataGridViewCellStyle1 As DataGridViewCellStyle = New DataGridViewCellStyle()
             ttMain = New ToolTip(components)
             lblHeader = New Label()
             pFilter = New Panel()
@@ -244,8 +244,8 @@ Namespace TempleAccounting
             ' 
             dgvTransactions.AllowUserToAddRows = False
             dgvTransactions.AllowUserToDeleteRows = False
-            DataGridViewCellStyle2.BackColor = Color.FromArgb(CByte(255), CByte(251), CByte(235))
-            dgvTransactions.AlternatingRowsDefaultCellStyle = DataGridViewCellStyle2
+            DataGridViewCellStyle1.BackColor = Color.FromArgb(CByte(255), CByte(251), CByte(235))
+            dgvTransactions.AlternatingRowsDefaultCellStyle = DataGridViewCellStyle1
             dgvTransactions.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
             dgvTransactions.BackgroundColor = Color.White
             dgvTransactions.BorderStyle = BorderStyle.None
@@ -287,7 +287,7 @@ Namespace TempleAccounting
             btnClose.FlatStyle = FlatStyle.Flat
             btnClose.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             btnClose.ForeColor = Color.White
-            btnClose.Location = New Point(816, 18)
+            btnClose.Location = New Point(974, 18)
             btnClose.Name = "btnClose"
             btnClose.Size = New Size(120, 50)
             btnClose.TabIndex = 0
@@ -301,7 +301,7 @@ Namespace TempleAccounting
             btnDelete.FlatStyle = FlatStyle.Flat
             btnDelete.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             btnDelete.ForeColor = Color.White
-            btnDelete.Location = New Point(677, 18)
+            btnDelete.Location = New Point(828, 18)
             btnDelete.Name = "btnDelete"
             btnDelete.Size = New Size(124, 50)
             btnDelete.TabIndex = 1
@@ -315,9 +315,9 @@ Namespace TempleAccounting
             btnEdit.FlatStyle = FlatStyle.Flat
             btnEdit.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             btnEdit.ForeColor = Color.White
-            btnEdit.Location = New Point(542, 18)
+            btnEdit.Location = New Point(667, 18)
             btnEdit.Name = "btnEdit"
-            btnEdit.Size = New Size(117, 50)
+            btnEdit.Size = New Size(155, 50)
             btnEdit.TabIndex = 2
             btnEdit.Text = "✏️ แก้ไข"
             btnEdit.UseVisualStyleBackColor = False
@@ -329,9 +329,9 @@ Namespace TempleAccounting
             btnAddTrans.FlatStyle = FlatStyle.Flat
             btnAddTrans.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             btnAddTrans.ForeColor = Color.White
-            btnAddTrans.Location = New Point(386, 18)
+            btnAddTrans.Location = New Point(499, 18)
             btnAddTrans.Name = "btnAddTrans"
-            btnAddTrans.Size = New Size(140, 50)
+            btnAddTrans.Size = New Size(162, 50)
             btnAddTrans.TabIndex = 3
             btnAddTrans.Text = "🔁 โอนเงิน"
             btnAddTrans.UseVisualStyleBackColor = False
@@ -343,9 +343,9 @@ Namespace TempleAccounting
             btnAddExp.FlatStyle = FlatStyle.Flat
             btnAddExp.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             btnAddExp.ForeColor = Color.White
-            btnAddExp.Location = New Point(208, 18)
+            btnAddExp.Location = New Point(270, 18)
             btnAddExp.Name = "btnAddExp"
-            btnAddExp.Size = New Size(160, 50)
+            btnAddExp.Size = New Size(209, 50)
             btnAddExp.TabIndex = 4
             btnAddExp.Text = "💸 บันทึกรายจ่าย"
             btnAddExp.UseVisualStyleBackColor = False
@@ -359,7 +359,7 @@ Namespace TempleAccounting
             btnAddInc.ForeColor = Color.White
             btnAddInc.Location = New Point(33, 18)
             btnAddInc.Name = "btnAddInc"
-            btnAddInc.Size = New Size(160, 50)
+            btnAddInc.Size = New Size(231, 50)
             btnAddInc.TabIndex = 5
             btnAddInc.Text = "💰 บันทึกรายรับ"
             btnAddInc.UseVisualStyleBackColor = False
