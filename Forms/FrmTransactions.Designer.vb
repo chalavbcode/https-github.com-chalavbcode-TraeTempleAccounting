@@ -54,7 +54,6 @@ Namespace TempleAccounting
             components = New Container()
             Dim DataGridViewCellStyle1 As DataGridViewCellStyle = New DataGridViewCellStyle()
             ttMain = New ToolTip(components)
-            lblHeader = New Label()
             pFilter = New Panel()
             btnRefresh = New Button()
             btnSearch = New Button()
@@ -82,19 +81,6 @@ Namespace TempleAccounting
             pActions.SuspendLayout()
             SuspendLayout()
             ' 
-            ' lblHeader
-            ' 
-            lblHeader.BackColor = Color.FromArgb(CByte(253), CByte(230), CByte(138))
-            lblHeader.Dock = DockStyle.Top
-            lblHeader.Font = New Font("Tahoma", 15F, FontStyle.Bold)
-            lblHeader.ForeColor = Color.FromArgb(CByte(69), CByte(26), CByte(3))
-            lblHeader.Location = New Point(0, 180)
-            lblHeader.Name = "lblHeader"
-            lblHeader.Size = New Size(1400, 64)
-            lblHeader.TabIndex = 4
-            lblHeader.Text = "📋 รายการรับ-จ่ายทั้งหมด"
-            lblHeader.TextAlign = ContentAlignment.MiddleCenter
-            ' 
             ' pFilter
             ' 
             pFilter.BackColor = Color.White
@@ -113,8 +99,8 @@ Namespace TempleAccounting
             pFilter.Dock = DockStyle.Top
             pFilter.Location = New Point(0, 50)
             pFilter.Name = "pFilter"
-            pFilter.Size = New Size(1400, 130)
-            pFilter.TabIndex = 3
+            pFilter.Size = New Size(1400, 110)
+            pFilter.TabIndex = 1
             ' 
             ' btnRefresh
             ' 
@@ -161,14 +147,14 @@ Namespace TempleAccounting
             ' dtpTo
             ' 
             dtpTo.Format = DateTimePickerFormat.Short
-            dtpTo.Location = New Point(406, 70)
+            dtpTo.Location = New Point(406, 65)
             dtpTo.Name = "dtpTo"
             dtpTo.Size = New Size(160, 33)
             dtpTo.TabIndex = 7
             ' 
             ' lblTo
             ' 
-            lblTo.Location = New Point(340, 70)
+            lblTo.Location = New Point(340, 65)
             lblTo.Name = "lblTo"
             lblTo.Size = New Size(40, 30)
             lblTo.TabIndex = 6
@@ -178,14 +164,14 @@ Namespace TempleAccounting
             ' dtpFrom
             ' 
             dtpFrom.Format = DateTimePickerFormat.Short
-            dtpFrom.Location = New Point(120, 70)
+            dtpFrom.Location = New Point(120, 65)
             dtpFrom.Name = "dtpFrom"
             dtpFrom.Size = New Size(160, 33)
             dtpFrom.TabIndex = 5
             ' 
             ' lblDate
             ' 
-            lblDate.Location = New Point(20, 70)
+            lblDate.Location = New Point(20, 65)
             lblDate.Name = "lblDate"
             lblDate.Size = New Size(90, 30)
             lblDate.TabIndex = 4
@@ -236,7 +222,7 @@ Namespace TempleAccounting
             lblSummary.Location = New Point(0, 0)
             lblSummary.Name = "lblSummary"
             lblSummary.Size = New Size(1400, 50)
-            lblSummary.TabIndex = 2
+            lblSummary.TabIndex = 0
             lblSummary.Text = "รายรับ: 0.00 บาท   |   รายจ่าย: 0.00 บาท   |   คงเหลือ: 0.00 บาท   |   โอน: 0.00 บาท"
             lblSummary.TextAlign = ContentAlignment.MiddleCenter
             ' 
@@ -246,23 +232,23 @@ Namespace TempleAccounting
             dgvTransactions.AllowUserToDeleteRows = False
             DataGridViewCellStyle1.BackColor = Color.FromArgb(CByte(255), CByte(251), CByte(235))
             dgvTransactions.AlternatingRowsDefaultCellStyle = DataGridViewCellStyle1
-            dgvTransactions.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
+            dgvTransactions.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None
             dgvTransactions.BackgroundColor = Color.White
             dgvTransactions.BorderStyle = BorderStyle.None
-            dgvTransactions.ColumnHeadersHeight = 34
+            dgvTransactions.ColumnHeadersHeight = 40
             dgvTransactions.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing
             dgvTransactions.Dock = DockStyle.Fill
             dgvTransactions.EditMode = DataGridViewEditMode.EditOnEnter
             dgvTransactions.Font = New Font("Tahoma", 10F)
-            dgvTransactions.Location = New Point(0, 0)
+            dgvTransactions.Location = New Point(0, 160)
             dgvTransactions.Name = "dgvTransactions"
             dgvTransactions.ReadOnly = True
-            dgvTransactions.RowHeadersWidth = 62
+            dgvTransactions.RowHeadersWidth = 50
             dgvTransactions.RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.DisableResizing
             dgvTransactions.RowTemplate.Height = 34
             dgvTransactions.SelectionMode = DataGridViewSelectionMode.FullRowSelect
-            dgvTransactions.Size = New Size(1400, 800)
-            dgvTransactions.TabIndex = 0
+            dgvTransactions.Size = New Size(1400, 560)
+            dgvTransactions.TabIndex = 3
             ' 
             ' pActions
             ' 
@@ -278,7 +264,7 @@ Namespace TempleAccounting
             pActions.Name = "pActions"
             pActions.Padding = New Padding(16, 12, 16, 12)
             pActions.Size = New Size(1400, 80)
-            pActions.TabIndex = 1
+            pActions.TabIndex = 2
             ' 
             ' btnClose
             ' 
@@ -371,11 +357,10 @@ Namespace TempleAccounting
             AutoScroll = False
             BackColor = Color.FromArgb(CByte(254), CByte(249), CByte(235))
             ClientSize = New Size(1400, 800)
-            Controls.Add(lblHeader)
+            Controls.Add(dgvTransactions)
+            Controls.Add(pActions)
             Controls.Add(pFilter)
             Controls.Add(lblSummary)
-            Controls.Add(pActions)
-            Controls.Add(dgvTransactions)
             Font = New Font("Tahoma", 10.5F)
             MinimumSize = New Size(1180, 760)
             Name = "FrmTransactions"
