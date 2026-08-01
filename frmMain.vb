@@ -15,6 +15,7 @@ Namespace TempleAccounting
 
         Public Sub New()
             Try
+                AppPaths.EnsureDirectoriesExist()
                 Dim ignore = AppPaths.DatabaseFile
             Catch ex As Exception
                 AppPaths.LogCrash(ex, "AppPaths init")

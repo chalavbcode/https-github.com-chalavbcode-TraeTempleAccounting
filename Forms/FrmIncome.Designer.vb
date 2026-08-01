@@ -21,6 +21,7 @@ Namespace TempleAccounting
         Friend WithEvents txtRemark As TextBox
         Friend WithEvents txtReceipt As TextBox
         Friend WithEvents btnBrowseReceipt As Button
+        Friend WithEvents btnPasteReceipt As Button
         Friend WithEvents btnClearReceipt As Button
         Friend WithEvents btnSave As Button
         Friend WithEvents btnCancel As Button
@@ -69,6 +70,7 @@ Namespace TempleAccounting
             txtRemark = New TextBox()
             txtReceipt = New TextBox()
             btnBrowseReceipt = New Button()
+            btnPasteReceipt = New Button()
             btnClearReceipt = New Button()
             btnSave = New Button()
             btnCancel = New Button()
@@ -211,9 +213,9 @@ Namespace TempleAccounting
             txtReceipt.Font = New Font("Tahoma", 10.5!)
             txtReceipt.ReadOnly = True
             txtReceipt.BackColor = Color.White
-            '
+            ' 
             ' btnBrowseReceipt
-            '
+            ' 
             btnBrowseReceipt.Text = "📂 เลือกรูปภาพ"
             btnBrowseReceipt.Font = New Font("Tahoma", 9.5!, FontStyle.Bold)
             btnBrowseReceipt.BackColor = Color.FromArgb(79, 70, 229)
@@ -222,20 +224,31 @@ Namespace TempleAccounting
             btnBrowseReceipt.Size = New Size(140, 40)
             btnBrowseReceipt.Location = New Point(550, 594)
             btnBrowseReceipt.Cursor = Cursors.Hand
-            '
+            ' 
+            ' btnPasteReceipt
+            ' 
+            btnPasteReceipt.Text = "📋 วางจาก LINE"
+            btnPasteReceipt.Font = New Font("Tahoma", 9.5!, FontStyle.Bold)
+            btnPasteReceipt.BackColor = Color.FromArgb(5, 150, 105)
+            btnPasteReceipt.ForeColor = Color.White
+            btnPasteReceipt.FlatStyle = FlatStyle.Flat
+            btnPasteReceipt.Size = New Size(140, 40)
+            btnPasteReceipt.Location = New Point(700, 594)
+            btnPasteReceipt.Cursor = Cursors.Hand
+            ' 
             ' btnClearReceipt
-            '
+            ' 
             btnClearReceipt.Text = "🗑️"
             btnClearReceipt.Font = New Font("Tahoma", 9.5!, FontStyle.Bold)
             btnClearReceipt.BackColor = Color.FromArgb(220, 38, 38)
             btnClearReceipt.ForeColor = Color.White
             btnClearReceipt.FlatStyle = FlatStyle.Flat
             btnClearReceipt.Size = New Size(50, 40)
-            btnClearReceipt.Location = New Point(700, 594)
+            btnClearReceipt.Location = New Point(850, 594)
             btnClearReceipt.Cursor = Cursors.Hand
-            '
+            ' 
             ' btnSave
-            '
+            ' 
             btnSave.Text = "💾 บันทึกรายการ"
             btnSave.Font = New Font("Tahoma", 11.0!, FontStyle.Bold)
             btnSave.BackColor = Color.FromArgb(22, 163, 74)
@@ -244,9 +257,9 @@ Namespace TempleAccounting
             btnSave.Size = New Size(240, 56)
             btnSave.Location = New Point(240, 662)
             btnSave.Cursor = Cursors.Hand
-            '
+            ' 
             ' btnCancel
-            '
+            ' 
             btnCancel.Text = "❌ เคลียร์"
             btnCancel.Font = New Font("Tahoma", 11.0!, FontStyle.Bold)
             btnCancel.BackColor = Color.FromArgb(180, 83, 9)
@@ -255,20 +268,20 @@ Namespace TempleAccounting
             btnCancel.Size = New Size(180, 56)
             btnCancel.Location = New Point(500, 662)
             btnCancel.Cursor = Cursors.Hand
-            '
+            ' 
             ' btnImportExcel
-            '
+            ' 
             btnImportExcel.Text = "📥 นำเข้าจาก Excel"
             btnImportExcel.Font = New Font("Tahoma", 11.0!, FontStyle.Bold)
             btnImportExcel.BackColor = Color.FromArgb(37, 99, 235)
             btnImportExcel.ForeColor = Color.White
             btnImportExcel.FlatStyle = FlatStyle.Flat
             btnImportExcel.Size = New Size(240, 56)
-            btnImportExcel.Location = New Point(700, 662)
+            btnImportExcel.Location = New Point(750, 662)
             btnImportExcel.Cursor = Cursors.Hand
-            '
+            ' 
             ' Controls
-            '
+            ' 
             Controls.Add(lbl1)
             Controls.Add(lbl2)
             Controls.Add(lbl3)
@@ -286,6 +299,7 @@ Namespace TempleAccounting
             Controls.Add(txtRemark)
             Controls.Add(txtReceipt)
             Controls.Add(btnBrowseReceipt)
+            Controls.Add(btnPasteReceipt)
             Controls.Add(btnClearReceipt)
             Controls.Add(btnSave)
             Controls.Add(btnCancel)
