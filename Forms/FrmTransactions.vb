@@ -286,9 +286,10 @@ Namespace TempleAccounting
                     If Not String.IsNullOrWhiteSpace(searchText) Then
                         ' ครอบ Try-Catch เพื่อป้องกันการค้นหาที่พังจากตัวอักษรพิเศษ
                         Try
-                            ' Escape ตัวอักษรพิเศษสำหรับ Access LIKE และป้องกัน SQL Error
-                            Dim safeSearch = Db.EscapeLikeText(searchText)
-                            ' Access OleDb ใช้ * เป็น wildcard สำหรับ LIKE
+                            ' Escape ตัวอักษรพิเศษสำหรับ Access LIKE ยกเว้น * ที่ใช้เป็น wildcard
+                            ' แยก Escape ตัวที่มีความหมายใน LIKE patterns: [ ] ? #
+                            Dim safeSearch = searchText.Replace("[", "[[]").Replace("?", "[?]").Replace("#", "[#]")
+                            ' Access OleDb ใช้ * เป็น wildcard สำหรับ LIKE (ไม่ต้อง escape)
                             Dim likePattern = "*" & safeSearch & "*"
 
                             ' ค้นหาหลายฟิลด์พร้อมกัน
@@ -307,7 +308,6 @@ Namespace TempleAccounting
                         Catch ex As Exception
                             AppPaths.LogCrash(ex, "FrmTransactions.Search")
                             ' หากเกิดปัญหา ข้ามการค้นหาแต่ยังแสดงข้อมูลทั้งหมด
-                            ' ไม่ต้องทำอะไรเพิ่ม เพราะตัวแปร ps ยังเป็น Empty ทำให้ SQL ทำงานได้ปกติ
                         End Try
                     End If
                     sql &= " ORDER BY " & tranDateExpr & " DESC, t.ID DESC"
