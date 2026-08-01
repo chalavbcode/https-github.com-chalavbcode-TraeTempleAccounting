@@ -407,17 +407,72 @@ Namespace TempleAccounting
         End Sub
 
         Private Sub btnDelete_Click(sender As Object, e As EventArgs) Handles btnDelete.Click
-            If _isEditing Then
-                MessageBox.Show("กรุณาบันทึกหรือยกเลิกการแก้ไขก่อนลบรายการ", "แจ้งเตือน") : Return
-            End If
-            If dgvTransactions.CurrentRow Is Nothing Then MessageBox.Show("กรุณาเลือกรายการที่จะลบ", "แจ้งเตือน") : Return
-            Dim id = CInt(dgvTransactions.CurrentRow.Cells("ID").Value)
-            If MessageBox.Show("คุณแน่ใจว่าจะลบรายการนี้ใช่หรือไม่?", "ยืนยัน", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.No Then Return
-            Using conn = Db.OpenConn()
-                Db.ExecuteNonQuery(conn, "DELETE FROM Transactions WHERE ID=@id", New Tuple(Of String, Object)("@id", id))
-                MessageBox.Show("ลบรายการแล้ว", "สำเร็จ", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            Try
+                If _isEditing Then
+                    MessageBox.Show("กรุณาบันทึกหรือยกเลิกการแก้ไขก่อนลบรายการ", "แจ้งเตือน") : Return
+                End If
+
+                If dgvTransactions.SelectedRows.Count = 0 Then
+                    MessageBox.Show("กรุณาเลือกรายการที่จะลบ", "แจ้งเตือน", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                    Return
+                End If
+
+                Dim count = dgvTransactions.SelectedRows.Count
+                Dim msg = If(count = 1, "คุณแน่ใจว่าจะลบรายการนี้ใช่หรือไม่?", $"คุณต้องการลบรายการที่เลือกทั้งหมด {count} รายการใช่หรือไม่?")
+                If MessageBox.Show(msg, "ยืนยันการลบ", MessageBoxButtons.YesNo, MessageBoxIcon.Question) <> DialogResult.Yes Then Return
+
+                Dim ids As New List(Of Integer)
+                Dim filesToDelete As New List(Of String)
+
+                For Each row As DataGridViewRow In dgvTransactions.SelectedRows
+                    Dim id = Db.ToIntOrZero(row.Cells("ID").Value)
+                    If id > 0 Then
+                        ids.Add(id)
+                        Dim receiptPath = Convert.ToString(row.Cells("ReceiptPath").Value)
+                        If Not String.IsNullOrWhiteSpace(receiptPath) Then
+                            filesToDelete.Add(receiptPath)
+                        End If
+                    End If
+                Next
+
+                If ids.Count = 0 Then Return
+
+                Using conn = Db.OpenConn()
+                    Using trans = conn.BeginTransaction()
+                        Try
+                            For Each id In ids
+                                Using cmd = conn.CreateCommand()
+                                    cmd.Transaction = trans
+                                    cmd.CommandText = "DELETE FROM Transactions WHERE ID = @id"
+                                    cmd.Parameters.AddWithValue("@id", id)
+                                    cmd.ExecuteNonQuery()
+                                End Using
+                            Next
+                            trans.Commit()
+                        Catch ex As Exception
+                            trans.Rollback()
+                            Throw
+                        End Try
+                    End Using
+                End Using
+
+                ' ลบไฟล์รูปจริง
+                For Each fileName In filesToDelete
+                    Try
+                        Dim fullPath = Path.Combine(AppPaths.ReceiptsDir, fileName)
+                        If File.Exists(fullPath) Then File.Delete(fullPath)
+                    Catch
+                        ' ปล่อยผ่านถ้าไฟล์ถูกล็อค
+                    End Try
+                Next
+
+                MessageBox.Show($"ลบรายการสำเร็จ {ids.Count} รายการ", "สำเร็จ", MessageBoxButtons.OK, MessageBoxIcon.Information)
                 LoadData()
-            End Using
+
+            Catch ex As Exception
+                AppPaths.LogCrash(ex, "MultiDeleteTransactions")
+                MessageBox.Show("เกิดข้อผิดพลาดในการลบรายการ: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            End Try
         End Sub
 
         Private Sub btnAddInc_Click(sender As Object, e As EventArgs) Handles btnAddInc.Click
