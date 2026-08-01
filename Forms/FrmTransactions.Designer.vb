@@ -35,6 +35,7 @@ Namespace TempleAccounting
         Friend WithEvents btnAddTrans As Button
         Friend WithEvents btnEdit As Button
         Friend WithEvents btnDelete As Button
+        Friend WithEvents btnViewReceipt As Button
         Friend WithEvents btnClose As Button
         Friend WithEvents ttMain As ToolTip
 
@@ -72,6 +73,7 @@ Namespace TempleAccounting
             pActions = New Panel()
             btnClose = New Button()
             btnDelete = New Button()
+            btnViewReceipt = New Button()
             btnEdit = New Button()
             btnAddTrans = New Button()
             btnAddExp = New Button()
@@ -99,7 +101,7 @@ Namespace TempleAccounting
             pFilter.Dock = DockStyle.Top
             pFilter.Location = New Point(0, 50)
             pFilter.Name = "pFilter"
-            pFilter.Size = New Size(1400, 110)
+            pFilter.Size = New Size(1250, 110)
             pFilter.TabIndex = 1
             ' 
             ' btnRefresh
@@ -108,7 +110,7 @@ Namespace TempleAccounting
             btnRefresh.FlatStyle = FlatStyle.Flat
             btnRefresh.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             btnRefresh.ForeColor = Color.White
-            btnRefresh.Location = New Point(1072, 22)
+            btnRefresh.Location = New Point(922, 22)
             btnRefresh.Name = "btnRefresh"
             btnRefresh.Size = New Size(120, 35)
             btnRefresh.TabIndex = 11
@@ -121,7 +123,7 @@ Namespace TempleAccounting
             btnSearch.FlatStyle = FlatStyle.Flat
             btnSearch.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             btnSearch.ForeColor = Color.White
-            btnSearch.Location = New Point(946, 22)
+            btnSearch.Location = New Point(796, 22)
             btnSearch.Name = "btnSearch"
             btnSearch.Size = New Size(120, 35)
             btnSearch.TabIndex = 10
@@ -247,7 +249,7 @@ Namespace TempleAccounting
             dgvTransactions.RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.DisableResizing
             dgvTransactions.RowTemplate.Height = 34
             dgvTransactions.SelectionMode = DataGridViewSelectionMode.FullRowSelect
-            dgvTransactions.Size = New Size(1400, 560)
+            dgvTransactions.Size = New Size(1250, 560)
             dgvTransactions.TabIndex = 3
             ' 
             ' pActions
@@ -255,6 +257,7 @@ Namespace TempleAccounting
             pActions.BackColor = Color.FromArgb(CByte(245), CByte(240), CByte(220))
             pActions.Controls.Add(btnClose)
             pActions.Controls.Add(btnDelete)
+            pActions.Controls.Add(btnViewReceipt)
             pActions.Controls.Add(btnEdit)
             pActions.Controls.Add(btnAddTrans)
             pActions.Controls.Add(btnAddExp)
@@ -263,7 +266,7 @@ Namespace TempleAccounting
             pActions.Location = New Point(0, 720)
             pActions.Name = "pActions"
             pActions.Padding = New Padding(16, 12, 16, 12)
-            pActions.Size = New Size(1400, 80)
+            pActions.Size = New Size(1250, 80)
             pActions.TabIndex = 2
             ' 
             ' btnClose
@@ -273,10 +276,10 @@ Namespace TempleAccounting
             btnClose.FlatStyle = FlatStyle.Flat
             btnClose.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             btnClose.ForeColor = Color.White
-            btnClose.Location = New Point(974, 18)
+            btnClose.Location = New Point(1098, 18)
             btnClose.Name = "btnClose"
             btnClose.Size = New Size(120, 50)
-            btnClose.TabIndex = 0
+            btnClose.TabIndex = 9
             btnClose.Text = "ปิด"
             btnClose.UseVisualStyleBackColor = False
             ' 
@@ -287,10 +290,10 @@ Namespace TempleAccounting
             btnDelete.FlatStyle = FlatStyle.Flat
             btnDelete.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             btnDelete.ForeColor = Color.White
-            btnDelete.Location = New Point(828, 18)
+            btnDelete.Location = New Point(968, 18)
             btnDelete.Name = "btnDelete"
             btnDelete.Size = New Size(124, 50)
-            btnDelete.TabIndex = 1
+            btnDelete.TabIndex = 8
             btnDelete.Text = "🗑️ ลบ"
             btnDelete.UseVisualStyleBackColor = False
             ' 
@@ -301,12 +304,26 @@ Namespace TempleAccounting
             btnEdit.FlatStyle = FlatStyle.Flat
             btnEdit.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             btnEdit.ForeColor = Color.White
-            btnEdit.Location = New Point(667, 18)
+            btnEdit.Location = New Point(807, 18)
             btnEdit.Name = "btnEdit"
             btnEdit.Size = New Size(155, 50)
-            btnEdit.TabIndex = 2
+            btnEdit.TabIndex = 7
             btnEdit.Text = "✏️ แก้ไข"
             btnEdit.UseVisualStyleBackColor = False
+            ' 
+            ' btnViewReceipt
+            ' 
+            btnViewReceipt.BackColor = Color.FromArgb(CByte(245), CByte(158), CByte(11))
+            btnViewReceipt.Cursor = Cursors.Hand
+            btnViewReceipt.FlatStyle = FlatStyle.Flat
+            btnViewReceipt.Font = New Font("Tahoma", 10F, FontStyle.Bold)
+            btnViewReceipt.ForeColor = Color.White
+            btnViewReceipt.Location = New Point(489, 18)
+            btnViewReceipt.Name = "btnViewReceipt"
+            btnViewReceipt.Size = New Size(140, 50)
+            btnViewReceipt.TabIndex = 3
+            btnViewReceipt.Text = "📄 ดูใบเสร็จ"
+            btnViewReceipt.UseVisualStyleBackColor = False
             ' 
             ' btnAddTrans
             ' 
@@ -315,10 +332,10 @@ Namespace TempleAccounting
             btnAddTrans.FlatStyle = FlatStyle.Flat
             btnAddTrans.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             btnAddTrans.ForeColor = Color.White
-            btnAddTrans.Location = New Point(499, 18)
+            btnAddTrans.Location = New Point(639, 18)
             btnAddTrans.Name = "btnAddTrans"
             btnAddTrans.Size = New Size(162, 50)
-            btnAddTrans.TabIndex = 3
+            btnAddTrans.TabIndex = 4
             btnAddTrans.Text = "🔁 โอนเงิน"
             btnAddTrans.UseVisualStyleBackColor = False
             ' 
@@ -332,7 +349,7 @@ Namespace TempleAccounting
             btnAddExp.Location = New Point(270, 18)
             btnAddExp.Name = "btnAddExp"
             btnAddExp.Size = New Size(209, 50)
-            btnAddExp.TabIndex = 4
+            btnAddExp.TabIndex = 5
             btnAddExp.Text = "💸 บันทึกรายจ่าย"
             btnAddExp.UseVisualStyleBackColor = False
             ' 
@@ -346,7 +363,7 @@ Namespace TempleAccounting
             btnAddInc.Location = New Point(33, 18)
             btnAddInc.Name = "btnAddInc"
             btnAddInc.Size = New Size(231, 50)
-            btnAddInc.TabIndex = 5
+            btnAddInc.TabIndex = 6
             btnAddInc.Text = "💰 บันทึกรายรับ"
             btnAddInc.UseVisualStyleBackColor = False
             ' 
@@ -356,7 +373,7 @@ Namespace TempleAccounting
             AutoScaleMode = AutoScaleMode.Font
             AutoScroll = False
             BackColor = Color.FromArgb(CByte(254), CByte(249), CByte(235))
-            ClientSize = New Size(1400, 800)
+            ClientSize = New Size(1250, 800)
             Controls.Add(dgvTransactions)
             Controls.Add(pActions)
             Controls.Add(pFilter)
