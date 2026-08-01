@@ -248,6 +248,7 @@ Namespace TempleAccounting
             dgvTransactions.EditMode = DataGridViewEditMode.EditOnEnter
             dgvTransactions.Font = New Font("Tahoma", 10F)
             dgvTransactions.Location = New Point(0, 160)
+            dgvTransactions.MultiSelect = True
             dgvTransactions.Name = "dgvTransactions"
             dgvTransactions.ReadOnly = True
             dgvTransactions.RowHeadersWidth = 50
