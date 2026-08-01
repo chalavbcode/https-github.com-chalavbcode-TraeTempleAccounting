@@ -10,10 +10,11 @@ Imports System.Data.OleDb
 
 Namespace TempleAccounting
     <DesignerCategory("Form")>
-    ' ตัวแปรเก็บ Path รูปภาพต้นทางที่ผู้ใช้เลือก (เช่น จาก C:\LineDownloads)
-    Private selectedSourceReceiptPath As String = ""
     Partial Public Class FrmExpense
         Inherits Form
+
+        ' ตัวแปรเก็บ Path รูปภาพต้นทางที่ผู้ใช้เลือก (เช่น จาก C:\LineDownloads)
+        Private selectedSourceReceiptPath As String = ""
 
         Private ReadOnly _enterFlow As New List(Of Control)()
 
@@ -229,9 +230,6 @@ Namespace TempleAccounting
                 End Try
             End Using
         End Sub
-
-        ' ตัวแปรเก็บ Path ของไฟล์รูปต้นทางที่ผู้ใช้เลือก
-        Private selectedSourceReceiptPath As String = ""
 
         ' ปุ่มกดเลือกรูปภาพ
         Private Sub btnBrowseReceipt_Click(sender As Object, e As EventArgs) Handles btnBrowseReceipt.Click
