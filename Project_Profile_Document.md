@@ -7,7 +7,7 @@
 ## สถานะเอกสาร
 - ประเภทเอกสาร: `Project Profile / Technical Reference / Historical Record`
 - วัตถุประสงค์: ใช้เป็นเอกสารอ้างอิงกลางสำหรับการพัฒนา การบำรุงรักษา การตรวจสอบขอบเขตระบบ และการส่งมอบงานในอนาคต
-- แหล่งอ้างอิง: จัดทำจากการตรวจสอบซอร์สโค้ดและโครงสร้างโปรเจกต์จริง จากที่เคยเขียนไว้ ณ วันที่ `2026-07-26`
+- แหล่งอ้างอิง: จัดทำจากการตรวจสอบซอร์สโค้ดและโครงสร้างโปรเจกต์จริง ณ วันที่ `2026-08-01` (อัพเดตครั้งแรกจาก `2026-07-26`)
 
 ## หมายเหตุ
 เอกสารฉบับนี้จัดทำขึ้นเพื่อเป็นจุดอ้างอิงเชิงเทคนิคและเชิงประวัติโครงการ โดยยึดข้อมูลจากซอร์สโค้ด โครงสร้างไฟล์ และองค์ประกอบของระบบที่มีอยู่จริงใน workspace ปัจจุบันเป็นหลัก
@@ -94,6 +94,19 @@
 - แสดงข้อมูลประกอบจาก `Categories`, `Funds`, `BankAccounts`
 - รองรับการแก้ไขและลบรายการจากหน้ากริด
 - ใช้งานร่วมกับ workflow แบบ Visual Studio Debug ได้โดยชี้ฐานข้อมูลไปยังโฟลเดอร์โปรเจกต์
+- **UI ภาษาไทย**: แปลฟิลด์ DataGridView เป็นภาษาไทยใน ConfigureGridColumns():
+  - ID → ID
+  - TranDate → วันที่
+  - TranTypeDisplay → ชนิด
+  - CategoryName → ประเภท
+  - FundName → กองทุน
+  - BankName → ธนาคาร
+  - Detail → รายละเอียด
+  - Amount → จำนวนเงิน
+  - Note → หมายเหตุ
+  - CreateDate → วันที่บันทึก
+  - ToFundName → ไปยังกองทุน
+  - ToBankName → ไปยังธนาคาร
 
 ### 3.5 โมดูลรายงาน
 ไฟล์หลัก:
@@ -106,6 +119,16 @@
 - จัดหน้ากระดาษ A4 แนวนอน
 - รองรับยอดยกมาและยอดยกไปตามช่วงวันที่
 - ส่งออกข้อมูลรายงานเป็น CSV ไปยังโฟลเดอร์ `Export`
+- **ฟีเจอร์ยอดยกมาแบบกำหนดเอง**:
+  - เพิ่ม TextBox (txtBalance) สำหรับกรอกยอดยกมาเอง
+  - เพิ่ม Button (btnCalcBalance) สำหรับคำนวณยอดยกมาจากฐานข้อมูล
+  - GetManualBalance() function สำหรับอ่านค่าจาก txtBalance
+  - IncomeExpenseReport constructor รองรับ manualOpeningBalance parameter
+  - ToolTips สำหรับแนะนำการใช้งาน (txtBalance, btnCalcBalance)
+- **การปรับปรุง UI**:
+  - ปรับ layout ของฟอร์มรายงานให้กระชับขึ้น
+  - เพิ่มขนาด DataGridView และลด header
+  - ปรับขนาด controls และ fonts ให้เหมาะสม
 
 ### 3.6 โมดูลตั้งค่าข้อมูลวัด
 ไฟล์หลัก: `Forms\FrmTempleSetting.vb`
@@ -131,6 +154,18 @@
 - นำเข้าข้อมูล `Province`, `District`, `SubDistrict`
 - ใช้ไฟล์ CSV จากโฟลเดอร์ `Import`
 - อัปเดตข้อมูลภูมิศาสตร์สำหรับหน้าตั้งค่าวัด
+
+### 3.9 การปรับปรุง UI/UX
+ไฟล์หลัก: `frmMain.Designer.vb`, `FrmReports.Designer.vb`
+
+การปรับปรุงที่ดำเนินการ:
+- **Dashboard Cards**: ลดความสูงของ pnlCard1-4 จาก 95px เป็น 90px เพื่อให้ dashboard กระชับขึ้น
+- **Reports Layout**: ปรับ layout ของฟอร์มรายงานให้กระชับขึ้น:
+  - เพิ่มขนาด DataGridView
+  - ลด header
+  - ปรับขนาด controls และ fonts ให้เหมาะสม
+- **Thai Localization**: แปลฟิลด์ DataGridView ใน FrmTransactions เป็นภาษาไทยทั้งหมด
+- **Error Fixes**: แก้ไขปัญหา BC30451 errors โดย comment out บรรทัดที่อ้างถึง lblCardXIcon ที่ไม่มีใน Designer
 
 ## 4. โครงสร้างฐานข้อมูล
 
@@ -291,3 +326,47 @@
 - การประกอบ SQL แบบหลาย `LEFT JOIN` ควรทดสอบกับ Access syntax โดยตรง
 - การจัดการวันที่ควรใช้ helper กลาง เช่น `AccessDateLiteral(...)`
 - การเก็บ critical log และ stack trace มีความสำคัญอย่างยิ่งต่อการวิเคราะห์ปัญหาในภายหลัง
+
+## 11. ประวัติการอัพเดตระบบ
+
+### 11.1 อัพเดตวันที่ 2026-08-01
+ครั้งที่ 1 - อัพเดตครั้งแรกจากเอกสารเดิมวันที่ 2026-07-26
+
+#### UI/UX Improvements
+- **Dashboard Cards**: ลดความสูงของ pnlCard1-4 จาก 95px เป็น 90px เพื่อให้ dashboard กระชับขึ้น
+- **Reports Layout**: ปรับ layout ของฟอร์มรายงานให้กระชับขึ้น:
+  - เพิ่มขนาด DataGridView
+  - ลด header
+  - ปรับขนาด controls และ fonts ให้เหมาะสม
+- **Thai Localization**: แปลฟิลด์ DataGridView ใน FrmTransactions เป็นภาษาไทยทั้งหมด:
+  - TranDate → วันที่
+  - TranTypeDisplay → ชนิด
+  - CategoryName → ประเภท
+  - FundName → กองทุน
+  - BankName → ธนาคาร
+  - Detail → รายละเอียด
+  - Amount → จำนวนเงิน
+  - Note → หมายเหตุ
+  - CreateDate → วันที่บันทึก
+  - ToFundName → ไปยังกองทุน
+  - ToBankName → ไปยังธนาคาร
+
+#### ฟีเจอร์ใหม่
+- **ยอดยกมาแบบกำหนดเอง**:
+  - เพิ่ม TextBox (txtBalance) สำหรับกรอกยอดยกมาเองใน FrmReports
+  - เพิ่ม Button (btnCalcBalance) สำหรับคำนวณยอดยกมาจากฐานข้อมูล
+  - เพิ่ม GetManualBalance() function สำหรับอ่านค่าจาก txtBalance
+  - แก้ไข IncomeExpenseReport constructor รองรับ manualOpeningBalance parameter
+  - เพิ่ม ToolTips สำหรับแนะนำการใช้งาน
+
+#### การแก้ไขปัญหา
+- **BC30451 Errors**: แก้ไขปัญหา lblCardXIcon ไม่ถูกประกาศใน Designer โดย comment out บรรทัดที่อ้างถึง
+- **Debug Infrastructure**: เพิ่ม debug reporting system ใน FrmTransactions สำหรับติดตามปัญหาการโหลดข้อมูล
+
+#### ไฟล์ที่แก้ไข
+- `frmMain.Designer.vb` - ปรับความสูง dashboard cards
+- `FrmTransactions.vb` - แปลภาษาฟิลด์เป็นภาษาไทย, เพิ่ม debug reporting
+- `FrmReports.Designer.vb` - เพิ่ม txtBalance และ btnCalcBalance, ปรับ layout
+- `FrmReports.vb` - เพิ่ม logic สำหรับยอดยกมาแบบกำหนดเอง
+- `IncomeExpenseReport.vb` - แก้ไข constructor รองรับ manualOpeningBalance
+- `Database.vb` - ปรับปรุง logic การจัดการฐานข้อมูล
