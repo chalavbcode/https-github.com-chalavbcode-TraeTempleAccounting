@@ -162,7 +162,7 @@ Namespace TempleAccounting
         ' --- 1. เพิ่ม Property สำหรับโฟลเดอร์ Receipts ---
         Public ReadOnly Property ReceiptsDir As String
                 Get
-                    Dim dir = IO.Path.Combine(BaseDir, "Receipts")
+                    Dim dir = IO.Path.Combine(AppRoot, "Receipts")
                     If Not IO.Directory.Exists(dir) Then IO.Directory.CreateDirectory(dir)
                     Return dir
                 End Get
@@ -171,10 +171,11 @@ Namespace TempleAccounting
             ' --- 2. เพิ่ม Method ตรวจสอบและสร้างโฟลเดอร์ทั้งหมด ---
             Public Sub EnsureDirectoriesExist()
                 Try
-                    If Not IO.Directory.Exists(DatabaseDir) Then IO.Directory.CreateDirectory(DatabaseDir)
-                    If Not IO.Directory.Exists(BackupDir) Then IO.Directory.CreateDirectory(BackupDir)
-                    If Not IO.Directory.Exists(ExportDir) Then IO.Directory.CreateDirectory(ExportDir)
-                    If Not IO.Directory.Exists(LogsDir) Then IO.Directory.CreateDirectory(LogsDir)
+                    Dim dbDir = IO.Path.GetDirectoryName(DatabaseFile)
+                    If Not IO.Directory.Exists(dbDir) Then IO.Directory.CreateDirectory(dbDir)
+                    If Not IO.Directory.Exists(BackupFolder) Then IO.Directory.CreateDirectory(BackupFolder)
+                    If Not IO.Directory.Exists(ExportFolder) Then IO.Directory.CreateDirectory(ExportFolder)
+                    If Not IO.Directory.Exists(LogsFolder) Then IO.Directory.CreateDirectory(LogsFolder)
                     If Not IO.Directory.Exists(ReceiptsDir) Then IO.Directory.CreateDirectory(ReceiptsDir)
                 Catch ex As Exception
                     LogCrash(ex, "AppPaths.EnsureDirectoriesExist")
