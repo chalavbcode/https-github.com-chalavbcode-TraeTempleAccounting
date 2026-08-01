@@ -111,8 +111,9 @@ Namespace TempleAccounting
                     SetOverviewCompactMode(False)
                     ShowFormInPanel(New FrmReports(), "📊 ศูนย์รายงานและส่งออก CSV/Excel")
                     Try
-                        LoadReportSample()
+                        LoadActualReportOverviewFromDb()
                     Catch
+                        LoadReportSample()
                     End Try
 
                 Case "btnMember"
@@ -419,6 +420,46 @@ Namespace TempleAccounting
             lblCard4Value.Text = "213,750"
             ' lblCard4Icon.Text = "🗓️"
             RefreshOverviewLayout()
+        End Sub
+
+        Private Sub LoadActualReportOverviewFromDb()
+            Db.EnsureSchema()
+            Dim yearStart As New Date(Today.Year, 1, 1)
+            Dim monthStart As New Date(Today.Year, Today.Month, 1)
+            Dim monthEnd = monthStart.AddMonths(1).AddSeconds(-1)
+
+            Using conn = Db.OpenConn()
+                ' 1. รายการรับ-จ่ายรวมทั้งหมด
+                Dim allCount = Db.ToIntOrZero(Db.DbScalar(conn, "SELECT COUNT(*) FROM Transactions"))
+
+                ' 2. รายได้สุทธิ YTD (ตั้งแต่ต้นปีถึงปัจจุบัน)
+                Dim ytdNet = Db.ToDecimalOrZero(Db.DbScalar(conn, "SELECT SUM(IIF(TranType='Income',Amount,0)) - SUM(IIF(TranType='Expense',Amount,0)) FROM Transactions WHERE TranDate >= @y1",
+                                                        New Tuple(Of String, Object)("@y1", yearStart)))
+
+                ' 3. รายการที่เกิดขึ้นในเดือนนี้ (แทนที่ "เป้าหมาย" ที่ไม่มีอยู่จริง)
+                Dim monthCount = Db.ToIntOrZero(Db.DbScalar(conn, "SELECT COUNT(*) FROM Transactions WHERE TranDate BETWEEN @m1 AND @m2",
+                                                        New Tuple(Of String, Object)("@m1", monthStart),
+                                                        New Tuple(Of String, Object)("@m2", monthEnd)))
+
+                ' 4. ยอดรวมต้นปี (ยอดยกมาจากปีก่อนๆ ทั้งหมด)
+                Dim prevYearBal = Db.ToDecimalOrZero(Db.DbScalar(conn, "SELECT SUM(IIF(TranType='Income',Amount,0)) - SUM(IIF(TranType='Expense',Amount,0)) FROM Transactions WHERE TranDate < @y1",
+                                                            New Tuple(Of String, Object)("@y1", yearStart)))
+
+                lblOverviewTitle.Text = "📊 ภาพรวมรายงานและสถิติ (ข้อมูลจริง)"
+                lblCard1Title.Text = "รายการรับ-จ่ายรวม"
+                lblCard1Value.Text = allCount.ToString("#,##0") & " รายการ"
+
+                lblCard2Title.Text = "รายได้สุทธิ YTD"
+                lblCard2Value.Text = ytdNet.ToString("#,##0.00")
+
+                lblCard3Title.Text = "รายการเดือนนี้"
+                lblCard3Value.Text = monthCount.ToString("#,##0") & " รายการ"
+
+                lblCard4Title.Text = "ยอดยกมาต้นปี"
+                lblCard4Value.Text = prevYearBal.ToString("#,##0.00")
+
+                RefreshOverviewLayout()
+            End Using
         End Sub
 
         Private Sub LoadReportSample()
