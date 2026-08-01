@@ -463,7 +463,7 @@ Namespace TempleAccounting
             ' 
             ' FrmMasterData
             ' 
-            AutoScroll = True
+            AutoScroll = False
             BackColor = Color.FromArgb(CByte(255), CByte(253), CByte(244))
             ClientSize = New Size(1178, 672)
             Controls.Add(TabControl1)
