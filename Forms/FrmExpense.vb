@@ -15,6 +15,8 @@ Namespace TempleAccounting
 
         ' ตัวแปรเก็บ Path รูปภาพต้นทางที่ผู้ใช้เลือก (เช่น จาก C:\LineDownloads)
         Private selectedSourceReceiptPath As String = ""
+        Private isImageFromClipboard As Boolean = False
+        Private clipboardImage As Image = Nothing
 
         Private ReadOnly _enterFlow As New List(Of Control)()
 
@@ -36,6 +38,7 @@ Namespace TempleAccounting
             ttMain.SetToolTip(btnCancel, "ล้างข้อมูลที่กรอกไว้ทั้งหมดเพื่อเริ่มกรอกใหม่")
             ttMain.SetToolTip(btnImportExcel, "นำข้อมูลรายจ่ายจำนวนมากเข้ามาจากไฟล์ Excel (.xlsx)")
             ttMain.SetToolTip(btnBrowseReceipt, "เลือกรูปภาพหลักฐาน/ใบเสร็จ จากเครื่องคอมพิวเตอร์")
+            ttMain.SetToolTip(btnPasteReceipt, "วางรูปภาพหลักฐานที่คัดลอกมาจาก LINE หรือโปรแกรมอื่น (Ctrl+V)")
             ttMain.SetToolTip(btnClearReceipt, "ยกเลิกการเลือกรูปภาพ")
         End Sub
 
@@ -95,7 +98,7 @@ Namespace TempleAccounting
         Private Sub SetupEnterNavigation()
             If _enterFlow.Count > 0 Then Return
 
-            _enterFlow.AddRange({dtpDate, cboCategory, cboFund, cboBank, txtDescription, txtAmount, txtRemark, btnBrowseReceipt, btnSave})
+            _enterFlow.AddRange({dtpDate, cboCategory, cboFund, cboBank, txtDescription, txtAmount, txtRemark, btnBrowseReceipt, btnPasteReceipt, btnSave})
 
             For Each ctrl In _enterFlow
                 AddHandler ctrl.KeyDown, AddressOf HandleEnterAdvance
@@ -185,6 +188,20 @@ Namespace TempleAccounting
 
         ' --- ฟังก์ชันช่วยก๊อบปี้รูปภาพใบเสร็จไปยัง AppPaths.ReceiptsDir ---
         Private Function SaveReceiptFile(transactionID As Integer) As String
+            If isImageFromClipboard Then
+                If clipboardImage Is Nothing Then Return ""
+                Try
+                    AppPaths.EnsureDirectoriesExist()
+                    Dim newFileName As String = $"Receipt_{transactionID}.jpg"
+                    Dim destPath As String = IO.Path.Combine(AppPaths.ReceiptsDir, newFileName)
+                    clipboardImage.Save(destPath, System.Drawing.Imaging.ImageFormat.Jpeg)
+                    Return newFileName
+                Catch ex As Exception
+                    AppPaths.LogCrash(ex, "SaveReceiptFile.Clipboard")
+                    Return ""
+                End Try
+            End If
+
             If String.IsNullOrWhiteSpace(selectedSourceReceiptPath) OrElse Not IO.File.Exists(selectedSourceReceiptPath) Then
                 Return ""
             End If
@@ -194,6 +211,7 @@ Namespace TempleAccounting
 
                 ' ตั้งชื่อไฟล์ใหม่ตาม ID ของรายการ เช่น Receipt_105.jpg
                 Dim ext As String = IO.Path.GetExtension(selectedSourceReceiptPath)
+                If String.IsNullOrEmpty(ext) Then ext = ".jpg"
                 Dim newFileName As String = $"Receipt_{transactionID}{ext}"
                 Dim destPath As String = IO.Path.Combine(AppPaths.ReceiptsDir, newFileName)
 
@@ -202,7 +220,7 @@ Namespace TempleAccounting
 
                 Return newFileName
             Catch ex As Exception
-                AppPaths.LogCrash(ex, "SaveReceiptFile")
+                AppPaths.LogCrash(ex, "SaveReceiptFile.File")
                 Return ""
             End Try
         End Function
@@ -249,11 +267,27 @@ Namespace TempleAccounting
             End Using
         End Sub
 
+        Private Sub btnPasteReceipt_Click(sender As Object, e As EventArgs) Handles btnPasteReceipt.Click
+            If Clipboard.ContainsImage() Then
+                clipboardImage = Clipboard.GetImage()
+                isImageFromClipboard = True
+                selectedSourceReceiptPath = "Clipboard_Image"
+                txtReceipt.Text = "[รูปภาพจากคลิปบอร์ด/LINE]"
+                btnSave.Focus()
+            Else
+                MessageBox.Show("ไม่พบรูปภาพในคลิปบอร์ด กรุณากด Copy รูปภาพจาก LINE ก่อน", "แจ้งเตือน", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            End If
+        End Sub
+
         ' ปุ่มยกเลิกรูปภาพ (ถ้ามี)
         Private Sub btnClearReceipt_Click(sender As Object, e As EventArgs) Handles btnClearReceipt.Click
             selectedSourceReceiptPath = ""
+            isImageFromClipboard = False
+            If clipboardImage IsNot Nothing Then clipboardImage.Dispose()
+            clipboardImage = Nothing
             txtReceipt.Clear()
         End Sub
+
         Private Sub txtAmount_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtAmount.KeyPress
             If Char.IsControl(e.KeyChar) Then Return
             If e.KeyChar = "."c AndAlso txtAmount.Text.Contains(".") Then e.Handled = True : Return
