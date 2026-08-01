@@ -32,6 +32,8 @@ Namespace TempleAccounting
             ttMain.SetToolTip(btnSave, "บันทึกข้อมูลรายรับที่กรอกลงในฐานข้อมูล (Enter)")
             ttMain.SetToolTip(btnCancel, "ล้างข้อมูลที่กรอกไว้ทั้งหมดเพื่อเริ่มกรอกใหม่")
             ttMain.SetToolTip(btnImportExcel, "นำข้อมูลรายรับจำนวนมากเข้ามาจากไฟล์ Excel (.xlsx)")
+            ttMain.SetToolTip(btnBrowseReceipt, "เลือกรูปภาพหลักฐาน/ใบเสร็จ จากเครื่องคอมพิวเตอร์")
+            ttMain.SetToolTip(btnClearReceipt, "ยกเลิกการเลือกรูปภาพ")
         End Sub
 
         Private Sub LoadMasters()
@@ -67,6 +69,7 @@ Namespace TempleAccounting
             txtDescription.Clear()
             txtAmount.Clear()
             txtRemark.Clear()
+            txtReceipt.Clear()
         End Sub
 
         Private Function GetSelectedBankValue() As Object
@@ -89,7 +92,7 @@ Namespace TempleAccounting
         Private Sub SetupEnterNavigation()
             If _enterFlow.Count > 0 Then Return
 
-            _enterFlow.AddRange({dtpDate, cboCategory, cboFund, cboBank, txtDescription, txtAmount, txtRemark, btnSave})
+            _enterFlow.AddRange({dtpDate, cboCategory, cboFund, cboBank, txtDescription, txtAmount, txtRemark, btnBrowseReceipt, btnSave})
 
             For Each ctrl In _enterFlow
                 AddHandler ctrl.KeyDown, AddressOf HandleEnterAdvance
@@ -188,6 +191,22 @@ New Tuple(Of String, Object)("@n", txtRemark.Text.Trim))
                     MessageBox.Show("นำเข้าข้อมูลไม่สำเร็จ: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
                 End Try
             End Using
+        End Sub
+
+        Private Sub btnBrowseReceipt_Click(sender As Object, e As EventArgs) Handles btnBrowseReceipt.Click
+            Using ofd As New OpenFileDialog()
+                ofd.Title = "เลือกรูปภาพหลักฐาน/ใบเสร็จ"
+                ofd.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.gif;*.bmp|All Files|*.*"
+                If ofd.ShowDialog(Me) = DialogResult.OK Then
+                    txtReceipt.Text = System.IO.Path.GetFileName(ofd.FileName)
+                    ' ในอนาคตสามารถเพิ่มโค้ดก๊อปปี้ไฟล์ไปไว้ในโฟลเดอร์โปรเจกต์ได้ที่นี่
+                    btnSave.Focus()
+                End If
+            End Using
+        End Sub
+
+        Private Sub btnClearReceipt_Click(sender As Object, e As EventArgs) Handles btnClearReceipt.Click
+            txtReceipt.Clear()
         End Sub
 
         Private Sub txtAmount_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtAmount.KeyPress
