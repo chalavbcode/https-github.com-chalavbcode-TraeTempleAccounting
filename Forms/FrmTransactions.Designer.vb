@@ -223,7 +223,7 @@ Namespace TempleAccounting
             lblSummary.ForeColor = Color.FromArgb(CByte(69), CByte(26), CByte(3))
             lblSummary.Location = New Point(0, 0)
             lblSummary.Name = "lblSummary"
-            lblSummary.Size = New Size(1400, 50)
+            lblSummary.Size = New Size(1250, 50)
             lblSummary.TabIndex = 0
             lblSummary.Text = "รายรับ: 0.00 บาท   |   รายจ่าย: 0.00 บาท   |   คงเหลือ: 0.00 บาท   |   โอน: 0.00 บาท"
             lblSummary.TextAlign = ContentAlignment.MiddleCenter
@@ -234,7 +234,6 @@ Namespace TempleAccounting
             dgvTransactions.AllowUserToDeleteRows = False
             DataGridViewCellStyle1.BackColor = Color.FromArgb(CByte(255), CByte(251), CByte(235))
             dgvTransactions.AlternatingRowsDefaultCellStyle = DataGridViewCellStyle1
-            dgvTransactions.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None
             dgvTransactions.BackgroundColor = Color.White
             dgvTransactions.BorderStyle = BorderStyle.None
             dgvTransactions.ColumnHeadersHeight = 40
@@ -297,20 +296,6 @@ Namespace TempleAccounting
             btnDelete.Text = "🗑️ ลบ"
             btnDelete.UseVisualStyleBackColor = False
             ' 
-            ' btnEdit
-            ' 
-            btnEdit.BackColor = Color.FromArgb(CByte(37), CByte(99), CByte(235))
-            btnEdit.Cursor = Cursors.Hand
-            btnEdit.FlatStyle = FlatStyle.Flat
-            btnEdit.Font = New Font("Tahoma", 10F, FontStyle.Bold)
-            btnEdit.ForeColor = Color.White
-            btnEdit.Location = New Point(807, 18)
-            btnEdit.Name = "btnEdit"
-            btnEdit.Size = New Size(155, 50)
-            btnEdit.TabIndex = 7
-            btnEdit.Text = "✏️ แก้ไข"
-            btnEdit.UseVisualStyleBackColor = False
-            ' 
             ' btnViewReceipt
             ' 
             btnViewReceipt.BackColor = Color.FromArgb(CByte(245), CByte(158), CByte(11))
@@ -324,6 +309,20 @@ Namespace TempleAccounting
             btnViewReceipt.TabIndex = 3
             btnViewReceipt.Text = "📄 ดูใบเสร็จ"
             btnViewReceipt.UseVisualStyleBackColor = False
+            ' 
+            ' btnEdit
+            ' 
+            btnEdit.BackColor = Color.FromArgb(CByte(37), CByte(99), CByte(235))
+            btnEdit.Cursor = Cursors.Hand
+            btnEdit.FlatStyle = FlatStyle.Flat
+            btnEdit.Font = New Font("Tahoma", 10F, FontStyle.Bold)
+            btnEdit.ForeColor = Color.White
+            btnEdit.Location = New Point(807, 18)
+            btnEdit.Name = "btnEdit"
+            btnEdit.Size = New Size(155, 50)
+            btnEdit.TabIndex = 7
+            btnEdit.Text = "✏️ แก้ไข"
+            btnEdit.UseVisualStyleBackColor = False
             ' 
             ' btnAddTrans
             ' 
@@ -371,7 +370,6 @@ Namespace TempleAccounting
             ' 
             AutoScaleDimensions = New SizeF(12F, 25F)
             AutoScaleMode = AutoScaleMode.Font
-            AutoScroll = False
             BackColor = Color.FromArgb(CByte(254), CByte(249), CByte(235))
             ClientSize = New Size(1250, 800)
             Controls.Add(dgvTransactions)
