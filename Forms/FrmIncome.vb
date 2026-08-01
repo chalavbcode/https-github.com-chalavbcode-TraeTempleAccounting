@@ -13,8 +13,6 @@ Imports System.Data.OleDb
 Namespace TempleAccounting
     <DesignerCategory("Form")>
     Partial Public Class FrmIncome
-        Inherits Form
-
         ' ตัวแปรเก็บ Path รูปภาพต้นทางที่ผู้ใช้เลือก (เช่น จาก C:\LineDownloads)
         Private selectedSourceReceiptPath As String = ""
         Private isImageFromClipboard As Boolean = False
@@ -42,6 +40,10 @@ Namespace TempleAccounting
             ttMain.SetToolTip(btnBrowseReceipt, "เลือกรูปภาพหลักฐาน/ใบเสร็จ จากเครื่องคอมพิวเตอร์")
             ttMain.SetToolTip(btnPasteReceipt, "วางรูปภาพหลักฐานที่คัดลอกมาจาก LINE หรือโปรแกรมอื่น (Ctrl+V)")
             ttMain.SetToolTip(btnClearReceipt, "ยกเลิกการเลือกรูปภาพ")
+
+            ' ใช้ AddHandler แทน Handles เพื่อเลี่ยงปัญหา BC30506 ในบางสภาพแวดล้อม
+            RemoveHandler btnPasteReceipt.Click, AddressOf btnPasteReceipt_Click
+            AddHandler btnPasteReceipt.Click, AddressOf btnPasteReceipt_Click
         End Sub
 
         Private Sub LoadMasters()
@@ -269,7 +271,7 @@ Namespace TempleAccounting
             End Using
         End Sub
 
-        Private Sub btnPasteReceipt_Click(sender As Object, e As EventArgs) Handles btnPasteReceipt.Click
+        Private Sub btnPasteReceipt_Click(sender As Object, e As EventArgs)
             If Clipboard.ContainsImage() Then
                 clipboardImage = Clipboard.GetImage()
                 isImageFromClipboard = True
