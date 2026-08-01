@@ -86,10 +86,10 @@ Namespace TempleAccounting
             btnLogout = New Button()
             pnlSidebarSpacer = New Panel()
             btnSetting = New Button()
-            btnActivity = New Button()
             btnVip = New Button()
-            btnMember = New Button()
+            btnActivity = New Button()
             btnReport = New Button()
+            btnMember = New Button()
             btnExpense = New Button()
             btnDonation = New Button()
             btnDashboard = New Button()
@@ -331,26 +331,6 @@ Namespace TempleAccounting
             btnSetting.TextAlign = ContentAlignment.MiddleLeft
             btnSetting.UseVisualStyleBackColor = False
             ' 
-            ' btnActivity
-            ' 
-            btnActivity.BackColor = Color.Transparent
-            btnActivity.Cursor = Cursors.Hand
-            btnActivity.Dock = DockStyle.Top
-            btnActivity.FlatAppearance.BorderSize = 0
-            btnActivity.FlatAppearance.MouseOverBackColor = Color.FromArgb(CByte(146), CByte(64), CByte(14))
-            btnActivity.FlatStyle = FlatStyle.Flat
-            btnActivity.Font = New Font("Tahoma", 11.25F, FontStyle.Regular, GraphicsUnit.Point, CByte(222))
-            btnActivity.ForeColor = Color.White
-            btnActivity.ImageAlign = ContentAlignment.MiddleLeft
-            btnActivity.Location = New Point(12, 339)
-            btnActivity.Name = "btnActivity"
-            btnActivity.Padding = New Padding(14, 0, 8, 0)
-            btnActivity.Size = New Size(227, 64)
-            btnActivity.TabIndex = 7
-            btnActivity.Text = "🎎 โอนเงินภายใน"
-            btnActivity.TextAlign = ContentAlignment.MiddleLeft
-            btnActivity.UseVisualStyleBackColor = False
-            ' 
             ' btnVip
             ' 
             btnVip.BackColor = Color.Transparent
@@ -371,25 +351,25 @@ Namespace TempleAccounting
             btnVip.TextAlign = ContentAlignment.MiddleLeft
             btnVip.UseVisualStyleBackColor = False
             ' 
-            ' btnMember
+            ' btnActivity
             ' 
-            btnMember.BackColor = Color.Transparent
-            btnMember.Cursor = Cursors.Hand
-            btnMember.Dock = DockStyle.Top
-            btnMember.FlatAppearance.BorderSize = 0
-            btnMember.FlatAppearance.MouseOverBackColor = Color.FromArgb(CByte(146), CByte(64), CByte(14))
-            btnMember.FlatStyle = FlatStyle.Flat
-            btnMember.Font = New Font("Tahoma", 11.25F, FontStyle.Regular, GraphicsUnit.Point, CByte(222))
-            btnMember.ForeColor = Color.White
-            btnMember.ImageAlign = ContentAlignment.MiddleLeft
-            btnMember.Location = New Point(12, 212)
-            btnMember.Name = "btnMember"
-            btnMember.Padding = New Padding(14, 0, 8, 0)
-            btnMember.Size = New Size(227, 63)
-            btnMember.TabIndex = 5
-            btnMember.Text = "� รายการทางบัญชี"
-            btnMember.TextAlign = ContentAlignment.MiddleLeft
-            btnMember.UseVisualStyleBackColor = False
+            btnActivity.BackColor = Color.Transparent
+            btnActivity.Cursor = Cursors.Hand
+            btnActivity.Dock = DockStyle.Top
+            btnActivity.FlatAppearance.BorderSize = 0
+            btnActivity.FlatAppearance.MouseOverBackColor = Color.FromArgb(CByte(146), CByte(64), CByte(14))
+            btnActivity.FlatStyle = FlatStyle.Flat
+            btnActivity.Font = New Font("Tahoma", 11.25F, FontStyle.Regular, GraphicsUnit.Point, CByte(222))
+            btnActivity.ForeColor = Color.White
+            btnActivity.ImageAlign = ContentAlignment.MiddleLeft
+            btnActivity.Location = New Point(12, 339)
+            btnActivity.Name = "btnActivity"
+            btnActivity.Padding = New Padding(14, 0, 8, 0)
+            btnActivity.Size = New Size(227, 64)
+            btnActivity.TabIndex = 7
+            btnActivity.Text = "🎎 โอนเงินภายใน"
+            btnActivity.TextAlign = ContentAlignment.MiddleLeft
+            btnActivity.UseVisualStyleBackColor = False
             ' 
             ' btnReport
             ' 
@@ -410,6 +390,26 @@ Namespace TempleAccounting
             btnReport.Text = "� พิมพ์รายงาน"
             btnReport.TextAlign = ContentAlignment.MiddleLeft
             btnReport.UseVisualStyleBackColor = False
+            ' 
+            ' btnMember
+            ' 
+            btnMember.BackColor = Color.Transparent
+            btnMember.Cursor = Cursors.Hand
+            btnMember.Dock = DockStyle.Top
+            btnMember.FlatAppearance.BorderSize = 0
+            btnMember.FlatAppearance.MouseOverBackColor = Color.FromArgb(CByte(146), CByte(64), CByte(14))
+            btnMember.FlatStyle = FlatStyle.Flat
+            btnMember.Font = New Font("Tahoma", 11.25F, FontStyle.Regular, GraphicsUnit.Point, CByte(222))
+            btnMember.ForeColor = Color.White
+            btnMember.ImageAlign = ContentAlignment.MiddleLeft
+            btnMember.Location = New Point(12, 212)
+            btnMember.Name = "btnMember"
+            btnMember.Padding = New Padding(14, 0, 8, 0)
+            btnMember.Size = New Size(227, 63)
+            btnMember.TabIndex = 5
+            btnMember.Text = "� รายการทางบัญชี"
+            btnMember.TextAlign = ContentAlignment.MiddleLeft
+            btnMember.UseVisualStyleBackColor = False
             ' 
             ' btnExpense
             ' 
