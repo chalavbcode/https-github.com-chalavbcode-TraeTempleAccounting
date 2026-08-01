@@ -36,6 +36,9 @@ Namespace TempleAccounting
         Friend WithEvents btnEdit As Button
         Friend WithEvents btnDelete As Button
         Friend WithEvents btnViewReceipt As Button
+        Friend WithEvents btnPasteReceipt As Button
+        Friend WithEvents btnBrowseReceipt As Button
+        Friend WithEvents btnDeleteReceipt As Button
         Friend WithEvents btnClose As Button
         Friend WithEvents ttMain As ToolTip
 
@@ -74,6 +77,9 @@ Namespace TempleAccounting
             btnClose = New Button()
             btnDelete = New Button()
             btnViewReceipt = New Button()
+            btnPasteReceipt = New Button()
+            btnBrowseReceipt = New Button()
+            btnDeleteReceipt = New Button()
             btnEdit = New Button()
             btnAddTrans = New Button()
             btnAddExp = New Button()
@@ -248,12 +254,15 @@ Namespace TempleAccounting
             dgvTransactions.RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.DisableResizing
             dgvTransactions.RowTemplate.Height = 34
             dgvTransactions.SelectionMode = DataGridViewSelectionMode.FullRowSelect
-            dgvTransactions.Size = New Size(1250, 560)
+            dgvTransactions.Size = New Size(1250, 500)
             dgvTransactions.TabIndex = 3
             ' 
             ' pActions
             ' 
             pActions.BackColor = Color.FromArgb(CByte(245), CByte(240), CByte(220))
+            pActions.Controls.Add(btnDeleteReceipt)
+            pActions.Controls.Add(btnBrowseReceipt)
+            pActions.Controls.Add(btnPasteReceipt)
             pActions.Controls.Add(btnClose)
             pActions.Controls.Add(btnDelete)
             pActions.Controls.Add(btnViewReceipt)
@@ -262,95 +271,11 @@ Namespace TempleAccounting
             pActions.Controls.Add(btnAddExp)
             pActions.Controls.Add(btnAddInc)
             pActions.Dock = DockStyle.Bottom
-            pActions.Location = New Point(0, 720)
+            pActions.Location = New Point(0, 660)
             pActions.Name = "pActions"
             pActions.Padding = New Padding(16, 12, 16, 12)
-            pActions.Size = New Size(1250, 80)
+            pActions.Size = New Size(1250, 140)
             pActions.TabIndex = 2
-            ' 
-            ' btnClose
-            ' 
-            btnClose.BackColor = Color.FromArgb(CByte(75), CByte(85), CByte(99))
-            btnClose.Cursor = Cursors.Hand
-            btnClose.FlatStyle = FlatStyle.Flat
-            btnClose.Font = New Font("Tahoma", 10F, FontStyle.Bold)
-            btnClose.ForeColor = Color.White
-            btnClose.Location = New Point(1098, 18)
-            btnClose.Name = "btnClose"
-            btnClose.Size = New Size(120, 50)
-            btnClose.TabIndex = 9
-            btnClose.Text = "ปิด"
-            btnClose.UseVisualStyleBackColor = False
-            ' 
-            ' btnDelete
-            ' 
-            btnDelete.BackColor = Color.FromArgb(CByte(220), CByte(38), CByte(38))
-            btnDelete.Cursor = Cursors.Hand
-            btnDelete.FlatStyle = FlatStyle.Flat
-            btnDelete.Font = New Font("Tahoma", 10F, FontStyle.Bold)
-            btnDelete.ForeColor = Color.White
-            btnDelete.Location = New Point(968, 18)
-            btnDelete.Name = "btnDelete"
-            btnDelete.Size = New Size(124, 50)
-            btnDelete.TabIndex = 8
-            btnDelete.Text = "🗑️ ลบ"
-            btnDelete.UseVisualStyleBackColor = False
-            ' 
-            ' btnViewReceipt
-            ' 
-            btnViewReceipt.BackColor = Color.FromArgb(CByte(245), CByte(158), CByte(11))
-            btnViewReceipt.Cursor = Cursors.Hand
-            btnViewReceipt.FlatStyle = FlatStyle.Flat
-            btnViewReceipt.Font = New Font("Tahoma", 10F, FontStyle.Bold)
-            btnViewReceipt.ForeColor = Color.White
-            btnViewReceipt.Location = New Point(489, 18)
-            btnViewReceipt.Name = "btnViewReceipt"
-            btnViewReceipt.Size = New Size(140, 50)
-            btnViewReceipt.TabIndex = 3
-            btnViewReceipt.Text = "📄 ดูใบเสร็จ"
-            btnViewReceipt.UseVisualStyleBackColor = False
-            ' 
-            ' btnEdit
-            ' 
-            btnEdit.BackColor = Color.FromArgb(CByte(37), CByte(99), CByte(235))
-            btnEdit.Cursor = Cursors.Hand
-            btnEdit.FlatStyle = FlatStyle.Flat
-            btnEdit.Font = New Font("Tahoma", 10F, FontStyle.Bold)
-            btnEdit.ForeColor = Color.White
-            btnEdit.Location = New Point(807, 18)
-            btnEdit.Name = "btnEdit"
-            btnEdit.Size = New Size(155, 50)
-            btnEdit.TabIndex = 7
-            btnEdit.Text = "✏️ แก้ไข"
-            btnEdit.UseVisualStyleBackColor = False
-            ' 
-            ' btnAddTrans
-            ' 
-            btnAddTrans.BackColor = Color.FromArgb(CByte(126), CByte(34), CByte(206))
-            btnAddTrans.Cursor = Cursors.Hand
-            btnAddTrans.FlatStyle = FlatStyle.Flat
-            btnAddTrans.Font = New Font("Tahoma", 10F, FontStyle.Bold)
-            btnAddTrans.ForeColor = Color.White
-            btnAddTrans.Location = New Point(639, 18)
-            btnAddTrans.Name = "btnAddTrans"
-            btnAddTrans.Size = New Size(162, 50)
-            btnAddTrans.TabIndex = 4
-            btnAddTrans.Text = "🔁 โอนเงิน"
-            btnAddTrans.UseVisualStyleBackColor = False
-            ' 
-            ' btnAddExp
-            ' 
-            btnAddExp.BackColor = Color.FromArgb(CByte(180), CByte(83), CByte(9))
-            btnAddExp.Cursor = Cursors.Hand
-            btnAddExp.FlatStyle = FlatStyle.Flat
-            btnAddExp.Font = New Font("Tahoma", 10F, FontStyle.Bold)
-            btnAddExp.ForeColor = Color.White
-            btnAddExp.Location = New Point(270, 18)
-            btnAddExp.Name = "btnAddExp"
-            btnAddExp.Size = New Size(209, 50)
-            btnAddExp.TabIndex = 5
-            btnAddExp.Text = "💸 บันทึกรายจ่าย"
-            btnAddExp.UseVisualStyleBackColor = False
             ' 
             ' btnAddInc
             ' 
@@ -361,10 +286,136 @@ Namespace TempleAccounting
             btnAddInc.ForeColor = Color.White
             btnAddInc.Location = New Point(33, 18)
             btnAddInc.Name = "btnAddInc"
-            btnAddInc.Size = New Size(231, 50)
+            btnAddInc.Size = New Size(200, 45)
             btnAddInc.TabIndex = 6
             btnAddInc.Text = "💰 บันทึกรายรับ"
             btnAddInc.UseVisualStyleBackColor = False
+            ' 
+            ' btnAddExp
+            ' 
+            btnAddExp.BackColor = Color.FromArgb(CByte(180), CByte(83), CByte(9))
+            btnAddExp.Cursor = Cursors.Hand
+            btnAddExp.FlatStyle = FlatStyle.Flat
+            btnAddExp.Font = New Font("Tahoma", 10F, FontStyle.Bold)
+            btnAddExp.ForeColor = Color.White
+            btnAddExp.Location = New Point(240, 18)
+            btnAddExp.Name = "btnAddExp"
+            btnAddExp.Size = New Size(200, 45)
+            btnAddExp.TabIndex = 5
+            btnAddExp.Text = "💸 บันทึกรายจ่าย"
+            btnAddExp.UseVisualStyleBackColor = False
+            ' 
+            ' btnAddTrans
+            ' 
+            btnAddTrans.BackColor = Color.FromArgb(CByte(126), CByte(34), CByte(206))
+            btnAddTrans.Cursor = Cursors.Hand
+            btnAddTrans.FlatStyle = FlatStyle.Flat
+            btnAddTrans.Font = New Font("Tahoma", 10F, FontStyle.Bold)
+            btnAddTrans.ForeColor = Color.White
+            btnAddTrans.Location = New Point(447, 18)
+            btnAddTrans.Name = "btnAddTrans"
+            btnAddTrans.Size = New Size(160, 45)
+            btnAddTrans.TabIndex = 4
+            btnAddTrans.Text = "🔁 โอนเงิน"
+            btnAddTrans.UseVisualStyleBackColor = False
+            ' 
+            ' btnEdit
+            ' 
+            btnEdit.BackColor = Color.FromArgb(CByte(37), CByte(99), CByte(235))
+            btnEdit.Cursor = Cursors.Hand
+            btnEdit.FlatStyle = FlatStyle.Flat
+            btnEdit.Font = New Font("Tahoma", 10F, FontStyle.Bold)
+            btnEdit.ForeColor = Color.White
+            btnEdit.Location = New Point(614, 18)
+            btnEdit.Name = "btnEdit"
+            btnEdit.Size = New Size(150, 45)
+            btnEdit.TabIndex = 7
+            btnEdit.Text = "✏️ แก้ไข"
+            btnEdit.UseVisualStyleBackColor = False
+            ' 
+            ' btnDelete
+            ' 
+            btnDelete.BackColor = Color.FromArgb(CByte(220), CByte(38), CByte(38))
+            btnDelete.Cursor = Cursors.Hand
+            btnDelete.FlatStyle = FlatStyle.Flat
+            btnDelete.Font = New Font("Tahoma", 10F, FontStyle.Bold)
+            btnDelete.ForeColor = Color.White
+            btnDelete.Location = New Point(771, 18)
+            btnDelete.Name = "btnDelete"
+            btnDelete.Size = New Size(120, 45)
+            btnDelete.TabIndex = 8
+            btnDelete.Text = "🗑️ ลบ"
+            btnDelete.UseVisualStyleBackColor = False
+            ' 
+            ' btnClose
+            ' 
+            btnClose.BackColor = Color.FromArgb(CByte(75), CByte(85), CByte(99))
+            btnClose.Cursor = Cursors.Hand
+            btnClose.FlatStyle = FlatStyle.Flat
+            btnClose.Font = New Font("Tahoma", 10F, FontStyle.Bold)
+            btnClose.ForeColor = Color.White
+            btnClose.Location = New Point(1098, 18)
+            btnClose.Name = "btnClose"
+            btnClose.Size = New Size(120, 45)
+            btnClose.TabIndex = 9
+            btnClose.Text = "ปิด"
+            btnClose.UseVisualStyleBackColor = False
+            ' 
+            ' btnViewReceipt
+            ' 
+            btnViewReceipt.BackColor = Color.FromArgb(CByte(245), CByte(158), CByte(11))
+            btnViewReceipt.Cursor = Cursors.Hand
+            btnViewReceipt.FlatStyle = FlatStyle.Flat
+            btnViewReceipt.Font = New Font("Tahoma", 10F, FontStyle.Bold)
+            btnViewReceipt.ForeColor = Color.White
+            btnViewReceipt.Location = New Point(33, 75)
+            btnViewReceipt.Name = "btnViewReceipt"
+            btnViewReceipt.Size = New Size(160, 45)
+            btnViewReceipt.TabIndex = 3
+            btnViewReceipt.Text = "🔍 ดูใบเสร็จ"
+            btnViewReceipt.UseVisualStyleBackColor = False
+            ' 
+            ' btnPasteReceipt
+            ' 
+            btnPasteReceipt.BackColor = Color.FromArgb(CByte(5), CByte(150), CByte(105))
+            btnPasteReceipt.Cursor = Cursors.Hand
+            btnPasteReceipt.FlatStyle = FlatStyle.Flat
+            btnPasteReceipt.Font = New Font("Tahoma", 10F, FontStyle.Bold)
+            btnPasteReceipt.ForeColor = Color.White
+            btnPasteReceipt.Location = New Point(200, 75)
+            btnPasteReceipt.Name = "btnPasteReceipt"
+            btnPasteReceipt.Size = New Size(180, 45)
+            btnPasteReceipt.TabIndex = 10
+            btnPasteReceipt.Text = "� วางรูปย้อนหลัง"
+            btnPasteReceipt.UseVisualStyleBackColor = False
+            ' 
+            ' btnBrowseReceipt
+            ' 
+            btnBrowseReceipt.BackColor = Color.FromArgb(CByte(79), CByte(70), CByte(229))
+            btnBrowseReceipt.Cursor = Cursors.Hand
+            btnBrowseReceipt.FlatStyle = FlatStyle.Flat
+            btnBrowseReceipt.Font = New Font("Tahoma", 10F, FontStyle.Bold)
+            btnBrowseReceipt.ForeColor = Color.White
+            btnBrowseReceipt.Location = New Point(387, 75)
+            btnBrowseReceipt.Name = "btnBrowseReceipt"
+            btnBrowseReceipt.Size = New Size(180, 45)
+            btnBrowseReceipt.TabIndex = 11
+            btnBrowseReceipt.Text = "� เลือกรูปย้อนหลัง"
+            btnBrowseReceipt.UseVisualStyleBackColor = False
+            ' 
+            ' btnDeleteReceipt
+            ' 
+            btnDeleteReceipt.BackColor = Color.FromArgb(CByte(153), CByte(27), CByte(27))
+            btnDeleteReceipt.Cursor = Cursors.Hand
+            btnDeleteReceipt.FlatStyle = FlatStyle.Flat
+            btnDeleteReceipt.Font = New Font("Tahoma", 10F, FontStyle.Bold)
+            btnDeleteReceipt.ForeColor = Color.White
+            btnDeleteReceipt.Location = New Point(574, 75)
+            btnDeleteReceipt.Name = "btnDeleteReceipt"
+            btnDeleteReceipt.Size = New Size(160, 45)
+            btnDeleteReceipt.TabIndex = 12
+            btnDeleteReceipt.Text = "❌ ลบรูปใบเสร็จ"
+            btnDeleteReceipt.UseVisualStyleBackColor = False
             ' 
             ' FrmTransactions
             ' 
