@@ -277,6 +277,15 @@ Namespace TempleAccounting
                     dgvTransactions.DataSource = dt
                     If dgvTransactions.Columns.Count > 0 Then
                         ConfigureGridColumns()
+                        ' Fill icon column after configuration
+                        For Each row As DataGridViewRow In dgvTransactions.Rows
+                            Dim path = Convert.ToString(row.Cells("ReceiptPath").Value)
+                            If Not String.IsNullOrEmpty(path) Then
+                                row.Cells("HasReceipt").Value = "📄"
+                            Else
+                                row.Cells("HasReceipt").Value = ""
+                            End If
+                        Next
                     End If
 
                     Dim sumInc As Decimal = 0D
@@ -313,6 +322,7 @@ Namespace TempleAccounting
 
         Private Sub ConfigureGridColumns()
             Dim headers As New Dictionary(Of String, String) From {
+                {"HasReceipt", "📸"},
                 {"ID", "ID"},
                 {"TranDate", "วันที่"},
                 {"TranTypeDisplay", "ชนิด"},
@@ -331,6 +341,17 @@ Namespace TempleAccounting
             dgvTransactions.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None
             dgvTransactions.ScrollBars = ScrollBars.Both
 
+            ' Add virtual column for receipt icon if not exists
+            If Not dgvTransactions.Columns.Contains("HasReceipt") Then
+                Dim iconCol As New DataGridViewTextBoxColumn With {
+                    .Name = "HasReceipt",
+                    .HeaderText = "📸",
+                    .ReadOnly = True,
+                    .Width = 40
+                }
+                dgvTransactions.Columns.Insert(0, iconCol)
+            End If
+
             ' Hide technical columns but keep them for logic
             For Each colName In New String() {"TranType", "CategoryID", "FundID", "BankID", "ToFundID", "ToBankID", "ReceiptPath"}
                 If dgvTransactions.Columns.Contains(colName) Then
@@ -343,6 +364,17 @@ Namespace TempleAccounting
                     dgvTransactions.Columns(pair.Key).HeaderText = pair.Value
                 End If
             Next
+
+            ' Fill icon column
+            For Each row As DataGridViewRow In dgvTransactions.Rows
+                Dim path = Convert.ToString(row.Cells("ReceiptPath").Value)
+                If Not String.IsNullOrEmpty(path) Then
+                    row.Cells("HasReceipt").Value = "📄"
+                Else
+                    row.Cells("HasReceipt").Value = ""
+                End If
+            Next
+
             If dgvTransactions.Columns.Contains("TranDate") Then
                 dgvTransactions.Columns("TranDate").DefaultCellStyle.Format = "dd/MM/yyyy"
             End If
@@ -355,7 +387,7 @@ Namespace TempleAccounting
                 dgvTransactions.Columns("Amount").DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight
             End If
 
-            For Each readOnlyName In New String() {"CategoryName", "FundName", "BankName", "ToFundName", "ToBankName"}
+            For Each readOnlyName In New String() {"HasReceipt", "CategoryName", "FundName", "BankName", "ToFundName", "ToBankName"}
                 If dgvTransactions.Columns.Contains(readOnlyName) Then
                     dgvTransactions.Columns(readOnlyName).ReadOnly = True
                     dgvTransactions.Columns(readOnlyName).DefaultCellStyle.BackColor = Color.FromArgb(245, 245, 245)
@@ -363,6 +395,7 @@ Namespace TempleAccounting
             Next
 
             Dim widths As New Dictionary(Of String, Integer) From {
+                {"HasReceipt", 40},
                 {"ID", 70},
                 {"TranDate", 95},
                 {"TranType", 90},
@@ -692,6 +725,12 @@ New Tuple(Of String, Object)("@id", id))
                 Process.Start(New ProcessStartInfo(fullPath) With {.UseShellExecute = True})
             Else
                 MessageBox.Show($"ไม่พบไฟล์รูปภาพในระบบ: {fileName}", "ข้อผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            End If
+        End Sub
+
+        Private Sub dgvTransactions_CellDoubleClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvTransactions.CellDoubleClick
+            If e.RowIndex >= 0 Then
+                btnViewReceipt.PerformClick()
             End If
         End Sub
     End Class
