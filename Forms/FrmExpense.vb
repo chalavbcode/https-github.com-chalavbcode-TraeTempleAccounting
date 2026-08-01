@@ -10,6 +10,8 @@ Imports System.Data.OleDb
 
 Namespace TempleAccounting
     <DesignerCategory("Form")>
+    ' ตัวแปรเก็บ Path รูปภาพต้นทางที่ผู้ใช้เลือก (เช่น จาก C:\LineDownloads)
+    Private selectedSourceReceiptPath As String = ""
     Partial Public Class FrmExpense
         Inherits Form
 
