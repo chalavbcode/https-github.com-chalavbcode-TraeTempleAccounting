@@ -668,7 +668,6 @@ New Tuple(Of String, Object)("@id", id))
         End Sub
 
         Private Sub btnViewReceipt_Click(sender As Object, e As EventArgs) Handles btnViewReceipt.Click
-            Private Sub btnViewReceipt_Click(sender As Object, e As EventArgs) Handles btnViewReceipt.Click
             ' 1. ตรวจสอบว่ามีการเลือกแถวใน DataGridView หรือไม่
             If dgvTransactions.CurrentRow Is Nothing Then
                 MessageBox.Show("กรุณาเลือกรายการที่ต้องการดูใบเสร็จ", "แจ้งเตือน", MessageBoxButtons.OK, MessageBoxIcon.Warning)
