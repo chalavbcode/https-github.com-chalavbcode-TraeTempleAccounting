@@ -114,7 +114,8 @@ Namespace TempleAccounting
         End Sub
 
         Private Sub SetupToolTips()
-            ttMain.SetToolTip(btnSearch, "ค้นหารายการตามช่วงวันที่ ประเภท และคำค้นหาที่ระบุ")
+            ttMain.SetToolTip(txtSearch, "พิมพ์คำค้นหาแล้วกด Enter หรือกดปุ่มค้นหา (ค้นหาคำบางส่วนในรายละเอียด, หมายเหตุ, ประเภท, กองทุน, ธนาคาร) ล้างช่องนี้เพื่อแสดงข้อมูลทั้งหมด")
+            ttMain.SetToolTip(btnSearch, "ค้นหารายการตามช่วงวันที่ ประเภท และคำค้นหาที่ระบุ (กด Enter ได้เช่นกัน)")
             ttMain.SetToolTip(btnRefresh, "ล้างการค้นหาและดึงข้อมูลใหม่ทั้งหมด")
             ttMain.SetToolTip(btnAddInc, "เปิดหน้าจอสำหรับบันทึกรายรับใหม่")
             ttMain.SetToolTip(btnAddExp, "เปิดหน้าจอสำหรับบันทึกรายจ่ายใหม่")
@@ -156,6 +157,22 @@ Namespace TempleAccounting
             If e.KeyCode <> Keys.Enter Then Return
             e.SuppressKeyPress = True
             MoveNextSearchFrom(DirectCast(sender, Control))
+        End Sub
+
+        ' --- ค้นหาด้วยปุ่ม Enter ในช่องค้นหา ---
+        Private Sub txtSearch_KeyDown(sender As Object, e As KeyEventArgs) Handles txtSearch.KeyDown
+            If e.KeyCode = Keys.Enter Then
+                e.SuppressKeyPress = True
+                btnSearch.PerformClick()
+            End If
+        End Sub
+
+        ' --- ล้างช่องค้นหาแล้วรีโหลดข้อมูลทั้งหมดอัตโนมัติ ---
+        Private Sub txtSearch_TextChanged(sender As Object, e As EventArgs) Handles txtSearch.TextChanged
+            ' หากช่องค้นหาว่างเปล่า ให้รีโหลดข้อมูลทั้งหมด
+            If String.IsNullOrWhiteSpace(txtSearch.Text) Then
+                LoadData()
+            End If
         End Sub
 
         Private Sub LoadFilters()
@@ -263,9 +280,35 @@ Namespace TempleAccounting
                     ElseIf cboType.SelectedIndex = 3 Then
                         sql &= " AND t.TranType='Transfer'"
                     End If
-                    If Not String.IsNullOrWhiteSpace(txtSearch.Text) Then
-                        sql &= " AND (t.Detail LIKE @s OR t.Note LIKE @s OR t.TranType LIKE @s OR c.CategoryName LIKE @s OR f.FundName LIKE @s OR b.BankName LIKE @s OR f2.FundName LIKE @s OR b2.BankName LIKE @s) "
-                        ps.Add(New Tuple(Of String, Object)("@s", "*" & txtSearch.Text.Trim() & "*"))
+
+                    ' --- ค้นหาแบบ Partial Match หลายฟิลด์ ---
+                    Dim searchText = txtSearch.Text?.Trim()
+                    If Not String.IsNullOrWhiteSpace(searchText) Then
+                        ' ครอบ Try-Catch เพื่อป้องกันการค้นหาที่พังจากตัวอักษรพิเศษ
+                        Try
+                            ' Escape ตัวอักษรพิเศษสำหรับ Access LIKE และป้องกัน SQL Error
+                            Dim safeSearch = Db.EscapeLikeText(searchText)
+                            ' Access OleDb ใช้ * เป็น wildcard สำหรับ LIKE
+                            Dim likePattern = "*" & safeSearch & "*"
+
+                            ' ค้นหาหลายฟิลด์พร้อมกัน
+                            sql &= " AND (" &
+                                   "t.Detail LIKE @s OR " &
+                                   "t.Note LIKE @s OR " &
+                                   "c.CategoryName LIKE @s OR " &
+                                   "f.FundName LIKE @s OR " &
+                                   "b.BankName LIKE @s OR " &
+                                   "f2.FundName LIKE @s OR " &
+                                   "b2.BankName LIKE @s OR " &
+                                   "IIF(f.FundName IS NULL,'',f.FundName & ' ' & IIF(b.BankName IS NULL,'',b.BankName)) LIKE @s OR " &
+                                   "IIF(f2.FundName IS NULL,'',f2.FundName & ' ' & IIF(b2.BankName IS NULL,'',b2.BankName)) LIKE @s" &
+                                   ") "
+                            ps.Add(New Tuple(Of String, Object)("@s", likePattern))
+                        Catch ex As Exception
+                            AppPaths.LogCrash(ex, "FrmTransactions.Search")
+                            ' หากเกิดปัญหา ข้ามการค้นหาแต่ยังแสดงข้อมูลทั้งหมด
+                            ' ไม่ต้องทำอะไรเพิ่ม เพราะตัวแปร ps ยังเป็น Empty ทำให้ SQL ทำงานได้ปกติ
+                        End Try
                     End If
                     sql &= " ORDER BY " & tranDateExpr & " DESC, t.ID DESC"
 
