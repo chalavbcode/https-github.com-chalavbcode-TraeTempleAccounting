@@ -42,7 +42,7 @@ Namespace TempleAccounting
 
         Private Sub LoadAll()
             Using conn = Db.OpenConn()
-                dgvCategory.DataSource = Db.GetTable(conn, "SELECT ID, CategoryName, TranType FROM Categories ORDER BY TranType, CategoryName")
+                dgvCategory.DataSource = Db.GetTable(conn, "SELECT ID, CategoryName, TranType, IIF(TranType='Income', 'รายรับ', 'รายจ่าย') as TranTypeDisplay FROM Categories ORDER BY TranType, CategoryName")
                 dgvFund.DataSource = Db.GetTable(conn, "SELECT ID, FundName FROM Funds ORDER BY FundName")
                 dgvBank.DataSource = Db.GetTable(conn, "SELECT ID, BankName, AccountNo, AccountName FROM BankAccounts ORDER BY BankName")
             End Using
@@ -50,8 +50,9 @@ Namespace TempleAccounting
             ' Style columns
             If dgvCategory.Columns.Count > 0 Then
                 dgvCategory.Columns("ID").Visible = False
+                dgvCategory.Columns("TranType").Visible = False
                 dgvCategory.Columns("CategoryName").HeaderText = "ชื่อประเภท"
-                dgvCategory.Columns("TranType").HeaderText = "ชนิด"
+                dgvCategory.Columns("TranTypeDisplay").HeaderText = "ชนิด"
             End If
             If dgvFund.Columns.Count > 0 Then
                 dgvFund.Columns("ID").Visible = False

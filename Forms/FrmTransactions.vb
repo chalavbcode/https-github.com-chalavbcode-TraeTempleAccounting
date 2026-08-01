@@ -232,7 +232,7 @@ Namespace TempleAccounting
                     })
 #End Region
 
-                    Dim sql = "SELECT t.ID, t.TranDate, t.TranType, t.CategoryID, IIF(c.CategoryName IS NULL,'',c.CategoryName) AS CategoryName, " &
+                    Dim sql = "SELECT t.ID, t.TranDate, t.TranType, IIF(t.TranType='Income','รายรับ',IIF(t.TranType='Expense','รายจ่าย','โอนภายใน')) AS TranTypeDisplay, t.CategoryID, IIF(c.CategoryName IS NULL,'',c.CategoryName) AS CategoryName, " &
                               "t.FundID, IIF(f.FundName IS NULL,'',f.FundName) AS FundName, " &
                               "t.BankID, IIF(b.BankName IS NULL,'',b.BankName & IIF(b.AccountNo IS NULL,'',' ' & b.AccountNo)) AS BankName, " &
                               "t.Detail, t.Amount, t.Note, t.CreateDate, t.ToFundID, IIF(f2.FundName IS NULL,'',f2.FundName) AS ToFundName, " &
@@ -313,26 +313,28 @@ Namespace TempleAccounting
         Private Sub ConfigureGridColumns()
             Dim headers As New Dictionary(Of String, String) From {
                 {"ID", "ID"},
-                {"TranDate", "TranDate"},
-                {"TranType", "TranType"},
-                {"CategoryID", "CategoryID"},
-                {"CategoryName", "Category"},
-                {"FundID", "FundID"},
-                {"FundName", "Fund"},
-                {"BankID", "BankID"},
-                {"BankName", "Bank"},
-                {"Detail", "Detail"},
-                {"Amount", "Amount"},
-                {"Note", "Note"},
-                {"CreateDate", "CreateDate"},
-                {"ToFundID", "ToFundID"},
-                {"ToFundName", "ToFund"},
-                {"ToBankID", "ToBankID"},
-                {"ToBankName", "ToBank"}
+                {"TranDate", "วันที่"},
+                {"TranTypeDisplay", "ชนิด"},
+                {"CategoryName", "ประเภท"},
+                {"FundName", "กองทุน"},
+                {"BankName", "ธนาคาร"},
+                {"Detail", "รายละเอียด"},
+                {"Amount", "จำนวนเงิน"},
+                {"Note", "หมายเหตุ"},
+                {"CreateDate", "วันที่บันทึก"},
+                {"ToFundName", "ไปยังกองทุน"},
+                {"ToBankName", "ไปยังธนาคาร"}
             }
 
             dgvTransactions.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None
             dgvTransactions.ScrollBars = ScrollBars.Both
+
+            ' Hide technical columns but keep them for logic
+            For Each colName In New String() {"TranType", "CategoryID", "FundID", "BankID", "ToFundID", "ToBankID"}
+                If dgvTransactions.Columns.Contains(colName) Then
+                    dgvTransactions.Columns(colName).Visible = False
+                End If
+            Next
 
             For Each pair In headers
                 If dgvTransactions.Columns.Contains(pair.Key) Then
@@ -472,7 +474,7 @@ Namespace TempleAccounting
 
             If dgvTransactions.Columns.Contains("ID") Then dgvTransactions.Columns("ID").ReadOnly = True
             If dgvTransactions.Columns.Contains("CreateDate") Then dgvTransactions.Columns("CreateDate").ReadOnly = True
-            For Each readOnlyName In New String() {"CategoryName", "FundName", "BankName", "ToFundName", "ToBankName"}
+            For Each readOnlyName In New String() {"TranTypeDisplay", "CategoryName", "FundName", "BankName", "ToFundName", "ToBankName"}
                 If dgvTransactions.Columns.Contains(readOnlyName) Then dgvTransactions.Columns(readOnlyName).ReadOnly = True
             Next
 
