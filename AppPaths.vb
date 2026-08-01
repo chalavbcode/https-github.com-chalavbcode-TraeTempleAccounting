@@ -156,5 +156,30 @@ Namespace TempleAccounting
         Public Function SubDistrictCsv() As String
             Return Path.Combine(ImportFolder, "tambon.csv")
         End Function
-    End Module
+
+        ' ... โค้ดเดิมที่มีอยู่ใน AppPaths.vb ...
+
+        ' --- 1. เพิ่ม Property สำหรับโฟลเดอร์ Receipts ---
+        Public ReadOnly Property ReceiptsDir As String
+                Get
+                    Dim dir = IO.Path.Combine(BaseDir, "Receipts")
+                    If Not IO.Directory.Exists(dir) Then IO.Directory.CreateDirectory(dir)
+                    Return dir
+                End Get
+            End Property
+
+            ' --- 2. เพิ่ม Method ตรวจสอบและสร้างโฟลเดอร์ทั้งหมด ---
+            Public Sub EnsureDirectoriesExist()
+                Try
+                    If Not IO.Directory.Exists(DatabaseDir) Then IO.Directory.CreateDirectory(DatabaseDir)
+                    If Not IO.Directory.Exists(BackupDir) Then IO.Directory.CreateDirectory(BackupDir)
+                    If Not IO.Directory.Exists(ExportDir) Then IO.Directory.CreateDirectory(ExportDir)
+                    If Not IO.Directory.Exists(LogsDir) Then IO.Directory.CreateDirectory(LogsDir)
+                    If Not IO.Directory.Exists(ReceiptsDir) Then IO.Directory.CreateDirectory(ReceiptsDir)
+                Catch ex As Exception
+                    LogCrash(ex, "AppPaths.EnsureDirectoriesExist")
+                End Try
+            End Sub
+
+        End Module
 End Namespace
