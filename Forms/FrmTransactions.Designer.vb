@@ -368,7 +368,7 @@ Namespace TempleAccounting
             ' 
             AutoScaleDimensions = New SizeF(12F, 25F)
             AutoScaleMode = AutoScaleMode.Font
-            AutoScroll = True
+            AutoScroll = False
             BackColor = Color.FromArgb(CByte(254), CByte(249), CByte(235))
             ClientSize = New Size(1400, 800)
             Controls.Add(lblHeader)
