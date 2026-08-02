@@ -28,6 +28,7 @@ Namespace TempleAccounting
 
         Private Sub FrmTransfer_Load(sender As Object, e As EventArgs) Handles MyBase.Load
             Db.EnsureSchema()
+            SetupToolTips()
             Using conn = Db.OpenConn()
                 Dim funds = Db.GetTable(conn, "SELECT ID, FundName FROM Funds ORDER BY FundName")
                 AddBlankOption(funds, "FundName")
@@ -42,6 +43,11 @@ Namespace TempleAccounting
             SetupEnterNavigation()
             ResetEntry(True)
             FocusStartField()
+        End Sub
+
+        Private Sub SetupToolTips()
+            ttMain.SetToolTip(btnSave, "บันทึกการโอนเงินระหว่างกองทุนหรือบัญชีธนาคาร (Enter)")
+            ttMain.SetToolTip(btnCancel, "ล้างข้อมูลการโอนที่กรอกไว้ทั้งหมด")
         End Sub
 
         Private Sub AddBlankOption(table As DataTable, displayColumn As String)
