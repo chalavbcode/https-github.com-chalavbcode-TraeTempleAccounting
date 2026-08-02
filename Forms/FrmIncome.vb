@@ -182,6 +182,13 @@ Namespace TempleAccounting
                     selectedSourceReceiptPath = ""
                     If txtReceipt IsNot Nothing Then txtReceipt.Clear()
 
+                    ' ล้าง Clipboard หลังบันทึกรูปสำเร็จ เพื่อป้องกันการวางรูปเดิมซ้ำ
+                    Try
+                        Clipboard.Clear()
+                    Catch ex As Exception
+                        AppPaths.LogCrash(ex, "FrmIncome.ClearClipboard")
+                    End Try
+
                     dtpDate.Value = keepDate
                     dtpDate.Focus()
                 End Using
@@ -254,7 +261,7 @@ Namespace TempleAccounting
                 txtReceipt.Text = "[รูปภาพจากคลิปบอร์ด/LINE]"
                 btnSave.Focus()
             Else
-                MessageBox.Show("ไม่พบรูปภาพในคลิปบอร์ด กรุณากด Copy รูปภาพจาก LINE ก่อน", "แจ้งเตือน", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                MessageBox.Show("ไม่พบรูปภาพใหม่ใน Clipboard กรุณาไปที่ LINE แล้วกด Copy รูปภาพใบเสร็จรูปใหม่ก่อนกดปุ่มนี้", "แจ้งเตือน", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             End If
         End Sub
 
@@ -264,6 +271,13 @@ Namespace TempleAccounting
             If clipboardImage IsNot Nothing Then clipboardImage.Dispose()
             clipboardImage = Nothing
             txtReceipt.Clear()
+
+            ' ล้าง Clipboard เพื่อป้องกันการวางรูปเดิมซ้ำ
+            Try
+                Clipboard.Clear()
+            Catch ex As Exception
+                AppPaths.LogCrash(ex, "FrmIncome.ClearReceipt.ClearClipboard")
+            End Try
         End Sub
 
         Private Sub txtAmount_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtAmount.KeyPress
