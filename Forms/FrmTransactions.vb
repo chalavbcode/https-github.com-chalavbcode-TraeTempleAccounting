@@ -812,12 +812,13 @@ New Tuple(Of String, Object)("@id", id))
                     Return
                 End If
 
-                Dim id = CInt(dgvTransactions.CurrentRow.Cells("ID").Value)
-
+                ' ตรวจสอบว่า Clipboard มีรูปภาพหรือไม่
                 If Not Clipboard.ContainsImage() Then
-                    MessageBox.Show("ไม่พบรูปภาพในคลิปบอร์ด กรุณากด Copy รูปภาพจาก LINE หรือโปรแกรมอื่นก่อน", "แจ้งเตือน", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                    MessageBox.Show("ไม่พบรูปภาพใหม่ใน Clipboard กรุณาไปที่ LINE แล้วกด Copy รูปภาพใบเสร็จรูปใหม่ก่อนกดปุ่มนี้", "แจ้งเตือน", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                     Return
                 End If
+
+                Dim id = CInt(dgvTransactions.CurrentRow.Cells("ID").Value)
 
                 AppPaths.EnsureDirectoriesExist()
                 Dim newFileName = ReceiptImageHelper.SaveOptimizedReceipt(Clipboard.GetImage(), id)
@@ -832,6 +833,13 @@ New Tuple(Of String, Object)("@id", id))
                         New Tuple(Of String, Object)("@p", newFileName),
                         New Tuple(Of String, Object)("@id", id))
                 End Using
+
+                ' ล้าง Clipboard หลังจากบันทึกรูปสำเร็จ เพื่อป้องกันการวางรูปเดิมซ้ำ
+                Try
+                    Clipboard.Clear()
+                Catch ex As Exception
+                    AppPaths.LogCrash(ex, "PasteReceipt.ClearClipboard")
+                End Try
 
                 MessageBox.Show("แนบรูปภาพจากคลิปบอร์ดเรียบร้อยแล้ว", "สำเร็จ", MessageBoxButtons.OK, MessageBoxIcon.Information)
                 LoadData()
