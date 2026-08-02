@@ -690,9 +690,7 @@ Namespace TempleAccounting
                     If Not fromFund.HasValue Then
                         Throw New ApplicationException("รายการรับ/จ่ายต้องมี FundID")
                     End If
-                    If toFund.HasValue OrElse toBank.HasValue Then
-                        Throw New ApplicationException("รายการรับ/จ่ายทั่วไปไม่ควรมี ToFundID หรือ ToBankID")
-                    End If
+                    ' สำหรับรายรับ/รายจ่าย ไม่ต้องตรวจสอบ ToFundID/ToBankID เพราะค่าจะถูกล้างเป็น NULL อยู่แล้ว
 
                 Case "Transfer"
                     If category.HasValue Then
