@@ -741,10 +741,29 @@ Namespace TempleAccounting
                 Dim toFundId = NullableIntFromCell(row, "ToFundID")
                 Dim toBankId = NullableIntFromCell(row, "ToBankID")
 
+                ' ถ้าเป็นรายรับ/รายจ่าย ให้ล้าง ToFundID และ ToBankID ก่อนบันทึก
+                If tranType = "Income" OrElse tranType = "Expense" Then
+                    toFundId = Nothing
+                    toBankId = Nothing
+                End If
+
                 ValidateTransactionByType(tranType, categoryId, fundId, bankId, detail, amount, toFundId, toBankId)
 
                 Using conn = Db.OpenConn()
-                    Db.ExecuteNonQuery(conn,
+                    ' กำหนดค่า ToFundID และ ToBankID ให้เป็น NULL สำหรับรายรับ/รายจ่าย
+                    If tranType = "Income" OrElse tranType = "Expense" Then
+                        Db.ExecuteNonQuery(conn,
+"UPDATE Transactions SET TranDate=" & Db.AccessDateLiteral(tranDate) & ", TranType=@t, CategoryID=@c, FundID=@f, BankID=@b, [Detail]=@d, Amount=@a, [Note]=@n, ToFundID=NULL, ToBankID=NULL WHERE ID=@id",
+New Tuple(Of String, Object)("@t", tranType),
+New Tuple(Of String, Object)("@c", categoryId),
+New Tuple(Of String, Object)("@f", fundId),
+New Tuple(Of String, Object)("@b", bankId),
+New Tuple(Of String, Object)("@d", detail),
+New Tuple(Of String, Object)("@a", amount),
+New Tuple(Of String, Object)("@n", note),
+New Tuple(Of String, Object)("@id", id))
+                    Else
+                        Db.ExecuteNonQuery(conn,
 "UPDATE Transactions SET TranDate=" & Db.AccessDateLiteral(tranDate) & ", TranType=@t, CategoryID=@c, FundID=@f, BankID=@b, [Detail]=@d, Amount=@a, [Note]=@n, ToFundID=@tf, ToBankID=@tb WHERE ID=@id",
 New Tuple(Of String, Object)("@t", tranType),
 New Tuple(Of String, Object)("@c", categoryId),
@@ -756,12 +775,14 @@ New Tuple(Of String, Object)("@n", note),
 New Tuple(Of String, Object)("@tf", toFundId),
 New Tuple(Of String, Object)("@tb", toBankId),
 New Tuple(Of String, Object)("@id", id))
+                    End If
                 End Using
 
                 MessageBox.Show("บันทึกการแก้ไขเรียบร้อยแล้ว", "สำเร็จ", MessageBoxButtons.OK, MessageBoxIcon.Information)
                 ExitEditMode()
                 LoadData()
             Catch ex As Exception
+                AppPaths.LogCrash(ex, "FrmTransactions.UpdateTransaction")
                 MessageBox.Show("บันทึกการแก้ไขไม่สำเร็จ: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
             End Try
         End Sub
