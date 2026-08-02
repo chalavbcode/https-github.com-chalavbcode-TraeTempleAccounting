@@ -23,11 +23,14 @@ Namespace TempleAccounting
         Private _fromDate As Date
         Private _toDate As Date
         Private _mode As ReportModes = ReportModes.Detailed
+        Private _fundID As Integer? = Nothing
+        Private _bankID As Integer? = Nothing
         Private _incomeRows As New List(Of ReportRow)()
         Private _expenseRows As New List(Of ReportRow)()
         Private _totalIncome As Decimal
         Private _totalExpense As Decimal
         Private _openingBalance As Decimal
+        Private _manualOpeningBalance As Decimal? = Nothing
         Private _reportGrandTotal As Decimal
         Private _balance As Decimal
         Private _templeName As String = ""
@@ -68,11 +71,14 @@ Namespace TempleAccounting
             Public IsCategorySummary As Boolean
         End Structure
 
-        Public Sub New(fromDate As Date, toDate As Date, Optional mode As ReportModes = ReportModes.Detailed)
+        Public Sub New(fromDate As Date, toDate As Date, Optional mode As ReportModes = ReportModes.Detailed, Optional manualOpeningBalance As Decimal? = Nothing, Optional fundID As Integer? = Nothing, Optional bankID As Integer? = Nothing)
             MyBase.New()
             _fromDate = Db.NormalizeGregorianDate(fromDate)
             _toDate = Db.NormalizeGregorianDate(toDate)
             _mode = mode
+            _manualOpeningBalance = manualOpeningBalance
+            _fundID = fundID
+            _bankID = bankID
             Me.DocumentName = If(_mode = ReportModes.Summary, "สรุปบัญชีรายรับ-รายจ่าย (ย่อ)", "สรุปบัญชีรายรับ-รายจ่าย (ละเอียด)")
             ConfigurePageSettings()
             LoadData()
@@ -124,10 +130,15 @@ Namespace TempleAccounting
                     _expenseRows.Clear()
                     _totalIncome = 0
                     _totalExpense = 0
-                    _openingBalance = GetBalanceBeforeDate(conn, _fromDate)
+                    
+                    If _manualOpeningBalance.HasValue Then
+                        _openingBalance = _manualOpeningBalance.Value
+                    Else
+                        _openingBalance = GetBalanceBeforeDate(conn, _fromDate, _fundID, _bankID)
+                    End If
 
-                    LoadRowsByMode(conn, "Income", _incomeRows, _totalIncome)
-                    LoadRowsByMode(conn, "Expense", _expenseRows, _totalExpense)
+                    LoadRowsByMode(conn, "Income", _incomeRows, _totalIncome, _fundID, _bankID)
+                    LoadRowsByMode(conn, "Expense", _expenseRows, _totalExpense, _fundID, _bankID)
 
                     _incomeRows.Insert(0, BuildOpeningBalanceRow())
                     _reportGrandTotal = _openingBalance + _totalIncome
@@ -138,12 +149,23 @@ Namespace TempleAccounting
             End Try
         End Sub
 
-        Private Function GetBalanceBeforeDate(conn As OleDbConnection, beforeDate As Date) As Decimal
+        Private Function GetBalanceBeforeDate(conn As OleDbConnection, beforeDate As Date, fundID As Integer?, bankID As Integer?) As Decimal
             Dim sql = "SELECT SUM(IIF(t.TranType='Income', t.Amount, -t.Amount)) " &
                       "FROM Transactions t " &
                       "WHERE DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate), Day(t.TranDate)) < " &
                       Db.AccessDateLiteral(beforeDate)
-            Dim result = Db.DbScalar(conn, sql)
+            
+            Dim params As New List(Of Tuple(Of String, Object))()
+            If fundID.HasValue AndAlso fundID.Value <> 0 Then
+                sql &= " AND t.FundID = @f"
+                params.Add(New Tuple(Of String, Object)("@f", fundID.Value))
+            End If
+            If bankID.HasValue AndAlso bankID.Value <> 0 Then
+                sql &= " AND t.BankID = @b"
+                params.Add(New Tuple(Of String, Object)("@b", bankID.Value))
+            End If
+
+            Dim result = Db.DbScalar(conn, sql, params.ToArray())
             If result Is Nothing OrElse IsDBNull(result) Then Return 0D
             Return Convert.ToDecimal(result)
         End Function
@@ -152,25 +174,38 @@ Namespace TempleAccounting
             Return New ReportRow With {
                 .TranDate = _fromDate,
                 .DayCode = _fromDate.Day,
-                .Description = "ยอดยกมา",
+                .Description = "ยอดยกมา" & If(_manualOpeningBalance.HasValue, " (กรอกเอง)", ""),
                 .Amount = _openingBalance,
                 .IsCarryForward = True
             }
         End Function
 
-        Private Sub LoadRowsByMode(conn As OleDbConnection, tranType As String, targetRows As List(Of ReportRow), ByRef runningTotal As Decimal)
+        Private Sub LoadRowsByMode(conn As OleDbConnection, tranType As String, targetRows As List(Of ReportRow), ByRef runningTotal As Decimal, fundID As Integer?, bankID As Integer?)
             targetRows.Clear()
             runningTotal = 0D
 
             Dim sql As String
+            Dim params As New List(Of Tuple(Of String, Object))()
+
+            Dim whereClause = "WHERE t.TranType='" & tranType & "' AND DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate), Day(t.TranDate)) " &
+                              "BETWEEN " & Db.AccessDateLiteral(_fromDate) & " AND " & Db.AccessDateLiteral(_toDate)
+            
+            If fundID.HasValue AndAlso fundID.Value <> 0 Then
+                whereClause &= " AND t.FundID = @f"
+                params.Add(New Tuple(Of String, Object)("@f", fundID.Value))
+            End If
+            If bankID.HasValue AndAlso bankID.Value <> 0 Then
+                whereClause &= " AND t.BankID = @b"
+                params.Add(New Tuple(Of String, Object)("@b", bankID.Value))
+            End If
+
             If _mode = ReportModes.Summary Then
                 sql = "SELECT DateSerial(Year(DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate) + 1, 0)), " &
                       "Month(DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate) + 1, 0)), " &
                       "Day(DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate) + 1, 0))) AS TranDate, " &
                       "IIF(c.CategoryName IS NULL,'ไม่ระบุ',c.CategoryName) AS Cat, SUM(t.Amount) AS Amount " &
                       "FROM Transactions t LEFT JOIN Categories c ON t.CategoryID=c.ID " &
-                      "WHERE t.TranType='" & tranType & "' AND DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate), Day(t.TranDate)) " &
-                      "BETWEEN " & Db.AccessDateLiteral(_fromDate) & " AND " & Db.AccessDateLiteral(_toDate) & " " &
+                      whereClause & " " &
                       "GROUP BY DateSerial(Year(DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate) + 1, 0)), " &
                       "Month(DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate) + 1, 0)), " &
                       "Day(DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate) + 1, 0))), " &
@@ -183,15 +218,14 @@ Namespace TempleAccounting
                 sql = "SELECT DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate), Day(t.TranDate)) AS TranDate, " &
                       "IIF(c.CategoryName IS NULL,'ไม่ระบุ',c.CategoryName) AS Cat, SUM(t.Amount) AS Amount " &
                       "FROM Transactions t LEFT JOIN Categories c ON t.CategoryID=c.ID " &
-                      "WHERE t.TranType='" & tranType & "' AND DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate), Day(t.TranDate)) " &
-                      "BETWEEN " & Db.AccessDateLiteral(_fromDate) & " AND " & Db.AccessDateLiteral(_toDate) & " " &
+                      whereClause & " " &
                       "GROUP BY DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate), Day(t.TranDate)), " &
                       "IIF(c.CategoryName IS NULL,'ไม่ระบุ',c.CategoryName) " &
                       "ORDER BY DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate), Day(t.TranDate)), " &
                       "IIF(c.CategoryName IS NULL,'ไม่ระบุ',c.CategoryName)"
             End If
 
-            Dim dt = Db.GetTable(conn, sql)
+            Dim dt = Db.GetTable(conn, sql, params.ToArray())
             For Each r As DataRow In dt.Rows
                 Dim d = CDate(r!TranDate)
                 Dim amount = CDec(r!Amount)
@@ -682,9 +716,9 @@ Namespace TempleAccounting
             _pageY = y
         End Sub
 
-        Public Shared Sub ShowPreview(fromDate As Date, toDate As Date, Optional owner As IWin32Window = Nothing, Optional mode As ReportModes = ReportModes.Detailed)
+        Public Shared Sub ShowPreview(fromDate As Date, toDate As Date, Optional owner As IWin32Window = Nothing, Optional mode As ReportModes = ReportModes.Detailed, Optional manualOpeningBalance As Decimal? = Nothing, Optional fundID As Integer? = Nothing, Optional bankID As Integer? = Nothing)
             Try
-                Dim doc As New IncomeExpenseReport(fromDate, toDate, mode)
+                Dim doc As New IncomeExpenseReport(fromDate, toDate, mode, manualOpeningBalance, fundID, bankID)
                 Using ppd As New PrintPreviewDialog()
                     ppd.Document = doc
                     ppd.WindowState = FormWindowState.Maximized

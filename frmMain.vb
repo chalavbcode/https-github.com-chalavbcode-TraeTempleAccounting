@@ -15,6 +15,7 @@ Namespace TempleAccounting
 
         Public Sub New()
             Try
+                AppPaths.EnsureDirectoriesExist()
                 Dim ignore = AppPaths.DatabaseFile
             Catch ex As Exception
                 AppPaths.LogCrash(ex, "AppPaths init")
@@ -93,24 +94,27 @@ Namespace TempleAccounting
                     SetOverviewCompactMode(False)
                     ShowFormInPanel(New FrmIncome(), "💰 บันทึกรายรับเงินบริจาค")
                     Try
-                        LoadDonationSample()
+                        LoadActualDonationOverviewFromDb()
                     Catch
+                        LoadDonationSample()
                     End Try
 
                 Case "btnExpense"
                     SetOverviewCompactMode(False)
                     ShowFormInPanel(New FrmExpense(), "💸 บันทึกรายจ่ายของวัด")
                     Try
-                        LoadExpenseSample()
+                        LoadActualExpenseOverviewFromDb()
                     Catch
+                        LoadExpenseSample()
                     End Try
 
                 Case "btnReport"
                     SetOverviewCompactMode(False)
                     ShowFormInPanel(New FrmReports(), "📊 ศูนย์รายงานและส่งออก CSV/Excel")
                     Try
-                        LoadReportSample()
+                        LoadActualReportOverviewFromDb()
                     Catch
+                        LoadReportSample()
                     End Try
 
                 Case "btnMember"
@@ -165,29 +169,79 @@ Namespace TempleAccounting
 
                 lblOverviewTitle.Text = "🏁 ภาพรวมวันนี้ (คลิกการ์ดเพื่อไปหน้าโดยตรง) — ข้อมูลอัปเดตจากฐานข้อมูลจริง"
                 lblCard1Title.Text = "รายการเงินรับ เดือนนี้"
-                lblCard1Value.Text = Db.ToIntOrZero(trCount) & " รายการ"
-                lblCard1Icon.Text = "📿"
+                lblCard1Value.Text = Db.ToIntOrZero(trCount).ToString("#,##0") & " รายการ"
 
                 lblCard2Title.Text = "ยอดเงินรับ เดือนนี้"
                 lblCard2Value.Text = Db.ToDecimalOrZero(trIn).ToString("#,##0.00")
-                lblCard2Icon.Text = "💰"
 
                 lblCard3Title.Text = "ยอดเงินจ่าย เดือนนี้"
                 lblCard3Value.Text = Db.ToDecimalOrZero(trOut).ToString("#,##0.00")
-                lblCard3Icon.Text = "💸"
 
                 lblCard4Title.Text = "ยอดคงเหลือทั้งหมด"
                 lblCard4Value.Text = Db.ToDecimalOrZero(bal).ToString("#,##0.00")
-                lblCard4Icon.Text = "💵"
                 RefreshOverviewLayout()
+            End Using
+        End Sub
 
-                Try
-                    If pnlFormHost IsNot Nothing Then
-                        ' หน้า Dashboard แสดงสรุปด้านบน (4 การ์ด) พอเพียง
-                        ' หากต้องการตารางรายการล่าสุด สามารถเปิดเมนู 👥 รายการเงินรับ-จ่ายทั้งหมดได้เลย
-                    End If
-                Catch
-                End Try
+        Private Sub LoadActualDonationOverviewFromDb()
+            Db.EnsureSchema()
+            Dim monthStart As New Date(Today.Year, Today.Month, 1)
+            Dim monthEnd = monthStart.AddMonths(1).AddSeconds(-1)
+            Using conn = Db.OpenConn()
+                Dim count = Db.ToIntOrZero(Db.DbScalar(conn, "SELECT COUNT(*) FROM Transactions WHERE TranType='Income' AND TranDate BETWEEN @d1 AND @d2",
+                                                     New Tuple(Of String, Object)("@d1", monthStart),
+                                                     New Tuple(Of String, Object)("@d2", monthEnd)))
+                Dim total = Db.ToDecimalOrZero(Db.DbScalar(conn, "SELECT SUM(Amount) FROM Transactions WHERE TranType='Income' AND TranDate BETWEEN @d1 AND @d2",
+                                                       New Tuple(Of String, Object)("@d1", monthStart),
+                                                       New Tuple(Of String, Object)("@d2", monthEnd)))
+                Dim maxAmt = Db.ToDecimalOrZero(Db.DbScalar(conn, "SELECT MAX(Amount) FROM Transactions WHERE TranType='Income' AND TranDate BETWEEN @d1 AND @d2",
+                                                        New Tuple(Of String, Object)("@d1", monthStart),
+                                                        New Tuple(Of String, Object)("@d2", monthEnd)))
+                Dim avg = If(count > 0, total / count, 0D)
+
+                lblOverviewTitle.Text = "💰 ภาพรวมเงินรับเดือนนี้ (ข้อมูลจริง)"
+                lblCard1Title.Text = "จำนวนใบเสร็จรับเงิน"
+                lblCard1Value.Text = count.ToString("#,##0") & " ใบ"
+
+                lblCard2Title.Text = "ยอดรับเดือนนี้ (บาท)"
+                lblCard2Value.Text = total.ToString("#,##0.00")
+
+                lblCard3Title.Text = "ค่าเฉลี่ย / คน"
+                lblCard3Value.Text = avg.ToString("#,##0.00")
+
+                lblCard4Title.Text = "บริจาคสูงสุด"
+                lblCard4Value.Text = maxAmt.ToString("#,##0.00")
+                RefreshOverviewLayout()
+            End Using
+        End Sub
+
+        Private Sub LoadActualExpenseOverviewFromDb()
+            Db.EnsureSchema()
+            Dim monthStart As New Date(Today.Year, Today.Month, 1)
+            Dim monthEnd = monthStart.AddMonths(1).AddSeconds(-1)
+            Using conn = Db.OpenConn()
+                Dim count = Db.ToIntOrZero(Db.DbScalar(conn, "SELECT COUNT(*) FROM Transactions WHERE TranType='Expense' AND TranDate BETWEEN @d1 AND @d2",
+                                                     New Tuple(Of String, Object)("@d1", monthStart),
+                                                     New Tuple(Of String, Object)("@d2", monthEnd)))
+                Dim total = Db.ToDecimalOrZero(Db.DbScalar(conn, "SELECT SUM(Amount) FROM Transactions WHERE TranType='Expense' AND TranDate BETWEEN @d1 AND @d2",
+                                                       New Tuple(Of String, Object)("@d1", monthStart),
+                                                       New Tuple(Of String, Object)("@d2", monthEnd)))
+                Dim bal As Object = Db.DbScalar(conn, "SELECT SUM(IIF(TranType='Income',Amount,0))-SUM(IIF(TranType='Expense',Amount,0)) FROM Transactions")
+                Dim avg = If(count > 0, total / count, 0D)
+
+                lblOverviewTitle.Text = "💸 ภาพรวมเงินจ่ายเดือนนี้ (ข้อมูลจริง)"
+                lblCard1Title.Text = "จำนวนรายการจ่าย"
+                lblCard1Value.Text = count.ToString("#,##0") & " รายการ"
+
+                lblCard2Title.Text = "ยอดจ่ายเดือนนี้"
+                lblCard2Value.Text = total.ToString("#,##0.00")
+
+                lblCard3Title.Text = "ค่าเฉลี่ย / รายการ"
+                lblCard3Value.Text = avg.ToString("#,##0.00")
+
+                lblCard4Title.Text = "ยอดคงเหลือสุทธิ"
+                lblCard4Value.Text = Db.ToDecimalOrZero(bal).ToString("#,##0.00")
+                RefreshOverviewLayout()
             End Using
         End Sub
 
@@ -313,19 +367,19 @@ Namespace TempleAccounting
             lblOverviewTitle.Text = "🏁 ภาพรวมวันนี้ (คลิกการ์ดเพื่อไปหน้าโดยตรง)"
             lblCard1Title.Text = "ผู้บริจาคเดือนนี้"
             lblCard1Value.Text = "128 คน"
-            lblCard1Icon.Text = "📿"
+            ' lblCard1Icon.Text = "📿"
 
             lblCard2Title.Text = "ยอดรับเงินเดือนนี้"
             lblCard2Value.Text = "248,500"
-            lblCard2Icon.Text = "💰"
+            ' lblCard2Icon.Text = "💰"
 
             lblCard3Title.Text = "ยอดจ่ายเงินเดือนนี้"
             lblCard3Value.Text = "86,250"
-            lblCard3Icon.Text = "💸"
+            ' lblCard3Icon.Text = "💸"
 
             lblCard4Title.Text = "ยอดคงเหลือทั้งหมด"
             lblCard4Value.Text = "1,892,750"
-            lblCard4Icon.Text = "💵"
+            ' lblCard4Icon.Text = "💵"
             RefreshOverviewLayout()
         End Sub
 
@@ -333,19 +387,19 @@ Namespace TempleAccounting
             lblOverviewTitle.Text = "💰 ภาพรวมเงินรับเดือนนี้"
             lblCard1Title.Text = "จำนวนใบเสร็จรับเงิน"
             lblCard1Value.Text = "76 ใบ"
-            lblCard1Icon.Text = "🧾"
+            ' lblCard1Icon.Text = "🧾"
 
             lblCard2Title.Text = "ยอดรับเดือนนี้ (บาท)"
             lblCard2Value.Text = "248,500"
-            lblCard2Icon.Text = "💰"
+            ' lblCard2Icon.Text = "💰"
 
             lblCard3Title.Text = "ค่าเฉลี่ย / คน"
             lblCard3Value.Text = "3,270"
-            lblCard3Icon.Text = "📊"
+            ' lblCard3Icon.Text = "📊"
 
             lblCard4Title.Text = "บริจาคสูงสุด"
             lblCard4Value.Text = "50,000"
-            lblCard4Icon.Text = "🌟"
+            ' lblCard4Icon.Text = "🌟"
             RefreshOverviewLayout()
         End Sub
 
@@ -353,39 +407,79 @@ Namespace TempleAccounting
             lblOverviewTitle.Text = "💸 ภาพรวมเงินจ่ายเดือนนี้"
             lblCard1Title.Text = "จำนวนรายการจ่าย"
             lblCard1Value.Text = "32 รายการ"
-            lblCard1Icon.Text = "📝"
+            ' lblCard1Icon.Text = "📝"
 
             lblCard2Title.Text = "ยอดจ่ายเดือนนี้"
             lblCard2Value.Text = "86,250"
-            lblCard2Icon.Text = "💸"
+            ' lblCard2Icon.Text = "💸"
 
             lblCard3Title.Text = "ค่าเฉลี่ย / รายการ"
             lblCard3Value.Text = "2,695"
-            lblCard3Icon.Text = "📊"
+            ' lblCard3Icon.Text = "📊"
 
             lblCard4Title.Text = "งบคงเหลือ"
             lblCard4Value.Text = "213,750"
-            lblCard4Icon.Text = "🗓️"
+            ' lblCard4Icon.Text = "🗓️"
             RefreshOverviewLayout()
+        End Sub
+
+        Private Sub LoadActualReportOverviewFromDb()
+            Db.EnsureSchema()
+            Dim yearStart As New Date(Today.Year, 1, 1)
+            Dim monthStart As New Date(Today.Year, Today.Month, 1)
+            Dim monthEnd = monthStart.AddMonths(1).AddSeconds(-1)
+
+            Using conn = Db.OpenConn()
+                ' 1. รายการรับ-จ่ายรวมทั้งหมด
+                Dim allCount = Db.ToIntOrZero(Db.DbScalar(conn, "SELECT COUNT(*) FROM Transactions"))
+
+                ' 2. รายได้สุทธิ YTD (ตั้งแต่ต้นปีถึงปัจจุบัน)
+                Dim ytdNet = Db.ToDecimalOrZero(Db.DbScalar(conn, "SELECT SUM(IIF(TranType='Income',Amount,0)) - SUM(IIF(TranType='Expense',Amount,0)) FROM Transactions WHERE TranDate >= @y1",
+                                                        New Tuple(Of String, Object)("@y1", yearStart)))
+
+                ' 3. รายการที่เกิดขึ้นในเดือนนี้ (แทนที่ "เป้าหมาย" ที่ไม่มีอยู่จริง)
+                Dim monthCount = Db.ToIntOrZero(Db.DbScalar(conn, "SELECT COUNT(*) FROM Transactions WHERE TranDate BETWEEN @m1 AND @m2",
+                                                        New Tuple(Of String, Object)("@m1", monthStart),
+                                                        New Tuple(Of String, Object)("@m2", monthEnd)))
+
+                ' 4. ยอดรวมต้นปี (ยอดยกมาจากปีก่อนๆ ทั้งหมด)
+                Dim prevYearBal = Db.ToDecimalOrZero(Db.DbScalar(conn, "SELECT SUM(IIF(TranType='Income',Amount,0)) - SUM(IIF(TranType='Expense',Amount,0)) FROM Transactions WHERE TranDate < @y1",
+                                                            New Tuple(Of String, Object)("@y1", yearStart)))
+
+                lblOverviewTitle.Text = "📊 ภาพรวมรายงานและสถิติ (ข้อมูลจริง)"
+                lblCard1Title.Text = "รายการรับ-จ่ายรวม"
+                lblCard1Value.Text = allCount.ToString("#,##0") & " รายการ"
+
+                lblCard2Title.Text = "รายได้สุทธิ YTD"
+                lblCard2Value.Text = ytdNet.ToString("#,##0.00")
+
+                lblCard3Title.Text = "รายการเดือนนี้"
+                lblCard3Value.Text = monthCount.ToString("#,##0") & " รายการ"
+
+                lblCard4Title.Text = "ยอดยกมาต้นปี"
+                lblCard4Value.Text = prevYearBal.ToString("#,##0.00")
+
+                RefreshOverviewLayout()
+            End Using
         End Sub
 
         Private Sub LoadReportSample()
             lblOverviewTitle.Text = "📊 ภาพรวมรายงาน 6 เดือน"
             lblCard1Title.Text = "รายการรับ-จ่ายรวม"
             lblCard1Value.Text = "756 รายการ"
-            lblCard1Icon.Text = "📑"
+            ' lblCard1Icon.Text = "📑"
 
             lblCard2Title.Text = "รายได้สุทธิ YTD"
             lblCard2Value.Text = "840,150"
-            lblCard2Icon.Text = "📈"
+            ' lblCard2Icon.Text = "📈"
 
             lblCard3Title.Text = "เป้าหมายเดือนนี้"
             lblCard3Value.Text = "78.5 %"
-            lblCard3Icon.Text = "🎯"
+            ' lblCard3Icon.Text = "🎯"
 
             lblCard4Title.Text = "ยอดรวมต้นปี"
             lblCard4Value.Text = "1,285,400"
-            lblCard4Icon.Text = "🗃️"
+            ' lblCard4Icon.Text = "🗃️"
             RefreshOverviewLayout()
         End Sub
 
@@ -400,38 +494,38 @@ Namespace TempleAccounting
                     lblOverviewTitle.Text = "📒 ภาพรวมรายการเงินรับ-จ่าย"
                     lblCard1Title.Text = "รายการทั้งหมด"
                     lblCard1Value.Text = totalItems.ToString("#,##0") & " รายการ"
-                    lblCard1Icon.Text = "📋"
+                    ' lblCard1Icon.Text = "📋"
 
                     lblCard2Title.Text = "รายรับสะสม"
                     lblCard2Value.Text = incomeAmount.ToString("#,##0.00")
-                    lblCard2Icon.Text = "💰"
+                    ' lblCard2Icon.Text = "💰"
 
                     lblCard3Title.Text = "รายจ่ายสะสม"
                     lblCard3Value.Text = expenseAmount.ToString("#,##0.00")
-                    lblCard3Icon.Text = "💸"
+                    ' lblCard3Icon.Text = "💸"
 
                     lblCard4Title.Text = "โอนภายในสะสม"
                     lblCard4Value.Text = transferAmount.ToString("#,##0.00")
-                    lblCard4Icon.Text = "🔁"
+                    ' lblCard4Icon.Text = "🔁"
                     RefreshOverviewLayout()
                 End Using
             Catch
                 lblOverviewTitle.Text = "📒 ภาพรวมรายการเงินรับ-จ่าย"
                 lblCard1Title.Text = "รายการทั้งหมด"
                 lblCard1Value.Text = "0 รายการ"
-                lblCard1Icon.Text = "📋"
+                ' lblCard1Icon.Text = "📋"
 
                 lblCard2Title.Text = "รายรับสะสม"
                 lblCard2Value.Text = "0.00"
-                lblCard2Icon.Text = "💰"
+                ' lblCard2Icon.Text = "💰"
 
                 lblCard3Title.Text = "รายจ่ายสะสม"
                 lblCard3Value.Text = "0.00"
-                lblCard3Icon.Text = "💸"
+                ' lblCard3Icon.Text = "💸"
 
                 lblCard4Title.Text = "โอนภายในสะสม"
                 lblCard4Value.Text = "0.00"
-                lblCard4Icon.Text = "🔁"
+                ' lblCard4Icon.Text = "🔁"
                 RefreshOverviewLayout()
             End Try
         End Sub
@@ -440,80 +534,104 @@ Namespace TempleAccounting
             lblOverviewTitle.Text = "👥 ภาพรวมสมาชิกผู้บริจาค"
             lblCard1Title.Text = "สมาชิกทั้งหมด"
             lblCard1Value.Text = "342 คน"
-            lblCard1Icon.Text = "👥"
+            ' lblCard1Icon.Text = "👥"
 
             lblCard2Title.Text = "เพิ่มเดือนนี้"
             lblCard2Value.Text = "18 คน"
-            lblCard2Icon.Text = "➕"
+            ' lblCard2Icon.Text = "➕"
 
             lblCard3Title.Text = "ระดับทอง"
             lblCard3Value.Text = "24 คน"
-            lblCard3Icon.Text = "🏅"
+            ' lblCard3Icon.Text = "🏅"
 
             lblCard4Title.Text = "บริจาคประจำเดือน"
             lblCard4Value.Text = "128 คน"
-            lblCard4Icon.Text = "🔔"
+            ' lblCard4Icon.Text = "🔔"
             RefreshOverviewLayout()
         End Sub
 
         Private Sub LoadMonkSample()
-            lblOverviewTitle.Text = "🥇 ภาพรวมพระ / อาวาส / คณะสงฆ์"
-            lblCard1Title.Text = "จำนวนพระภิกษุ"
-            lblCard1Value.Text = "12 รูป"
-            lblCard1Icon.Text = "🧘"
-
-            lblCard2Title.Text = "จำนวนสามเณร"
-            lblCard2Value.Text = "4 รูป"
-            lblCard2Icon.Text = "🙏"
-
-            lblCard3Title.Text = "ผู้อุปัฏฐาก"
-            lblCard3Value.Text = "2 รูป"
-            lblCard3Icon.Text = "🥇"
-
-            lblCard4Title.Text = "หออาศรมทั้งหมด"
-            lblCard4Value.Text = "8 แห่ง"
-            lblCard4Icon.Text = "🏠"
-            RefreshOverviewLayout()
+            Try
+                Using conn = Db.OpenConn()
+                    Dim row = Db.GetTable(conn, "SELECT TOP 1 TempleName, AbbotName, WaiyawatName, BookkeeperName FROM TempleSetting ORDER BY ID DESC")
+                    If row.Rows.Count > 0 Then
+                        Dim r = row.Rows(0)
+                        lblOverviewTitle.Text = "🥇 ข้อมูลบุคลากรและวัด (ข้อมูลจริง)"
+                        lblCard1Title.Text = "ชื่อวัด"
+                        lblCard1Value.Text = If(r("TempleName") Is DBNull.Value, "-", r("TempleName").ToString())
+                        lblCard2Title.Text = "เจ้าอาวาส"
+                        lblCard2Value.Text = If(r("AbbotName") Is DBNull.Value, "-", r("AbbotName").ToString())
+                        lblCard3Title.Text = "ไวยาวัจกร"
+                        lblCard3Value.Text = If(r("WaiyawatName") Is DBNull.Value, "-", r("WaiyawatName").ToString())
+                        lblCard4Title.Text = "ผู้ทำบัญชี"
+                        lblCard4Value.Text = If(r("BookkeeperName") Is DBNull.Value, "-", r("BookkeeperName").ToString())
+                    Else
+                        lblOverviewTitle.Text = "🥇 ข้อมูลบุคลากรและวัด (ยังไม่ได้ตั้งค่า)"
+                        lblCard1Value.Text = "-" : lblCard2Value.Text = "-" : lblCard3Value.Text = "-" : lblCard4Value.Text = "-"
+                    End If
+                    RefreshOverviewLayout()
+                End Using
+            Catch
+                lblOverviewTitle.Text = "🥇 ข้อมูลบุคลากรและวัด"
+                lblCard1Value.Text = "-" : lblCard2Value.Text = "-" : lblCard3Value.Text = "-" : lblCard4Value.Text = "-"
+                RefreshOverviewLayout()
+            End Try
         End Sub
 
         Private Sub LoadActivitySample()
-            lblOverviewTitle.Text = "🎎 ภาพรวมกิจกรรมงานบุญ"
-            lblCard1Title.Text = "งานบุญเดือนนี้"
-            lblCard1Value.Text = "6 งาน"
-            lblCard1Icon.Text = "🎎"
+            Try
+                Using conn = Db.OpenConn()
+                    Dim monthStart As New Date(Today.Year, Today.Month, 1)
+                    Dim monthEnd = monthStart.AddMonths(1).AddSeconds(-1)
+                    Dim count = Db.ToIntOrZero(Db.DbScalar(conn, "SELECT COUNT(*) FROM Transactions WHERE TranType='Transfer' AND TranDate BETWEEN @d1 AND @d2",
+                                                         New Tuple(Of String, Object)("@d1", monthStart),
+                                                         New Tuple(Of String, Object)("@d2", monthEnd)))
+                    Dim total = Db.ToDecimalOrZero(Db.DbScalar(conn, "SELECT SUM(Amount) FROM Transactions WHERE TranType='Transfer' AND TranDate BETWEEN @d1 AND @d2",
+                                                           New Tuple(Of String, Object)("@d1", monthStart),
+                                                           New Tuple(Of String, Object)("@d2", monthEnd)))
+                    Dim allTotal = Db.ToDecimalOrZero(Db.DbScalar(conn, "SELECT SUM(Amount) FROM Transactions WHERE TranType='Transfer'"))
 
-            lblCard2Title.Text = "งานกำลังจะจัด"
-            lblCard2Value.Text = "2 งาน"
-            lblCard2Icon.Text = "⏰"
-
-            lblCard3Title.Text = "ผู้เข้ารวมทั้งหมด"
-            lblCard3Value.Text = "2,450 คน"
-            lblCard3Icon.Text = "👥"
-
-            lblCard4Title.Text = "รายได้จากงาน"
-            lblCard4Value.Text = "528,900"
-            lblCard4Icon.Text = "💵"
-            RefreshOverviewLayout()
+                    lblOverviewTitle.Text = "🎎 ภาพรวมการโอนเงินภายใน (ข้อมูลจริง)"
+                    lblCard1Title.Text = "รายการโอนเดือนนี้"
+                    lblCard1Value.Text = count.ToString("#,##0") & " รายการ"
+                    lblCard2Title.Text = "ยอดโอนเดือนนี้"
+                    lblCard2Value.Text = total.ToString("#,##0.00")
+                    lblCard3Title.Text = "ยอดโอนสะสมทั้งหมด"
+                    lblCard3Value.Text = allTotal.ToString("#,##0.00")
+                    lblCard4Title.Text = "สถานะ"
+                    lblCard4Value.Text = "ปกติ"
+                    RefreshOverviewLayout()
+                End Using
+            Catch
+                lblOverviewTitle.Text = "🎎 ภาพรวมการโอนเงินภายใน"
+                lblCard1Value.Text = "0" : lblCard2Value.Text = "0.00" : lblCard3Value.Text = "0.00" : lblCard4Value.Text = "-"
+                RefreshOverviewLayout()
+            End Try
         End Sub
 
         Private Sub LoadSettingSample()
-            lblOverviewTitle.Text = "⚙️ ภาพรวมการตั้งค่าระบบ"
-            lblCard1Title.Text = "ผู้ใช้งานระบบ"
-            lblCard1Value.Text = "3 คน"
-            lblCard1Icon.Text = "🔐"
+            Try
+                Using conn = Db.OpenConn()
+                    Dim catCount = Db.ToIntOrZero(Db.DbScalar(conn, "SELECT COUNT(*) FROM Categories"))
+                    Dim fundCount = Db.ToIntOrZero(Db.DbScalar(conn, "SELECT COUNT(*) FROM Funds"))
+                    Dim bankCount = Db.ToIntOrZero(Db.DbScalar(conn, "SELECT COUNT(*) FROM BankAccounts"))
 
-            lblCard2Title.Text = "ฐานข้อมูล"
-            lblCard2Value.Text = "ปกติ"
-            lblCard2Icon.Text = "🗄️"
-
-            lblCard3Title.Text = "สำรองข้อมูล"
-            lblCard3Value.Text = "รายวัน"
-            lblCard3Icon.Text = "💾"
-
-            lblCard4Title.Text = "ภาษาที่ใช้งาน"
-            lblCard4Value.Text = "ไทย"
-            lblCard4Icon.Text = "🇹🇭"
-            RefreshOverviewLayout()
+                    lblOverviewTitle.Text = "⚙️ ภาพรวมการตั้งค่าระบบ (ข้อมูลจริง)"
+                    lblCard1Title.Text = "ประเภทรายการ"
+                    lblCard1Value.Text = catCount.ToString("#,##0") & " ประเภท"
+                    lblCard2Title.Text = "กองทุนทั้งหมด"
+                    lblCard2Value.Text = fundCount.ToString("#,##0") & " กองทุน"
+                    lblCard3Title.Text = "บัญชีธนาคาร"
+                    lblCard3Value.Text = bankCount.ToString("#,##0") & " บัญชี"
+                    lblCard4Title.Text = "สถานะฐานข้อมูล"
+                    lblCard4Value.Text = "เชื่อมต่ออยู่"
+                    RefreshOverviewLayout()
+                End Using
+            Catch
+                lblOverviewTitle.Text = "⚙️ ภาพรวมการตั้งค่าระบบ"
+                lblCard1Value.Text = "-" : lblCard2Value.Text = "-" : lblCard3Value.Text = "-" : lblCard4Value.Text = "ผิดพลาด"
+                RefreshOverviewLayout()
+            End Try
         End Sub
 
         Private Sub BtnClose_Click(sender As Object, e As EventArgs)

@@ -19,9 +19,14 @@ Namespace TempleAccounting
         Friend WithEvents txtDescription As TextBox
         Friend WithEvents txtAmount As TextBox
         Friend WithEvents txtRemark As TextBox
+        Friend WithEvents txtReceipt As TextBox
+        Friend WithEvents btnBrowseReceipt As Button
+        Friend WithEvents btnPasteReceipt As Button
+        Friend WithEvents btnClearReceipt As Button
         Friend WithEvents btnSave As Button
         Friend WithEvents btnCancel As Button
         Friend WithEvents btnImportExcel As Button
+        Friend WithEvents ttMain As ToolTip
         Friend WithEvents lblHeader As Label
         Friend WithEvents lbl1 As Label
         Friend WithEvents lbl2 As Label
@@ -30,6 +35,7 @@ Namespace TempleAccounting
         Friend WithEvents lbl5 As Label
         Friend WithEvents lbl6 As Label
         Friend WithEvents lbl7 As Label
+        Friend WithEvents lbl8 As Label
 
         <DebuggerNonUserCode()>
         Protected Overrides Sub Dispose(disposing As Boolean)
@@ -44,6 +50,8 @@ Namespace TempleAccounting
 
         <DebuggerStepThrough()>
         Private Sub InitializeComponent()
+            components = New Container()
+            ttMain = New ToolTip(components)
             lblHeader = New Label()
             lbl1 = New Label()
             lbl2 = New Label()
@@ -52,6 +60,7 @@ Namespace TempleAccounting
             lbl5 = New Label()
             lbl6 = New Label()
             lbl7 = New Label()
+            lbl8 = New Label()
             dtpDate = New DateTimePicker()
             cboCategory = New ComboBox()
             cboFund = New ComboBox()
@@ -59,168 +68,264 @@ Namespace TempleAccounting
             txtDescription = New TextBox()
             txtAmount = New TextBox()
             txtRemark = New TextBox()
+            txtReceipt = New TextBox()
+            btnBrowseReceipt = New Button()
+            btnPasteReceipt = New Button()
+            btnClearReceipt = New Button()
             btnSave = New Button()
             btnCancel = New Button()
             btnImportExcel = New Button()
             SuspendLayout()
-            '
-            ' FrmIncome
-            '
-            Text = "บันทึกรายรับ"
-            BackColor = Color.FromArgb(CByte(254), CByte(249), CByte(235))
-            Font = New Font("Tahoma", 10.5!)
-            ClientSize = New Size(1280, 820)
-            MinimumSize = New Size(1100, 720)
-            StartPosition = FormStartPosition.CenterScreen
-            WindowState = FormWindowState.Maximized
-            FormBorderStyle = FormBorderStyle.Sizable
-            AutoScroll = True
-            '
+            ' 
             ' lblHeader
-            '
-            lblHeader.Text = "💰 บันทึกรายรับเงินเข้าวัด"
-            lblHeader.Font = New Font("Tahoma", 15.0!, FontStyle.Bold)
-            lblHeader.ForeColor = Color.FromArgb(120, 53, 15)
-            lblHeader.BackColor = Color.FromArgb(253, 230, 138)
+            ' 
+            lblHeader.BackColor = Color.FromArgb(CByte(253), CByte(230), CByte(138))
             lblHeader.Dock = DockStyle.Top
-            lblHeader.Height = 70
-            lblHeader.TextAlign = ContentAlignment.MiddleCenter
+            lblHeader.Font = New Font("Tahoma", 15F, FontStyle.Bold)
+            lblHeader.ForeColor = Color.FromArgb(CByte(120), CByte(53), CByte(15))
+            lblHeader.Location = New Point(0, 0)
+            lblHeader.Name = "lblHeader"
             lblHeader.Padding = New Padding(0, 8, 0, 8)
-            '
+            lblHeader.Size = New Size(1280, 70)
+            lblHeader.TabIndex = 22
+            lblHeader.Text = "💰 บันทึกรายรับเงินเข้าวัด"
+            lblHeader.TextAlign = ContentAlignment.MiddleCenter
+            ' 
             ' lbl1
-            '
-            lbl1.Text = "วันที่ทำรายการ:"
+            ' 
             lbl1.Location = New Point(40, 110)
+            lbl1.Name = "lbl1"
             lbl1.Size = New Size(190, 40)
+            lbl1.TabIndex = 0
+            lbl1.Text = "วันที่ทำรายการ:"
             lbl1.TextAlign = ContentAlignment.MiddleRight
-            '
-            ' dtpDate
-            '
-            dtpDate.Location = New Point(240, 110)
-            dtpDate.Size = New Size(520, 40)
-            dtpDate.Font = New Font("Tahoma", 10.5!)
-            dtpDate.Value = Today
-            '
+            ' 
             ' lbl2
-            '
-            lbl2.Text = "ประเภทรายรับ:"
+            ' 
             lbl2.Location = New Point(40, 172)
+            lbl2.Name = "lbl2"
             lbl2.Size = New Size(190, 40)
+            lbl2.TabIndex = 1
+            lbl2.Text = "ประเภทรายรับ:"
             lbl2.TextAlign = ContentAlignment.MiddleRight
-            '
-            ' cboCategory
-            '
-            cboCategory.Location = New Point(240, 172)
-            cboCategory.Size = New Size(520, 40)
-            cboCategory.Font = New Font("Tahoma", 10.5!)
-            cboCategory.DropDownStyle = ComboBoxStyle.DropDownList
-            '
+            ' 
             ' lbl3
-            '
-            lbl3.Text = "กองทุน:"
+            ' 
             lbl3.Location = New Point(40, 234)
+            lbl3.Name = "lbl3"
             lbl3.Size = New Size(190, 40)
+            lbl3.TabIndex = 2
+            lbl3.Text = "กองทุน:"
             lbl3.TextAlign = ContentAlignment.MiddleRight
-            '
-            ' cboFund
-            '
-            cboFund.Location = New Point(240, 234)
-            cboFund.Size = New Size(520, 40)
-            cboFund.Font = New Font("Tahoma", 10.5!)
-            cboFund.DropDownStyle = ComboBoxStyle.DropDownList
-            '
+            ' 
             ' lbl4
-            '
-            lbl4.Text = "บัญชีธนาคาร (ถ้ามี):"
+            ' 
             lbl4.Location = New Point(40, 296)
+            lbl4.Name = "lbl4"
             lbl4.Size = New Size(190, 40)
+            lbl4.TabIndex = 3
+            lbl4.Text = "บัญชีธนาคาร (ถ้ามี):"
             lbl4.TextAlign = ContentAlignment.MiddleRight
-            '
-            ' cboBank
-            '
-            cboBank.Location = New Point(240, 296)
-            cboBank.Size = New Size(520, 40)
-            cboBank.Font = New Font("Tahoma", 10.5!)
-            cboBank.DropDownStyle = ComboBoxStyle.DropDownList
-            '
+            ' 
             ' lbl5
-            '
-            lbl5.Text = "รายละเอียดรายการ:"
+            ' 
             lbl5.Location = New Point(40, 358)
+            lbl5.Name = "lbl5"
             lbl5.Size = New Size(190, 40)
+            lbl5.TabIndex = 4
+            lbl5.Text = "รายละเอียดรายการ:"
             lbl5.TextAlign = ContentAlignment.MiddleRight
-            '
-            ' txtDescription
-            '
-            txtDescription.Location = New Point(240, 358)
-            txtDescription.Size = New Size(520, 40)
-            txtDescription.Font = New Font("Tahoma", 10.5!)
-            '
+            ' 
             ' lbl6
-            '
-            lbl6.Text = "จำนวนเงิน (บาท):"
+            ' 
             lbl6.Location = New Point(40, 420)
+            lbl6.Name = "lbl6"
             lbl6.Size = New Size(190, 40)
+            lbl6.TabIndex = 5
+            lbl6.Text = "จำนวนเงิน (บาท):"
             lbl6.TextAlign = ContentAlignment.MiddleRight
-            '
-            ' txtAmount
-            '
-            txtAmount.Location = New Point(240, 420)
-            txtAmount.Size = New Size(260, 40)
-            txtAmount.Font = New Font("Tahoma", 11.5!, FontStyle.Bold)
-            txtAmount.TextAlign = HorizontalAlignment.Right
-            txtAmount.ForeColor = Color.FromArgb(22, 101, 52)
-            '
+            ' 
             ' lbl7
-            '
-            lbl7.Text = "หมายเหตุ:"
+            ' 
             lbl7.Location = New Point(40, 482)
+            lbl7.Name = "lbl7"
             lbl7.Size = New Size(190, 40)
+            lbl7.TabIndex = 6
+            lbl7.Text = "หมายเหตุ:"
             lbl7.TextAlign = ContentAlignment.MiddleRight
-            '
+            ' 
+            ' lbl8
+            ' 
+            lbl8.Location = New Point(40, 594)
+            lbl8.Name = "lbl8"
+            lbl8.Size = New Size(190, 40)
+            lbl8.TabIndex = 7
+            lbl8.Text = "หลักฐาน/ใบเสร็จ:"
+            lbl8.TextAlign = ContentAlignment.MiddleRight
+            ' 
+            ' dtpDate
+            ' 
+            dtpDate.Font = New Font("Tahoma", 10.5F)
+            dtpDate.Location = New Point(240, 110)
+            dtpDate.Name = "dtpDate"
+            dtpDate.Size = New Size(520, 33)
+            dtpDate.TabIndex = 8
+            dtpDate.Value = New Date(2026, 8, 1, 0, 0, 0, 0)
+            ' 
+            ' cboCategory
+            ' 
+            cboCategory.DropDownStyle = ComboBoxStyle.DropDownList
+            cboCategory.Font = New Font("Tahoma", 10.5F)
+            cboCategory.Location = New Point(240, 172)
+            cboCategory.Name = "cboCategory"
+            cboCategory.Size = New Size(520, 33)
+            cboCategory.TabIndex = 9
+            ' 
+            ' cboFund
+            ' 
+            cboFund.DropDownStyle = ComboBoxStyle.DropDownList
+            cboFund.Font = New Font("Tahoma", 10.5F)
+            cboFund.Location = New Point(240, 234)
+            cboFund.Name = "cboFund"
+            cboFund.Size = New Size(520, 33)
+            cboFund.TabIndex = 10
+            ' 
+            ' cboBank
+            ' 
+            cboBank.DropDownStyle = ComboBoxStyle.DropDownList
+            cboBank.Font = New Font("Tahoma", 10.5F)
+            cboBank.Location = New Point(240, 296)
+            cboBank.Name = "cboBank"
+            cboBank.Size = New Size(520, 33)
+            cboBank.TabIndex = 11
+            ' 
+            ' txtDescription
+            ' 
+            txtDescription.Font = New Font("Tahoma", 10.5F)
+            txtDescription.Location = New Point(240, 358)
+            txtDescription.Name = "txtDescription"
+            txtDescription.Size = New Size(520, 33)
+            txtDescription.TabIndex = 12
+            ' 
+            ' txtAmount
+            ' 
+            txtAmount.Font = New Font("Tahoma", 11.5F, FontStyle.Bold)
+            txtAmount.ForeColor = Color.FromArgb(CByte(22), CByte(101), CByte(52))
+            txtAmount.Location = New Point(240, 420)
+            txtAmount.Name = "txtAmount"
+            txtAmount.Size = New Size(260, 35)
+            txtAmount.TabIndex = 13
+            txtAmount.TextAlign = HorizontalAlignment.Right
+            ' 
             ' txtRemark
-            '
+            ' 
+            txtRemark.Font = New Font("Tahoma", 10.5F)
             txtRemark.Location = New Point(240, 482)
-            txtRemark.Size = New Size(520, 100)
-            txtRemark.Font = New Font("Tahoma", 10.5!)
             txtRemark.Multiline = True
+            txtRemark.Name = "txtRemark"
             txtRemark.ScrollBars = ScrollBars.Vertical
-            '
+            txtRemark.Size = New Size(520, 100)
+            txtRemark.TabIndex = 14
+            ' 
+            ' txtReceipt
+            ' 
+            txtReceipt.BackColor = Color.White
+            txtReceipt.Font = New Font("Tahoma", 10.5F)
+            txtReceipt.Location = New Point(240, 594)
+            txtReceipt.Name = "txtReceipt"
+            txtReceipt.ReadOnly = True
+            txtReceipt.Size = New Size(300, 33)
+            txtReceipt.TabIndex = 15
+            ' 
+            ' btnBrowseReceipt
+            ' 
+            btnBrowseReceipt.BackColor = Color.FromArgb(CByte(79), CByte(70), CByte(229))
+            btnBrowseReceipt.Cursor = Cursors.Hand
+            btnBrowseReceipt.FlatStyle = FlatStyle.Flat
+            btnBrowseReceipt.Font = New Font("Tahoma", 9.5F, FontStyle.Bold)
+            btnBrowseReceipt.ForeColor = Color.White
+            btnBrowseReceipt.Location = New Point(550, 594)
+            btnBrowseReceipt.Name = "btnBrowseReceipt"
+            btnBrowseReceipt.Size = New Size(160, 40)
+            btnBrowseReceipt.TabIndex = 16
+            btnBrowseReceipt.Text = "📂 เลือกรูปภาพ"
+            btnBrowseReceipt.UseVisualStyleBackColor = False
+            ' 
+            ' btnPasteReceipt
+            ' 
+            btnPasteReceipt.BackColor = Color.FromArgb(CByte(5), CByte(150), CByte(105))
+            btnPasteReceipt.Cursor = Cursors.Hand
+            btnPasteReceipt.FlatStyle = FlatStyle.Flat
+            btnPasteReceipt.Font = New Font("Tahoma", 9.5F, FontStyle.Bold)
+            btnPasteReceipt.ForeColor = Color.White
+            btnPasteReceipt.Location = New Point(716, 594)
+            btnPasteReceipt.Name = "btnPasteReceipt"
+            btnPasteReceipt.Size = New Size(166, 40)
+            btnPasteReceipt.TabIndex = 17
+            btnPasteReceipt.Text = "📋 วางจาก LINE"
+            btnPasteReceipt.UseVisualStyleBackColor = False
+            ' 
+            ' btnClearReceipt
+            ' 
+            btnClearReceipt.BackColor = Color.FromArgb(CByte(220), CByte(38), CByte(38))
+            btnClearReceipt.Cursor = Cursors.Hand
+            btnClearReceipt.FlatStyle = FlatStyle.Flat
+            btnClearReceipt.Font = New Font("Tahoma", 9.5F, FontStyle.Bold)
+            btnClearReceipt.ForeColor = Color.White
+            btnClearReceipt.Location = New Point(888, 595)
+            btnClearReceipt.Name = "btnClearReceipt"
+            btnClearReceipt.Size = New Size(50, 40)
+            btnClearReceipt.TabIndex = 18
+            btnClearReceipt.Text = "🗑️"
+            btnClearReceipt.UseVisualStyleBackColor = False
+            ' 
             ' btnSave
-            '
-            btnSave.Text = "💾 บันทึกรายการ"
-            btnSave.Font = New Font("Tahoma", 11.0!, FontStyle.Bold)
-            btnSave.BackColor = Color.FromArgb(22, 163, 74)
-            btnSave.ForeColor = Color.White
-            btnSave.FlatStyle = FlatStyle.Flat
-            btnSave.Size = New Size(240, 56)
-            btnSave.Location = New Point(240, 602)
+            ' 
+            btnSave.BackColor = Color.FromArgb(CByte(22), CByte(163), CByte(74))
             btnSave.Cursor = Cursors.Hand
-            '
+            btnSave.FlatStyle = FlatStyle.Flat
+            btnSave.Font = New Font("Tahoma", 11F, FontStyle.Bold)
+            btnSave.ForeColor = Color.White
+            btnSave.Location = New Point(240, 662)
+            btnSave.Name = "btnSave"
+            btnSave.Size = New Size(240, 56)
+            btnSave.TabIndex = 19
+            btnSave.Text = "💾 บันทึกรายการ"
+            btnSave.UseVisualStyleBackColor = False
+            ' 
             ' btnCancel
-            '
-            btnCancel.Text = "❌ เคลียร์"
-            btnCancel.Font = New Font("Tahoma", 11.0!, FontStyle.Bold)
-            btnCancel.BackColor = Color.FromArgb(180, 83, 9)
-            btnCancel.ForeColor = Color.White
-            btnCancel.FlatStyle = FlatStyle.Flat
-            btnCancel.Size = New Size(180, 56)
-            btnCancel.Location = New Point(500, 602)
+            ' 
+            btnCancel.BackColor = Color.FromArgb(CByte(180), CByte(83), CByte(9))
             btnCancel.Cursor = Cursors.Hand
-            '
+            btnCancel.FlatStyle = FlatStyle.Flat
+            btnCancel.Font = New Font("Tahoma", 11F, FontStyle.Bold)
+            btnCancel.ForeColor = Color.White
+            btnCancel.Location = New Point(500, 662)
+            btnCancel.Name = "btnCancel"
+            btnCancel.Size = New Size(180, 56)
+            btnCancel.TabIndex = 20
+            btnCancel.Text = "❌ เคลียร์"
+            btnCancel.UseVisualStyleBackColor = False
+            ' 
             ' btnImportExcel
-            '
-            btnImportExcel.Text = "📥 นำเข้าจาก Excel"
-            btnImportExcel.Font = New Font("Tahoma", 11.0!, FontStyle.Bold)
-            btnImportExcel.BackColor = Color.FromArgb(37, 99, 235)
-            btnImportExcel.ForeColor = Color.White
-            btnImportExcel.FlatStyle = FlatStyle.Flat
-            btnImportExcel.Size = New Size(240, 56)
-            btnImportExcel.Location = New Point(700, 602)
+            ' 
+            btnImportExcel.BackColor = Color.FromArgb(CByte(37), CByte(99), CByte(235))
             btnImportExcel.Cursor = Cursors.Hand
-            '
-            ' Controls
-            '
+            btnImportExcel.FlatStyle = FlatStyle.Flat
+            btnImportExcel.Font = New Font("Tahoma", 11F, FontStyle.Bold)
+            btnImportExcel.ForeColor = Color.White
+            btnImportExcel.Location = New Point(750, 662)
+            btnImportExcel.Name = "btnImportExcel"
+            btnImportExcel.Size = New Size(240, 56)
+            btnImportExcel.TabIndex = 21
+            btnImportExcel.Text = "📥 นำเข้าจาก Excel"
+            btnImportExcel.UseVisualStyleBackColor = False
+            ' 
+            ' FrmIncome
+            ' 
+            AutoScroll = True
+            BackColor = Color.FromArgb(CByte(254), CByte(249), CByte(235))
+            ClientSize = New Size(1280, 820)
             Controls.Add(lbl1)
             Controls.Add(lbl2)
             Controls.Add(lbl3)
@@ -228,6 +333,7 @@ Namespace TempleAccounting
             Controls.Add(lbl5)
             Controls.Add(lbl6)
             Controls.Add(lbl7)
+            Controls.Add(lbl8)
             Controls.Add(dtpDate)
             Controls.Add(cboCategory)
             Controls.Add(cboFund)
@@ -235,11 +341,22 @@ Namespace TempleAccounting
             Controls.Add(txtDescription)
             Controls.Add(txtAmount)
             Controls.Add(txtRemark)
+            Controls.Add(txtReceipt)
+            Controls.Add(btnBrowseReceipt)
+            Controls.Add(btnPasteReceipt)
+            Controls.Add(btnClearReceipt)
             Controls.Add(btnSave)
             Controls.Add(btnCancel)
             Controls.Add(btnImportExcel)
             Controls.Add(lblHeader)
+            Font = New Font("Tahoma", 10.5F)
+            MinimumSize = New Size(1100, 720)
+            Name = "FrmIncome"
+            StartPosition = FormStartPosition.CenterScreen
+            Text = "บันทึกรายรับ"
+            WindowState = FormWindowState.Maximized
             ResumeLayout(False)
+            PerformLayout()
         End Sub
     End Class
 End Namespace

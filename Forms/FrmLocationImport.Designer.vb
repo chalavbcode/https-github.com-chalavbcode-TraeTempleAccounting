@@ -38,6 +38,7 @@ Namespace TempleAccounting
         Friend WithEvents grp3 As GroupBox
         Friend WithEvents grp4 As GroupBox
         Friend WithEvents grp5 As GroupBox
+        Friend WithEvents ttMain As ToolTip
         Friend WithEvents lblHeader As Label
 
         <DebuggerNonUserCode()>
@@ -53,6 +54,8 @@ Namespace TempleAccounting
 
         <DebuggerStepThrough()>
         Private Sub InitializeComponent()
+            Me.components = New Container()
+            Me.ttMain = New ToolTip(Me.components)
             Text = "นำเข้าข้อมูลจังหวัด"
             BackColor = Color.FromArgb(254, 249, 235)
             Font = New Font("Tahoma", 10.5!)

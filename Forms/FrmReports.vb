@@ -35,10 +35,24 @@ Namespace TempleAccounting
                     cboBank.DisplayMember = "Disp" : cboBank.ValueMember = "ID" : cboBank.DataSource = bt
                 End Using
                 SetupFilterEnterNavigation()
+                SetupToolTips()
                 btnLedger_Click(Nothing, EventArgs.Empty)
             Catch ex As Exception
                 Throw
             End Try
+        End Sub
+
+        Private Sub SetupToolTips()
+            ttMain.SetToolTip(txtBalance, "กรอกยอดยกมาเอง (หากลบให้ว่าง ระบบจะคำนวณให้อัตโนมัติ)")
+            ttMain.SetToolTip(btnCalcBalance, "คลิกเพื่อคำนวณยอดยกมาจริงจากฐานข้อมูล (คำนวณจาก รายรับ - รายจ่าย สะสม)")
+            ttMain.SetToolTip(btnRefresh, "ดึงข้อมูลรายงานใหม่ตามเงื่อนไขที่เลือก (Enter)")
+            ttMain.SetToolTip(btnPrint, "ส่งออกข้อมูลที่แสดงในตารางเป็นไฟล์ Excel (CSV)")
+            ttMain.SetToolTip(btnPrintDetail, "พิมพ์รายงานสรุปรายรับ-รายจ่าย แบบแสดงรายละเอียดทุกรายการ")
+            ttMain.SetToolTip(btnPrintSummary, "พิมพ์รายงานสรุปรายรับ-รายจ่าย แบบย่อ (แยกตามประเภทรายการ)")
+            ttMain.SetToolTip(btnLedger, "แสดงรายงานสมุดบัญชีรายวัน (เรียงตามวันที่)")
+            ttMain.SetToolTip(btnSummaryIncome, "แสดงสรุปรายรับแยกตามประเภทรายการ")
+            ttMain.SetToolTip(btnSummaryExpense, "แสดงสรุปรายจ่ายแยกตามประเภทรายการ")
+            ttMain.SetToolTip(btnMonthly, "แสดงสรุปรายรับ-รายจ่าย แยกเป็นรายเดือน")
         End Sub
 
         Private Sub SetupFilterEnterNavigation()
@@ -153,6 +167,81 @@ Namespace TempleAccounting
             End Try
         End Sub
 
+        Private Sub dtpFrom_ValueChanged(sender As Object, e As EventArgs) Handles dtpFrom.ValueChanged
+            If Not Me.IsHandleCreated Then Return
+            
+            ' ป้องกันการถามซ้ำซ้อนตอน Load
+            Static lastDate As Date = Date.MinValue
+            If dtpFrom.Value.Date = lastDate Then Return
+            lastDate = dtpFrom.Value.Date
+
+            Dim result = MessageBox.Show($"คุณเปลี่ยนวันที่เริ่มต้นเป็น {dtpFrom.Value:dd/MM/yyyy} ต้องการกรอก 'ยอดยกมา' เองหรือไม่?{vbCrLf}{vbCrLf}(ถ้าเลือก 'ไม่ใช่' ระบบจะคำนวณจากฐานข้อมูลให้อัตโนมัติ)", "ยอดยกมา", MessageBoxButtons.YesNo, MessageBoxIcon.Question)
+            
+            If result = DialogResult.Yes Then
+                txtBalance.Focus()
+                txtBalance.SelectAll()
+                
+                ' ทำให้ช่องกรอกยอดยกมาเด่นขึ้น (Blink effect แบบง่าย)
+                Dim originalColor = txtBalance.BackColor
+                Dim blinkTimer As New Timer() With {.Interval = 300}
+                Dim count = 0
+                AddHandler blinkTimer.Tick, Sub()
+                    count += 1
+                    If count Mod 2 = 1 Then
+                        txtBalance.BackColor = Color.Yellow
+                    Else
+                        txtBalance.BackColor = originalColor
+                    End If
+                    If count >= 6 Then
+                        blinkTimer.Stop()
+                        txtBalance.BackColor = originalColor
+                        blinkTimer.Dispose()
+                    End If
+                End Sub
+                blinkTimer.Start()
+            End If
+        End Sub
+
+        Private Sub btnCalcBalance_Click(sender As Object, e As EventArgs) Handles btnCalcBalance.Click
+            Try
+                Dim fundID = If(cboFund.SelectedValue IsNot Nothing, CInt(cboFund.SelectedValue), 0)
+                Dim bankID = If(cboBank.SelectedValue IsNot Nothing, CInt(cboBank.SelectedValue), 0)
+                Dim startDate = dtpFrom.Value.Date
+
+                Using conn = Db.OpenConn()
+                    ' คำนวณแยกเพื่อความโปร่งใสตามคำขอผู้ใช้
+                    Dim sqlBase = "FROM Transactions t WHERE DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate), Day(t.TranDate)) < " & Db.AccessDateLiteral(startDate)
+                    Dim params As New List(Of Tuple(Of String, Object))()
+                    
+                    If fundID <> 0 Then
+                        sqlBase &= " AND t.FundID = @f"
+                        params.Add(New Tuple(Of String, Object)("@f", fundID))
+                    End If
+                    If bankID <> 0 Then
+                        sqlBase &= " AND t.BankID = @b"
+                        params.Add(New Tuple(Of String, Object)("@b", bankID))
+                    End If
+
+                    Dim sumInc = Db.ToDecimalOrZero(Db.DbScalar(conn, "SELECT SUM(Amount) " & sqlBase & " AND t.TranType='Income'", params.ToArray()))
+                    Dim sumExp = Db.ToDecimalOrZero(Db.DbScalar(conn, "SELECT SUM(Amount) " & sqlBase & " AND t.TranType='Expense'", params.ToArray()))
+                    Dim bal = sumInc - sumExp
+
+                    Dim msg = $"📊 รายละเอียดการคำนวณยอดยกมา (ก่อนวันที่ {startDate:dd/MM/yyyy}):" & vbCrLf &
+                              $"--------------------------------------------------" & vbCrLf &
+                              $"รายรับสะสม: {sumInc:n2} บาท" & vbCrLf &
+                              $"รายจ่ายสะสม: {sumExp:n2} บาท" & vbCrLf &
+                              $"คงเหลือ (ยอดยกมา): {bal:n2} บาท" & vbCrLf & vbCrLf &
+                              $"ต้องการนำค่านี้ไปใส่ในช่อง 'ยอดยกมา' หรือไม่?"
+
+                    If MessageBox.Show(msg, "ยืนยันการคำนวณ", MessageBoxButtons.YesNo, MessageBoxIcon.Information) = DialogResult.Yes Then
+                        txtBalance.Text = bal.ToString("n2")
+                    End If
+                End Using
+            Catch ex As Exception
+                MessageBox.Show("คำนวณยอดยกมาไม่ได้: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            End Try
+        End Sub
+
         Private Sub btnPrint_Click(sender As Object, e As EventArgs) Handles btnPrint.Click
             Try
                 Dim fn = Path.Combine(AppPaths.ExportFolder, $"Report_{DateTime.Now:yyyyMMdd_HHmmss}.csv")
@@ -179,9 +268,25 @@ Namespace TempleAccounting
             End Try
         End Sub
 
+        Private Function GetManualBalance() As Decimal?
+            Dim txt = txtBalance.Text.Trim()
+            If String.IsNullOrEmpty(txt) Then Return Nothing
+
+            Dim balance As Decimal
+            If Decimal.TryParse(txt, balance) Then
+                ' ถ้ากรอกเป็น 0.00 (ค่าเริ่มต้น) ให้ถือว่าเป็น Auto
+                ' แต่ถ้าผู้ใช้จงใจแก้เป็นค่าอื่น หรือลบออกแล้วกรอก 0 ใหม่ ให้ใช้ค่านั้น
+                ' เพื่อความง่าย: ถ้าไม่ว่างและแปลงเป็นตัวเลขได้ ให้ใช้ค่านั้นเลย
+                Return balance
+            End If
+            Return Nothing
+        End Function
+
         Private Sub btnPrintDetail_Click(sender As Object, e As EventArgs) Handles btnPrintDetail.Click
             Try
-                IncomeExpenseReport.ShowPreview(Db.NormalizeGregorianDate(dtpFrom.Value.Date), Db.NormalizeGregorianDate(dtpTo.Value.Date), Me, IncomeExpenseReport.ReportModes.Detailed)
+                Dim fundID = If(cboFund.SelectedValue IsNot Nothing, CInt(cboFund.SelectedValue), 0)
+                Dim bankID = If(cboBank.SelectedValue IsNot Nothing, CInt(cboBank.SelectedValue), 0)
+                IncomeExpenseReport.ShowPreview(Db.NormalizeGregorianDate(dtpFrom.Value.Date), Db.NormalizeGregorianDate(dtpTo.Value.Date), Me, IncomeExpenseReport.ReportModes.Detailed, GetManualBalance(), If(fundID = 0, Nothing, fundID), If(bankID = 0, Nothing, bankID))
             Catch ex As Exception
                 MessageBox.Show("เกิดข้อผิดพลาด: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
             End Try
@@ -189,10 +294,17 @@ Namespace TempleAccounting
 
         Private Sub btnPrintSummary_Click(sender As Object, e As EventArgs) Handles btnPrintSummary.Click
             Try
-                IncomeExpenseReport.ShowPreview(Db.NormalizeGregorianDate(dtpFrom.Value.Date), Db.NormalizeGregorianDate(dtpTo.Value.Date), Me, IncomeExpenseReport.ReportModes.Summary)
+                Dim fundID = If(cboFund.SelectedValue IsNot Nothing, CInt(cboFund.SelectedValue), 0)
+                Dim bankID = If(cboBank.SelectedValue IsNot Nothing, CInt(cboBank.SelectedValue), 0)
+                IncomeExpenseReport.ShowPreview(Db.NormalizeGregorianDate(dtpFrom.Value.Date), Db.NormalizeGregorianDate(dtpTo.Value.Date), Me, IncomeExpenseReport.ReportModes.Summary, GetManualBalance(), If(fundID = 0, Nothing, fundID), If(bankID = 0, Nothing, bankID))
             Catch ex As Exception
                 MessageBox.Show("เกิดข้อผิดพลาด: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
             End Try
+        End Sub
+
+        Private Sub dgvReport_CellContentClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvReport.CellContentClick
+
+
         End Sub
     End Class
 End Namespace

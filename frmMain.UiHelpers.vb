@@ -56,7 +56,6 @@ Namespace TempleAccounting
 
         Private Sub SetupIconsAndImages()
             Try
-                ilIcons.ImageSize = New Size(28, 28)
                 ilIcons.Images.Clear()
                 ilIcons.Images.Add("home", MakeIconBitmap("🏠", Color.FromArgb(69, 26, 3)))
                 ilIcons.Images.Add("donation", MakeIconBitmap("💰", Color.FromArgb(22, 101, 52)))
@@ -79,8 +78,6 @@ Namespace TempleAccounting
             End Try
 
             Try
-                picLogo.SizeMode = PictureBoxSizeMode.Zoom
-                picLogoBadge.SizeMode = PictureBoxSizeMode.Zoom
                 picLogo.Image = MakeIconBitmap("📿", Color.FromArgb(69, 26, 3), New Size(48, 48), 28)
                 picLogoBadge.Image = MakeIconBitmap("🏛️", Color.FromArgb(120, 53, 15), New Size(44, 44), 26)
             Catch
@@ -115,17 +112,12 @@ Namespace TempleAccounting
             If ilIcons.Images.ContainsKey(imageKey) Then
                 btn.ImageList = ilIcons
                 btn.ImageKey = imageKey
-                btn.ImageAlign = ContentAlignment.MiddleLeft
-                btn.TextImageRelation = TextImageRelation.ImageBeforeText
-                btn.Padding = New Padding(14, 0, 8, 0)
             End If
         End Sub
 
         Private Sub ApplyInitialState()
-            ConfigureOverviewCardLayout()
-            lblStatusRight.Text = $"v1.0.0 | {DateTime.Now:yyyy}"
             UpdateStatusTime()
-            AdjustContentLayoutSpacing()
+            SetupToolTips()
 
             Dim tmrStatus As New WinTimer()
             tmrStatus.Interval = 1000
@@ -134,8 +126,6 @@ Namespace TempleAccounting
         End Sub
 
         Private Sub RefreshOverviewLayout()
-            ConfigureOverviewCardLayout()
-            AdjustContentLayoutSpacing()
             If pnlOverview IsNot Nothing Then
                 pnlOverview.PerformLayout()
             End If
@@ -145,72 +135,8 @@ Namespace TempleAccounting
             _compactOverviewMode = isCompact
             If pnlOverview IsNot Nothing Then
                 pnlOverview.Visible = Not isCompact
-                If isCompact Then
-                    pnlOverview.Height = 0
-                End If
             End If
             RefreshOverviewLayout()
-        End Sub
-
-        Private Sub ConfigureOverviewCardLayout()
-            Dim cardPanels = {pnlCard1, pnlCard2, pnlCard3, pnlCard4}
-            Dim titleLabels = {lblCard1Title, lblCard2Title, lblCard3Title, lblCard4Title}
-            Dim valueLabels = {lblCard1Value, lblCard2Value, lblCard3Value, lblCard4Value}
-            Dim iconLabels = {lblCard1Icon, lblCard2Icon, lblCard3Icon, lblCard4Icon}
-
-            Dim iconFontSize As Single = If(_compactOverviewMode, 20.0!, 26.0!)
-            Dim iconFont As New Font("Segoe UI Emoji", iconFontSize, FontStyle.Regular, GraphicsUnit.Point, 0)
-            Dim maxIconHeight As Integer = 0
-            Dim maxValueHeight As Integer = 0
-            For Each iconLabel In iconLabels
-                If iconLabel Is Nothing Then Continue For
-                iconLabel.Font = iconFont
-                iconLabel.Padding = If(_compactOverviewMode, New Padding(0, 0, 0, 2), New Padding(0, 0, 0, 6))
-                maxIconHeight = Math.Max(maxIconHeight, TextRenderer.MeasureText("🗃️", iconLabel.Font).Height + If(_compactOverviewMode, 8, 14))
-            Next
-            maxIconHeight = Math.Max(maxIconHeight, If(_compactOverviewMode, 40, 54))
-
-            For Each valueLabel In valueLabels
-                If valueLabel Is Nothing Then Continue For
-                valueLabel.Padding = If(_compactOverviewMode, New Padding(0, 0, 0, 2), New Padding(0, 2, 0, 6))
-                maxValueHeight = Math.Max(maxValueHeight, TextRenderer.MeasureText("213,750.00", valueLabel.Font).Height + If(_compactOverviewMode, 6, 10))
-            Next
-            maxValueHeight = Math.Max(maxValueHeight, If(_compactOverviewMode, 28, 40))
-
-            Dim targetCardHeight As Integer = 0
-            For i As Integer = 0 To iconLabels.Length - 1
-                If iconLabels(i) IsNot Nothing Then iconLabels(i).Height = maxIconHeight
-                If valueLabels(i) IsNot Nothing Then valueLabels(i).Height = maxValueHeight
-                If titleLabels(i) IsNot Nothing AndAlso valueLabels(i) IsNot Nothing AndAlso cardPanels(i) IsNot Nothing Then
-                    Dim desiredHeight = cardPanels(i).Padding.Top + titleLabels(i).Height + maxValueHeight + maxIconHeight + cardPanels(i).Padding.Bottom
-                    targetCardHeight = Math.Max(targetCardHeight, desiredHeight)
-                End If
-            Next
-
-            targetCardHeight = Math.Max(targetCardHeight, If(_compactOverviewMode, 108, 150))
-
-            If pnlCards IsNot Nothing Then
-                pnlCards.Height = targetCardHeight
-            End If
-
-            For Each cardPanel In cardPanels
-                If cardPanel IsNot Nothing Then
-                    cardPanel.Height = targetCardHeight
-                End If
-            Next
-        End Sub
-
-        Private Sub AdjustContentLayoutSpacing()
-            If pnlOverview Is Nothing OrElse lblOverviewTitle Is Nothing OrElse pnlCards Is Nothing Then Return
-
-            If _compactOverviewMode Then
-                pnlOverview.Height = 0
-                Return
-            End If
-
-            ' เผื่อช่องว่างใต้การ์ดสรุปให้ฟอร์มงานด้านล่างไม่ชนหรือถูกบังเมื่อใช้ฟอนต์/DPI ใหญ่ขึ้น
-            Dim desiredHeight = lblOverviewTitle.Height + pnlCards.Height + If(_compactOverviewMode, 10, 28)
-            pnlOverview.Height = desiredHeight
         End Sub
 
         Private Sub UpdateStatusTime()
@@ -220,6 +146,21 @@ Namespace TempleAccounting
             Catch
                 lblStatusCenter.Text = $"🟢 สถานะระบบ: ปกติ | ฐานข้อมูล: เชื่อมต่อแล้ว | {DateTime.Now:dd/MM/yyyy HH:mm:ss}"
             End Try
+        End Sub
+
+        Private Sub SetupToolTips()
+            If ttMain Is Nothing Then Return
+            ttMain.SetToolTip(btnDashboard, "กลับไปที่หน้าสรุปภาพรวมของระบบ (Dashboard)")
+            ttMain.SetToolTip(btnDonation, "บันทึกข้อมูลรายรับหรือเงินบริจาคเข้าวัด")
+            ttMain.SetToolTip(btnExpense, "บันทึกข้อมูลรายจ่ายต่างๆ ของวัด")
+            ttMain.SetToolTip(btnReport, "พิมพ์รายงานสรุปรายรับ-รายจ่าย (ย่อ/ละเอียด)")
+            ttMain.SetToolTip(btnMember, "จัดการข้อมูลรายชื่อผู้บริจาค/สมาชิก")
+            ttMain.SetToolTip(btnVip, "จัดการข้อมูลรายชื่อพระสงฆ์และไวยาวัจกร")
+            ttMain.SetToolTip(btnActivity, "บันทึกข้อมูลกิจกรรมงานบุญและเทศกาล")
+            ttMain.SetToolTip(btnSetting, "ตั้งค่าข้อมูลวัดและข้อมูลพื้นฐานของระบบ")
+            ttMain.SetToolTip(btnLogout, "ออกจากระบบและกลับไปหน้า Login")
+            ttMain.SetToolTip(btnClose, "ปิดโปรแกรม")
+            ttMain.SetToolTip(btnMinimize, "ย่อหน้าต่างโปรแกรมลง")
         End Sub
     End Class
 End Namespace
