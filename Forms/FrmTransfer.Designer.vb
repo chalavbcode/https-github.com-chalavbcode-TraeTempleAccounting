@@ -82,7 +82,7 @@ Namespace TempleAccounting
             lblHeader.ForeColor = Color.FromArgb(88, 28, 135)
             lblHeader.BackColor = Color.FromArgb(233, 213, 255)
             lblHeader.Dock = DockStyle.Top
-            lblHeader.Height = 70
+            lblHeader.Height = 42
             lblHeader.TextAlign = ContentAlignment.MiddleCenter
             '
             ' dtpDate

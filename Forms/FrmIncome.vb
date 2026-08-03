@@ -253,7 +253,7 @@ Namespace TempleAccounting
             End Using
         End Sub
 
-        Private Sub btnPasteReceipt_Click(sender As Object, e As EventArgs)
+        Private Sub btnPasteReceipt_Click(sender As Object, e As EventArgs) Handles btnPasteReceipt.Click
             If Clipboard.ContainsImage() Then
                 clipboardImage = Clipboard.GetImage()
                 isImageFromClipboard = True

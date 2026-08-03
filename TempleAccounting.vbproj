@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -31,6 +31,8 @@
     <Compile Include="Database.vb" />
     <Compile Include="AppPaths.vb" />
     <Compile Include="Program.vb" />
+    <Compile Include="ReceiptImageHelper.vb" />
+    <Compile Include="MessageBoxHelper.vb" />
     <Compile Include="ExcelTransactionImporter.vb" />
     <Compile Include="Reports\IncomeExpenseReport.vb" />
 
@@ -81,7 +83,9 @@
     <EmbeddedResource Include="Forms\FrmTransfer.resx">
       <DependentUpon>FrmTransfer.vb</DependentUpon>
     </EmbeddedResource>
-    <Compile Include="Forms\FrmTransactions.vb" />
+    <Compile Include="Forms\FrmTransactions.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Forms\FrmTransactions.Designer.vb">
       <DependentUpon>FrmTransactions.vb</DependentUpon>
       <SubType>Form</SubType>
@@ -92,6 +96,10 @@
 
     <!-- ===== Master / Setting / Location / Reports ===== -->
     <Compile Include="Forms\FrmMasterData.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FrmMasterData.Designer.vb">
+      <DependentUpon>FrmMasterData.vb</DependentUpon>
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\FrmTempleSetting.vb">
