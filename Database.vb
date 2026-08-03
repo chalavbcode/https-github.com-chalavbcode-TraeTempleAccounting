@@ -49,10 +49,12 @@ Namespace TempleAccounting
                     Dim columns = conn.GetSchema("Columns", New String() {Nothing, Nothing, "Transactions", Nothing})
                     Dim hasToFundID As Boolean = False
                     Dim hasToBankID As Boolean = False
+                    Dim hasReceiptPath As Boolean = False
                     For Each row As DataRow In columns.Rows
                         Dim colName = Convert.ToString(row("COLUMN_NAME"))
                         If colName.Equals("ToFundID", StringComparison.OrdinalIgnoreCase) Then hasToFundID = True
                         If colName.Equals("ToBankID", StringComparison.OrdinalIgnoreCase) Then hasToBankID = True
+                        If colName.Equals("ReceiptPath", StringComparison.OrdinalIgnoreCase) Then hasReceiptPath = True
                     Next
 
                     If Not hasToFundID Then
@@ -64,6 +66,12 @@ Namespace TempleAccounting
                     If Not hasToBankID Then
                         Using cmd = conn.CreateCommand()
                             cmd.CommandText = "ALTER TABLE Transactions ADD COLUMN ToBankID INTEGER"
+                            cmd.ExecuteNonQuery()
+                        End Using
+                    End If
+                    If Not hasReceiptPath Then
+                        Using cmd = conn.CreateCommand()
+                            cmd.CommandText = "ALTER TABLE Transactions ADD COLUMN ReceiptPath TEXT(255)"
                             cmd.ExecuteNonQuery()
                         End Using
                     End If
