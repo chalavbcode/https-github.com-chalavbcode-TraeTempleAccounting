@@ -294,18 +294,23 @@ Namespace TempleAccounting
                             Dim likePattern = "%" & safeSearch & "%"
 
                             ' ค้นหาหลายฟิลด์พร้อมกัน
+                            ' ใน OleDb ต้องใส่พารามิเตอร์ตามลำดับที่ปรากฏใน SQL แม้จะเป็นชื่อเดียวกันก็ตาม
+                            ' ดังนั้นเราจะใช้ชื่อพารามิเตอร์แยกกันเพื่อให้ชัดเจน
                             sql &= " AND (" &
-                                   "t.Detail LIKE @s OR " &
-                                   "t.Note LIKE @s OR " &
-                                   "c.CategoryName LIKE @s OR " &
-                                   "f.FundName LIKE @s OR " &
-                                   "b.BankName LIKE @s OR " &
-                                   "f2.FundName LIKE @s OR " &
-                                   "b2.BankName LIKE @s OR " &
-                                   "IIF(f.FundName IS NULL,'',f.FundName & ' ' & IIF(b.BankName IS NULL,'',b.BankName)) LIKE @s OR " &
-                                   "IIF(f2.FundName IS NULL,'',f2.FundName & ' ' & IIF(b2.BankName IS NULL,'',b2.BankName)) LIKE @s" &
+                                   "t.Detail LIKE @s1 OR " &
+                                   "t.Note LIKE @s2 OR " &
+                                   "c.CategoryName LIKE @s3 OR " &
+                                   "f.FundName LIKE @s4 OR " &
+                                   "b.BankName LIKE @s5 OR " &
+                                   "f2.FundName LIKE @s6 OR " &
+                                   "b2.BankName LIKE @s7 OR " &
+                                   "IIF(f.FundName IS NULL,'',f.FundName & ' ' & IIF(b.BankName IS NULL,'',b.BankName)) LIKE @s8 OR " &
+                                   "IIF(f2.FundName IS NULL,'',f2.FundName & ' ' & IIF(b2.BankName IS NULL,'',b2.BankName)) LIKE @s9" &
                                    ") "
-                            ps.Add(New Tuple(Of String, Object)("@s", likePattern))
+                            
+                            For i As Integer = 1 To 9
+                                ps.Add(New Tuple(Of String, Object)("@s" & i, likePattern))
+                            Next
                         Catch ex As Exception
                             AppPaths.LogCrash(ex, "FrmTransactions.Search")
                         End Try
