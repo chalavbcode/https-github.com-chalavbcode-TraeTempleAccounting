@@ -11,7 +11,10 @@ Imports System.Data.OleDb
 Namespace TempleAccounting
     <DesignerCategory("Form")>
     Partial Public Class FrmExpense
-        Inherits Form
+        ' ตัวแปรเก็บ Path รูปภาพต้นทางที่ผู้ใช้เลือก (เช่น จาก C:\LineDownloads)
+        Private selectedSourceReceiptPath As String = ""
+        Private isImageFromClipboard As Boolean = False
+        Private clipboardImage As Image = Nothing
 
         Private ReadOnly _enterFlow As New List(Of Control)()
 
@@ -22,9 +25,23 @@ Namespace TempleAccounting
         Private Sub FrmExpense_Load(sender As Object, e As EventArgs) Handles MyBase.Load
             Db.EnsureSchema()
             LoadMasters()
+            SetupToolTips()
             SetupEnterNavigation()
             ResetEntry(True)
             FocusStartField()
+        End Sub
+
+        Private Sub SetupToolTips()
+            ttMain.SetToolTip(btnSave, "บันทึกข้อมูลรายจ่ายที่กรอกลงในฐานข้อมูล (Enter)")
+            ttMain.SetToolTip(btnCancel, "ล้างข้อมูลที่กรอกไว้ทั้งหมดเพื่อเริ่มกรอกใหม่")
+            ttMain.SetToolTip(btnImportExcel, "นำข้อมูลรายจ่ายจำนวนมากเข้ามาจากไฟล์ Excel (.xlsx)")
+            ttMain.SetToolTip(btnBrowseReceipt, "เลือกรูปภาพหลักฐาน/ใบเสร็จ จากเครื่องคอมพิวเตอร์")
+            ttMain.SetToolTip(btnPasteReceipt, "วางรูปภาพหลักฐานที่คัดลอกมาจาก LINE หรือโปรแกรมอื่น (Ctrl+V)")
+            ttMain.SetToolTip(btnClearReceipt, "ยกเลิกการเลือกรูปภาพ")
+
+            ' ใช้ AddHandler แทน Handles เพื่อเลี่ยงปัญหา BC30506 ในบางสภาพแวดล้อม
+            RemoveHandler btnPasteReceipt.Click, AddressOf btnPasteReceipt_Click
+            AddHandler btnPasteReceipt.Click, AddressOf btnPasteReceipt_Click
         End Sub
 
         Private Sub LoadMasters()
@@ -60,6 +77,7 @@ Namespace TempleAccounting
             txtDescription.Clear()
             txtAmount.Clear()
             txtRemark.Clear()
+            txtReceipt.Clear()
         End Sub
 
         Private Function GetSelectedBankValue() As Object
@@ -82,7 +100,7 @@ Namespace TempleAccounting
         Private Sub SetupEnterNavigation()
             If _enterFlow.Count > 0 Then Return
 
-            _enterFlow.AddRange({dtpDate, cboCategory, cboFund, cboBank, txtDescription, txtAmount, txtRemark, btnSave})
+            _enterFlow.AddRange({dtpDate, cboCategory, cboFund, cboBank, txtDescription, txtAmount, txtRemark, btnBrowseReceipt, btnPasteReceipt, btnSave})
 
             For Each ctrl In _enterFlow
                 AddHandler ctrl.KeyDown, AddressOf HandleEnterAdvance
@@ -141,16 +159,34 @@ Namespace TempleAccounting
             Dim bankValue = GetSelectedBankValue()
             Try
                 Using conn = Db.OpenConn()
-                    Db.InsertAndGetId(conn,
-"INSERT INTO Transactions (TranDate, TranType, CategoryID, FundID, BankID, [Detail], Amount, [Note]) VALUES (" & Db.AccessDateLiteral(dtpDate.Value.Date) & ",'Expense',@c,@f,@b,@de,@a,@n)",
-New Tuple(Of String, Object)("@c", CInt(cboCategory.SelectedValue)),
-New Tuple(Of String, Object)("@f", CInt(cboFund.SelectedValue)),
-New Tuple(Of String, Object)("@b", bankValue),
-New Tuple(Of String, Object)("@de", txtDescription.Text.Trim),
-New Tuple(Of String, Object)("@a", amt),
-New Tuple(Of String, Object)("@n", txtRemark.Text.Trim))
+                    ' 1. บันทึกรายการลงตาราง Transactions และรับ newID กลับมา
+                    Dim newID As Integer = Db.InsertAndGetId(conn, "INSERT INTO Transactions (TranDate, TranType, CategoryID, FundID, BankID, [Detail], Amount, [Note]) VALUES (" & Db.AccessDateLiteral(dtpDate.Value.Date) & ",'Expense',@c,@f,@b,@de,@a,@n)", New Tuple(Of String, Object)("@c", CInt(cboCategory.SelectedValue)), New Tuple(Of String, Object)("@f", CInt(cboFund.SelectedValue)), New Tuple(Of String, Object)("@b", bankValue), New Tuple(Of String, Object)("@de", txtDescription.Text.Trim), New Tuple(Of String, Object)("@a", amt), New Tuple(Of String, Object)("@n", txtRemark.Text.Trim))
+
+                    ' 2. หากมีการเลือกรูปภาพ ให้จัดการก๊อบปี้ไฟล์และอัปเดตชื่อไฟล์ลงคอลัมน์ ReceiptPath
+                    Dim savedFileName As String = SaveReceiptFile(newID)
+                    If Not String.IsNullOrEmpty(savedFileName) Then
+                        Using cmd = conn.CreateCommand()
+                            cmd.CommandText = "UPDATE Transactions SET ReceiptPath = @rp WHERE ID = @id"
+                            cmd.Parameters.AddWithValue("@rp", savedFileName)
+                            cmd.Parameters.AddWithValue("@id", newID)
+                            cmd.ExecuteNonQuery()
+                        End Using
+                    End If
+
                     MessageBox.Show("✅ บันทึกรายจ่ายสำเร็จ!", "สำเร็จ", MessageBoxButtons.OK, MessageBoxIcon.Information)
                     ResetEntry(False)
+
+                    ' ล้างค่าตัวแปรเก็บ Path รูปภาพที่เคยเลือกไว้ (เพื่อไม่ให้หลุดไปรายการถัดไป)
+                    selectedSourceReceiptPath = ""
+                    If txtReceipt IsNot Nothing Then txtReceipt.Clear()
+
+                    ' ล้าง Clipboard หลังบันทึกรูปสำเร็จ เพื่อป้องกันการวางรูปเดิมซ้ำ
+                    Try
+                        Clipboard.Clear()
+                    Catch ex As Exception
+                        AppPaths.LogCrash(ex, "FrmExpense.ClearClipboard")
+                    End Try
+
                     dtpDate.Value = keepDate
                     dtpDate.Focus()
                 End Using
@@ -158,6 +194,20 @@ New Tuple(Of String, Object)("@n", txtRemark.Text.Trim))
                 MessageBox.Show("บันทึกไม่สำเร็จ: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
             End Try
         End Sub
+
+        ' --- ฟังก์ชันช่วยก๊อบปี้รูปภาพใบเสร็จไปยัง AppPaths.ReceiptsDir โดยการย่อขนาดและบีบอัด ---
+        Private Function SaveReceiptFile(transactionID As Integer) As String
+            If isImageFromClipboard Then
+                If clipboardImage Is Nothing Then Return ""
+                Return ReceiptImageHelper.SaveOptimizedReceipt(clipboardImage, transactionID)
+            End If
+
+            If String.IsNullOrWhiteSpace(selectedSourceReceiptPath) OrElse Not IO.File.Exists(selectedSourceReceiptPath) Then
+                Return ""
+            End If
+
+            Return ReceiptImageHelper.SaveOptimizedReceipt(selectedSourceReceiptPath, transactionID)
+        End Function
 
         Private Sub btnImportExcel_Click(sender As Object, e As EventArgs) Handles btnImportExcel.Click
             If cboCategory.SelectedValue Is Nothing OrElse cboFund.SelectedValue Is Nothing Then
@@ -181,6 +231,52 @@ New Tuple(Of String, Object)("@n", txtRemark.Text.Trim))
                     MessageBox.Show("นำเข้าข้อมูลไม่สำเร็จ: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
                 End Try
             End Using
+        End Sub
+
+        ' ปุ่มกดเลือกรูปภาพ
+        Private Sub btnBrowseReceipt_Click(sender As Object, e As EventArgs) Handles btnBrowseReceipt.Click
+            Using ofd As New OpenFileDialog()
+                ' กำหนดโฟลเดอร์เริ่มต้นไปที่จุดดาวน์โหลดของ LINE Desktop
+                If IO.Directory.Exists("C:\LineDownloads") Then
+                    ofd.InitialDirectory = "C:\LineDownloads"
+                End If
+
+                ofd.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp"
+                ofd.Title = "เลือกรูปภาพใบเสร็จ"
+
+                If ofd.ShowDialog() = DialogResult.OK Then
+                    selectedSourceReceiptPath = ofd.FileName
+                    txtReceipt.Text = IO.Path.GetFileName(selectedSourceReceiptPath)
+                End If
+            End Using
+        End Sub
+
+        Private Sub btnPasteReceipt_Click(sender As Object, e As EventArgs)
+            If Clipboard.ContainsImage() Then
+                clipboardImage = Clipboard.GetImage()
+                isImageFromClipboard = True
+                selectedSourceReceiptPath = "Clipboard_Image"
+                txtReceipt.Text = "[รูปภาพจากคลิปบอร์ด/LINE]"
+                btnSave.Focus()
+            Else
+                MessageBox.Show("ไม่พบรูปภาพใหม่ใน Clipboard กรุณาไปที่ LINE แล้วกด Copy รูปภาพใบเสร็จรูปใหม่ก่อนกดปุ่มนี้", "แจ้งเตือน", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            End If
+        End Sub
+
+        ' ปุ่มยกเลิกรูปภาพ (ถ้ามี)
+        Private Sub btnClearReceipt_Click(sender As Object, e As EventArgs) Handles btnClearReceipt.Click
+            selectedSourceReceiptPath = ""
+            isImageFromClipboard = False
+            If clipboardImage IsNot Nothing Then clipboardImage.Dispose()
+            clipboardImage = Nothing
+            txtReceipt.Clear()
+
+            ' ล้าง Clipboard เพื่อป้องกันการวางรูปเดิมซ้ำ
+            Try
+                Clipboard.Clear()
+            Catch ex As Exception
+                AppPaths.LogCrash(ex, "FrmExpense.ClearReceipt.ClearClipboard")
+            End Try
         End Sub
 
         Private Sub txtAmount_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtAmount.KeyPress
