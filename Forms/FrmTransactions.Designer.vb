@@ -229,7 +229,7 @@ Namespace TempleAccounting
             lblSummary.ForeColor = Color.FromArgb(CByte(69), CByte(26), CByte(3))
             lblSummary.Location = New Point(0, 0)
             lblSummary.Name = "lblSummary"
-            lblSummary.Size = New Size(1250, 50)
+            lblSummary.Size = New Size(1250, 42)
             lblSummary.TabIndex = 0
             lblSummary.Text = "รายรับ: 0.00 บาท   |   รายจ่าย: 0.00 บาท   |   คงเหลือ: 0.00 บาท   |   โอน: 0.00 บาท"
             lblSummary.TextAlign = ContentAlignment.MiddleCenter

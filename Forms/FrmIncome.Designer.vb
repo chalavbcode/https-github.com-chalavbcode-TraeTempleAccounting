@@ -86,7 +86,7 @@ Namespace TempleAccounting
             lblHeader.Location = New Point(0, 0)
             lblHeader.Name = "lblHeader"
             lblHeader.Padding = New Padding(0, 8, 0, 8)
-            lblHeader.Size = New Size(1280, 70)
+            lblHeader.Size = New Size(1280, 42)
             lblHeader.TabIndex = 22
             lblHeader.Text = "💰 บันทึกรายรับเงินเข้าวัด"
             lblHeader.TextAlign = ContentAlignment.MiddleCenter
