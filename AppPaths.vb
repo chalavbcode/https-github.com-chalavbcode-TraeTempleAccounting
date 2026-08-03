@@ -15,6 +15,31 @@ Namespace TempleAccounting
         Private _exportFolder As String
         Private _logsFolder As String
         Private _logPath As String
+        Private _receiptsFolder As String
+
+        Public ReadOnly Property ReceiptsDir As String
+            Get
+                If String.IsNullOrEmpty(_receiptsFolder) Then
+                    _receiptsFolder = Path.Combine(AppRoot, "Receipts")
+                    If Not Directory.Exists(_receiptsFolder) Then Directory.CreateDirectory(_receiptsFolder)
+                End If
+                Return _receiptsFolder
+            End Get
+        End Property
+
+        Public Sub EnsureDirectoriesExist()
+            Try
+                Dim ignore As String
+                ignore = AppRoot
+                ignore = DatabaseFile
+                ignore = ImportFolder
+                ignore = BackupFolder
+                ignore = ExportFolder
+                ignore = LogsFolder
+                ignore = ReceiptsDir
+            Catch
+            End Try
+        End Sub
 
         Public ReadOnly Property LogsFolder As String
             Get
