@@ -71,13 +71,16 @@ Namespace TempleAccounting
                     {"ts", DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}
                 }
 
-                ' โค้ดใหม่ (ใช้ HttpClient)
                 Dim json = JsonSerializer.Serialize(payload)
-                Using client As New System.Net.Http.HttpClient()
-                    client.Timeout = TimeSpan.FromMilliseconds(500)
-                    Dim content As New System.Net.Http.StringContent(json, Encoding.UTF8, "application/json")
-                    ' ส่งแบบ Sync สำหรับฟังก์ชั่น Debug
-                    Dim response = client.PostAsync(url, content).GetAwaiter().GetResult()
+                Dim bytes = Encoding.UTF8.GetBytes(json)
+                Dim req = CType(WebRequest.Create(url), HttpWebRequest)
+                req.Method = "POST"
+                req.ContentType = "application/json"
+                req.Timeout = 500
+                Using s = req.GetRequestStream()
+                    s.Write(bytes, 0, bytes.Length)
+                End Using
+                Using resp = CType(req.GetResponse(), HttpWebResponse)
                 End Using
             Catch
             End Try
@@ -89,7 +92,8 @@ Namespace TempleAccounting
         End Sub
 
         Private Sub FrmTransactions_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-            SetupRuntimeLayout()
+            ' SetupRuntimeLayout() ' ลบออกเพื่อให้ใช้ค่าจาก Designer
+            SetupToolTips()
 #Region "debug-point A:form-load"
             DebugReport("A", "FrmTransactions_Load", "load-start", New Dictionary(Of String, Object) From {
                 {"baseDir", AppDomain.CurrentDomain.BaseDirectory},
@@ -109,95 +113,20 @@ Namespace TempleAccounting
             LoadData()
         End Sub
 
-        Private Sub SetupRuntimeLayout()
-            Try
-                ' ปรับแต่งเฉพาะ Font/สี/สไตล์ เพื่อไม่ให้กระทบตำแหน่งพิกัดที่วางใน Visual Designer
-                lblHeader.Text = "📋 รายการรับ-จ่ายทั้งหมด"
-                lblHeader.Font = New Font("Tahoma", 12.5!, FontStyle.Bold)
-
-                lblCategory.Text = "ประเภท:"
-                lblType.Text = "ชนิด:"
-                lblDate.Text = "วันที่:"
-                lblSearch.Text = "ค้นหา:"
-
-                For Each lbl In New Label() {lblCategory, lblType, lblDate, lblSearch}
-                    lbl.Font = New Font("Tahoma", 9.5!, FontStyle.Bold)
-                    lbl.ForeColor = Color.FromArgb(120, 53, 15)
-                Next
-
-                For Each ctrl As Control In New Control() {cboCategory, cboType, dtpFrom, dtpTo, txtSearch}
-                    ctrl.Font = New Font("Tahoma", 9.5!, FontStyle.Regular)
-                Next
-
-                btnSearch.Text = "🔎 ค้นหา"
-                btnSearch.BackColor = Color.FromArgb(37, 99, 235)
-                btnSearch.ForeColor = Color.White
-                btnSearch.FlatStyle = FlatStyle.Flat
-                btnSearch.Font = New Font("Tahoma", 9.5!, FontStyle.Bold)
-                btnSearch.Cursor = Cursors.Hand
-
-                btnRefresh.Text = "🔄 รีเฟรช"
-                btnRefresh.BackColor = Color.FromArgb(5, 150, 105)
-                btnRefresh.ForeColor = Color.White
-                btnRefresh.FlatStyle = FlatStyle.Flat
-                btnRefresh.Font = New Font("Tahoma", 9.5!, FontStyle.Bold)
-                btnRefresh.Cursor = Cursors.Hand
-
-                lblSummary.Font = New Font("Tahoma", 10.0!, FontStyle.Bold)
-
-                dgvTransactions.Font = New Font("Tahoma", 9.25!)
-                dgvTransactions.ColumnHeadersHeight = 30
-                dgvTransactions.RowTemplate.Height = 30
-                dgvTransactions.ScrollBars = ScrollBars.Both
-                dgvTransactions.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None
-                dgvTransactions.AllowUserToResizeColumns = True
-
-                ' ปรับเฉพาะสีและ Font ของปุ่ม Action (ปล่อยเรื่อง Dock/Location ให้เป็นหน้าที่ของ Designer)
-                btnAddInc.Text = "➕ รายรับใหม่"
-                btnAddInc.BackColor = Color.FromArgb(22, 163, 74)
-                btnAddInc.ForeColor = Color.White
-                btnAddInc.FlatStyle = FlatStyle.Flat
-                btnAddInc.Font = New Font("Tahoma", 10.0!, FontStyle.Bold)
-                btnAddInc.Cursor = Cursors.Hand
-
-                btnAddExp.Text = "➕ รายจ่ายใหม่"
-                btnAddExp.BackColor = Color.FromArgb(190, 18, 60)
-                btnAddExp.ForeColor = Color.White
-                btnAddExp.FlatStyle = FlatStyle.Flat
-                btnAddExp.Font = New Font("Tahoma", 10.0!, FontStyle.Bold)
-                btnAddExp.Cursor = Cursors.Hand
-
-                btnAddTrans.Text = "🔁 โอนเงินใหม่"
-                btnAddTrans.BackColor = Color.FromArgb(126, 34, 206)
-                btnAddTrans.ForeColor = Color.White
-                btnAddTrans.FlatStyle = FlatStyle.Flat
-                btnAddTrans.Font = New Font("Tahoma", 10.0!, FontStyle.Bold)
-                btnAddTrans.Cursor = Cursors.Hand
-
-                btnEdit.Text = "📝 แก้ไข"
-                btnEdit.BackColor = Color.FromArgb(245, 158, 11)
-                btnEdit.ForeColor = Color.White
-                btnEdit.FlatStyle = FlatStyle.Flat
-                btnEdit.Font = New Font("Tahoma", 10.0!, FontStyle.Bold)
-                btnEdit.Cursor = Cursors.Hand
-
-                btnDelete.Text = "🗑️ ลบรายการ"
-                btnDelete.BackColor = Color.FromArgb(153, 27, 27)
-                btnDelete.ForeColor = Color.White
-                btnDelete.FlatStyle = FlatStyle.Flat
-                btnDelete.Font = New Font("Tahoma", 10.0!, FontStyle.Bold)
-                btnDelete.Cursor = Cursors.Hand
-
-                btnClose.Text = "ปิดหน้านี้"
-                btnClose.BackColor = Color.FromArgb(75, 85, 99)
-                btnClose.ForeColor = Color.White
-                btnClose.FlatStyle = FlatStyle.Flat
-                btnClose.Font = New Font("Tahoma", 10.0!, FontStyle.Bold)
-                btnClose.Cursor = Cursors.Hand
-
-            Catch ex As Exception
-                AppPaths.LogCrash(ex, "FrmTransactions.SetupRuntimeLayout")
-            End Try
+        Private Sub SetupToolTips()
+            ttMain.SetToolTip(txtSearch, "พิมพ์คำค้นหาแล้วกด Enter หรือกดปุ่มค้นหา (ค้นหาคำบางส่วนในรายละเอียด, หมายเหตุ, ประเภท, กองทุน, ธนาคาร) ล้างช่องนี้เพื่อแสดงข้อมูลทั้งหมด")
+            ttMain.SetToolTip(btnSearch, "ค้นหารายการตามช่วงวันที่ ประเภท และคำค้นหาที่ระบุ (กด Enter ได้เช่นกัน)")
+            ttMain.SetToolTip(btnRefresh, "ล้างการค้นหาและดึงข้อมูลใหม่ทั้งหมด")
+            ttMain.SetToolTip(btnAddInc, "เปิดหน้าจอสำหรับบันทึกรายรับใหม่")
+            ttMain.SetToolTip(btnAddExp, "เปิดหน้าจอสำหรับบันทึกรายจ่ายใหม่")
+            ttMain.SetToolTip(btnAddTrans, "เปิดหน้าจอสำหรับบันทึกการโอนเงินภายใน")
+            ttMain.SetToolTip(btnEdit, "แก้ไขข้อมูลรายการที่เลือกในตาราง (กดซ้ำเพื่อบันทึก)")
+            ttMain.SetToolTip(btnDelete, "ลบรายการที่เลือกออกจากฐานข้อมูล")
+            ttMain.SetToolTip(btnViewReceipt, "เปิดดูรูปภาพหลักฐานใบเสร็จที่แนบไว้")
+            ttMain.SetToolTip(btnPasteReceipt, "วางรูปภาพจาก LINE หรือคลิปบอร์ดเพื่อแนบเป็นใบเสร็จ")
+            ttMain.SetToolTip(btnBrowseReceipt, "เลือกไฟล์รูปภาพจากเครื่องเพื่อแนบเป็นใบเสร็จ")
+            ttMain.SetToolTip(btnDeleteReceipt, "ลบรูปภาพหลักฐานออกจากรายการที่เลือก")
+            ttMain.SetToolTip(btnClose, "ปิดหน้าจอรายการนี้และกลับไปหน้าหลัก")
         End Sub
 
         Private Sub SetupSearchEnterNavigation()
@@ -228,6 +157,22 @@ Namespace TempleAccounting
             If e.KeyCode <> Keys.Enter Then Return
             e.SuppressKeyPress = True
             MoveNextSearchFrom(DirectCast(sender, Control))
+        End Sub
+
+        ' --- ค้นหาด้วยปุ่ม Enter ในช่องค้นหา ---
+        Private Sub txtSearch_KeyDown(sender As Object, e As KeyEventArgs) Handles txtSearch.KeyDown
+            If e.KeyCode = Keys.Enter Then
+                e.SuppressKeyPress = True
+                btnSearch.PerformClick()
+            End If
+        End Sub
+
+        ' --- ล้างช่องค้นหาแล้วรีโหลดข้อมูลทั้งหมดอัตโนมัติ ---
+        Private Sub txtSearch_TextChanged(sender As Object, e As EventArgs) Handles txtSearch.TextChanged
+            ' หากช่องค้นหาว่างเปล่า ให้รีโหลดข้อมูลทั้งหมด
+            If String.IsNullOrWhiteSpace(txtSearch.Text) Then
+                LoadData()
+            End If
         End Sub
 
         Private Sub LoadFilters()
@@ -308,11 +253,12 @@ Namespace TempleAccounting
                     })
 #End Region
 
-                    Dim sql = "SELECT t.ID, t.TranDate, t.TranType, t.CategoryID, IIF(c.CategoryName IS NULL,'',c.CategoryName) AS CategoryName, " &
+                    Dim sql = "SELECT t.ID, t.TranDate, t.TranType, IIF(t.TranType='Income','รายรับ',IIF(t.TranType='Expense','รายจ่าย','โอนภายใน')) AS TranTypeDisplay, t.CategoryID, IIF(c.CategoryName IS NULL,'',c.CategoryName) AS CategoryName, " &
                               "t.FundID, IIF(f.FundName IS NULL,'',f.FundName) AS FundName, " &
                               "t.BankID, IIF(b.BankName IS NULL,'',b.BankName & IIF(b.AccountNo IS NULL,'',' ' & b.AccountNo)) AS BankName, " &
                               "t.Detail, t.Amount, t.Note, t.CreateDate, t.ToFundID, IIF(f2.FundName IS NULL,'',f2.FundName) AS ToFundName, " &
-                              "t.ToBankID, IIF(b2.BankName IS NULL,'',b2.BankName & IIF(b2.AccountNo IS NULL,'',' ' & b2.AccountNo)) AS ToBankName " &
+                              "t.ToBankID, IIF(b2.BankName IS NULL,'',b2.BankName & IIF(b2.AccountNo IS NULL,'',' ' & b2.AccountNo)) AS ToBankName, " &
+                              "t.ReceiptPath, IIf(t.ReceiptPath IS NOT NULL AND t.ReceiptPath <> '', '📷 มีรูป', '-') AS HasReceiptDisplay " &
                               "FROM ((((Transactions t " &
                               "LEFT JOIN Categories c ON t.CategoryID=c.ID) " &
                               "LEFT JOIN Funds f ON t.FundID=f.ID) " &
@@ -334,9 +280,35 @@ Namespace TempleAccounting
                     ElseIf cboType.SelectedIndex = 3 Then
                         sql &= " AND t.TranType='Transfer'"
                     End If
-                    If Not String.IsNullOrWhiteSpace(txtSearch.Text) Then
-                        sql &= " AND (t.Detail LIKE @s OR t.Note LIKE @s OR t.TranType LIKE @s OR c.CategoryName LIKE @s OR f.FundName LIKE @s OR b.BankName LIKE @s OR f2.FundName LIKE @s OR b2.BankName LIKE @s) "
-                        ps.Add(New Tuple(Of String, Object)("@s", "*" & txtSearch.Text.Trim() & "*"))
+
+                    ' --- ค้นหาแบบ Partial Match หลายฟิลด์ ---
+                    Dim searchText = txtSearch.Text?.Trim()
+                    If Not String.IsNullOrWhiteSpace(searchText) Then
+                        ' ครอบ Try-Catch เพื่อป้องกันการค้นหาที่พังจากตัวอักษรพิเศษ
+                        Try
+                            ' Escape ตัวอักษรพิเศษสำหรับ LIKE patterns
+                            ' แยก Escape ตัวที่มีความหมายใน LIKE patterns: [ ] ? #
+                            Dim safeSearch = searchText.Replace("[", "[[]").Replace("?", "[?]").Replace("#", "[#]")
+                            
+                            ' OleDb provider (Access) ใช้ % เป็น wildcard (ไม่ใช่ * ที่ใช้ใน Access DAO)
+                            Dim likePattern = "%" & safeSearch & "%"
+
+                            ' ค้นหาหลายฟิลด์พร้อมกัน
+                            sql &= " AND (" &
+                                   "t.Detail LIKE @s OR " &
+                                   "t.Note LIKE @s OR " &
+                                   "c.CategoryName LIKE @s OR " &
+                                   "f.FundName LIKE @s OR " &
+                                   "b.BankName LIKE @s OR " &
+                                   "f2.FundName LIKE @s OR " &
+                                   "b2.BankName LIKE @s OR " &
+                                   "IIF(f.FundName IS NULL,'',f.FundName & ' ' & IIF(b.BankName IS NULL,'',b.BankName)) LIKE @s OR " &
+                                   "IIF(f2.FundName IS NULL,'',f2.FundName & ' ' & IIF(b2.BankName IS NULL,'',b2.BankName)) LIKE @s" &
+                                   ") "
+                            ps.Add(New Tuple(Of String, Object)("@s", likePattern))
+                        Catch ex As Exception
+                            AppPaths.LogCrash(ex, "FrmTransactions.Search")
+                        End Try
                     End If
                     sql &= " ORDER BY " & tranDateExpr & " DESC, t.ID DESC"
 
@@ -353,7 +325,7 @@ Namespace TempleAccounting
                     If dgvTransactions.Columns.Count > 0 Then
                         ConfigureGridColumns()
                     End If
-
+                    
                     Dim sumInc As Decimal = 0D
                     Dim sumExp As Decimal = 0D
                     Dim sumTrf As Decimal = 0D
@@ -388,33 +360,38 @@ Namespace TempleAccounting
 
         Private Sub ConfigureGridColumns()
             Dim headers As New Dictionary(Of String, String) From {
+                {"HasReceiptDisplay", "ใบเสร็จ"},
                 {"ID", "ID"},
-                {"TranDate", "TranDate"},
-                {"TranType", "TranType"},
-                {"CategoryID", "CategoryID"},
-                {"CategoryName", "Category"},
-                {"FundID", "FundID"},
-                {"FundName", "Fund"},
-                {"BankID", "BankID"},
-                {"BankName", "Bank"},
-                {"Detail", "Detail"},
-                {"Amount", "Amount"},
-                {"Note", "Note"},
-                {"CreateDate", "CreateDate"},
-                {"ToFundID", "ToFundID"},
-                {"ToFundName", "ToFund"},
-                {"ToBankID", "ToBankID"},
-                {"ToBankName", "ToBank"}
+                {"TranDate", "วันที่"},
+                {"TranTypeDisplay", "ชนิด"},
+                {"CategoryName", "ประเภท"},
+                {"FundName", "กองทุน"},
+                {"BankName", "ธนาคาร"},
+                {"Detail", "รายละเอียด"},
+                {"Amount", "จำนวนเงิน"},
+                {"Note", "หมายเหตุ"},
+                {"CreateDate", "วันที่บันทึก"},
+                {"ToFundName", "ไปยังกองทุน"},
+                {"ToBankName", "ไปยังธนาคาร"},
+                {"ReceiptPath", "เอกสารแนบ"}
             }
 
             dgvTransactions.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None
             dgvTransactions.ScrollBars = ScrollBars.Both
+
+            ' Hide technical columns but keep them for logic
+            For Each colName In New String() {"TranType", "CategoryID", "FundID", "BankID", "ToFundID", "ToBankID", "ReceiptPath"}
+                If dgvTransactions.Columns.Contains(colName) Then
+                    dgvTransactions.Columns(colName).Visible = False
+                End If
+            Next
 
             For Each pair In headers
                 If dgvTransactions.Columns.Contains(pair.Key) Then
                     dgvTransactions.Columns(pair.Key).HeaderText = pair.Value
                 End If
             Next
+
             If dgvTransactions.Columns.Contains("TranDate") Then
                 dgvTransactions.Columns("TranDate").DefaultCellStyle.Format = "dd/MM/yyyy"
             End If
@@ -427,7 +404,7 @@ Namespace TempleAccounting
                 dgvTransactions.Columns("Amount").DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight
             End If
 
-            For Each readOnlyName In New String() {"CategoryName", "FundName", "BankName", "ToFundName", "ToBankName"}
+            For Each readOnlyName In New String() {"HasReceiptDisplay", "CategoryName", "FundName", "BankName", "ToFundName", "ToBankName"}
                 If dgvTransactions.Columns.Contains(readOnlyName) Then
                     dgvTransactions.Columns(readOnlyName).ReadOnly = True
                     dgvTransactions.Columns(readOnlyName).DefaultCellStyle.BackColor = Color.FromArgb(245, 245, 245)
@@ -435,6 +412,7 @@ Namespace TempleAccounting
             Next
 
             Dim widths As New Dictionary(Of String, Integer) From {
+                {"HasReceiptDisplay", 90},
                 {"ID", 70},
                 {"TranDate", 95},
                 {"TranType", 90},
@@ -472,17 +450,72 @@ Namespace TempleAccounting
         End Sub
 
         Private Sub btnDelete_Click(sender As Object, e As EventArgs) Handles btnDelete.Click
-            If _isEditing Then
-                MessageBox.Show("กรุณาบันทึกหรือยกเลิกการแก้ไขก่อนลบรายการ", "แจ้งเตือน") : Return
-            End If
-            If dgvTransactions.CurrentRow Is Nothing Then MessageBox.Show("กรุณาเลือกรายการที่จะลบ", "แจ้งเตือน") : Return
-            Dim id = CInt(dgvTransactions.CurrentRow.Cells("ID").Value)
-            If MessageBox.Show("คุณแน่ใจว่าจะลบรายการนี้ใช่หรือไม่?", "ยืนยัน", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.No Then Return
-            Using conn = Db.OpenConn()
-                Db.ExecuteNonQuery(conn, "DELETE FROM Transactions WHERE ID=@id", New Tuple(Of String, Object)("@id", id))
-                MessageBox.Show("ลบรายการแล้ว", "สำเร็จ", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            Try
+                If _isEditing Then
+                    MessageBox.Show("กรุณาบันทึกหรือยกเลิกการแก้ไขก่อนลบรายการ", "แจ้งเตือน") : Return
+                End If
+
+                If dgvTransactions.SelectedRows.Count = 0 Then
+                    MessageBox.Show("กรุณาเลือกรายการที่จะลบ", "แจ้งเตือน", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                    Return
+                End If
+
+                Dim count = dgvTransactions.SelectedRows.Count
+                Dim msg = If(count = 1, "คุณแน่ใจว่าจะลบรายการนี้ใช่หรือไม่?", $"คุณต้องการลบรายการที่เลือกทั้งหมด {count} รายการใช่หรือไม่?")
+                If MessageBox.Show(msg, "ยืนยันการลบ", MessageBoxButtons.YesNo, MessageBoxIcon.Question) <> DialogResult.Yes Then Return
+
+                Dim ids As New List(Of Integer)
+                Dim filesToDelete As New List(Of String)
+
+                For Each row As DataGridViewRow In dgvTransactions.SelectedRows
+                    Dim id = Db.ToIntOrZero(row.Cells("ID").Value)
+                    If id > 0 Then
+                        ids.Add(id)
+                        Dim receiptPath = Convert.ToString(row.Cells("ReceiptPath").Value)
+                        If Not String.IsNullOrWhiteSpace(receiptPath) Then
+                            filesToDelete.Add(receiptPath)
+                        End If
+                    End If
+                Next
+
+                If ids.Count = 0 Then Return
+
+                Using conn = Db.OpenConn()
+                    Using trans = conn.BeginTransaction()
+                        Try
+                            For Each id In ids
+                                Using cmd = conn.CreateCommand()
+                                    cmd.Transaction = trans
+                                    cmd.CommandText = "DELETE FROM Transactions WHERE ID = @id"
+                                    cmd.Parameters.AddWithValue("@id", id)
+                                    cmd.ExecuteNonQuery()
+                                End Using
+                            Next
+                            trans.Commit()
+                        Catch ex As Exception
+                            trans.Rollback()
+                            Throw
+                        End Try
+                    End Using
+                End Using
+
+                ' ลบไฟล์รูปจริง
+                For Each fileName In filesToDelete
+                    Try
+                        Dim fullPath = Path.Combine(AppPaths.ReceiptsDir, fileName)
+                        If File.Exists(fullPath) Then File.Delete(fullPath)
+                    Catch
+                        ' ปล่อยผ่านถ้าไฟล์ถูกล็อค
+                    End Try
+                Next
+
+                MessageBox.Show($"ลบรายการสำเร็จ {ids.Count} รายการ", "สำเร็จ", MessageBoxButtons.OK, MessageBoxIcon.Information)
                 LoadData()
-            End Using
+
+            Catch ex As Exception
+                AppPaths.LogCrash(ex, "MultiDeleteTransactions")
+                MessageBox.Show("เกิดข้อผิดพลาดในการลบรายการ: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            End Try
         End Sub
 
         Private Sub btnAddInc_Click(sender As Object, e As EventArgs) Handles btnAddInc.Click
@@ -548,7 +581,7 @@ Namespace TempleAccounting
 
             If dgvTransactions.Columns.Contains("ID") Then dgvTransactions.Columns("ID").ReadOnly = True
             If dgvTransactions.Columns.Contains("CreateDate") Then dgvTransactions.Columns("CreateDate").ReadOnly = True
-            For Each readOnlyName In New String() {"CategoryName", "FundName", "BankName", "ToFundName", "ToBankName"}
+            For Each readOnlyName In New String() {"TranTypeDisplay", "CategoryName", "FundName", "BankName", "ToFundName", "ToBankName"}
                 If dgvTransactions.Columns.Contains(readOnlyName) Then dgvTransactions.Columns(readOnlyName).ReadOnly = True
             Next
 
@@ -657,9 +690,7 @@ Namespace TempleAccounting
                     If Not fromFund.HasValue Then
                         Throw New ApplicationException("รายการรับ/จ่ายต้องมี FundID")
                     End If
-                    If toFund.HasValue OrElse toBank.HasValue Then
-                        Throw New ApplicationException("รายการรับ/จ่ายทั่วไปไม่ควรมี ToFundID หรือ ToBankID")
-                    End If
+                    ' สำหรับรายรับ/รายจ่าย ไม่ต้องตรวจสอบ ToFundID/ToBankID เพราะค่าจะถูกล้างเป็น NULL อยู่แล้ว
 
                 Case "Transfer"
                     If category.HasValue Then
@@ -708,10 +739,29 @@ Namespace TempleAccounting
                 Dim toFundId = NullableIntFromCell(row, "ToFundID")
                 Dim toBankId = NullableIntFromCell(row, "ToBankID")
 
+                ' ถ้าเป็นรายรับ/รายจ่าย ให้ล้าง ToFundID และ ToBankID ก่อนบันทึก
+                If tranType = "Income" OrElse tranType = "Expense" Then
+                    toFundId = Nothing
+                    toBankId = Nothing
+                End If
+
                 ValidateTransactionByType(tranType, categoryId, fundId, bankId, detail, amount, toFundId, toBankId)
 
                 Using conn = Db.OpenConn()
-                    Db.ExecuteNonQuery(conn,
+                    ' กำหนดค่า ToFundID และ ToBankID ให้เป็น NULL สำหรับรายรับ/รายจ่าย
+                    If tranType = "Income" OrElse tranType = "Expense" Then
+                        Db.ExecuteNonQuery(conn,
+"UPDATE Transactions SET TranDate=" & Db.AccessDateLiteral(tranDate) & ", TranType=@t, CategoryID=@c, FundID=@f, BankID=@b, [Detail]=@d, Amount=@a, [Note]=@n, ToFundID=NULL, ToBankID=NULL WHERE ID=@id",
+New Tuple(Of String, Object)("@t", tranType),
+New Tuple(Of String, Object)("@c", categoryId),
+New Tuple(Of String, Object)("@f", fundId),
+New Tuple(Of String, Object)("@b", bankId),
+New Tuple(Of String, Object)("@d", detail),
+New Tuple(Of String, Object)("@a", amount),
+New Tuple(Of String, Object)("@n", note),
+New Tuple(Of String, Object)("@id", id))
+                    Else
+                        Db.ExecuteNonQuery(conn,
 "UPDATE Transactions SET TranDate=" & Db.AccessDateLiteral(tranDate) & ", TranType=@t, CategoryID=@c, FundID=@f, BankID=@b, [Detail]=@d, Amount=@a, [Note]=@n, ToFundID=@tf, ToBankID=@tb WHERE ID=@id",
 New Tuple(Of String, Object)("@t", tranType),
 New Tuple(Of String, Object)("@c", categoryId),
@@ -723,18 +773,181 @@ New Tuple(Of String, Object)("@n", note),
 New Tuple(Of String, Object)("@tf", toFundId),
 New Tuple(Of String, Object)("@tb", toBankId),
 New Tuple(Of String, Object)("@id", id))
+                    End If
                 End Using
 
                 MessageBox.Show("บันทึกการแก้ไขเรียบร้อยแล้ว", "สำเร็จ", MessageBoxButtons.OK, MessageBoxIcon.Information)
                 ExitEditMode()
                 LoadData()
             Catch ex As Exception
+                AppPaths.LogCrash(ex, "FrmTransactions.UpdateTransaction")
                 MessageBox.Show("บันทึกการแก้ไขไม่สำเร็จ: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
             End Try
         End Sub
 
         Private Sub dgvTransactions_CellContentClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvTransactions.CellContentClick
 
+        End Sub
+
+        Private Sub lblSearch_Click(sender As Object, e As EventArgs) Handles lblSearch.Click
+
+        End Sub
+
+        Private Sub btnViewReceipt_Click(sender As Object, e As EventArgs) Handles btnViewReceipt.Click
+            Try
+                ' 1. ตรวจสอบว่ามีการเลือกแถวใน DataGridView หรือไม่
+                If dgvTransactions.CurrentRow Is Nothing Then
+                    MessageBox.Show("กรุณาเลือกรายการที่ต้องการดูใบเสร็จ", "แจ้งเตือน", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                    Exit Sub
+                End If
+
+                ' 2. อ่านชื่อไฟล์จากคอลัมน์ ReceiptPath
+                Dim fileName As String = Convert.ToString(dgvTransactions.CurrentRow.Cells("ReceiptPath").Value)
+
+                If String.IsNullOrWhiteSpace(fileName) Then
+                    MessageBox.Show("รายการนี้ไม่มีรูปภาพใบเสร็จแนบไว้", "แจ้งเตือน", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                    Exit Sub
+                End If
+
+                ' 3. หาตำแหน่งไฟล์จริงในโฟลเดอร์ Receipts
+                Dim fullPath As String = IO.Path.Combine(AppPaths.ReceiptsDir, fileName)
+
+                ' 4. ตรวจสอบไฟล์และสั่งเปิดดูรูปด้วยโปรแกรมมาตรฐานของ Windows
+                If IO.File.Exists(fullPath) Then
+                    Process.Start(New ProcessStartInfo(fullPath) With {.UseShellExecute = True})
+                Else
+                    MessageBox.Show($"ไม่พบไฟล์รูปภาพในระบบ: {fileName}", "ข้อผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                End If
+            Catch ex As Exception
+                AppPaths.LogCrash(ex, "btnViewReceipt_Click")
+                MessageBox.Show("ไม่สามารถเปิดดูใบเสร็จได้: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            End Try
+        End Sub
+
+        Private Sub btnPasteReceipt_Click(sender As Object, e As EventArgs) Handles btnPasteReceipt.Click
+            Try
+                If dgvTransactions.CurrentRow Is Nothing Then
+                    MessageBox.Show("กรุณาเลือกรายการที่ต้องการแนบรูปใบเสร็จ", "แจ้งเตือน", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                    Return
+                End If
+
+                ' ตรวจสอบว่า Clipboard มีรูปภาพหรือไม่
+                If Not Clipboard.ContainsImage() Then
+                    MessageBox.Show("ไม่พบรูปภาพใหม่ใน Clipboard กรุณาไปที่ LINE แล้วกด Copy รูปภาพใบเสร็จรูปใหม่ก่อนกดปุ่มนี้", "แจ้งเตือน", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                    Return
+                End If
+
+                Dim id = CInt(dgvTransactions.CurrentRow.Cells("ID").Value)
+
+                AppPaths.EnsureDirectoriesExist()
+                Dim newFileName = ReceiptImageHelper.SaveOptimizedReceipt(Clipboard.GetImage(), id)
+
+                If String.IsNullOrEmpty(newFileName) Then
+                    MessageBox.Show("ไม่สามารถประมวลผลรูปภาพได้", "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                    Return
+                End If
+
+                Using conn = Db.OpenConn()
+                    Db.ExecuteNonQuery(conn, "UPDATE Transactions SET ReceiptPath=@p WHERE ID=@id",
+                        New Tuple(Of String, Object)("@p", newFileName),
+                        New Tuple(Of String, Object)("@id", id))
+                End Using
+
+                ' ล้าง Clipboard หลังจากบันทึกรูปสำเร็จ เพื่อป้องกันการวางรูปเดิมซ้ำ
+                Try
+                    Clipboard.Clear()
+                Catch ex As Exception
+                    AppPaths.LogCrash(ex, "PasteReceipt.ClearClipboard")
+                End Try
+
+                MessageBox.Show("แนบรูปภาพจากคลิปบอร์ดเรียบร้อยแล้ว", "สำเร็จ", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                LoadData()
+            Catch ex As Exception
+                AppPaths.LogCrash(ex, "btnPasteReceipt_Click")
+                MessageBox.Show("แนบรูปภาพไม่สำเร็จ: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            End Try
+        End Sub
+
+        Private Sub btnBrowseReceipt_Click(sender As Object, e As EventArgs) Handles btnBrowseReceipt.Click
+            Try
+                If dgvTransactions.CurrentRow Is Nothing Then
+                    MessageBox.Show("กรุณาเลือกรายการที่ต้องการแนบรูปใบเสร็จ", "แจ้งเตือน", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                    Return
+                End If
+
+                Dim id = CInt(dgvTransactions.CurrentRow.Cells("ID").Value)
+
+                Using ofd As New OpenFileDialog()
+                    ofd.Title = "เลือกรูปภาพใบเสร็จ"
+                    ofd.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.gif;*.bmp|All Files|*.*"
+                    If ofd.ShowDialog(Me) <> DialogResult.OK Then Return
+
+                    AppPaths.EnsureDirectoriesExist()
+                    Dim newFileName = ReceiptImageHelper.SaveOptimizedReceipt(ofd.FileName, id)
+
+                    If String.IsNullOrEmpty(newFileName) Then
+                        MessageBox.Show("ไม่สามารถประมวลผลรูปภาพได้", "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                        Return
+                    End If
+
+                    Using conn = Db.OpenConn()
+                        Db.ExecuteNonQuery(conn, "UPDATE Transactions SET ReceiptPath=@p WHERE ID=@id",
+                            New Tuple(Of String, Object)("@p", newFileName),
+                            New Tuple(Of String, Object)("@id", id))
+                    End Using
+
+                    MessageBox.Show("แนบรูปภาพเรียบร้อยแล้ว", "สำเร็จ", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                    LoadData()
+                End Using
+            Catch ex As Exception
+                AppPaths.LogCrash(ex, "btnBrowseReceipt_Click")
+                MessageBox.Show("เลือกรูปภาพไม่สำเร็จ: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            End Try
+        End Sub
+
+        Private Sub btnDeleteReceipt_Click(sender As Object, e As EventArgs) Handles btnDeleteReceipt.Click
+            Try
+                If dgvTransactions.CurrentRow Is Nothing Then
+                    MessageBox.Show("กรุณาเลือกรายการที่ต้องการลบรูปใบเสร็จ", "แจ้งเตือน", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                    Return
+                End If
+
+                Dim id = CInt(dgvTransactions.CurrentRow.Cells("ID").Value)
+                Dim fileName = Convert.ToString(dgvTransactions.CurrentRow.Cells("ReceiptPath").Value)
+
+                If String.IsNullOrWhiteSpace(fileName) Then
+                    MessageBox.Show("รายการนี้ไม่มีรูปภาพใบเสร็จให้ลบ", "แจ้งเตือน", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                    Return
+                End If
+
+                If MessageBox.Show("คุณแน่ใจว่าต้องการลบรูปภาพหลักฐานใบเสร็จนี้ใช่หรือไม่? (ไฟล์รูปจะถูกลบออกจากเครื่องด้วย)", "ยืนยันการลบ", MessageBoxButtons.YesNo, MessageBoxIcon.Question) <> DialogResult.Yes Then Return
+
+                Dim fullPath = Path.Combine(AppPaths.ReceiptsDir, fileName)
+                If File.Exists(fullPath) Then
+                    Try
+                        File.Delete(fullPath)
+                    Catch
+                        ' อาจติด lock แต่เราจะเคลียร์ใน DB อยู่ดี
+                    End Try
+                End If
+
+                Using conn = Db.OpenConn()
+                    Db.ExecuteNonQuery(conn, "UPDATE Transactions SET ReceiptPath=NULL WHERE ID=@id",
+                        New Tuple(Of String, Object)("@id", id))
+                End Using
+
+                MessageBox.Show("ลบรูปภาพหลักฐานเรียบร้อยแล้ว", "สำเร็จ", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                LoadData()
+            Catch ex As Exception
+                AppPaths.LogCrash(ex, "btnDeleteReceipt_Click")
+                MessageBox.Show("ลบรูปภาพไม่สำเร็จ: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            End Try
+        End Sub
+
+        Private Sub dgvTransactions_CellDoubleClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvTransactions.CellDoubleClick
+            If e.RowIndex >= 0 Then
+                btnViewReceipt.PerformClick()
+            End If
         End Sub
     End Class
 End Namespace
