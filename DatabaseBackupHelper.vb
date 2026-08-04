@@ -98,5 +98,84 @@ Namespace TempleAccounting
                 AppPaths.LogCrash(ex, $"CopyDirectory.Dir: {sourceDir}")
             End Try
         End Sub
+
+        ''' <summary>
+        ''' คืนค่าข้อมูลจากโฟลเดอร์ Backup (ฐานข้อมูลและรูปใบเสร็จ)
+        ''' </summary>
+        ''' <param name="backupFolder">โฟลเดอร์ชุดสำรองข้อมูลที่เลือก</param>
+        ''' <returns>True หากคืนค่าสำเร็จ</returns>
+        Public Shared Function RestoreFullSystem(backupFolder As String) As Boolean
+            Dim safetyPath As String = Path.Combine(AppPaths.AppRoot, "PreRestore_Temp")
+            Try
+                ' 1. ตรวจสอบเบื้องต้น
+                If Not Directory.Exists(backupFolder) Then
+                    MessageBoxHelper.ShowError("ไม่พบโฟลเดอร์สำรองข้อมูลที่เลือก")
+                    Return False
+                End If
+
+                ' ตรวจสอบว่ามีไฟล์ฐานข้อมูลในโฟลเดอร์ backup หรือไม่ (รองรับทั้งชื่อตรงตัวและชื่อมี Timestamp)
+                Dim dbBackupFile As String = ""
+                Dim files = Directory.GetFiles(backupFolder, "*.accdb")
+                If files.Length > 0 Then
+                    dbBackupFile = files(0) ' ใช้ไฟล์แรกที่เจอ
+                Else
+                    MessageBoxHelper.ShowError("ไม่พบไฟล์ฐานข้อมูล (.accdb) ในโฟลเดอร์สำรองข้อมูลนี้")
+                    Return False
+                End If
+
+                ' 2. จัดการ Connection: ตัด Pool
+                GC.Collect()
+                GC.WaitForPendingFinalizers()
+
+                ' 3. Safety Backup: เก็บข้อมูลปัจจุบันไว้กันพลาด
+                If Directory.Exists(safetyPath) Then Directory.Delete(safetyPath, True)
+                Directory.CreateDirectory(safetyPath)
+                
+                ' ก๊อบปี้ DB ปัจจุบัน
+                If File.Exists(AppPaths.DatabaseFile) Then
+                    File.Copy(AppPaths.DatabaseFile, Path.Combine(safetyPath, "CurrentDB.accdb"), True)
+                End If
+                ' ก๊อบปี้ Receipts ปัจจุบัน
+                If Directory.Exists(AppPaths.ReceiptsDir) Then
+                    CopyDirectory(AppPaths.ReceiptsDir, Path.Combine(safetyPath, "Receipts"))
+                End If
+
+                ' 4. ทำการ Restore ฐานข้อมูล
+                File.Copy(dbBackupFile, AppPaths.DatabaseFile, True)
+
+                ' 5. ทำการ Restore รูปใบเสร็จ
+                Dim receiptsBackupPath As String = Path.Combine(backupFolder, "Receipts")
+                If Directory.Exists(receiptsBackupPath) Then
+                    CopyDirectory(receiptsBackupPath, AppPaths.ReceiptsDir)
+                End If
+
+                ' ลบ Safety Backup เมื่อสำเร็จ
+                Try
+                    Directory.Delete(safetyPath, True)
+                Catch
+                End Try
+
+                Return True
+            Catch ex As Exception
+                AppPaths.LogCrash(ex, "DatabaseBackupHelper.RestoreFullSystem")
+                
+                ' Rollback: พยายามกู้คืนจาก Safety Backup
+                Try
+                    If Directory.Exists(safetyPath) Then
+                        If File.Exists(Path.Combine(safetyPath, "CurrentDB.accdb")) Then
+                            File.Copy(Path.Combine(safetyPath, "CurrentDB.accdb"), AppPaths.DatabaseFile, True)
+                        End If
+                        If Directory.Exists(Path.Combine(safetyPath, "Receipts")) Then
+                            CopyDirectory(Path.Combine(safetyPath, "Receipts"), AppPaths.ReceiptsDir)
+                        End If
+                    End If
+                Catch rollbackEx As Exception
+                    AppPaths.LogCrash(rollbackEx, "Restore Rollback Failed")
+                End Try
+
+                MessageBoxHelper.ShowError($"เกิดข้อผิดพลาดระหว่างคืนค่าข้อมูล: {ex.Message}{Environment.NewLine}ระบบพยายามกู้คืนข้อมูลเดิมกลับมาแล้ว")
+                Return False
+            End Try
+        End Function
     End Class
 End Namespace

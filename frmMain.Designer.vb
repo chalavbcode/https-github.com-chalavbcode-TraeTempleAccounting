@@ -22,6 +22,7 @@ Namespace TempleAccounting
         Private btnMember As Button
         Private btnSetting As Button
         Private btnBackup As Button
+        Private btnRestore As Button
         Private btnVip As Button
         Private btnActivity As Button
         Private pnlSidebarSpacer As Panel
@@ -88,6 +89,7 @@ Namespace TempleAccounting
             pnlSidebarSpacer = New Panel()
             btnSetting = New Button()
             btnBackup = New Button()
+            btnRestore = New Button()
             btnVip = New Button()
             btnActivity = New Button()
             btnReport = New Button()
@@ -272,6 +274,7 @@ Namespace TempleAccounting
             pnlSidebar.Controls.Add(pnlSidebarSpacer)
             pnlSidebar.Controls.Add(btnSetting)
             pnlSidebar.Controls.Add(btnBackup)
+            pnlSidebar.Controls.Add(btnRestore)
             pnlSidebar.Controls.Add(btnVip)
             pnlSidebar.Controls.Add(btnActivity)
             pnlSidebar.Controls.Add(btnReport)
@@ -353,6 +356,26 @@ Namespace TempleAccounting
             btnBackup.Text = "💾 สำรองข้อมูล"
             btnBackup.TextAlign = ContentAlignment.MiddleLeft
             btnBackup.UseVisualStyleBackColor = False
+            ' 
+            ' btnRestore
+            ' 
+            btnRestore.BackColor = Color.Transparent
+            btnRestore.Cursor = Cursors.Hand
+            btnRestore.Dock = DockStyle.Top
+            btnRestore.FlatAppearance.BorderSize = 0
+            btnRestore.FlatAppearance.MouseOverBackColor = Color.FromArgb(CByte(146), CByte(64), CByte(14))
+            btnRestore.FlatStyle = FlatStyle.Flat
+            btnRestore.Font = New Font("Tahoma", 11.25F, FontStyle.Regular, GraphicsUnit.Point, CByte(222))
+            btnRestore.ForeColor = Color.White
+            btnRestore.ImageAlign = ContentAlignment.MiddleLeft
+            btnRestore.Location = New Point(12, 601)
+            btnRestore.Name = "btnRestore"
+            btnRestore.Padding = New Padding(14, 0, 8, 0)
+            btnRestore.Size = New Size(227, 62)
+            btnRestore.TabIndex = 10
+            btnRestore.Text = "🔄 คืนค่าข้อมูล"
+            btnRestore.TextAlign = ContentAlignment.MiddleLeft
+            btnRestore.UseVisualStyleBackColor = False
             ' 
             ' btnVip
             ' 
