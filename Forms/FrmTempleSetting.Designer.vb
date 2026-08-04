@@ -670,7 +670,7 @@ Namespace TempleAccounting
             btnSave.Text = "💾 บันทึกข้อมูล"
             btnSave.UseVisualStyleBackColor = False
             ' 
-            ' FrmTempleSetting
+            'FrmTempleSetting
             ' 
             AutoScaleDimensions = New SizeF(144F, 144F)
             AutoScaleMode = AutoScaleMode.Dpi
@@ -680,6 +680,7 @@ Namespace TempleAccounting
             Controls.Add(pButtons)
             Controls.Add(lblHeader)
             Font = New Font("Tahoma", 10F)
+            MinimumSize = New Size(800, 600)
             Name = "FrmTempleSetting"
             Text = "ตั้งค่าข้อมูลวัด"
             pMain.ResumeLayout(False)
