@@ -24,10 +24,32 @@ Namespace TempleAccounting
         Private Sub FrmTempleSetting_Load(sender As Object, e As EventArgs) Handles MyBase.Load
             Db.EnsureSchema()
             LoadLocations()
+            LoadPersonnel()
             LoadTempleData()
             SetupToolTips()
             SetupEnterNavigation()
             txtTempleCode.Focus()
+        End Sub
+
+        Private Sub LoadPersonnel()
+            Using conn = Db.OpenConn()
+                ' โหลดเจ้าอาวาส (Monk)
+                Dim abbotTable = Db.GetTable(conn, "SELECT PersonnelID, FullName FROM Personnel WHERE PersonType='Monk' ORDER BY FullName")
+                cboAbbotName.DisplayMember = "FullName"
+                cboAbbotName.ValueMember = "PersonnelID"
+                cboAbbotName.DataSource = abbotTable
+
+                ' โหลดไวยาวัจกรและผู้ทำบัญชี (Layperson)
+                Dim layTable = Db.GetTable(conn, "SELECT PersonnelID, FullName FROM Personnel WHERE PersonType='Layperson' ORDER BY FullName")
+                
+                cboWaiyawatName.DisplayMember = "FullName"
+                cboWaiyawatName.ValueMember = "PersonnelID"
+                cboWaiyawatName.DataSource = layTable.Copy()
+
+                cboBookkeeperName.DisplayMember = "FullName"
+                cboBookkeeperName.ValueMember = "PersonnelID"
+                cboBookkeeperName.DataSource = layTable.Copy()
+            End Using
         End Sub
 
         Private Sub SetupToolTips()
@@ -40,9 +62,9 @@ Namespace TempleAccounting
         Private Sub SetupEnterNavigation()
             If _enterFlow.Count > 0 Then Return
             _enterFlow.AddRange({
-                txtTempleCode, txtTempleName, txtTempleAddress, cboTambon, cboAmphoe, cboProvince,
-                txtPostCode, txtTemplePhone, txtAbbotName, cboAbbotOfficeStatus,
-                txtWaiyawatName, cboWaiyawatOfficeStatus, txtBookkeeperName, cboBookkeeperType,
+                txtTempleCode, txtTempleName, txtTempleAddress, cboProvince, cboAmphoe, cboTambon,
+                txtPostCode, txtTemplePhone, cboAbbotName, cboAbbotOfficeStatus,
+                cboWaiyawatName, cboWaiyawatOfficeStatus, cboBookkeeperName, cboBookkeeperType,
                 chkUsePromptPay, txtPromptPayName, txtPromptPayID, btnSave
             })
             For Each ctrl In _enterFlow
@@ -148,11 +170,11 @@ Namespace TempleAccounting
                 TrySetComboText(cboTambon, r("Tambon")?.ToString())
                 txtPostCode.Text = r("PostCode")?.ToString()
                 txtTemplePhone.Text = r("TemplePhone")?.ToString()
-                txtAbbotName.Text = r("AbbotName")?.ToString()
+                TrySetComboText(cboAbbotName, r("AbbotName")?.ToString())
                 TrySetComboText(cboAbbotOfficeStatus, r("AbbotOfficeStatus")?.ToString())
-                txtWaiyawatName.Text = r("WaiyawatName")?.ToString()
+                TrySetComboText(cboWaiyawatName, r("WaiyawatName")?.ToString())
                 TrySetComboText(cboWaiyawatOfficeStatus, r("WaiyawatOfficeStatus")?.ToString())
-                txtBookkeeperName.Text = r("BookkeeperName")?.ToString()
+                TrySetComboText(cboBookkeeperName, r("BookkeeperName")?.ToString())
                 TrySetComboText(cboBookkeeperType, r("BookkeeperType")?.ToString())
                 txtPromptPayName.Text = r("PromptPayName")?.ToString()
                 txtPromptPayID.Text = r("PromptPayID")?.ToString()
@@ -184,6 +206,11 @@ Namespace TempleAccounting
                     If TypeOf cboProvince.SelectedItem Is DataRowView Then pn = CType(cboProvince.SelectedItem, DataRowView)("ProvinceName")?.ToString() Else pn = cboProvince.Text
                     If TypeOf cboAmphoe.SelectedItem Is DataRowView Then an = CType(cboAmphoe.SelectedItem, DataRowView)("DistrictName")?.ToString() Else an = cboAmphoe.Text
                     If TypeOf cboTambon.SelectedItem Is DataRowView Then tn = CType(cboTambon.SelectedItem, DataRowView)("SubDistrictName")?.ToString() Else tn = cboTambon.Text
+
+                    Dim abbotName = If(TypeOf cboAbbotName.SelectedItem Is DataRowView, CType(cboAbbotName.SelectedItem, DataRowView)("FullName")?.ToString(), cboAbbotName.Text)
+                    Dim waiyawatName = If(TypeOf cboWaiyawatName.SelectedItem Is DataRowView, CType(cboWaiyawatName.SelectedItem, DataRowView)("FullName")?.ToString(), cboWaiyawatName.Text)
+                    Dim bookkeeperName = If(TypeOf cboBookkeeperName.SelectedItem Is DataRowView, CType(cboBookkeeperName.SelectedItem, DataRowView)("FullName")?.ToString(), cboBookkeeperName.Text)
+
                     Dim ppName = If(chkUsePromptPay.Checked, txtPromptPayName.Text.Trim(), "")
                     Dim ppID = If(chkUsePromptPay.Checked, txtPromptPayID.Text.Trim(), "")
                     Db.ExecuteNonQuery(conn, "DELETE FROM TempleSetting")
@@ -196,11 +223,11 @@ Namespace TempleAccounting
                         New Tuple(Of String, Object)("@a6", pn),
                         New Tuple(Of String, Object)("@a7", txtPostCode.Text.Trim()),
                         New Tuple(Of String, Object)("@a8", txtTemplePhone.Text.Trim()),
-                        New Tuple(Of String, Object)("@a9", txtAbbotName.Text.Trim()),
+                        New Tuple(Of String, Object)("@a9", abbotName),
                         New Tuple(Of String, Object)("@a10", cboAbbotOfficeStatus.Text.Trim()),
-                        New Tuple(Of String, Object)("@a11", txtWaiyawatName.Text.Trim()),
+                        New Tuple(Of String, Object)("@a11", waiyawatName),
                         New Tuple(Of String, Object)("@a12", cboWaiyawatOfficeStatus.Text.Trim()),
-                        New Tuple(Of String, Object)("@a13", txtBookkeeperName.Text.Trim()),
+                        New Tuple(Of String, Object)("@a13", bookkeeperName),
                         New Tuple(Of String, Object)("@a14", cboBookkeeperType.Text.Trim()),
                         New Tuple(Of String, Object)("@a15", ppName),
                         New Tuple(Of String, Object)("@a16", ppID))

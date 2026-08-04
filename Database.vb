@@ -43,6 +43,7 @@ Namespace TempleAccounting
                 TryCreateTable(conn, "Funds", "CREATE TABLE Funds (ID COUNTER PRIMARY KEY, FundName TEXT(200) NOT NULL)")
                 TryCreateTable(conn, "BankAccounts", "CREATE TABLE BankAccounts (ID COUNTER PRIMARY KEY, BankName TEXT(100) NOT NULL, AccountNo TEXT(50), AccountName TEXT(200))")
                 TryCreateTable(conn, "Transactions", "CREATE TABLE Transactions (ID COUNTER PRIMARY KEY, TranDate DATETIME NOT NULL, TranType TEXT(10) NOT NULL, CategoryID INTEGER, FundID INTEGER, BankID INTEGER, Detail TEXT(255), Amount CURRENCY NOT NULL, Note MEMO, CreateDate DATETIME DEFAULT Now(), ToFundID INTEGER, ToBankID INTEGER, ReceiptPath TEXT(255))")
+                TryCreateTable(conn, "Personnel", "CREATE TABLE Personnel (PersonnelID COUNTER PRIMARY KEY, FullName TEXT(200) NOT NULL, PersonType TEXT(50) NOT NULL)")
 
                 ' Check and migrate missing columns in Transactions table (for older databases)
                 Try
@@ -86,7 +87,23 @@ Namespace TempleAccounting
                 SeedCategories(conn)
                 SeedFunds(conn)
                 SeedBankAccounts(conn)
+                SeedPersonnel(conn)
             End Using
+        End Sub
+
+        Private Sub SeedPersonnel(conn As OleDbConnection)
+            Dim count As Integer = CInt(DbScalar(conn, "SELECT COUNT(*) FROM Personnel"))
+            If count > 0 Then Return
+            Dim list As New List(Of Tuple(Of String, String)) From {
+                Tuple.Create("พระอธิการสมชาย ขันติโก", "Monk"),
+                Tuple.Create("นายมานะ มีบุญ", "Layperson"),
+                Tuple.Create("นางสาวใจดี รักเรียน", "Layperson")
+            }
+            For Each item In list
+                ExecuteNonQuery(conn, "INSERT INTO Personnel (FullName, PersonType) VALUES (@n, @t)",
+                                New Tuple(Of String, Object)("@n", item.Item1),
+                                New Tuple(Of String, Object)("@t", item.Item2))
+            Next
         End Sub
 
         Private Sub TryCreateTable(conn As OleDbConnection, tableName As String, sql As String)
