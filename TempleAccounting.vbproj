@@ -117,6 +117,9 @@
       <DependentUpon>FrmPersonnelManagement.vb</DependentUpon>
       <SubType>Form</SubType>
     </Compile>
+    <EmbeddedResource Include="Forms\FrmPersonnelManagement.resx">
+      <DependentUpon>FrmPersonnelManagement.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\FrmTempleSetting.resx">
       <DependentUpon>FrmTempleSetting.vb</DependentUpon>
     </EmbeddedResource>
