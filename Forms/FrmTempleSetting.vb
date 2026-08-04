@@ -22,13 +22,36 @@ Namespace TempleAccounting
         End Sub
 
         Private Sub FrmTempleSetting_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-            Db.EnsureSchema()
-            LoadLocations()
-            LoadPersonnel()
-            LoadTempleData()
-            SetupToolTips()
-            SetupEnterNavigation()
-            txtTempleCode.Focus()
+            Try
+                ' ตรวจสอบและสร้าง Schema หากยังไม่มี
+                Db.EnsureSchema()
+
+                ' โหลดข้อมูลที่อยู่ (จังหวัด/อำเภอ/ตำบล)
+                LoadLocations()
+
+                ' โหลดข้อมูลบุคลากร (เจ้าอาวาส/ไวยาวัจกร/ผู้ทำบัญชี)
+                LoadPersonnel()
+
+                ' โหลดข้อมูลวัดจากฐานข้อมูล
+                LoadTempleData()
+
+                ' ตั้งค่า Tooltip
+                SetupToolTips()
+
+                ' ตั้งค่าการนำทางด้วยปุ่ม Enter
+                SetupEnterNavigation()
+
+                ' โฟกัสที่ช่องรหัสวัด
+                If txtTempleCode.CanFocus Then txtTempleCode.Focus()
+
+            Catch ex As Exception
+                ' จัดการข้อผิดพลาดอย่างปลอดภัยไม่ให้ฟอร์มล่ม
+                MessageBox.Show("เกิดข้อผิดพลาดในการโหลดข้อมูล: " & ex.Message,
+                               "ข้อผิดพลาด",
+                               MessageBoxButtons.OK,
+                               MessageBoxIcon.Error)
+                System.Diagnostics.Debug.WriteLine("[FrmTempleSetting] Load Error: " & ex.ToString())
+            End Try
         End Sub
 
         Private Sub LoadPersonnel()
