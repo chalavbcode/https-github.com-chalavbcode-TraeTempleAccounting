@@ -3,6 +3,7 @@ Option Explicit On
 
 Imports System
 Imports System.IO
+Imports System.Collections.Generic
 Imports System.Data.OleDb
 Imports System.Windows.Forms
 
@@ -143,11 +144,21 @@ Namespace TempleAccounting
                 ' 4. ทำการ Restore ฐานข้อมูล
                 File.Copy(dbBackupFile, AppPaths.DatabaseFile, True)
 
-                ' 5. ทำการ Restore รูปใบเสร็จ
-                Dim receiptsBackupPath As String = Path.Combine(backupFolder, "Receipts")
-                If Directory.Exists(receiptsBackupPath) Then
-                    CopyDirectory(receiptsBackupPath, AppPaths.ReceiptsDir)
-                End If
+                ' 5. ทำการ Restore รูปใบเสร็จ (Receipt Images)
+                ' ตรวจสอบทั้งในโฟลเดอร์ที่เลือก และโฟลเดอร์ย่อยชื่อ Receipts
+                Dim receiptsSourcePaths As New List(Of String)()
+                
+                ' กรณี 1: มีโฟลเดอร์ Receipts อยู่ข้างใน (โครงสร้างมาตรฐาน)
+                Dim subDirReceipts = Path.Combine(backupFolder, "Receipts")
+                If Directory.Exists(subDirReceipts) Then receiptsSourcePaths.Add(subDirReceipts)
+                
+                ' กรณี 2: ผู้ใช้เลือกโฟลเดอร์ที่มีรูปอยู่โดยตรง
+                receiptsSourcePaths.Add(backupFolder)
+
+                ' ทำการคัดลอกไฟล์รูปภาพจากทุกแหล่งที่พบ
+                For Each srcPath In receiptsSourcePaths
+                    CopyImageFilesOnly(srcPath, AppPaths.ReceiptsDir)
+                Next
 
                 ' ลบ Safety Backup เมื่อสำเร็จ
                 Try
@@ -177,5 +188,35 @@ Namespace TempleAccounting
                 Return False
             End Try
         End Function
+
+        ''' <summary>
+        ''' คัดลอกเฉพาะไฟล์รูปภาพจากโฟลเดอร์ต้นทางไปยังปลายทาง
+        ''' </summary>
+        Private Shared Sub CopyImageFilesOnly(sourceDir As String, destDir As String)
+            Try
+                If Not Directory.Exists(sourceDir) Then Return
+                If Not Directory.Exists(destDir) Then Directory.CreateDirectory(destDir)
+
+                Dim dirInfo As New DirectoryInfo(sourceDir)
+                ' รองรับนามสกุลรูปภาพหลักๆ (Case-insensitive โดยธรรมชาติของ Windows/NTFS)
+                Dim extensions As String() = {".jpg", ".jpeg", ".png", ".bmp"}
+                
+                For Each fileItem In dirInfo.GetFiles()
+                    Dim ext = fileItem.Extension.ToLower()
+                    If Array.IndexOf(extensions, ext) >= 0 Then
+                        Try
+                            Dim destFilePath = Path.Combine(destDir, fileItem.Name)
+                            ' ตั้งค่า overwrite:=True ตามคำขอ
+                            fileItem.CopyTo(destFilePath, True)
+                        Catch ex As Exception
+                            ' ข้ามไฟล์ที่ติด Lock หรือมีปัญหา
+                            AppPaths.LogCrash(ex, $"CopyImageFilesOnly.Skip: {fileItem.Name}")
+                        End Try
+                    End If
+                Next
+            Catch ex As Exception
+                AppPaths.LogCrash(ex, $"CopyImageFilesOnly.Error: {sourceDir}")
+            End Try
+        End Sub
     End Class
 End Namespace
