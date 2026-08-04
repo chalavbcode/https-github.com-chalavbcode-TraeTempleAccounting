@@ -89,19 +89,11 @@ Namespace TempleAccounting
                          "pos.PositionName AS [ตำแหน่ง], " &
                          "p.PersonType AS [ประเภท], " &
                          "p.Phone AS [เบอร์โทร], " &
-                         "CASE " &
-                         "  WHEN t.AbbotID = p.PersonnelID THEN 'เจ้าอาวาส' " &
-                         "  WHEN t.WaiyawatID = p.PersonnelID THEN 'ไวยาวัจกร' " &
-                         "  WHEN t.BookkeeperID = p.PersonnelID THEN 'ผู้ทำบัญชี' " &
-                         "END AS [บทบาทในวัด] " &
+                         "Switch(t.AbbotID = p.PersonnelID, 'เจ้าอาวาส', t.WaiyawatID = p.PersonnelID, 'ไวยาวัจกร', t.BookkeeperID = p.PersonnelID, 'ผู้ทำบัญชี') AS [บทบาทในวัด] " &
                          "FROM TempleSetting t " &
                          "INNER JOIN Personnel p ON (t.AbbotID = p.PersonnelID OR t.WaiyawatID = p.PersonnelID OR t.BookkeeperID = p.PersonnelID) " &
                          "LEFT JOIN Positions pos ON p.PositionID = pos.PositionID " &
-                         "ORDER BY CASE " &
-                         "  WHEN t.AbbotID = p.PersonnelID THEN 1 " &
-                         "  WHEN t.WaiyawatID = p.PersonnelID THEN 2 " &
-                         "  WHEN t.BookkeeperID = p.PersonnelID THEN 3 " &
-                         "END"
+                         "ORDER BY Switch(t.AbbotID = p.PersonnelID, 1, t.WaiyawatID = p.PersonnelID, 2, t.BookkeeperID = p.PersonnelID, 3)"
 
                 Dim dt = Db.GetTable(conn, sql)
                 dgvPersonnel.DataSource = dt
