@@ -104,7 +104,7 @@ Namespace TempleAccounting
             lblHeader.ForeColor = Color.FromArgb(CByte(12), CByte(74), CByte(110))
             lblHeader.Location = New Point(0, 0)
             lblHeader.Name = "lblHeader"
-            lblHeader.Size = New Size(1333, 42)
+            lblHeader.Size = New Size(1591, 42)
             lblHeader.TabIndex = 0
             lblHeader.Text = "📍 นำเข้าข้อมูลจังหวัด/อำเภอ/ตำบล"
             lblHeader.TextAlign = ContentAlignment.MiddleCenter
@@ -273,7 +273,7 @@ Namespace TempleAccounting
             grp3.ForeColor = Color.FromArgb(CByte(12), CByte(74), CByte(110))
             grp3.Location = New Point(991, 60)
             grp3.Name = "grp3"
-            grp3.Size = New Size(330, 230)
+            grp3.Size = New Size(588, 230)
             grp3.TabIndex = 3
             grp3.TabStop = False
             grp3.Text = "ตรวจสอบ"
@@ -330,7 +330,7 @@ Namespace TempleAccounting
             grp4.ForeColor = Color.FromArgb(CByte(12), CByte(74), CByte(110))
             grp4.Location = New Point(20, 300)
             grp4.Name = "grp4"
-            grp4.Size = New Size(1301, 90)
+            grp4.Size = New Size(1559, 90)
             grp4.TabIndex = 4
             grp4.TabStop = False
             grp4.Text = "Progress"
@@ -339,7 +339,7 @@ Namespace TempleAccounting
             ' 
             lblProgress.AutoSize = True
             lblProgress.Font = New Font("Tahoma", 10.5F, FontStyle.Bold)
-            lblProgress.Location = New Point(971, 32)
+            lblProgress.Location = New Point(1375, 39)
             lblProgress.Name = "lblProgress"
             lblProgress.Size = New Size(134, 25)
             lblProgress.TabIndex = 1
@@ -349,7 +349,7 @@ Namespace TempleAccounting
             ' 
             prgImport.Location = New Point(20, 32)
             prgImport.Name = "prgImport"
-            prgImport.Size = New Size(945, 32)
+            prgImport.Size = New Size(1333, 32)
             prgImport.TabIndex = 0
             ' 
             ' grp5
@@ -362,7 +362,7 @@ Namespace TempleAccounting
             grp5.ForeColor = Color.FromArgb(CByte(12), CByte(74), CByte(110))
             grp5.Location = New Point(20, 400)
             grp5.Name = "grp5"
-            grp5.Size = New Size(1301, 280)
+            grp5.Size = New Size(1559, 280)
             grp5.TabIndex = 5
             grp5.TabStop = False
             grp5.Text = "ประวัติการทำงานล่าสุด"
@@ -394,7 +394,7 @@ Namespace TempleAccounting
             rtbLog.Location = New Point(16, 32)
             rtbLog.Name = "rtbLog"
             rtbLog.ReadOnly = True
-            rtbLog.Size = New Size(1265, 200)
+            rtbLog.Size = New Size(1523, 200)
             rtbLog.TabIndex = 0
             rtbLog.Text = ""
             ' 
@@ -405,7 +405,7 @@ Namespace TempleAccounting
             btnClose.FlatStyle = FlatStyle.Flat
             btnClose.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             btnClose.ForeColor = Color.White
-            btnClose.Location = New Point(1050, 690)
+            btnClose.Location = New Point(1429, 686)
             btnClose.Name = "btnClose"
             btnClose.Size = New Size(150, 50)
             btnClose.TabIndex = 6
@@ -416,7 +416,7 @@ Namespace TempleAccounting
             ' 
             AutoScroll = True
             BackColor = Color.FromArgb(CByte(254), CByte(249), CByte(235))
-            ClientSize = New Size(1333, 761)
+            ClientSize = New Size(1591, 781)
             Controls.Add(btnClose)
             Controls.Add(grp5)
             Controls.Add(grp4)
