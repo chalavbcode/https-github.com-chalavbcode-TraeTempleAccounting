@@ -1,4 +1,4 @@
-﻿Imports System.Drawing
+Imports System.Drawing
 Imports System.Windows.Forms
 
 Public Class MessageBoxHelper
@@ -23,6 +23,14 @@ Public Class MessageBoxHelper
     ' MessageBox.Show("text", "caption", buttons, icon)
     Public Shared Function Show(text As String, caption As String, buttons As MessageBoxButtons, icon As MessageBoxIcon) As DialogResult
         Return ShowLargeMessageBox(text, caption, buttons, icon)
+    End Function
+
+    Public Shared Function ShowInfo(text As String, Optional caption As String = "ข้อมูล") As DialogResult
+        Return ShowLargeMessageBox(text, caption, MessageBoxButtons.OK, MessageBoxIcon.Information)
+    End Function
+
+    Public Shared Function ShowError(text As String, Optional caption As String = "ข้อผิดพลาด") As DialogResult
+        Return ShowLargeMessageBox(text, caption, MessageBoxButtons.OK, MessageBoxIcon.Error)
     End Function
 
     ' ฟังก์ชันหลักที่ทำการ Render จริง (ของเดิมที่คุณมีอยู่แล้ว)

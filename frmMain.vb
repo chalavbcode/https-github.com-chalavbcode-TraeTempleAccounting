@@ -656,5 +656,28 @@ Namespace TempleAccounting
                                 "ข้อความจากระบบ", MessageBoxButtons.OK, MessageBoxIcon.Information)
             End If
         End Sub
+
+        Private Sub btnBackup_Click(sender As Object, e As EventArgs)
+            Using fbd As New FolderBrowserDialog()
+                fbd.Description = "เลือกโฟลเดอร์ปลายทางที่ต้องการเก็บไฟล์สำรองฐานข้อมูล"
+                fbd.UseDescriptionForTitle = True
+                fbd.ShowNewFolderButton = True
+
+                If fbd.ShowDialog() = DialogResult.OK Then
+                    ' เรียกใช้ Helper เพื่อสำรองข้อมูล
+                    DatabaseBackupHelper.BackupDatabase(fbd.SelectedPath, False)
+                End If
+            End Using
+        End Sub
+
+        Private Sub FrmMain_FormClosing(sender As Object, e As FormClosingEventArgs)
+            Try
+                ' สำรองข้อมูลอัตโนมัติเมื่อปิดโปรแกรม (Background Auto-Backup)
+                ' จะบันทึกไว้ในโฟลเดอร์ Backup ของโปรแกรมตามค่าเริ่มต้น
+                DatabaseBackupHelper.BackupDatabase(isAuto:=True)
+            Catch
+                ' ไม่ต้องแสดง Error ตอนปิดโปรแกรมเพื่อไม่ให้กวนผู้ใช้
+            End Try
+        End Sub
     End Class
 End Namespace

@@ -16,6 +16,7 @@ Namespace TempleAccounting
             AddHandler btnVip.Click, AddressOf NavMenu_Click
             AddHandler btnActivity.Click, AddressOf NavMenu_Click
             AddHandler btnSetting.Click, AddressOf NavMenu_Click
+            AddHandler btnBackup.Click, AddressOf btnBackup_Click
 
             AddHandler pnlCard1.Click, AddressOf OverviewCard_Click
             AddHandler pnlCard2.Click, AddressOf OverviewCard_Click
@@ -29,6 +30,7 @@ Namespace TempleAccounting
             AddHandler lblStatusCenter.MouseClick, AddressOf StatusCenter_MouseClick
 
             AddHandler Me.Load, AddressOf FrmMain_Load
+            AddHandler Me.FormClosing, AddressOf FrmMain_FormClosing
         End Sub
 
         Private Sub SetupCardHoverEffects()
@@ -65,6 +67,7 @@ Namespace TempleAccounting
                 ilIcons.Images.Add("vip", MakeIconBitmap("🥇", Color.FromArgb(161, 98, 7)))
                 ilIcons.Images.Add("activity", MakeIconBitmap("🎎", Color.FromArgb(131, 24, 67)))
                 ilIcons.Images.Add("setting", MakeIconBitmap("⚙️", Color.FromArgb(75, 85, 99)))
+                ilIcons.Images.Add("backup", MakeIconBitmap("💾", Color.FromArgb(5, 150, 105)))
 
                 ApplyButtonImage(btnDashboard, "home")
                 ApplyButtonImage(btnDonation, "donation")
@@ -74,6 +77,7 @@ Namespace TempleAccounting
                 ApplyButtonImage(btnVip, "vip")
                 ApplyButtonImage(btnActivity, "activity")
                 ApplyButtonImage(btnSetting, "setting")
+                ApplyButtonImage(btnBackup, "backup")
             Catch
             End Try
 
@@ -158,6 +162,7 @@ Namespace TempleAccounting
             ttMain.SetToolTip(btnVip, "จัดการข้อมูลรายชื่อพระสงฆ์และไวยาวัจกร")
             ttMain.SetToolTip(btnActivity, "บันทึกข้อมูลกิจกรรมงานบุญและเทศกาล")
             ttMain.SetToolTip(btnSetting, "ตั้งค่าข้อมูลวัดและข้อมูลพื้นฐานของระบบ")
+            ttMain.SetToolTip(btnBackup, "สำรองข้อมูลฐานข้อมูล (Backup Database)")
             ttMain.SetToolTip(btnLogout, "ออกจากระบบและกลับไปหน้า Login")
             ttMain.SetToolTip(btnClose, "ปิดโปรแกรม")
             ttMain.SetToolTip(btnMinimize, "ย่อหน้าต่างโปรแกรมลง")
