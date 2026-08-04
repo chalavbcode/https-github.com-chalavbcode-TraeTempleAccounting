@@ -21,25 +21,6 @@ Namespace TempleAccounting
             InitializeComponent()
         End Sub
 
-        Private Function Lbl(t As String, x As Integer, y As Integer, Optional w As Integer = 200) As Label
-            Return New Label With {.Text = t, .Location = New Point(x, y), .Size = New Size(w, 40), .TextAlign = ContentAlignment.MiddleRight, .Font = New Font("Tahoma", 10.0!)}
-        End Function
-        Private Function Tb(Optional y As Integer = 0) As TextBox
-            Dim t As New TextBox()
-            t.Font = New Font("Tahoma", 10.5!)
-            t.Size = New Size(520, 40)
-            t.Location = New Point(250, y)
-            Return t
-        End Function
-        Private Function Cb(y As Integer) As ComboBox
-            Dim c As New ComboBox()
-            c.Font = New Font("Tahoma", 10.0!)
-            c.Size = New Size(520, 40)
-            c.Location = New Point(250, y)
-            c.DropDownStyle = ComboBoxStyle.DropDownList
-            Return c
-        End Function
-
         Private Sub FrmTempleSetting_Load(sender As Object, e As EventArgs) Handles MyBase.Load
             Db.EnsureSchema()
             LoadLocations()
