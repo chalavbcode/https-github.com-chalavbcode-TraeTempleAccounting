@@ -2,23 +2,60 @@ Option Strict Off
 Option Explicit On
 
 Imports System
+Imports System.ComponentModel
 Imports System.Drawing
 Imports System.Windows.Forms
 
 Namespace TempleAccounting
     <Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
     Partial Public Class FrmPersonnelManagement
-        Inherits System.Windows.Forms.Form
+        Inherits Form
 
-        Private components As System.ComponentModel.IContainer = Nothing
+        Private components As IContainer = Nothing
 
+        Friend WithEvents pnlHeader As Panel
+        Friend WithEvents lblHeader As Label
+        Friend WithEvents pnlMain As Panel
+        Friend WithEvents tcMain As TabControl
+        Friend WithEvents tpPersonnel As TabPage
+        Friend WithEvents tpPositions As TabPage
+        Friend WithEvents dgvPersonnel As DataGridView
+        Friend WithEvents pnlEditor As Panel
+        Friend WithEvents tlpEditor As TableLayoutPanel
+        Friend WithEvents lblTitle As Label
+        Friend WithEvents txtTitle As TextBox
+        Friend WithEvents lblFirstName As Label
+        Friend WithEvents txtFirstName As TextBox
+        Friend WithEvents lblLastName As Label
+        Friend WithEvents txtLastName As TextBox
+        Friend WithEvents lblPersonType As Label
+        Friend WithEvents cboPersonType As ComboBox
+        Friend WithEvents lblPhone As Label
+        Friend WithEvents txtPhone As TextBox
+        Friend WithEvents dgvPositions As DataGridView
+        Friend WithEvents pnlPosEditor As Panel
+        Friend WithEvents tlpPosEditor As TableLayoutPanel
+        Friend WithEvents lblPositionName As Label
+        Friend WithEvents txtPositionName As TextBox
+        Friend WithEvents pnlButtons As Panel
+        Friend WithEvents flpButtons As FlowLayoutPanel
+        Friend WithEvents btnSave As Button
+        Friend WithEvents btnDelete As Button
+        Friend WithEvents btnNew As Button
+        Friend WithEvents btnClose As Button
+
+        <System.Diagnostics.DebuggerNonUserCode()>
         Protected Overrides Sub Dispose(disposing As Boolean)
-            If disposing AndAlso components IsNot Nothing Then
-                components.Dispose()
-            End If
-            MyBase.Dispose(disposing)
+            Try
+                If disposing AndAlso components IsNot Nothing Then
+                    components.Dispose()
+                End If
+            Finally
+                MyBase.Dispose(disposing)
+            End Try
         End Sub
 
+        <System.Diagnostics.DebuggerStepThrough()>
         Private Sub InitializeComponent()
             Me.components = New System.ComponentModel.Container()
             Me.pnlHeader = New System.Windows.Forms.Panel()
@@ -68,7 +105,7 @@ Namespace TempleAccounting
             '
             'pnlHeader
             '
-            Me.pnlHeader.BackColor = System.Drawing.Color.FromArgb(CByte(253), CByte(230), CByte(138))
+            Me.pnlHeader.BackColor = System.Drawing.Color.FromArgb(253, 230, 138)
             Me.pnlHeader.Controls.Add(Me.lblHeader)
             Me.pnlHeader.Dock = System.Windows.Forms.DockStyle.Top
             Me.pnlHeader.Location = New System.Drawing.Point(0, 0)
@@ -80,7 +117,7 @@ Namespace TempleAccounting
             '
             Me.lblHeader.Dock = System.Windows.Forms.DockStyle.Fill
             Me.lblHeader.Font = New System.Drawing.Font("Tahoma", 12.0!, System.Drawing.FontStyle.Bold)
-            Me.lblHeader.ForeColor = System.Drawing.Color.FromArgb(CByte(69), CByte(26), CByte(3))
+            Me.lblHeader.ForeColor = System.Drawing.Color.FromArgb(69, 26, 3)
             Me.lblHeader.Location = New System.Drawing.Point(0, 0)
             Me.lblHeader.Name = "lblHeader"
             Me.lblHeader.Size = New System.Drawing.Size(900, 42)
@@ -191,7 +228,7 @@ Namespace TempleAccounting
             '
             'txtTitle
             '
-            Me.txtTitle.Anchor = CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+            Me.txtTitle.Anchor = CType(System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right, System.Windows.Forms.AnchorStyles)
             Me.txtTitle.Font = New System.Drawing.Font("Tahoma", 10.0!)
             Me.txtTitle.Location = New System.Drawing.Point(123, 16)
             Me.txtTitle.Name = "txtTitle"
@@ -211,7 +248,7 @@ Namespace TempleAccounting
             '
             'txtFirstName
             '
-            Me.txtFirstName.Anchor = CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+            Me.txtFirstName.Anchor = CType(System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right, System.Windows.Forms.AnchorStyles)
             Me.txtFirstName.Font = New System.Drawing.Font("Tahoma", 10.0!)
             Me.txtFirstName.Location = New System.Drawing.Point(123, 76)
             Me.txtFirstName.Name = "txtFirstName"
@@ -231,7 +268,7 @@ Namespace TempleAccounting
             '
             'txtLastName
             '
-            Me.txtLastName.Anchor = CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+            Me.txtLastName.Anchor = CType(System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right, System.Windows.Forms.AnchorStyles)
             Me.txtLastName.Font = New System.Drawing.Font("Tahoma", 10.0!)
             Me.txtLastName.Location = New System.Drawing.Point(526, 76)
             Me.txtLastName.Name = "txtLastName"
@@ -251,7 +288,7 @@ Namespace TempleAccounting
             '
             'cboPersonType
             '
-            Me.cboPersonType.Anchor = CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+            Me.cboPersonType.Anchor = CType(System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right, System.Windows.Forms.AnchorStyles)
             Me.cboPersonType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
             Me.cboPersonType.Font = New System.Drawing.Font("Tahoma", 10.0!)
             Me.cboPersonType.FormattingEnabled = True
@@ -274,7 +311,7 @@ Namespace TempleAccounting
             '
             'txtPhone
             '
-            Me.txtPhone.Anchor = CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+            Me.txtPhone.Anchor = CType(System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right, System.Windows.Forms.AnchorStyles)
             Me.txtPhone.Font = New System.Drawing.Font("Tahoma", 10.0!)
             Me.txtPhone.Location = New System.Drawing.Point(526, 136)
             Me.txtPhone.Name = "txtPhone"
@@ -351,7 +388,7 @@ Namespace TempleAccounting
             '
             'txtPositionName
             '
-            Me.txtPositionName.Anchor = CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+            Me.txtPositionName.Anchor = CType(System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right, System.Windows.Forms.AnchorStyles)
             Me.txtPositionName.Font = New System.Drawing.Font("Tahoma", 10.0!)
             Me.txtPositionName.Location = New System.Drawing.Point(153, 16)
             Me.txtPositionName.Name = "txtPositionName"
@@ -360,7 +397,7 @@ Namespace TempleAccounting
             '
             'pnlButtons
             '
-            Me.pnlButtons.BackColor = System.Drawing.Color.FromArgb(CByte(245), CByte(245), CByte(240))
+            Me.pnlButtons.BackColor = System.Drawing.Color.FromArgb(245, 245, 240)
             Me.pnlButtons.Controls.Add(Me.flpButtons)
             Me.pnlButtons.Dock = System.Windows.Forms.DockStyle.Bottom
             Me.pnlButtons.Location = New System.Drawing.Point(0, 550)
@@ -384,7 +421,7 @@ Namespace TempleAccounting
             '
             'btnClose
             '
-            Me.btnClose.BackColor = System.Drawing.Color.FromArgb(CByte(75), CByte(85), CByte(99))
+            Me.btnClose.BackColor = System.Drawing.Color.FromArgb(75, 85, 99)
             Me.btnClose.FlatStyle = System.Windows.Forms.FlatStyle.Flat
             Me.btnClose.Font = New System.Drawing.Font("Tahoma", 10.0!, System.Drawing.FontStyle.Bold)
             Me.btnClose.ForeColor = System.Drawing.Color.White
@@ -397,7 +434,7 @@ Namespace TempleAccounting
             '
             'btnDelete
             '
-            Me.btnDelete.BackColor = System.Drawing.Color.FromArgb(CByte(153), CByte(27), CByte(27))
+            Me.btnDelete.BackColor = System.Drawing.Color.FromArgb(153, 27, 27)
             Me.btnDelete.FlatStyle = System.Windows.Forms.FlatStyle.Flat
             Me.btnDelete.Font = New System.Drawing.Font("Tahoma", 10.0!, System.Drawing.FontStyle.Bold)
             Me.btnDelete.ForeColor = System.Drawing.Color.White
@@ -410,7 +447,7 @@ Namespace TempleAccounting
             '
             'btnSave
             '
-            Me.btnSave.BackColor = System.Drawing.Color.FromArgb(CByte(22), CByte(163), CByte(74))
+            Me.btnSave.BackColor = System.Drawing.Color.FromArgb(22, 163, 74)
             Me.btnSave.FlatStyle = System.Windows.Forms.FlatStyle.Flat
             Me.btnSave.Font = New System.Drawing.Font("Tahoma", 10.0!, System.Drawing.FontStyle.Bold)
             Me.btnSave.ForeColor = System.Drawing.Color.White
@@ -423,7 +460,7 @@ Namespace TempleAccounting
             '
             'btnNew
             '
-            Me.btnNew.BackColor = System.Drawing.Color.FromArgb(CByte(37), CByte(99), CByte(235))
+            Me.btnNew.BackColor = System.Drawing.Color.FromArgb(37, 99, 235)
             Me.btnNew.FlatStyle = System.Windows.Forms.FlatStyle.Flat
             Me.btnNew.Font = New System.Drawing.Font("Tahoma", 10.0!, System.Drawing.FontStyle.Bold)
             Me.btnNew.ForeColor = System.Drawing.Color.White
@@ -465,43 +502,5 @@ Namespace TempleAccounting
             Me.flpButtons.ResumeLayout(False)
             Me.ResumeLayout(False)
         End Sub
-
-        ' Controls
-        Friend WithEvents pnlHeader As System.Windows.Forms.Panel
-        Friend WithEvents lblHeader As System.Windows.Forms.Label
-        Friend WithEvents pnlMain As System.Windows.Forms.Panel
-        Friend WithEvents tcMain As System.Windows.Forms.TabControl
-        Friend WithEvents tpPersonnel As System.Windows.Forms.TabPage
-        Friend WithEvents tpPositions As System.Windows.Forms.TabPage
-        
-        ' Personnel Tab
-        Friend WithEvents dgvPersonnel As System.Windows.Forms.DataGridView
-        Friend WithEvents pnlEditor As System.Windows.Forms.Panel
-        Friend WithEvents tlpEditor As System.Windows.Forms.TableLayoutPanel
-        Friend WithEvents lblTitle As System.Windows.Forms.Label
-        Friend WithEvents txtTitle As System.Windows.Forms.TextBox
-        Friend WithEvents lblFirstName As System.Windows.Forms.Label
-        Friend WithEvents txtFirstName As System.Windows.Forms.TextBox
-        Friend WithEvents lblLastName As System.Windows.Forms.Label
-        Friend WithEvents txtLastName As System.Windows.Forms.TextBox
-        Friend WithEvents lblPersonType As System.Windows.Forms.Label
-        Friend WithEvents cboPersonType As System.Windows.Forms.ComboBox
-        Friend WithEvents lblPhone As System.Windows.Forms.Label
-        Friend WithEvents txtPhone As System.Windows.Forms.TextBox
-        
-        ' Positions Tab
-        Friend WithEvents dgvPositions As System.Windows.Forms.DataGridView
-        Friend WithEvents pnlPosEditor As System.Windows.Forms.Panel
-        Friend WithEvents tlpPosEditor As System.Windows.Forms.TableLayoutPanel
-        Friend WithEvents lblPositionName As System.Windows.Forms.Label
-        Friend WithEvents txtPositionName As System.Windows.Forms.TextBox
-        
-        ' Common
-        Friend WithEvents pnlButtons As System.Windows.Forms.Panel
-        Friend WithEvents flpButtons As System.Windows.Forms.FlowLayoutPanel
-        Friend WithEvents btnSave As System.Windows.Forms.Button
-        Friend WithEvents btnDelete As System.Windows.Forms.Button
-        Friend WithEvents btnNew As System.Windows.Forms.Button
-        Friend WithEvents btnClose As System.Windows.Forms.Button
     End Class
 End Namespace
