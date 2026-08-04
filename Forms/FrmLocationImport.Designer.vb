@@ -60,386 +60,385 @@ Namespace TempleAccounting
 
         <DebuggerStepThrough()>
         Private Sub InitializeComponent()
-            Me.components = New Container()
-            Me.ttMain = New ToolTip(Me.components)
-            Me.lblHeader = New Label()
-            Me.grp1 = New GroupBox()
-            Me.lblProvinceFile = New Label()
-            Me.lblDistrictFile = New Label()
-            Me.Label2 = New Label()
-            Me.lblProvinceCount = New Label()
-            Me.lblDistrictCount = New Label()
-            Me.lblSubDistrictCount = New Label()
-            Me.lnkOpenImportFolder = New LinkLabel()
-            Me.grp2 = New GroupBox()
-            Me.chkClearBeforeImport = New CheckBox()
-            Me.btnImport = New Button()
-            Me.btnUpdate = New Button()
-            Me.btnRebuild = New Button()
-            Me.grp3 = New GroupBox()
-            Me.btnCheck = New Button()
-            Me.Label3 = New Label()
-            Me.Label4 = New Label()
-            Me.lblStatus = New Label()
-            Me.grp4 = New GroupBox()
-            Me.prgImport = New ProgressBar()
-            Me.lblProgress = New Label()
-            Me.grp5 = New GroupBox()
-            Me.rtbLog = New RichTextBox()
-            Me.lblLastImportTitle = New Label()
-            Me.lblLastImport = New Label()
-            Me.btnClose = New Button()
-            Me.grp1.SuspendLayout()
-            Me.grp2.SuspendLayout()
-            Me.grp3.SuspendLayout()
-            Me.grp4.SuspendLayout()
-            Me.grp5.SuspendLayout()
-            Me.SuspendLayout()
+            components = New Container()
+            ttMain = New ToolTip(components)
+            lblHeader = New Label()
+            grp1 = New GroupBox()
+            lnkOpenImportFolder = New LinkLabel()
+            lblSubDistrictCount = New Label()
+            lblDistrictCount = New Label()
+            lblProvinceCount = New Label()
+            Label2 = New Label()
+            lblDistrictFile = New Label()
+            lblProvinceFile = New Label()
+            grp2 = New GroupBox()
+            btnRebuild = New Button()
+            btnUpdate = New Button()
+            btnImport = New Button()
+            chkClearBeforeImport = New CheckBox()
+            grp3 = New GroupBox()
+            lblStatus = New Label()
+            Label4 = New Label()
+            Label3 = New Label()
+            btnCheck = New Button()
+            grp4 = New GroupBox()
+            lblProgress = New Label()
+            prgImport = New ProgressBar()
+            grp5 = New GroupBox()
+            lblLastImport = New Label()
+            lblLastImportTitle = New Label()
+            rtbLog = New RichTextBox()
+            btnClose = New Button()
+            grp1.SuspendLayout()
+            grp2.SuspendLayout()
+            grp3.SuspendLayout()
+            grp4.SuspendLayout()
+            grp5.SuspendLayout()
+            SuspendLayout()
             ' 
             ' lblHeader
             ' 
-            Me.lblHeader.BackColor = Color.FromArgb(186, 230, 253)
-            Me.lblHeader.Dock = DockStyle.Top
-            Me.lblHeader.Font = New Font("Tahoma", 14.0!, FontStyle.Bold)
-            Me.lblHeader.ForeColor = Color.FromArgb(12, 74, 110)
-            Me.lblHeader.Location = New Point(0, 0)
-            Me.lblHeader.Name = "lblHeader"
-            Me.lblHeader.Size = New Size(1264, 42)
-            Me.lblHeader.TabIndex = 0
-            Me.lblHeader.Text = "📍 นำเข้าข้อมูลจังหวัด/อำเภอ/ตำบล"
-            Me.lblHeader.TextAlign = ContentAlignment.MiddleCenter
+            lblHeader.BackColor = Color.FromArgb(CByte(186), CByte(230), CByte(253))
+            lblHeader.Dock = DockStyle.Top
+            lblHeader.Font = New Font("Tahoma", 14F, FontStyle.Bold)
+            lblHeader.ForeColor = Color.FromArgb(CByte(12), CByte(74), CByte(110))
+            lblHeader.Location = New Point(0, 0)
+            lblHeader.Name = "lblHeader"
+            lblHeader.Size = New Size(1333, 42)
+            lblHeader.TabIndex = 0
+            lblHeader.Text = "📍 นำเข้าข้อมูลจังหวัด/อำเภอ/ตำบล"
+            lblHeader.TextAlign = ContentAlignment.MiddleCenter
             ' 
             ' grp1
             ' 
-            Me.grp1.BackColor = Color.White
-            Me.grp1.Controls.Add(Me.lnkOpenImportFolder)
-            Me.grp1.Controls.Add(Me.lblSubDistrictCount)
-            Me.grp1.Controls.Add(Me.lblDistrictCount)
-            Me.grp1.Controls.Add(Me.lblProvinceCount)
-            Me.grp1.Controls.Add(Me.Label2)
-            Me.grp1.Controls.Add(Me.lblDistrictFile)
-            Me.grp1.Controls.Add(Me.lblProvinceFile)
-            Me.grp1.Font = New Font("Tahoma", 10.0!, FontStyle.Bold)
-            Me.grp1.ForeColor = Color.FromArgb(12, 74, 110)
-            Me.grp1.Location = New Point(20, 60)
-            Me.grp1.Name = "grp1"
-            Me.grp1.Size = New Size(840, 130)
-            Me.grp1.TabIndex = 1
-            Me.grp1.TabStop = False
-            Me.grp1.Text = "ไฟล์ CSV ต้นฉบับ"
-            ' 
-            ' lblProvinceFile
-            ' 
-            Me.lblProvinceFile.AutoSize = True
-            Me.lblProvinceFile.Font = New Font("Tahoma", 10.0!)
-            Me.lblProvinceFile.Location = New Point(20, 30)
-            Me.lblProvinceFile.Name = "lblProvinceFile"
-            Me.lblProvinceFile.Size = New Size(101, 21)
-            Me.lblProvinceFile.TabIndex = 0
-            Me.lblProvinceFile.Text = "province.csv:"
-            ' 
-            ' lblDistrictFile
-            ' 
-            Me.lblDistrictFile.AutoSize = True
-            Me.lblDistrictFile.Font = New Font("Tahoma", 10.0!)
-            Me.lblDistrictFile.Location = New Point(20, 60)
-            Me.lblDistrictFile.Name = "lblDistrictFile"
-            Me.lblDistrictFile.Size = New Size(100, 21)
-            Me.lblDistrictFile.TabIndex = 1
-            Me.lblDistrictFile.Text = "amphoe.csv:"
-            ' 
-            ' Label2
-            ' 
-            Me.Label2.AutoSize = True
-            Me.Label2.Font = New Font("Tahoma", 10.0!)
-            Me.Label2.Location = New Point(20, 90)
-            Me.Label2.Name = "Label2"
-            Me.Label2.Size = New Size(100, 21)
-            Me.Label2.TabIndex = 2
-            Me.Label2.Text = "tambon.csv:"
-            ' 
-            ' lblProvinceCount
-            ' 
-            Me.lblProvinceCount.AutoSize = True
-            Me.lblProvinceCount.ForeColor = Color.FromArgb(22, 101, 52)
-            Me.lblProvinceCount.Location = New Point(200, 30)
-            Me.lblProvinceCount.Name = "lblProvinceCount"
-            Me.lblProvinceCount.Size = New Size(17, 21)
-            Me.lblProvinceCount.TabIndex = 3
-            Me.lblProvinceCount.Text = "-"
-            ' 
-            ' lblDistrictCount
-            ' 
-            Me.lblDistrictCount.AutoSize = True
-            Me.lblDistrictCount.ForeColor = Color.FromArgb(22, 101, 52)
-            Me.lblDistrictCount.Location = New Point(200, 60)
-            Me.lblDistrictCount.Name = "lblDistrictCount"
-            Me.lblDistrictCount.Size = New Size(17, 21)
-            Me.lblDistrictCount.TabIndex = 4
-            Me.lblDistrictCount.Text = "-"
-            ' 
-            ' lblSubDistrictCount
-            ' 
-            Me.lblSubDistrictCount.AutoSize = True
-            Me.lblSubDistrictCount.ForeColor = Color.FromArgb(22, 101, 52)
-            Me.lblSubDistrictCount.Location = New Point(200, 90)
-            Me.lblSubDistrictCount.Name = "lblSubDistrictCount"
-            Me.lblSubDistrictCount.Size = New Size(17, 21)
-            Me.lblSubDistrictCount.TabIndex = 5
-            Me.lblSubDistrictCount.Text = "-"
+            grp1.BackColor = Color.White
+            grp1.Controls.Add(lnkOpenImportFolder)
+            grp1.Controls.Add(lblSubDistrictCount)
+            grp1.Controls.Add(lblDistrictCount)
+            grp1.Controls.Add(lblProvinceCount)
+            grp1.Controls.Add(Label2)
+            grp1.Controls.Add(lblDistrictFile)
+            grp1.Controls.Add(lblProvinceFile)
+            grp1.Font = New Font("Tahoma", 10F, FontStyle.Bold)
+            grp1.ForeColor = Color.FromArgb(CByte(12), CByte(74), CByte(110))
+            grp1.Location = New Point(20, 60)
+            grp1.Name = "grp1"
+            grp1.Size = New Size(965, 130)
+            grp1.TabIndex = 1
+            grp1.TabStop = False
+            grp1.Text = "ไฟล์ CSV ต้นฉบับ"
             ' 
             ' lnkOpenImportFolder
             ' 
-            Me.lnkOpenImportFolder.AutoSize = True
-            Me.lnkOpenImportFolder.Location = New Point(580, 30)
-            Me.lnkOpenImportFolder.Name = "lnkOpenImportFolder"
-            Me.lnkOpenImportFolder.Size = New Size(198, 21)
-            Me.lnkOpenImportFolder.TabIndex = 6
-            Me.lnkOpenImportFolder.TabStop = True
-            Me.lnkOpenImportFolder.Text = "📂 เปิดโฟลเดอร์ Import"
+            lnkOpenImportFolder.AutoSize = True
+            lnkOpenImportFolder.Location = New Point(580, 30)
+            lnkOpenImportFolder.Name = "lnkOpenImportFolder"
+            lnkOpenImportFolder.Size = New Size(236, 24)
+            lnkOpenImportFolder.TabIndex = 6
+            lnkOpenImportFolder.TabStop = True
+            lnkOpenImportFolder.Text = "📂 เปิดโฟลเดอร์ Import"
+            ' 
+            ' lblSubDistrictCount
+            ' 
+            lblSubDistrictCount.AutoSize = True
+            lblSubDistrictCount.ForeColor = Color.FromArgb(CByte(22), CByte(101), CByte(52))
+            lblSubDistrictCount.Location = New Point(200, 90)
+            lblSubDistrictCount.Name = "lblSubDistrictCount"
+            lblSubDistrictCount.Size = New Size(19, 24)
+            lblSubDistrictCount.TabIndex = 5
+            lblSubDistrictCount.Text = "-"
+            ' 
+            ' lblDistrictCount
+            ' 
+            lblDistrictCount.AutoSize = True
+            lblDistrictCount.ForeColor = Color.FromArgb(CByte(22), CByte(101), CByte(52))
+            lblDistrictCount.Location = New Point(200, 60)
+            lblDistrictCount.Name = "lblDistrictCount"
+            lblDistrictCount.Size = New Size(19, 24)
+            lblDistrictCount.TabIndex = 4
+            lblDistrictCount.Text = "-"
+            ' 
+            ' lblProvinceCount
+            ' 
+            lblProvinceCount.AutoSize = True
+            lblProvinceCount.ForeColor = Color.FromArgb(CByte(22), CByte(101), CByte(52))
+            lblProvinceCount.Location = New Point(200, 30)
+            lblProvinceCount.Name = "lblProvinceCount"
+            lblProvinceCount.Size = New Size(19, 24)
+            lblProvinceCount.TabIndex = 3
+            lblProvinceCount.Text = "-"
+            ' 
+            ' Label2
+            ' 
+            Label2.AutoSize = True
+            Label2.Font = New Font("Tahoma", 10F)
+            Label2.Location = New Point(20, 90)
+            Label2.Name = "Label2"
+            Label2.Size = New Size(119, 24)
+            Label2.TabIndex = 2
+            Label2.Text = "tambon.csv:"
+            ' 
+            ' lblDistrictFile
+            ' 
+            lblDistrictFile.AutoSize = True
+            lblDistrictFile.Font = New Font("Tahoma", 10F)
+            lblDistrictFile.Location = New Point(20, 60)
+            lblDistrictFile.Name = "lblDistrictFile"
+            lblDistrictFile.Size = New Size(123, 24)
+            lblDistrictFile.TabIndex = 1
+            lblDistrictFile.Text = "amphoe.csv:"
+            ' 
+            ' lblProvinceFile
+            ' 
+            lblProvinceFile.AutoSize = True
+            lblProvinceFile.Font = New Font("Tahoma", 10F)
+            lblProvinceFile.Location = New Point(20, 30)
+            lblProvinceFile.Name = "lblProvinceFile"
+            lblProvinceFile.Size = New Size(126, 24)
+            lblProvinceFile.TabIndex = 0
+            lblProvinceFile.Text = "province.csv:"
             ' 
             ' grp2
             ' 
-            Me.grp2.BackColor = Color.White
-            Me.grp2.Controls.Add(Me.btnRebuild)
-            Me.grp2.Controls.Add(Me.btnUpdate)
-            Me.grp2.Controls.Add(Me.btnImport)
-            Me.grp2.Controls.Add(Me.chkClearBeforeImport)
-            Me.grp2.Font = New Font("Tahoma", 10.0!, FontStyle.Bold)
-            Me.grp2.ForeColor = Color.FromArgb(12, 74, 110)
-            Me.grp2.Location = New Point(20, 200)
-            Me.grp2.Name = "grp2"
-            Me.grp2.Size = New Size(840, 90)
-            Me.grp2.TabIndex = 2
-            Me.grp2.TabStop = False
-            Me.grp2.Text = "ขั้นตอนการนำเข้า"
-            ' 
-            ' chkClearBeforeImport
-            ' 
-            Me.chkClearBeforeImport.Font = New Font("Tahoma", 10.0!)
-            Me.chkClearBeforeImport.Location = New Point(20, 30)
-            Me.chkClearBeforeImport.Name = "chkClearBeforeImport"
-            Me.chkClearBeforeImport.Size = New Size(340, 40)
-            Me.chkClearBeforeImport.TabIndex = 0
-            Me.chkClearBeforeImport.Text = "ล้างข้อมูลเก่าก่อนนำเข้า (แนะนำครั้งแรก)"
-            ' 
-            ' btnImport
-            ' 
-            Me.btnImport.BackColor = Color.FromArgb(37, 99, 235)
-            Me.btnImport.Cursor = Cursors.Hand
-            Me.btnImport.FlatStyle = FlatStyle.Flat
-            Me.btnImport.ForeColor = Color.White
-            Me.btnImport.Location = New Point(380, 22)
-            Me.btnImport.Name = "btnImport"
-            Me.btnImport.Size = New Size(140, 50)
-            Me.btnImport.TabIndex = 1
-            Me.btnImport.Text = "1⃣ นำเข้าใหม่"
-            Me.btnImport.UseVisualStyleBackColor = False
-            ' 
-            ' btnUpdate
-            ' 
-            Me.btnUpdate.BackColor = Color.FromArgb(5, 150, 105)
-            Me.btnUpdate.Cursor = Cursors.Hand
-            Me.btnUpdate.FlatStyle = FlatStyle.Flat
-            Me.btnUpdate.ForeColor = Color.White
-            Me.btnUpdate.Location = New Point(530, 22)
-            Me.btnUpdate.Name = "btnUpdate"
-            Me.btnUpdate.Size = New Size(140, 50)
-            Me.btnUpdate.TabIndex = 2
-            Me.btnUpdate.Text = "2⃣ อัปเดตเพิ่ม"
-            Me.btnUpdate.UseVisualStyleBackColor = False
+            grp2.BackColor = Color.White
+            grp2.Controls.Add(btnRebuild)
+            grp2.Controls.Add(btnUpdate)
+            grp2.Controls.Add(btnImport)
+            grp2.Controls.Add(chkClearBeforeImport)
+            grp2.Font = New Font("Tahoma", 10F, FontStyle.Bold)
+            grp2.ForeColor = Color.FromArgb(CByte(12), CByte(74), CByte(110))
+            grp2.Location = New Point(20, 200)
+            grp2.Name = "grp2"
+            grp2.Size = New Size(965, 90)
+            grp2.TabIndex = 2
+            grp2.TabStop = False
+            grp2.Text = "ขั้นตอนการนำเข้า"
             ' 
             ' btnRebuild
             ' 
-            Me.btnRebuild.BackColor = Color.FromArgb(180, 83, 9)
-            Me.btnRebuild.Cursor = Cursors.Hand
-            Me.btnRebuild.FlatStyle = FlatStyle.Flat
-            Me.btnRebuild.ForeColor = Color.White
-            Me.btnRebuild.Location = New Point(680, 22)
-            Me.btnRebuild.Name = "btnRebuild"
-            Me.btnRebuild.Size = New Size(140, 50)
-            Me.btnRebuild.TabIndex = 3
-            Me.btnRebuild.Text = "3⃣ สร้างใหม่ทั้งหมด"
-            Me.btnRebuild.UseVisualStyleBackColor = False
+            btnRebuild.BackColor = Color.FromArgb(CByte(180), CByte(83), CByte(9))
+            btnRebuild.Cursor = Cursors.Hand
+            btnRebuild.FlatStyle = FlatStyle.Flat
+            btnRebuild.ForeColor = Color.White
+            btnRebuild.Location = New Point(746, 22)
+            btnRebuild.Name = "btnRebuild"
+            btnRebuild.Size = New Size(213, 50)
+            btnRebuild.TabIndex = 3
+            btnRebuild.Text = "3⃣   สร้างใหม่ทั้งหมด"
+            btnRebuild.UseVisualStyleBackColor = False
+            ' 
+            ' btnUpdate
+            ' 
+            btnUpdate.BackColor = Color.FromArgb(CByte(5), CByte(150), CByte(105))
+            btnUpdate.Cursor = Cursors.Hand
+            btnUpdate.FlatStyle = FlatStyle.Flat
+            btnUpdate.ForeColor = Color.White
+            btnUpdate.Location = New Point(577, 20)
+            btnUpdate.Name = "btnUpdate"
+            btnUpdate.Size = New Size(163, 50)
+            btnUpdate.TabIndex = 2
+            btnUpdate.Text = "2⃣   อัปเดตเพิ่ม"
+            btnUpdate.UseVisualStyleBackColor = False
+            ' 
+            ' btnImport
+            ' 
+            btnImport.BackColor = Color.FromArgb(CByte(37), CByte(99), CByte(235))
+            btnImport.Cursor = Cursors.Hand
+            btnImport.FlatStyle = FlatStyle.Flat
+            btnImport.ForeColor = Color.White
+            btnImport.Location = New Point(416, 22)
+            btnImport.Name = "btnImport"
+            btnImport.Size = New Size(155, 50)
+            btnImport.TabIndex = 1
+            btnImport.Text = "1⃣   นำเข้าใหม่"
+            btnImport.UseVisualStyleBackColor = False
+            ' 
+            ' chkClearBeforeImport
+            ' 
+            chkClearBeforeImport.Font = New Font("Tahoma", 10F)
+            chkClearBeforeImport.Location = New Point(20, 30)
+            chkClearBeforeImport.Name = "chkClearBeforeImport"
+            chkClearBeforeImport.Size = New Size(390, 40)
+            chkClearBeforeImport.TabIndex = 0
+            chkClearBeforeImport.Text = "ล้างข้อมูลเก่าก่อนนำเข้า (แนะนำครั้งแรก)"
             ' 
             ' grp3
             ' 
-            Me.grp3.BackColor = Color.White
-            Me.grp3.Controls.Add(Me.lblStatus)
-            Me.grp3.Controls.Add(Me.Label4)
-            Me.grp3.Controls.Add(Me.Label3)
-            Me.grp3.Controls.Add(Me.btnCheck)
-            Me.grp3.Font = New Font("Tahoma", 10.0!, FontStyle.Bold)
-            Me.grp3.ForeColor = Color.FromArgb(12, 74, 110)
-            Me.grp3.Location = New Point(870, 60)
-            Me.grp3.Name = "grp3"
-            Me.grp3.Size = New Size(330, 230)
-            Me.grp3.TabIndex = 3
-            Me.grp3.TabStop = False
-            Me.grp3.Text = "ตรวจสอบ"
-            ' 
-            ' btnCheck
-            ' 
-            Me.btnCheck.BackColor = Color.FromArgb(79, 70, 229)
-            Me.btnCheck.Cursor = Cursors.Hand
-            Me.btnCheck.FlatStyle = FlatStyle.Flat
-            Me.btnCheck.ForeColor = Color.White
-            Me.btnCheck.Location = New Point(20, 30)
-            Me.btnCheck.Name = "btnCheck"
-            Me.btnCheck.Size = New Size(290, 52)
-            Me.btnCheck.TabIndex = 0
-            Me.btnCheck.Text = "🔍 นับจำนวนในฐานข้อมูล"
-            Me.btnCheck.UseVisualStyleBackColor = False
-            ' 
-            ' Label3
-            ' 
-            Me.Label3.AutoSize = True
-            Me.Label3.Location = New Point(20, 96)
-            Me.Label3.Name = "Label3"
-            Me.Label3.Size = New Size(137, 21)
-            Me.Label3.TabIndex = 1
-            Me.Label3.Text = "รายการในตาราง:"
-            ' 
-            ' Label4
-            ' 
-            Me.Label4.AutoSize = True
-            Me.Label4.Font = New Font("Tahoma", 9.5!)
-            Me.Label4.ForeColor = Color.FromArgb(75, 85, 99)
-            Me.Label4.Location = New Point(20, 124)
-            Me.Label4.Name = "Label4"
-            Me.Label4.Size = New Size(229, 19)
-            Me.Label4.TabIndex = 2
-            Me.Label4.Text = "Province / District / SubDistrict"
+            grp3.BackColor = Color.White
+            grp3.Controls.Add(lblStatus)
+            grp3.Controls.Add(Label4)
+            grp3.Controls.Add(Label3)
+            grp3.Controls.Add(btnCheck)
+            grp3.Font = New Font("Tahoma", 10F, FontStyle.Bold)
+            grp3.ForeColor = Color.FromArgb(CByte(12), CByte(74), CByte(110))
+            grp3.Location = New Point(991, 60)
+            grp3.Name = "grp3"
+            grp3.Size = New Size(330, 230)
+            grp3.TabIndex = 3
+            grp3.TabStop = False
+            grp3.Text = "ตรวจสอบ"
             ' 
             ' lblStatus
             ' 
-            Me.lblStatus.AutoSize = True
-            Me.lblStatus.ForeColor = Color.FromArgb(22, 101, 52)
-            Me.lblStatus.Location = New Point(20, 160)
-            Me.lblStatus.Name = "lblStatus"
-            Me.lblStatus.Size = New Size(126, 21)
-            Me.lblStatus.TabIndex = 3
-            Me.lblStatus.Text = "รอการตรวจสอบ"
+            lblStatus.AutoSize = True
+            lblStatus.ForeColor = Color.FromArgb(CByte(22), CByte(101), CByte(52))
+            lblStatus.Location = New Point(20, 160)
+            lblStatus.Name = "lblStatus"
+            lblStatus.Size = New Size(158, 24)
+            lblStatus.TabIndex = 3
+            lblStatus.Text = "รอการตรวจสอบ"
+            ' 
+            ' Label4
+            ' 
+            Label4.AutoSize = True
+            Label4.Font = New Font("Tahoma", 9.5F)
+            Label4.ForeColor = Color.FromArgb(CByte(75), CByte(85), CByte(99))
+            Label4.Location = New Point(20, 124)
+            Label4.Name = "Label4"
+            Label4.Size = New Size(265, 23)
+            Label4.TabIndex = 2
+            Label4.Text = "Province / District / SubDistrict"
+            ' 
+            ' Label3
+            ' 
+            Label3.AutoSize = True
+            Label3.Location = New Point(20, 96)
+            Label3.Name = "Label3"
+            Label3.Size = New Size(170, 24)
+            Label3.TabIndex = 1
+            Label3.Text = "รายการในตาราง:"
+            ' 
+            ' btnCheck
+            ' 
+            btnCheck.BackColor = Color.FromArgb(CByte(79), CByte(70), CByte(229))
+            btnCheck.Cursor = Cursors.Hand
+            btnCheck.FlatStyle = FlatStyle.Flat
+            btnCheck.ForeColor = Color.White
+            btnCheck.Location = New Point(20, 30)
+            btnCheck.Name = "btnCheck"
+            btnCheck.Size = New Size(290, 52)
+            btnCheck.TabIndex = 0
+            btnCheck.Text = "🔍 นับจำนวนในฐานข้อมูล"
+            btnCheck.UseVisualStyleBackColor = False
             ' 
             ' grp4
             ' 
-            Me.grp4.BackColor = Color.White
-            Me.grp4.Controls.Add(Me.lblProgress)
-            Me.grp4.Controls.Add(Me.prgImport)
-            Me.grp4.Font = New Font("Tahoma", 10.0!, FontStyle.Bold)
-            Me.grp4.ForeColor = Color.FromArgb(12, 74, 110)
-            Me.grp4.Location = New Point(20, 300)
-            Me.grp4.Name = "grp4"
-            Me.grp4.Size = New Size(1180, 90)
-            Me.grp4.TabIndex = 4
-            Me.grp4.TabStop = False
-            Me.grp4.Text = "Progress"
-            ' 
-            ' prgImport
-            ' 
-            Me.prgImport.Location = New Point(20, 32)
-            Me.prgImport.Name = "prgImport"
-            Me.prgImport.Size = New Size(800, 32)
-            Me.prgImport.TabIndex = 0
+            grp4.BackColor = Color.White
+            grp4.Controls.Add(lblProgress)
+            grp4.Controls.Add(prgImport)
+            grp4.Font = New Font("Tahoma", 10F, FontStyle.Bold)
+            grp4.ForeColor = Color.FromArgb(CByte(12), CByte(74), CByte(110))
+            grp4.Location = New Point(20, 300)
+            grp4.Name = "grp4"
+            grp4.Size = New Size(1301, 90)
+            grp4.TabIndex = 4
+            grp4.TabStop = False
+            grp4.Text = "Progress"
             ' 
             ' lblProgress
             ' 
-            Me.lblProgress.AutoSize = True
-            Me.lblProgress.Font = New Font("Tahoma", 10.5!, FontStyle.Bold)
-            Me.lblProgress.Location = New Point(840, 32)
-            Me.lblProgress.Name = "lblProgress"
-            Me.lblProgress.Size = New Size(108, 22)
-            Me.lblProgress.TabIndex = 1
-            Me.lblProgress.Text = "รอการทำงาน"
+            lblProgress.AutoSize = True
+            lblProgress.Font = New Font("Tahoma", 10.5F, FontStyle.Bold)
+            lblProgress.Location = New Point(971, 32)
+            lblProgress.Name = "lblProgress"
+            lblProgress.Size = New Size(134, 25)
+            lblProgress.TabIndex = 1
+            lblProgress.Text = "รอการทำงาน"
+            ' 
+            ' prgImport
+            ' 
+            prgImport.Location = New Point(20, 32)
+            prgImport.Name = "prgImport"
+            prgImport.Size = New Size(945, 32)
+            prgImport.TabIndex = 0
             ' 
             ' grp5
             ' 
-            Me.grp5.BackColor = Color.White
-            Me.grp5.Controls.Add(Me.lblLastImport)
-            Me.grp5.Controls.Add(Me.lblLastImportTitle)
-            Me.grp5.Controls.Add(Me.rtbLog)
-            Me.grp5.Font = New Font("Tahoma", 10.0!, FontStyle.Bold)
-            Me.grp5.ForeColor = Color.FromArgb(12, 74, 110)
-            Me.grp5.Location = New Point(20, 400)
-            Me.grp5.Name = "grp5"
-            Me.grp5.Size = New Size(1180, 280)
-            Me.grp5.TabIndex = 5
-            Me.grp5.TabStop = False
-            Me.grp5.Text = "ประวัติการทำงานล่าสุด"
-            ' 
-            ' rtbLog
-            ' 
-            Me.rtbLog.BackColor = Color.FromArgb(15, 23, 42)
-            Me.rtbLog.Font = New Font("Consolas", 9.0!)
-            Me.rtbLog.ForeColor = Color.FromArgb(226, 232, 240)
-            Me.rtbLog.Location = New Point(16, 32)
-            Me.rtbLog.Name = "rtbLog"
-            Me.rtbLog.ReadOnly = True
-            Me.rtbLog.Size = New Size(1148, 200)
-            Me.rtbLog.TabIndex = 0
-            Me.rtbLog.Text = ""
-            ' 
-            ' lblLastImportTitle
-            ' 
-            Me.lblLastImportTitle.AutoSize = True
-            Me.lblLastImportTitle.Location = New Point(16, 245)
-            Me.lblLastImportTitle.Name = "lblLastImportTitle"
-            Me.lblLastImportTitle.Size = New Size(93, 21)
-            Me.lblLastImportTitle.TabIndex = 1
-            Me.lblLastImportTitle.Text = "ครั้งล่าสุด:"
+            grp5.BackColor = Color.White
+            grp5.Controls.Add(lblLastImport)
+            grp5.Controls.Add(lblLastImportTitle)
+            grp5.Controls.Add(rtbLog)
+            grp5.Font = New Font("Tahoma", 10F, FontStyle.Bold)
+            grp5.ForeColor = Color.FromArgb(CByte(12), CByte(74), CByte(110))
+            grp5.Location = New Point(20, 400)
+            grp5.Name = "grp5"
+            grp5.Size = New Size(1301, 280)
+            grp5.TabIndex = 5
+            grp5.TabStop = False
+            grp5.Text = "ประวัติการทำงานล่าสุด"
             ' 
             ' lblLastImport
             ' 
-            Me.lblLastImport.AutoSize = True
-            Me.lblLastImport.ForeColor = Color.FromArgb(79, 70, 229)
-            Me.lblLastImport.Location = New Point(120, 245)
-            Me.lblLastImport.Name = "lblLastImport"
-            Me.lblLastImport.Size = New Size(17, 21)
-            Me.lblLastImport.TabIndex = 2
-            Me.lblLastImport.Text = "-"
+            lblLastImport.AutoSize = True
+            lblLastImport.ForeColor = Color.FromArgb(CByte(79), CByte(70), CByte(229))
+            lblLastImport.Location = New Point(120, 245)
+            lblLastImport.Name = "lblLastImport"
+            lblLastImport.Size = New Size(19, 24)
+            lblLastImport.TabIndex = 2
+            lblLastImport.Text = "-"
+            ' 
+            ' lblLastImportTitle
+            ' 
+            lblLastImportTitle.AutoSize = True
+            lblLastImportTitle.Location = New Point(16, 245)
+            lblLastImportTitle.Name = "lblLastImportTitle"
+            lblLastImportTitle.Size = New Size(104, 24)
+            lblLastImportTitle.TabIndex = 1
+            lblLastImportTitle.Text = "ครั้งล่าสุด:"
+            ' 
+            ' rtbLog
+            ' 
+            rtbLog.BackColor = Color.FromArgb(CByte(15), CByte(23), CByte(42))
+            rtbLog.Font = New Font("Consolas", 9F)
+            rtbLog.ForeColor = Color.FromArgb(CByte(226), CByte(232), CByte(240))
+            rtbLog.Location = New Point(16, 32)
+            rtbLog.Name = "rtbLog"
+            rtbLog.ReadOnly = True
+            rtbLog.Size = New Size(1265, 200)
+            rtbLog.TabIndex = 0
+            rtbLog.Text = ""
             ' 
             ' btnClose
             ' 
-            Me.btnClose.BackColor = Color.FromArgb(75, 85, 99)
-            Me.btnClose.Cursor = Cursors.Hand
-            Me.btnClose.FlatStyle = FlatStyle.Flat
-            Me.btnClose.Font = New Font("Tahoma", 10.0!, FontStyle.Bold)
-            Me.btnClose.ForeColor = Color.White
-            Me.btnClose.Location = New Point(1050, 690)
-            Me.btnClose.Name = "btnClose"
-            Me.btnClose.Size = New Size(150, 50)
-            Me.btnClose.TabIndex = 6
-            Me.btnClose.Text = "ปิดหน้านี้"
-            Me.btnClose.UseVisualStyleBackColor = False
+            btnClose.BackColor = Color.FromArgb(CByte(75), CByte(85), CByte(99))
+            btnClose.Cursor = Cursors.Hand
+            btnClose.FlatStyle = FlatStyle.Flat
+            btnClose.Font = New Font("Tahoma", 10F, FontStyle.Bold)
+            btnClose.ForeColor = Color.White
+            btnClose.Location = New Point(1050, 690)
+            btnClose.Name = "btnClose"
+            btnClose.Size = New Size(150, 50)
+            btnClose.TabIndex = 6
+            btnClose.Text = "ปิดหน้านี้"
+            btnClose.UseVisualStyleBackColor = False
             ' 
             ' FrmLocationImport
             ' 
-            Me.AutoScroll = True
-            Me.BackColor = Color.FromArgb(254, 249, 235)
-            Me.ClientSize = New Size(1264, 761)
-            Me.Controls.Add(Me.btnClose)
-            Me.Controls.Add(Me.grp5)
-            Me.Controls.Add(Me.grp4)
-            Me.Controls.Add(Me.grp3)
-            Me.Controls.Add(Me.grp2)
-            Me.Controls.Add(Me.grp1)
-            Me.Controls.Add(Me.lblHeader)
-            Me.Font = New Font("Tahoma", 10.5!)
-            Me.FormBorderStyle = FormBorderStyle.Sizable
-            Me.MinimumSize = New Size(1180, 760)
-            Me.Name = "FrmLocationImport"
-            Me.StartPosition = FormStartPosition.CenterScreen
-            Me.Text = "นำเข้าข้อมูลจังหวัด"
-            Me.grp1.ResumeLayout(False)
-            Me.grp1.PerformLayout()
-            Me.grp2.ResumeLayout(False)
-            Me.grp3.ResumeLayout(False)
-            Me.grp3.PerformLayout()
-            Me.grp4.ResumeLayout(False)
-            Me.grp4.PerformLayout()
-            Me.grp5.ResumeLayout(False)
-            Me.grp5.PerformLayout()
-            Me.ResumeLayout(False)
+            AutoScroll = True
+            BackColor = Color.FromArgb(CByte(254), CByte(249), CByte(235))
+            ClientSize = New Size(1333, 761)
+            Controls.Add(btnClose)
+            Controls.Add(grp5)
+            Controls.Add(grp4)
+            Controls.Add(grp3)
+            Controls.Add(grp2)
+            Controls.Add(grp1)
+            Controls.Add(lblHeader)
+            Font = New Font("Tahoma", 10.5F)
+            MinimumSize = New Size(1180, 760)
+            Name = "FrmLocationImport"
+            StartPosition = FormStartPosition.CenterScreen
+            Text = "นำเข้าข้อมูลจังหวัด"
+            grp1.ResumeLayout(False)
+            grp1.PerformLayout()
+            grp2.ResumeLayout(False)
+            grp3.ResumeLayout(False)
+            grp3.PerformLayout()
+            grp4.ResumeLayout(False)
+            grp4.PerformLayout()
+            grp5.ResumeLayout(False)
+            grp5.PerformLayout()
+            ResumeLayout(False)
         End Sub
     End Class
 End Namespace
