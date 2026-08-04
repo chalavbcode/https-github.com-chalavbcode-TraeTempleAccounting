@@ -21,6 +21,7 @@ Namespace TempleAccounting
         Private btnReport As Button
         Private btnMember As Button
         Private btnSetting As Button
+        Private btnBackup As Button
         Private btnVip As Button
         Private btnActivity As Button
         Private pnlSidebarSpacer As Panel
@@ -86,6 +87,7 @@ Namespace TempleAccounting
             btnLogout = New Button()
             pnlSidebarSpacer = New Panel()
             btnSetting = New Button()
+            btnBackup = New Button()
             btnVip = New Button()
             btnActivity = New Button()
             btnReport = New Button()
@@ -269,6 +271,7 @@ Namespace TempleAccounting
             pnlSidebar.Controls.Add(btnLogout)
             pnlSidebar.Controls.Add(pnlSidebarSpacer)
             pnlSidebar.Controls.Add(btnSetting)
+            pnlSidebar.Controls.Add(btnBackup)
             pnlSidebar.Controls.Add(btnVip)
             pnlSidebar.Controls.Add(btnActivity)
             pnlSidebar.Controls.Add(btnReport)
@@ -330,6 +333,26 @@ Namespace TempleAccounting
             btnSetting.Text = "⚙️ ตั้งค่าระบบ"
             btnSetting.TextAlign = ContentAlignment.MiddleLeft
             btnSetting.UseVisualStyleBackColor = False
+            ' 
+            ' btnBackup
+            ' 
+            btnBackup.BackColor = Color.Transparent
+            btnBackup.Cursor = Cursors.Hand
+            btnBackup.Dock = DockStyle.Top
+            btnBackup.FlatAppearance.BorderSize = 0
+            btnBackup.FlatAppearance.MouseOverBackColor = Color.FromArgb(CByte(146), CByte(64), CByte(14))
+            btnBackup.FlatStyle = FlatStyle.Flat
+            btnBackup.Font = New Font("Tahoma", 11.25F, FontStyle.Regular, GraphicsUnit.Point, CByte(222))
+            btnBackup.ForeColor = Color.White
+            btnBackup.ImageAlign = ContentAlignment.MiddleLeft
+            btnBackup.Location = New Point(12, 539)
+            btnBackup.Name = "btnBackup"
+            btnBackup.Padding = New Padding(14, 0, 8, 0)
+            btnBackup.Size = New Size(227, 62)
+            btnBackup.TabIndex = 9
+            btnBackup.Text = "💾 สำรองข้อมูล"
+            btnBackup.TextAlign = ContentAlignment.MiddleLeft
+            btnBackup.UseVisualStyleBackColor = False
             ' 
             ' btnVip
             ' 
