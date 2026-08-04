@@ -110,9 +110,7 @@
       <DependentUpon>FrmTempleSetting.vb</DependentUpon>
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\FrmPersonnelManagement.vb">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="Forms\FrmPersonnelManagement.vb" />
     <Compile Include="Forms\FrmPersonnelManagement.Designer.vb">
       <DependentUpon>FrmPersonnelManagement.vb</DependentUpon>
       <SubType>Form</SubType>
