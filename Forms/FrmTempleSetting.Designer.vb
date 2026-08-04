@@ -75,436 +75,494 @@ Namespace TempleAccounting
 
         <DebuggerStepThrough()>
         Private Sub InitializeComponent()
-            Me.components = New Container()
-            Me.ttMain = New ToolTip(Me.components)
-            Me.lblHeader = New Label()
-            Me.pMain = New Panel()
-            Me.pButtons = New Panel()
-
-            Me.lblTempleCode = New Label()
-            Me.lblTempleName = New Label()
-            Me.lblTempleAddress = New Label()
-            Me.lblTambon = New Label()
-            Me.lblAmphoe = New Label()
-            Me.lblProvince = New Label()
-            Me.lblPostCode = New Label()
-            Me.lblTemplePhone = New Label()
-            Me.lblAbbotName = New Label()
-            Me.lblAbbotOfficeStatus = New Label()
-            Me.lblWaiyawatName = New Label()
-            Me.lblWaiyawatOfficeStatus = New Label()
-            Me.lblBookkeeperName = New Label()
-            Me.lblBookkeeperType = New Label()
-            Me.lblPromptPayName = New Label()
-            Me.lblPromptPayID = New Label()
-
-            Me.txtTempleCode = New TextBox()
-            Me.txtTempleName = New TextBox()
-            Me.txtTempleAddress = New TextBox()
-            Me.txtPostCode = New TextBox()
-            Me.txtTemplePhone = New TextBox()
-            Me.txtAbbotName = New TextBox()
-            Me.txtWaiyawatName = New TextBox()
-            Me.txtBookkeeperName = New TextBox()
-            Me.txtPromptPayName = New TextBox()
-            Me.txtPromptPayID = New TextBox()
-            Me.cboProvince = New ComboBox()
-            Me.cboAmphoe = New ComboBox()
-            Me.cboTambon = New ComboBox()
-            Me.cboAbbotOfficeStatus = New ComboBox()
-            Me.cboWaiyawatOfficeStatus = New ComboBox()
-            Me.cboBookkeeperType = New ComboBox()
-            Me.chkUsePromptPay = New CheckBox()
-
-            Me.btnSave = New Button()
-            Me.btnCancel = New Button()
-            Me.btnLocationImport = New Button()
-            Me.btnClose = New Button()
-
-            Me.pMain.SuspendLayout()
-            Me.pButtons.SuspendLayout()
-            Me.SuspendLayout()
-
+            components = New Container()
+            ttMain = New ToolTip(components)
+            lblHeader = New Label()
+            pMain = New Panel()
+            lblTempleCode = New Label()
+            txtTempleCode = New TextBox()
+            lblTempleName = New Label()
+            txtTempleName = New TextBox()
+            lblTempleAddress = New Label()
+            txtTempleAddress = New TextBox()
+            lblTambon = New Label()
+            cboTambon = New ComboBox()
+            lblAmphoe = New Label()
+            cboAmphoe = New ComboBox()
+            lblProvince = New Label()
+            cboProvince = New ComboBox()
+            lblPostCode = New Label()
+            txtPostCode = New TextBox()
+            lblTemplePhone = New Label()
+            txtTemplePhone = New TextBox()
+            lblAbbotName = New Label()
+            txtAbbotName = New TextBox()
+            lblAbbotOfficeStatus = New Label()
+            cboAbbotOfficeStatus = New ComboBox()
+            lblWaiyawatName = New Label()
+            txtWaiyawatName = New TextBox()
+            lblWaiyawatOfficeStatus = New Label()
+            cboWaiyawatOfficeStatus = New ComboBox()
+            lblBookkeeperName = New Label()
+            txtBookkeeperName = New TextBox()
+            lblBookkeeperType = New Label()
+            cboBookkeeperType = New ComboBox()
+            chkUsePromptPay = New CheckBox()
+            lblPromptPayName = New Label()
+            txtPromptPayName = New TextBox()
+            lblPromptPayID = New Label()
+            txtPromptPayID = New TextBox()
+            pButtons = New Panel()
+            btnSave = New Button()
+            btnCancel = New Button()
+            btnLocationImport = New Button()
+            btnClose = New Button()
+            pMain.SuspendLayout()
+            pButtons.SuspendLayout()
+            SuspendLayout()
             ' 
             ' lblHeader
             ' 
-            Me.lblHeader.BackColor = Color.FromArgb(253, 230, 138)
-            Me.lblHeader.Dock = DockStyle.Top
-            Me.lblHeader.Font = New Font("Tahoma", 14.0!, FontStyle.Bold)
-            Me.lblHeader.ForeColor = Color.FromArgb(69, 26, 3)
-            Me.lblHeader.Location = New Point(0, 0)
-            Me.lblHeader.Name = "lblHeader"
-            Me.lblHeader.Size = New Size(1250, 42)
-            Me.lblHeader.TabIndex = 0
-            Me.lblHeader.Text = "🏛️ ข้อมูลวัด และผู้ทำงาน"
-            Me.lblHeader.TextAlign = ContentAlignment.MiddleCenter
-
+            lblHeader.BackColor = Color.FromArgb(CByte(253), CByte(230), CByte(138))
+            lblHeader.Dock = DockStyle.Top
+            lblHeader.Font = New Font("Tahoma", 14F, FontStyle.Bold)
+            lblHeader.ForeColor = Color.FromArgb(CByte(69), CByte(26), CByte(3))
+            lblHeader.Location = New Point(0, 0)
+            lblHeader.Name = "lblHeader"
+            lblHeader.Size = New Size(1250, 42)
+            lblHeader.TabIndex = 0
+            lblHeader.Text = "🏛️ ข้อมูลวัด และผู้ทำงาน"
+            lblHeader.TextAlign = ContentAlignment.MiddleCenter
             ' 
             ' pMain
             ' 
-            Me.pMain.AutoScroll = True
-            Me.pMain.BackColor = Color.White
-            Me.pMain.Controls.Add(Me.lblTempleCode)
-            Me.pMain.Controls.Add(Me.txtTempleCode)
-            Me.pMain.Controls.Add(Me.lblTempleName)
-            Me.pMain.Controls.Add(Me.txtTempleName)
-            Me.pMain.Controls.Add(Me.lblTempleAddress)
-            Me.pMain.Controls.Add(Me.txtTempleAddress)
-            Me.pMain.Controls.Add(Me.lblTambon)
-            Me.pMain.Controls.Add(Me.cboTambon)
-            Me.pMain.Controls.Add(Me.lblAmphoe)
-            Me.pMain.Controls.Add(Me.cboAmphoe)
-            Me.pMain.Controls.Add(Me.lblProvince)
-            Me.pMain.Controls.Add(Me.cboProvince)
-            Me.pMain.Controls.Add(Me.lblPostCode)
-            Me.pMain.Controls.Add(Me.txtPostCode)
-            Me.pMain.Controls.Add(Me.lblTemplePhone)
-            Me.pMain.Controls.Add(Me.txtTemplePhone)
-            Me.pMain.Controls.Add(Me.lblAbbotName)
-            Me.pMain.Controls.Add(Me.txtAbbotName)
-            Me.pMain.Controls.Add(Me.lblAbbotOfficeStatus)
-            Me.pMain.Controls.Add(Me.cboAbbotOfficeStatus)
-            Me.pMain.Controls.Add(Me.lblWaiyawatName)
-            Me.pMain.Controls.Add(Me.txtWaiyawatName)
-            Me.pMain.Controls.Add(Me.lblWaiyawatOfficeStatus)
-            Me.pMain.Controls.Add(Me.cboWaiyawatOfficeStatus)
-            Me.pMain.Controls.Add(Me.lblBookkeeperName)
-            Me.pMain.Controls.Add(Me.txtBookkeeperName)
-            Me.pMain.Controls.Add(Me.lblBookkeeperType)
-            Me.pMain.Controls.Add(Me.cboBookkeeperType)
-            Me.pMain.Controls.Add(Me.chkUsePromptPay)
-            Me.pMain.Controls.Add(Me.lblPromptPayName)
-            Me.pMain.Controls.Add(Me.txtPromptPayName)
-            Me.pMain.Controls.Add(Me.lblPromptPayID)
-            Me.pMain.Controls.Add(Me.txtPromptPayID)
-            Me.pMain.Dock = DockStyle.Fill
-            Me.pMain.Location = New Point(0, 42)
-            Me.pMain.Name = "pMain"
-            Me.pMain.Padding = New Padding(20)
-            Me.pMain.Size = New Size(1250, 718)
-            Me.pMain.TabIndex = 1
-
-            ' Row 0: TempleCode
-            Me.lblTempleCode.Font = New Font("Tahoma", 10.0!)
-            Me.lblTempleCode.Location = New Point(40, 20)
-            Me.lblTempleCode.Name = "lblTempleCode"
-            Me.lblTempleCode.Size = New Size(200, 40)
-            Me.lblTempleCode.TabIndex = 0
-            Me.lblTempleCode.Text = "รหัสวัด:"
-            Me.lblTempleCode.TextAlign = ContentAlignment.MiddleRight
-            Me.txtTempleCode.Font = New Font("Tahoma", 10.5!)
-            Me.txtTempleCode.Location = New Point(250, 20)
-            Me.txtTempleCode.Name = "txtTempleCode"
-            Me.txtTempleCode.Size = New Size(520, 33)
-            Me.txtTempleCode.TabIndex = 1
-
-            ' Row 1: TempleName
-            Me.lblTempleName.Font = New Font("Tahoma", 10.0!)
-            Me.lblTempleName.Location = New Point(40, 74)
-            Me.lblTempleName.Name = "lblTempleName"
-            Me.lblTempleName.Size = New Size(200, 40)
-            Me.lblTempleName.TabIndex = 2
-            Me.lblTempleName.Text = "ชื่อวัด:"
-            Me.lblTempleName.TextAlign = ContentAlignment.MiddleRight
-            Me.txtTempleName.Font = New Font("Tahoma", 10.5!)
-            Me.txtTempleName.Location = New Point(250, 74)
-            Me.txtTempleName.Name = "txtTempleName"
-            Me.txtTempleName.Size = New Size(520, 33)
-            Me.txtTempleName.TabIndex = 3
-
-            ' Row 2: TempleAddress
-            Me.lblTempleAddress.Font = New Font("Tahoma", 10.0!)
-            Me.lblTempleAddress.Location = New Point(40, 128)
-            Me.lblTempleAddress.Name = "lblTempleAddress"
-            Me.lblTempleAddress.Size = New Size(200, 40)
-            Me.lblTempleAddress.TabIndex = 4
-            Me.lblTempleAddress.Text = "ที่อยู่วัด:"
-            Me.lblTempleAddress.TextAlign = ContentAlignment.MiddleRight
-            Me.txtTempleAddress.Font = New Font("Tahoma", 10.5!)
-            Me.txtTempleAddress.Location = New Point(250, 128)
-            Me.txtTempleAddress.Multiline = True
-            Me.txtTempleAddress.Name = "txtTempleAddress"
-            Me.txtTempleAddress.ScrollBars = ScrollBars.Vertical
-            Me.txtTempleAddress.Size = New Size(520, 70)
-            Me.txtTempleAddress.TabIndex = 5
-
-            ' Row 3: Tambon
-            Me.lblTambon.Font = New Font("Tahoma", 10.0!)
-            Me.lblTambon.Location = New Point(40, 212)
-            Me.lblTambon.Name = "lblTambon"
-            Me.lblTambon.Size = New Size(200, 40)
-            Me.lblTambon.TabIndex = 6
-            Me.lblTambon.Text = "ตำบล:"
-            Me.lblTambon.TextAlign = ContentAlignment.MiddleRight
-            Me.cboTambon.DropDownStyle = ComboBoxStyle.DropDownList
-            Me.cboTambon.Font = New Font("Tahoma", 10.0!)
-            Me.cboTambon.Location = New Point(250, 212)
-            Me.cboTambon.Name = "cboTambon"
-            Me.cboTambon.Size = New Size(520, 33)
-            Me.cboTambon.TabIndex = 7
-
-            ' Row 4: Amphoe
-            Me.lblAmphoe.Font = New Font("Tahoma", 10.0!)
-            Me.lblAmphoe.Location = New Point(40, 266)
-            Me.lblAmphoe.Name = "lblAmphoe"
-            Me.lblAmphoe.Size = New Size(200, 40)
-            Me.lblAmphoe.TabIndex = 8
-            Me.lblAmphoe.Text = "อำเภอ:"
-            Me.lblAmphoe.TextAlign = ContentAlignment.MiddleRight
-            Me.cboAmphoe.DropDownStyle = ComboBoxStyle.DropDownList
-            Me.cboAmphoe.Font = New Font("Tahoma", 10.0!)
-            Me.cboAmphoe.Location = New Point(250, 266)
-            Me.cboAmphoe.Name = "cboAmphoe"
-            Me.cboAmphoe.Size = New Size(520, 33)
-            Me.cboAmphoe.TabIndex = 9
-
-            ' Row 5: Province
-            Me.lblProvince.Font = New Font("Tahoma", 10.0!)
-            Me.lblProvince.Location = New Point(40, 320)
-            Me.lblProvince.Name = "lblProvince"
-            Me.lblProvince.Size = New Size(200, 40)
-            Me.lblProvince.TabIndex = 10
-            Me.lblProvince.Text = "จังหวัด:"
-            Me.lblProvince.TextAlign = ContentAlignment.MiddleRight
-            Me.cboProvince.DropDownStyle = ComboBoxStyle.DropDownList
-            Me.cboProvince.Font = New Font("Tahoma", 10.0!)
-            Me.cboProvince.Location = New Point(250, 320)
-            Me.cboProvince.Name = "cboProvince"
-            Me.cboProvince.Size = New Size(520, 33)
-            Me.cboProvince.TabIndex = 11
-
-            ' Row 6: PostCode
-            Me.lblPostCode.Font = New Font("Tahoma", 10.0!)
-            Me.lblPostCode.Location = New Point(40, 374)
-            Me.lblPostCode.Name = "lblPostCode"
-            Me.lblPostCode.Size = New Size(200, 40)
-            Me.lblPostCode.TabIndex = 12
-            Me.lblPostCode.Text = "รหัสไปรษณีย์:"
-            Me.lblPostCode.TextAlign = ContentAlignment.MiddleRight
-            Me.txtPostCode.Font = New Font("Tahoma", 10.5!)
-            Me.txtPostCode.Location = New Point(250, 374)
-            Me.txtPostCode.Name = "txtPostCode"
-            Me.txtPostCode.Size = New Size(520, 33)
-            Me.txtPostCode.TabIndex = 13
-
-            ' Row 7: TemplePhone
-            Me.lblTemplePhone.Font = New Font("Tahoma", 10.0!)
-            Me.lblTemplePhone.Location = New Point(40, 428)
-            Me.lblTemplePhone.Name = "lblTemplePhone"
-            Me.lblTemplePhone.Size = New Size(200, 40)
-            Me.lblTemplePhone.TabIndex = 14
-            Me.lblTemplePhone.Text = "เบอร์ติดต่อวัด:"
-            Me.lblTemplePhone.TextAlign = ContentAlignment.MiddleRight
-            Me.txtTemplePhone.Font = New Font("Tahoma", 10.5!)
-            Me.txtTemplePhone.Location = New Point(250, 428)
-            Me.txtTemplePhone.Name = "txtTemplePhone"
-            Me.txtTemplePhone.Size = New Size(520, 33)
-            Me.txtTemplePhone.TabIndex = 15
-
-            ' Row 8: AbbotName
-            Me.lblAbbotName.Font = New Font("Tahoma", 10.0!)
-            Me.lblAbbotName.Location = New Point(40, 482)
-            Me.lblAbbotName.Name = "lblAbbotName"
-            Me.lblAbbotName.Size = New Size(200, 40)
-            Me.lblAbbotName.TabIndex = 16
-            Me.lblAbbotName.Text = "ชื่อเจ้าอาวาส:"
-            Me.lblAbbotName.TextAlign = ContentAlignment.MiddleRight
-            Me.txtAbbotName.Font = New Font("Tahoma", 10.5!)
-            Me.txtAbbotName.Location = New Point(250, 482)
-            Me.txtAbbotName.Name = "txtAbbotName"
-            Me.txtAbbotName.Size = New Size(520, 33)
-            Me.txtAbbotName.TabIndex = 17
-
-            ' Row 9: AbbotOfficeStatus
-            Me.lblAbbotOfficeStatus.Font = New Font("Tahoma", 10.0!)
-            Me.lblAbbotOfficeStatus.Location = New Point(40, 536)
-            Me.lblAbbotOfficeStatus.Name = "lblAbbotOfficeStatus"
-            Me.lblAbbotOfficeStatus.Size = New Size(200, 40)
-            Me.lblAbbotOfficeStatus.TabIndex = 18
-            Me.lblAbbotOfficeStatus.Text = "ตำแหน่งเจ้าอาวาส:"
-            Me.lblAbbotOfficeStatus.TextAlign = ContentAlignment.MiddleRight
-            Me.cboAbbotOfficeStatus.DropDownStyle = ComboBoxStyle.DropDown
-            Me.cboAbbotOfficeStatus.Font = New Font("Tahoma", 10.0!)
-            Me.cboAbbotOfficeStatus.Items.AddRange(New Object() {"เจ้าคณะรอง", "พระครู", "พระราชาคณะ", "อื่นๆ"})
-            Me.cboAbbotOfficeStatus.Location = New Point(250, 536)
-            Me.cboAbbotOfficeStatus.Name = "cboAbbotOfficeStatus"
-            Me.cboAbbotOfficeStatus.Size = New Size(520, 33)
-            Me.cboAbbotOfficeStatus.TabIndex = 19
-
-            ' Row 10: WaiyawatName
-            Me.lblWaiyawatName.Font = New Font("Tahoma", 10.0!)
-            Me.lblWaiyawatName.Location = New Point(40, 590)
-            Me.lblWaiyawatName.Name = "lblWaiyawatName"
-            Me.lblWaiyawatName.Size = New Size(200, 40)
-            Me.lblWaiyawatName.TabIndex = 20
-            Me.lblWaiyawatName.Text = "ชื่อไวยาวัจกร:"
-            Me.lblWaiyawatName.TextAlign = ContentAlignment.MiddleRight
-            Me.txtWaiyawatName.Font = New Font("Tahoma", 10.5!)
-            Me.txtWaiyawatName.Location = New Point(250, 590)
-            Me.txtWaiyawatName.Name = "txtWaiyawatName"
-            Me.txtWaiyawatName.Size = New Size(520, 33)
-            Me.txtWaiyawatName.TabIndex = 21
-
-            ' Row 11: WaiyawatOfficeStatus
-            Me.lblWaiyawatOfficeStatus.Font = New Font("Tahoma", 10.0!)
-            Me.lblWaiyawatOfficeStatus.Location = New Point(40, 644)
-            Me.lblWaiyawatOfficeStatus.Name = "lblWaiyawatOfficeStatus"
-            Me.lblWaiyawatOfficeStatus.Size = New Size(200, 40)
-            Me.lblWaiyawatOfficeStatus.TabIndex = 22
-            Me.lblWaiyawatOfficeStatus.Text = "ตำแหน่งไวยาวัจกร:"
-            Me.lblWaiyawatOfficeStatus.TextAlign = ContentAlignment.MiddleRight
-            Me.cboWaiyawatOfficeStatus.DropDownStyle = ComboBoxStyle.DropDown
-            Me.cboWaiyawatOfficeStatus.Font = New Font("Tahoma", 10.0!)
-            Me.cboWaiyawatOfficeStatus.Items.AddRange(New Object() {"ผู้ดูแลวัด", "อาวาส", "เจ้าสำนัก", "อื่นๆ"})
-            Me.cboWaiyawatOfficeStatus.Location = New Point(250, 644)
-            Me.cboWaiyawatOfficeStatus.Name = "cboWaiyawatOfficeStatus"
-            Me.cboWaiyawatOfficeStatus.Size = New Size(520, 33)
-            Me.cboWaiyawatOfficeStatus.TabIndex = 23
-
-            ' Row 12: BookkeeperName
-            Me.lblBookkeeperName.Font = New Font("Tahoma", 10.0!)
-            Me.lblBookkeeperName.Location = New Point(40, 698)
-            Me.lblBookkeeperName.Name = "lblBookkeeperName"
-            Me.lblBookkeeperName.Size = New Size(200, 40)
-            Me.lblBookkeeperName.TabIndex = 24
-            Me.lblBookkeeperName.Text = "ชื่อผู้ทำบัญชี:"
-            Me.lblBookkeeperName.TextAlign = ContentAlignment.MiddleRight
-            Me.txtBookkeeperName.Font = New Font("Tahoma", 10.5!)
-            Me.txtBookkeeperName.Location = New Point(250, 698)
-            Me.txtBookkeeperName.Name = "txtBookkeeperName"
-            Me.txtBookkeeperName.Size = New Size(520, 33)
-            Me.txtBookkeeperName.TabIndex = 25
-
-            ' Row 13: BookkeeperType
-            Me.lblBookkeeperType.Font = New Font("Tahoma", 10.0!)
-            Me.lblBookkeeperType.Location = New Point(40, 752)
-            Me.lblBookkeeperType.Name = "lblBookkeeperType"
-            Me.lblBookkeeperType.Size = New Size(200, 40)
-            Me.lblBookkeeperType.TabIndex = 26
-            Me.lblBookkeeperType.Text = "ประเภทผู้ทำบัญชี:"
-            Me.lblBookkeeperType.TextAlign = ContentAlignment.MiddleRight
-            Me.cboBookkeeperType.DropDownStyle = ComboBoxStyle.DropDown
-            Me.cboBookkeeperType.Font = New Font("Tahoma", 10.0!)
-            Me.cboBookkeeperType.Items.AddRange(New Object() {"เจ้าหน้าที่วัด", "ชาวบ้านสมัครใจ", "ที่ปรึกษาบัญชี", "อื่นๆ"})
-            Me.cboBookkeeperType.Location = New Point(250, 752)
-            Me.cboBookkeeperType.Name = "cboBookkeeperType"
-            Me.cboBookkeeperType.Size = New Size(520, 33)
-            Me.cboBookkeeperType.TabIndex = 27
-
-            ' Row 14: UsePromptPay
-            Me.chkUsePromptPay.Font = New Font("Tahoma", 10.5!, FontStyle.Bold)
-            Me.chkUsePromptPay.ForeColor = Color.FromArgb(15, 118, 110)
-            Me.chkUsePromptPay.Location = New Point(250, 806)
-            Me.chkUsePromptPay.Name = "chkUsePromptPay"
-            Me.chkUsePromptPay.Size = New Size(280, 40)
-            Me.chkUsePromptPay.TabIndex = 28
-            Me.chkUsePromptPay.Text = "เปิดใช้งานพร้อมเพย์"
-
-            ' Row 15: PromptPayName
-            Me.lblPromptPayName.Font = New Font("Tahoma", 10.0!)
-            Me.lblPromptPayName.Location = New Point(40, 860)
-            Me.lblPromptPayName.Name = "lblPromptPayName"
-            Me.lblPromptPayName.Size = New Size(200, 40)
-            Me.lblPromptPayName.TabIndex = 29
-            Me.lblPromptPayName.Text = "ชื่อบัญชีพร้อมเพย์:"
-            Me.lblPromptPayName.TextAlign = ContentAlignment.MiddleRight
-            Me.txtPromptPayName.Font = New Font("Tahoma", 10.5!)
-            Me.txtPromptPayName.Location = New Point(250, 860)
-            Me.txtPromptPayName.Name = "txtPromptPayName"
-            Me.txtPromptPayName.Size = New Size(520, 33)
-            Me.txtPromptPayName.TabIndex = 30
-
-            ' Row 16: PromptPayID
-            Me.lblPromptPayID.Font = New Font("Tahoma", 10.0!)
-            Me.lblPromptPayID.Location = New Point(40, 914)
-            Me.lblPromptPayID.Name = "lblPromptPayID"
-            Me.lblPromptPayID.Size = New Size(200, 40)
-            Me.lblPromptPayID.TabIndex = 31
-            Me.lblPromptPayID.Text = "เลขพร้อมเพย์/เลขบัญชี:"
-            Me.lblPromptPayID.TextAlign = ContentAlignment.MiddleRight
-            Me.txtPromptPayID.Font = New Font("Tahoma", 10.5!)
-            Me.txtPromptPayID.Location = New Point(250, 914)
-            Me.txtPromptPayID.Name = "txtPromptPayID"
-            Me.txtPromptPayID.Size = New Size(520, 33)
-            Me.txtPromptPayID.TabIndex = 32
-
+            pMain.AutoScroll = True
+            pMain.BackColor = Color.White
+            pMain.Controls.Add(lblTempleCode)
+            pMain.Controls.Add(txtTempleCode)
+            pMain.Controls.Add(lblTempleName)
+            pMain.Controls.Add(txtTempleName)
+            pMain.Controls.Add(lblTempleAddress)
+            pMain.Controls.Add(txtTempleAddress)
+            pMain.Controls.Add(lblTambon)
+            pMain.Controls.Add(cboTambon)
+            pMain.Controls.Add(lblAmphoe)
+            pMain.Controls.Add(cboAmphoe)
+            pMain.Controls.Add(lblProvince)
+            pMain.Controls.Add(cboProvince)
+            pMain.Controls.Add(lblPostCode)
+            pMain.Controls.Add(txtPostCode)
+            pMain.Controls.Add(lblTemplePhone)
+            pMain.Controls.Add(txtTemplePhone)
+            pMain.Controls.Add(lblAbbotName)
+            pMain.Controls.Add(txtAbbotName)
+            pMain.Controls.Add(lblAbbotOfficeStatus)
+            pMain.Controls.Add(cboAbbotOfficeStatus)
+            pMain.Controls.Add(lblWaiyawatName)
+            pMain.Controls.Add(txtWaiyawatName)
+            pMain.Controls.Add(lblWaiyawatOfficeStatus)
+            pMain.Controls.Add(cboWaiyawatOfficeStatus)
+            pMain.Controls.Add(lblBookkeeperName)
+            pMain.Controls.Add(txtBookkeeperName)
+            pMain.Controls.Add(lblBookkeeperType)
+            pMain.Controls.Add(cboBookkeeperType)
+            pMain.Controls.Add(chkUsePromptPay)
+            pMain.Controls.Add(lblPromptPayName)
+            pMain.Controls.Add(txtPromptPayName)
+            pMain.Controls.Add(lblPromptPayID)
+            pMain.Controls.Add(txtPromptPayID)
+            pMain.Dock = DockStyle.Fill
+            pMain.Location = New Point(0, 42)
+            pMain.Name = "pMain"
+            pMain.Padding = New Padding(20)
+            pMain.Size = New Size(1250, 718)
+            pMain.TabIndex = 1
+            ' 
+            ' lblTempleCode
+            ' 
+            lblTempleCode.Font = New Font("Tahoma", 10F)
+            lblTempleCode.Location = New Point(40, 20)
+            lblTempleCode.Name = "lblTempleCode"
+            lblTempleCode.Size = New Size(200, 40)
+            lblTempleCode.TabIndex = 0
+            lblTempleCode.Text = "รหัสวัด:"
+            lblTempleCode.TextAlign = ContentAlignment.MiddleRight
+            ' 
+            ' txtTempleCode
+            ' 
+            txtTempleCode.Font = New Font("Tahoma", 10.5F)
+            txtTempleCode.Location = New Point(250, 20)
+            txtTempleCode.Name = "txtTempleCode"
+            txtTempleCode.Size = New Size(520, 33)
+            txtTempleCode.TabIndex = 1
+            ' 
+            ' lblTempleName
+            ' 
+            lblTempleName.Font = New Font("Tahoma", 10F)
+            lblTempleName.Location = New Point(40, 74)
+            lblTempleName.Name = "lblTempleName"
+            lblTempleName.Size = New Size(200, 40)
+            lblTempleName.TabIndex = 2
+            lblTempleName.Text = "ชื่อวัด:"
+            lblTempleName.TextAlign = ContentAlignment.MiddleRight
+            ' 
+            ' txtTempleName
+            ' 
+            txtTempleName.Font = New Font("Tahoma", 10.5F)
+            txtTempleName.Location = New Point(250, 74)
+            txtTempleName.Name = "txtTempleName"
+            txtTempleName.Size = New Size(520, 33)
+            txtTempleName.TabIndex = 3
+            ' 
+            ' lblTempleAddress
+            ' 
+            lblTempleAddress.Font = New Font("Tahoma", 10F)
+            lblTempleAddress.Location = New Point(40, 128)
+            lblTempleAddress.Name = "lblTempleAddress"
+            lblTempleAddress.Size = New Size(200, 40)
+            lblTempleAddress.TabIndex = 4
+            lblTempleAddress.Text = "ที่อยู่วัด:"
+            lblTempleAddress.TextAlign = ContentAlignment.MiddleRight
+            ' 
+            ' txtTempleAddress
+            ' 
+            txtTempleAddress.Font = New Font("Tahoma", 10.5F)
+            txtTempleAddress.Location = New Point(250, 128)
+            txtTempleAddress.Multiline = True
+            txtTempleAddress.Name = "txtTempleAddress"
+            txtTempleAddress.ScrollBars = ScrollBars.Vertical
+            txtTempleAddress.Size = New Size(520, 70)
+            txtTempleAddress.TabIndex = 5
+            ' 
+            ' lblTambon
+            ' 
+            lblTambon.Font = New Font("Tahoma", 10F)
+            lblTambon.Location = New Point(40, 212)
+            lblTambon.Name = "lblTambon"
+            lblTambon.Size = New Size(200, 40)
+            lblTambon.TabIndex = 6
+            lblTambon.Text = "ตำบล:"
+            lblTambon.TextAlign = ContentAlignment.MiddleRight
+            ' 
+            ' cboTambon
+            ' 
+            cboTambon.DropDownStyle = ComboBoxStyle.DropDownList
+            cboTambon.Font = New Font("Tahoma", 10F)
+            cboTambon.Location = New Point(250, 212)
+            cboTambon.Name = "cboTambon"
+            cboTambon.Size = New Size(520, 32)
+            cboTambon.TabIndex = 7
+            ' 
+            ' lblAmphoe
+            ' 
+            lblAmphoe.Font = New Font("Tahoma", 10F)
+            lblAmphoe.Location = New Point(40, 266)
+            lblAmphoe.Name = "lblAmphoe"
+            lblAmphoe.Size = New Size(200, 40)
+            lblAmphoe.TabIndex = 8
+            lblAmphoe.Text = "อำเภอ:"
+            lblAmphoe.TextAlign = ContentAlignment.MiddleRight
+            ' 
+            ' cboAmphoe
+            ' 
+            cboAmphoe.DropDownStyle = ComboBoxStyle.DropDownList
+            cboAmphoe.Font = New Font("Tahoma", 10F)
+            cboAmphoe.Location = New Point(250, 266)
+            cboAmphoe.Name = "cboAmphoe"
+            cboAmphoe.Size = New Size(520, 32)
+            cboAmphoe.TabIndex = 9
+            ' 
+            ' lblProvince
+            ' 
+            lblProvince.Font = New Font("Tahoma", 10F)
+            lblProvince.Location = New Point(40, 320)
+            lblProvince.Name = "lblProvince"
+            lblProvince.Size = New Size(200, 40)
+            lblProvince.TabIndex = 10
+            lblProvince.Text = "จังหวัด:"
+            lblProvince.TextAlign = ContentAlignment.MiddleRight
+            ' 
+            ' cboProvince
+            ' 
+            cboProvince.DropDownStyle = ComboBoxStyle.DropDownList
+            cboProvince.Font = New Font("Tahoma", 10F)
+            cboProvince.Location = New Point(250, 320)
+            cboProvince.Name = "cboProvince"
+            cboProvince.Size = New Size(520, 32)
+            cboProvince.TabIndex = 11
+            ' 
+            ' lblPostCode
+            ' 
+            lblPostCode.Font = New Font("Tahoma", 10F)
+            lblPostCode.Location = New Point(40, 374)
+            lblPostCode.Name = "lblPostCode"
+            lblPostCode.Size = New Size(200, 40)
+            lblPostCode.TabIndex = 12
+            lblPostCode.Text = "รหัสไปรษณีย์:"
+            lblPostCode.TextAlign = ContentAlignment.MiddleRight
+            ' 
+            ' txtPostCode
+            ' 
+            txtPostCode.Font = New Font("Tahoma", 10.5F)
+            txtPostCode.Location = New Point(250, 374)
+            txtPostCode.Name = "txtPostCode"
+            txtPostCode.Size = New Size(520, 33)
+            txtPostCode.TabIndex = 13
+            ' 
+            ' lblTemplePhone
+            ' 
+            lblTemplePhone.Font = New Font("Tahoma", 10F)
+            lblTemplePhone.Location = New Point(40, 428)
+            lblTemplePhone.Name = "lblTemplePhone"
+            lblTemplePhone.Size = New Size(200, 40)
+            lblTemplePhone.TabIndex = 14
+            lblTemplePhone.Text = "เบอร์ติดต่อวัด:"
+            lblTemplePhone.TextAlign = ContentAlignment.MiddleRight
+            ' 
+            ' txtTemplePhone
+            ' 
+            txtTemplePhone.Font = New Font("Tahoma", 10.5F)
+            txtTemplePhone.Location = New Point(250, 428)
+            txtTemplePhone.Name = "txtTemplePhone"
+            txtTemplePhone.Size = New Size(520, 33)
+            txtTemplePhone.TabIndex = 15
+            ' 
+            ' lblAbbotName
+            ' 
+            lblAbbotName.Font = New Font("Tahoma", 10F)
+            lblAbbotName.Location = New Point(40, 482)
+            lblAbbotName.Name = "lblAbbotName"
+            lblAbbotName.Size = New Size(200, 40)
+            lblAbbotName.TabIndex = 16
+            lblAbbotName.Text = "ชื่อเจ้าอาวาส:"
+            lblAbbotName.TextAlign = ContentAlignment.MiddleRight
+            ' 
+            ' txtAbbotName
+            ' 
+            txtAbbotName.Font = New Font("Tahoma", 10.5F)
+            txtAbbotName.Location = New Point(250, 482)
+            txtAbbotName.Name = "txtAbbotName"
+            txtAbbotName.Size = New Size(520, 33)
+            txtAbbotName.TabIndex = 17
+            ' 
+            ' lblAbbotOfficeStatus
+            ' 
+            lblAbbotOfficeStatus.Font = New Font("Tahoma", 10F)
+            lblAbbotOfficeStatus.Location = New Point(40, 536)
+            lblAbbotOfficeStatus.Name = "lblAbbotOfficeStatus"
+            lblAbbotOfficeStatus.Size = New Size(200, 40)
+            lblAbbotOfficeStatus.TabIndex = 18
+            lblAbbotOfficeStatus.Text = "ตำแหน่งเจ้าอาวาส:"
+            lblAbbotOfficeStatus.TextAlign = ContentAlignment.MiddleRight
+            ' 
+            ' cboAbbotOfficeStatus
+            ' 
+            cboAbbotOfficeStatus.Font = New Font("Tahoma", 10F)
+            cboAbbotOfficeStatus.Items.AddRange(New Object() {"เจ้าคณะรอง", "พระครู", "พระราชาคณะ", "อื่นๆ"})
+            cboAbbotOfficeStatus.Location = New Point(250, 536)
+            cboAbbotOfficeStatus.Name = "cboAbbotOfficeStatus"
+            cboAbbotOfficeStatus.Size = New Size(520, 32)
+            cboAbbotOfficeStatus.TabIndex = 19
+            ' 
+            ' lblWaiyawatName
+            ' 
+            lblWaiyawatName.Font = New Font("Tahoma", 10F)
+            lblWaiyawatName.Location = New Point(40, 590)
+            lblWaiyawatName.Name = "lblWaiyawatName"
+            lblWaiyawatName.Size = New Size(200, 40)
+            lblWaiyawatName.TabIndex = 20
+            lblWaiyawatName.Text = "ชื่อไวยาวัจกร:"
+            lblWaiyawatName.TextAlign = ContentAlignment.MiddleRight
+            ' 
+            ' txtWaiyawatName
+            ' 
+            txtWaiyawatName.Font = New Font("Tahoma", 10.5F)
+            txtWaiyawatName.Location = New Point(250, 590)
+            txtWaiyawatName.Name = "txtWaiyawatName"
+            txtWaiyawatName.Size = New Size(520, 33)
+            txtWaiyawatName.TabIndex = 21
+            ' 
+            ' lblWaiyawatOfficeStatus
+            ' 
+            lblWaiyawatOfficeStatus.Font = New Font("Tahoma", 10F)
+            lblWaiyawatOfficeStatus.Location = New Point(40, 644)
+            lblWaiyawatOfficeStatus.Name = "lblWaiyawatOfficeStatus"
+            lblWaiyawatOfficeStatus.Size = New Size(200, 40)
+            lblWaiyawatOfficeStatus.TabIndex = 22
+            lblWaiyawatOfficeStatus.Text = "ตำแหน่งไวยาวัจกร:"
+            lblWaiyawatOfficeStatus.TextAlign = ContentAlignment.MiddleRight
+            ' 
+            ' cboWaiyawatOfficeStatus
+            ' 
+            cboWaiyawatOfficeStatus.Font = New Font("Tahoma", 10F)
+            cboWaiyawatOfficeStatus.Items.AddRange(New Object() {"ผู้ดูแลวัด", "อาวาส", "เจ้าสำนัก", "อื่นๆ"})
+            cboWaiyawatOfficeStatus.Location = New Point(250, 644)
+            cboWaiyawatOfficeStatus.Name = "cboWaiyawatOfficeStatus"
+            cboWaiyawatOfficeStatus.Size = New Size(520, 32)
+            cboWaiyawatOfficeStatus.TabIndex = 23
+            ' 
+            ' lblBookkeeperName
+            ' 
+            lblBookkeeperName.Font = New Font("Tahoma", 10F)
+            lblBookkeeperName.Location = New Point(40, 698)
+            lblBookkeeperName.Name = "lblBookkeeperName"
+            lblBookkeeperName.Size = New Size(200, 40)
+            lblBookkeeperName.TabIndex = 24
+            lblBookkeeperName.Text = "ชื่อผู้ทำบัญชี:"
+            lblBookkeeperName.TextAlign = ContentAlignment.MiddleRight
+            ' 
+            ' txtBookkeeperName
+            ' 
+            txtBookkeeperName.Font = New Font("Tahoma", 10.5F)
+            txtBookkeeperName.Location = New Point(250, 698)
+            txtBookkeeperName.Name = "txtBookkeeperName"
+            txtBookkeeperName.Size = New Size(520, 33)
+            txtBookkeeperName.TabIndex = 25
+            ' 
+            ' lblBookkeeperType
+            ' 
+            lblBookkeeperType.Font = New Font("Tahoma", 10F)
+            lblBookkeeperType.Location = New Point(40, 752)
+            lblBookkeeperType.Name = "lblBookkeeperType"
+            lblBookkeeperType.Size = New Size(200, 40)
+            lblBookkeeperType.TabIndex = 26
+            lblBookkeeperType.Text = "ประเภทผู้ทำบัญชี:"
+            lblBookkeeperType.TextAlign = ContentAlignment.MiddleRight
+            ' 
+            ' cboBookkeeperType
+            ' 
+            cboBookkeeperType.Font = New Font("Tahoma", 10F)
+            cboBookkeeperType.Items.AddRange(New Object() {"เจ้าหน้าที่วัด", "ชาวบ้านสมัครใจ", "ที่ปรึกษาบัญชี", "อื่นๆ"})
+            cboBookkeeperType.Location = New Point(250, 752)
+            cboBookkeeperType.Name = "cboBookkeeperType"
+            cboBookkeeperType.Size = New Size(520, 32)
+            cboBookkeeperType.TabIndex = 27
+            ' 
+            ' chkUsePromptPay
+            ' 
+            chkUsePromptPay.Font = New Font("Tahoma", 10.5F, FontStyle.Bold)
+            chkUsePromptPay.ForeColor = Color.FromArgb(CByte(15), CByte(118), CByte(110))
+            chkUsePromptPay.Location = New Point(250, 806)
+            chkUsePromptPay.Name = "chkUsePromptPay"
+            chkUsePromptPay.Size = New Size(280, 40)
+            chkUsePromptPay.TabIndex = 28
+            chkUsePromptPay.Text = "เปิดใช้งานพร้อมเพย์"
+            ' 
+            ' lblPromptPayName
+            ' 
+            lblPromptPayName.Font = New Font("Tahoma", 10F)
+            lblPromptPayName.Location = New Point(40, 860)
+            lblPromptPayName.Name = "lblPromptPayName"
+            lblPromptPayName.Size = New Size(200, 40)
+            lblPromptPayName.TabIndex = 29
+            lblPromptPayName.Text = "ชื่อบัญชีพร้อมเพย์:"
+            lblPromptPayName.TextAlign = ContentAlignment.MiddleRight
+            ' 
+            ' txtPromptPayName
+            ' 
+            txtPromptPayName.Font = New Font("Tahoma", 10.5F)
+            txtPromptPayName.Location = New Point(250, 860)
+            txtPromptPayName.Name = "txtPromptPayName"
+            txtPromptPayName.Size = New Size(520, 33)
+            txtPromptPayName.TabIndex = 30
+            ' 
+            ' lblPromptPayID
+            ' 
+            lblPromptPayID.Font = New Font("Tahoma", 10F)
+            lblPromptPayID.Location = New Point(40, 914)
+            lblPromptPayID.Name = "lblPromptPayID"
+            lblPromptPayID.Size = New Size(200, 40)
+            lblPromptPayID.TabIndex = 31
+            lblPromptPayID.Text = "เลขพร้อมเพย์/เลขบัญชี:"
+            lblPromptPayID.TextAlign = ContentAlignment.MiddleRight
+            ' 
+            ' txtPromptPayID
+            ' 
+            txtPromptPayID.Font = New Font("Tahoma", 10.5F)
+            txtPromptPayID.Location = New Point(250, 914)
+            txtPromptPayID.Name = "txtPromptPayID"
+            txtPromptPayID.Size = New Size(520, 33)
+            txtPromptPayID.TabIndex = 32
             ' 
             ' pButtons
             ' 
-            Me.pButtons.BackColor = Color.FromArgb(245, 245, 240)
-            Me.pButtons.Controls.Add(Me.btnSave)
-            Me.pButtons.Controls.Add(Me.btnCancel)
-            Me.pButtons.Controls.Add(Me.btnLocationImport)
-            Me.pButtons.Controls.Add(Me.btnClose)
-            Me.pButtons.Dock = DockStyle.Bottom
-            Me.pButtons.Location = New Point(0, 760)
-            Me.pButtons.Name = "pButtons"
-            Me.pButtons.Size = New Size(1250, 100)
-            Me.pButtons.TabIndex = 2
-
+            pButtons.BackColor = Color.FromArgb(CByte(245), CByte(245), CByte(240))
+            pButtons.Controls.Add(btnSave)
+            pButtons.Controls.Add(btnCancel)
+            pButtons.Controls.Add(btnLocationImport)
+            pButtons.Controls.Add(btnClose)
+            pButtons.Dock = DockStyle.Bottom
+            pButtons.Location = New Point(0, 760)
+            pButtons.Name = "pButtons"
+            pButtons.Size = New Size(1250, 100)
+            pButtons.TabIndex = 2
+            ' 
             ' btnSave
-            Me.btnSave.BackColor = Color.FromArgb(22, 163, 74)
-            Me.btnSave.FlatStyle = FlatStyle.Flat
-            Me.btnSave.Font = New Font("Tahoma", 10.5!, FontStyle.Bold)
-            Me.btnSave.ForeColor = Color.White
-            Me.btnSave.Location = New Point(250, 20)
-            Me.btnSave.Name = "btnSave"
-            Me.btnSave.Size = New Size(200, 50)
-            Me.btnSave.TabIndex = 0
-            Me.btnSave.Text = "💾 บันทึกข้อมูล"
-            Me.btnSave.UseVisualStyleBackColor = False
-
+            ' 
+            btnSave.BackColor = Color.FromArgb(CByte(22), CByte(163), CByte(74))
+            btnSave.FlatStyle = FlatStyle.Flat
+            btnSave.Font = New Font("Tahoma", 10.5F, FontStyle.Bold)
+            btnSave.ForeColor = Color.White
+            btnSave.Location = New Point(151, 19)
+            btnSave.Name = "btnSave"
+            btnSave.Size = New Size(200, 50)
+            btnSave.TabIndex = 0
+            btnSave.Text = "💾 บันทึกข้อมูล"
+            btnSave.UseVisualStyleBackColor = False
+            ' 
             ' btnCancel
-            Me.btnCancel.BackColor = Color.FromArgb(217, 119, 6)
-            Me.btnCancel.FlatStyle = FlatStyle.Flat
-            Me.btnCancel.Font = New Font("Tahoma", 10.5!, FontStyle.Bold)
-            Me.btnCancel.ForeColor = Color.White
-            Me.btnCancel.Location = New Point(470, 20)
-            Me.btnCancel.Name = "btnCancel"
-            Me.btnCancel.Size = New Size(150, 50)
-            Me.btnCancel.TabIndex = 1
-            Me.btnCancel.Text = "🔄 โหลดใหม่"
-            Me.btnCancel.UseVisualStyleBackColor = False
-
+            ' 
+            btnCancel.BackColor = Color.FromArgb(CByte(217), CByte(119), CByte(6))
+            btnCancel.FlatStyle = FlatStyle.Flat
+            btnCancel.Font = New Font("Tahoma", 10.5F, FontStyle.Bold)
+            btnCancel.ForeColor = Color.White
+            btnCancel.Location = New Point(368, 19)
+            btnCancel.Name = "btnCancel"
+            btnCancel.Size = New Size(150, 50)
+            btnCancel.TabIndex = 1
+            btnCancel.Text = "🔄 โหลดใหม่"
+            btnCancel.UseVisualStyleBackColor = False
+            ' 
             ' btnLocationImport
-            Me.btnLocationImport.BackColor = Color.FromArgb(37, 99, 235)
-            Me.btnLocationImport.FlatStyle = FlatStyle.Flat
-            Me.btnLocationImport.Font = New Font("Tahoma", 10.5!, FontStyle.Bold)
-            Me.btnLocationImport.ForeColor = Color.White
-            Me.btnLocationImport.Location = New Point(640, 20)
-            Me.btnLocationImport.Name = "btnLocationImport"
-            Me.btnLocationImport.Size = New Size(220, 50)
-            Me.btnLocationImport.TabIndex = 2
-            Me.btnLocationImport.Text = "📍 นำเข้าจังหวัด/อำเภอ"
-            Me.btnLocationImport.UseVisualStyleBackColor = False
-
+            ' 
+            btnLocationImport.BackColor = Color.FromArgb(CByte(37), CByte(99), CByte(235))
+            btnLocationImport.FlatStyle = FlatStyle.Flat
+            btnLocationImport.Font = New Font("Tahoma", 10.5F, FontStyle.Bold)
+            btnLocationImport.ForeColor = Color.White
+            btnLocationImport.Location = New Point(538, 19)
+            btnLocationImport.Name = "btnLocationImport"
+            btnLocationImport.Size = New Size(259, 50)
+            btnLocationImport.TabIndex = 2
+            btnLocationImport.Text = "📍 นำเข้าจังหวัด/อำเภอ"
+            btnLocationImport.UseVisualStyleBackColor = False
+            ' 
             ' btnClose
-            Me.btnClose.BackColor = Color.FromArgb(75, 85, 99)
-            Me.btnClose.FlatStyle = FlatStyle.Flat
-            Me.btnClose.Font = New Font("Tahoma", 10.5!, FontStyle.Bold)
-            Me.btnClose.ForeColor = Color.White
-            Me.btnClose.Location = New Point(880, 20)
-            Me.btnClose.Name = "btnClose"
-            Me.btnClose.Size = New Size(100, 50)
-            Me.btnClose.TabIndex = 3
-            Me.btnClose.Text = "ปิด"
-            Me.btnClose.UseVisualStyleBackColor = False
-
+            ' 
+            btnClose.BackColor = Color.FromArgb(CByte(75), CByte(85), CByte(99))
+            btnClose.FlatStyle = FlatStyle.Flat
+            btnClose.Font = New Font("Tahoma", 10.5F, FontStyle.Bold)
+            btnClose.ForeColor = Color.White
+            btnClose.Location = New Point(820, 19)
+            btnClose.Name = "btnClose"
+            btnClose.Size = New Size(100, 50)
+            btnClose.TabIndex = 3
+            btnClose.Text = "ปิด"
+            btnClose.UseVisualStyleBackColor = False
             ' 
             ' FrmTempleSetting
             ' 
-            Me.BackColor = Color.FromArgb(254, 249, 235)
-            Me.ClientSize = New Size(1250, 860)
-            Me.Controls.Add(Me.pMain)
-            Me.Controls.Add(Me.pButtons)
-            Me.Controls.Add(Me.lblHeader)
-            Me.Font = New Font("Tahoma", 10.5!)
-            Me.Name = "FrmTempleSetting"
-            Me.Text = "ตั้งค่าข้อมูลวัด"
-            Me.pMain.ResumeLayout(False)
-            Me.pMain.PerformLayout()
-            Me.pButtons.ResumeLayout(False)
-            Me.ResumeLayout(False)
+            BackColor = Color.FromArgb(CByte(254), CByte(249), CByte(235))
+            ClientSize = New Size(1250, 860)
+            Controls.Add(pMain)
+            Controls.Add(pButtons)
+            Controls.Add(lblHeader)
+            Font = New Font("Tahoma", 10.5F)
+            Name = "FrmTempleSetting"
+            Text = "ตั้งค่าข้อมูลวัด"
+            pMain.ResumeLayout(False)
+            pMain.PerformLayout()
+            pButtons.ResumeLayout(False)
+            ResumeLayout(False)
         End Sub
     End Class
 End Namespace
