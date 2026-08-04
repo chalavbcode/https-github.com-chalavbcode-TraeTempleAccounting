@@ -43,7 +43,45 @@ Namespace TempleAccounting
                 TryCreateTable(conn, "Funds", "CREATE TABLE Funds (ID COUNTER PRIMARY KEY, FundName TEXT(200) NOT NULL)")
                 TryCreateTable(conn, "BankAccounts", "CREATE TABLE BankAccounts (ID COUNTER PRIMARY KEY, BankName TEXT(100) NOT NULL, AccountNo TEXT(50), AccountName TEXT(200))")
                 TryCreateTable(conn, "Transactions", "CREATE TABLE Transactions (ID COUNTER PRIMARY KEY, TranDate DATETIME NOT NULL, TranType TEXT(10) NOT NULL, CategoryID INTEGER, FundID INTEGER, BankID INTEGER, Detail TEXT(255), Amount CURRENCY NOT NULL, Note MEMO, CreateDate DATETIME DEFAULT Now(), ToFundID INTEGER, ToBankID INTEGER, ReceiptPath TEXT(255))")
-                TryCreateTable(conn, "Personnel", "CREATE TABLE Personnel (PersonnelID COUNTER PRIMARY KEY, FullName TEXT(200) NOT NULL, PersonType TEXT(50) NOT NULL)")
+                TryCreateTable(conn, "Personnel", "CREATE TABLE Personnel (PersonnelID COUNTER PRIMARY KEY, Title TEXT(50), FirstName TEXT(100), LastName TEXT(100), FullName TEXT(255), PersonType TEXT(50), Phone TEXT(50))")
+                TryCreateTable(conn, "Positions", "CREATE TABLE Positions (PositionID COUNTER PRIMARY KEY, PositionName TEXT(100))")
+
+                ' Migration: Add ID columns to TempleSetting
+                Try
+                    Dim columns = conn.GetSchema("Columns", New String() {Nothing, Nothing, "TempleSetting", Nothing})
+                    Dim hasAbbotID As Boolean = False
+                    Dim hasWaiyawatID As Boolean = False
+                    Dim hasBookkeeperID As Boolean = False
+
+                    For Each row As DataRow In columns.Rows
+                        Dim colName = Convert.ToString(row("COLUMN_NAME"))
+                        If colName.Equals("AbbotID", StringComparison.OrdinalIgnoreCase) Then hasAbbotID = True
+                        If colName.Equals("WaiyawatID", StringComparison.OrdinalIgnoreCase) Then hasWaiyawatID = True
+                        If colName.Equals("BookkeeperID", StringComparison.OrdinalIgnoreCase) Then hasBookkeeperID = True
+                    Next
+
+                    If Not hasAbbotID Then ExecuteNonQuery(conn, "ALTER TABLE TempleSetting ADD COLUMN AbbotID INTEGER")
+                    If Not hasWaiyawatID Then ExecuteNonQuery(conn, "ALTER TABLE TempleSetting ADD COLUMN WaiyawatID INTEGER")
+                    If Not hasBookkeeperID Then ExecuteNonQuery(conn, "ALTER TABLE TempleSetting ADD COLUMN BookkeeperID INTEGER")
+                Catch ex As Exception
+                    AppPaths.LogCrash(ex, "Db.EnsureSchema.TempleSettingMigration")
+                End Try
+
+                ' Migration: Add columns to Personnel (if not already there from previous simple version)
+                Try
+                    Dim columns = conn.GetSchema("Columns", New String() {Nothing, Nothing, "Personnel", Nothing})
+                    Dim hasFirstName As Boolean = False
+                    For Each row As DataRow In columns.Rows
+                        If Convert.ToString(row("COLUMN_NAME")).Equals("FirstName", StringComparison.OrdinalIgnoreCase) Then hasFirstName = True
+                    Next
+                    If Not hasFirstName Then
+                        ExecuteNonQuery(conn, "ALTER TABLE Personnel ADD COLUMN Title TEXT(50)")
+                        ExecuteNonQuery(conn, "ALTER TABLE Personnel ADD COLUMN FirstName TEXT(100)")
+                        ExecuteNonQuery(conn, "ALTER TABLE Personnel ADD COLUMN LastName TEXT(100)")
+                        ExecuteNonQuery(conn, "ALTER TABLE Personnel ADD COLUMN Phone TEXT(50)")
+                    End If
+                Catch
+                End Try
 
                 ' Check and migrate missing columns in Transactions table (for older databases)
                 Try
@@ -94,15 +132,26 @@ Namespace TempleAccounting
         Private Sub SeedPersonnel(conn As OleDbConnection)
             Dim count As Integer = CInt(DbScalar(conn, "SELECT COUNT(*) FROM Personnel"))
             If count > 0 Then Return
-            Dim list As New List(Of Tuple(Of String, String)) From {
-                Tuple.Create("พระอธิการสมชาย ขันติโก", "Monk"),
-                Tuple.Create("นายมานะ มีบุญ", "Layperson"),
-                Tuple.Create("นางสาวใจดี รักเรียน", "Layperson")
+            
+            ' Seed Positions
+            ExecuteNonQuery(conn, "INSERT INTO Positions (PositionName) VALUES ('เจ้าอาวาส')")
+            ExecuteNonQuery(conn, "INSERT INTO Positions (PositionName) VALUES ('ไวยาวัจกร')")
+            ExecuteNonQuery(conn, "INSERT INTO Positions (PositionName) VALUES ('ผู้ทำบัญชี')")
+
+            ' Seed Personnel
+            Dim list = New List(Of (Title As String, First As String, Last As String, PType As String)) From {
+                ("พระอธิการ", "สมชาย", "ขันติโก", "Monk"),
+                ("นาย", "มานะ", "มีบุญ", "Layperson"),
+                ("นางสาว", "ใจดี", "รักเรียน", "Layperson")
             }
             For Each item In list
-                ExecuteNonQuery(conn, "INSERT INTO Personnel (FullName, PersonType) VALUES (@n, @t)",
-                                New Tuple(Of String, Object)("@n", item.Item1),
-                                New Tuple(Of String, Object)("@t", item.Item2))
+                Dim fullName = $"{item.Title}{item.First} {item.Last}"
+                ExecuteNonQuery(conn, "INSERT INTO Personnel (Title, FirstName, LastName, FullName, PersonType) VALUES (@t, @f, @l, @fn, @pt)",
+                                New Tuple(Of String, Object)("@t", item.Title),
+                                New Tuple(Of String, Object)("@f", item.First),
+                                New Tuple(Of String, Object)("@l", item.Last),
+                                New Tuple(Of String, Object)("@fn", fullName),
+                                New Tuple(Of String, Object)("@pt", item.PType))
             Next
         End Sub
 

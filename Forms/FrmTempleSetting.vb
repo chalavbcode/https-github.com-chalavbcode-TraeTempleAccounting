@@ -55,6 +55,7 @@ Namespace TempleAccounting
         Private Sub SetupToolTips()
             ttMain.SetToolTip(btnSave, "บันทึกข้อมูลวัดและบุคลากรลงในฐานข้อมูล (Enter)")
             ttMain.SetToolTip(btnCancel, "โหลดข้อมูลวัดล่าสุดจากฐานข้อมูลมาแสดงใหม่อีกครั้ง")
+            ttMain.SetToolTip(btnManagePersonnel, "จัดการรายชื่อบุคลากร (เพิ่ม/แก้ไข/ลบ)")
             ttMain.SetToolTip(btnLocationImport, "เปิดหน้าจอนำเข้าข้อมูลที่อยู่ (จังหวัด/อำเภอ/ตำบล) จากไฟล์ CSV")
             ttMain.SetToolTip(btnClose, "ปิดหน้าจอนี้และกลับไปที่หน้าหลัก")
         End Sub
@@ -170,11 +171,28 @@ Namespace TempleAccounting
                 TrySetComboText(cboTambon, r("Tambon")?.ToString())
                 txtPostCode.Text = r("PostCode")?.ToString()
                 txtTemplePhone.Text = r("TemplePhone")?.ToString()
-                TrySetComboText(cboAbbotName, r("AbbotName")?.ToString())
+
+                ' Load Personnel IDs if available, else fallback to names
+                If r.Table.Columns.Contains("AbbotID") AndAlso Not IsDBNull(r("AbbotID")) Then
+                    cboAbbotName.SelectedValue = r("AbbotID")
+                Else
+                    TrySetComboText(cboAbbotName, r("AbbotName")?.ToString())
+                End If
+
+                If r.Table.Columns.Contains("WaiyawatID") AndAlso Not IsDBNull(r("WaiyawatID")) Then
+                    cboWaiyawatName.SelectedValue = r("WaiyawatID")
+                Else
+                    TrySetComboText(cboWaiyawatName, r("WaiyawatName")?.ToString())
+                End If
+
+                If r.Table.Columns.Contains("BookkeeperID") AndAlso Not IsDBNull(r("BookkeeperID")) Then
+                    cboBookkeeperName.SelectedValue = r("BookkeeperID")
+                Else
+                    TrySetComboText(cboBookkeeperName, r("BookkeeperName")?.ToString())
+                End If
+
                 TrySetComboText(cboAbbotOfficeStatus, r("AbbotOfficeStatus")?.ToString())
-                TrySetComboText(cboWaiyawatName, r("WaiyawatName")?.ToString())
                 TrySetComboText(cboWaiyawatOfficeStatus, r("WaiyawatOfficeStatus")?.ToString())
-                TrySetComboText(cboBookkeeperName, r("BookkeeperName")?.ToString())
                 TrySetComboText(cboBookkeeperType, r("BookkeeperType")?.ToString())
                 txtPromptPayName.Text = r("PromptPayName")?.ToString()
                 txtPromptPayID.Text = r("PromptPayID")?.ToString()
@@ -211,10 +229,14 @@ Namespace TempleAccounting
                     Dim waiyawatName = If(TypeOf cboWaiyawatName.SelectedItem Is DataRowView, CType(cboWaiyawatName.SelectedItem, DataRowView)("FullName")?.ToString(), cboWaiyawatName.Text)
                     Dim bookkeeperName = If(TypeOf cboBookkeeperName.SelectedItem Is DataRowView, CType(cboBookkeeperName.SelectedItem, DataRowView)("FullName")?.ToString(), cboBookkeeperName.Text)
 
+                    Dim abbotID = GetSelectedIntValue(cboAbbotName, "PersonnelID")
+                    Dim waiyawatID = GetSelectedIntValue(cboWaiyawatName, "PersonnelID")
+                    Dim bookkeeperID = GetSelectedIntValue(cboBookkeeperName, "PersonnelID")
+
                     Dim ppName = If(chkUsePromptPay.Checked, txtPromptPayName.Text.Trim(), "")
                     Dim ppID = If(chkUsePromptPay.Checked, txtPromptPayID.Text.Trim(), "")
                     Db.ExecuteNonQuery(conn, "DELETE FROM TempleSetting")
-                    Db.InsertAndGetId(conn, "INSERT INTO TempleSetting (TempleCode,TempleName,TempleAddress,Tambon,Amphoe,Province,PostCode,TemplePhone,AbbotName,AbbotOfficeStatus,WaiyawatName,WaiyawatOfficeStatus,BookkeeperName,BookkeeperType,PromptPayName,PromptPayID) VALUES (@a1,@a2,@a3,@a4,@a5,@a6,@a7,@a8,@a9,@a10,@a11,@a12,@a13,@a14,@a15,@a16)",
+                    Db.InsertAndGetId(conn, "INSERT INTO TempleSetting (TempleCode,TempleName,TempleAddress,Tambon,Amphoe,Province,PostCode,TemplePhone,AbbotName,AbbotOfficeStatus,WaiyawatName,WaiyawatOfficeStatus,BookkeeperName,BookkeeperType,PromptPayName,PromptPayID,AbbotID,WaiyawatID,BookkeeperID) VALUES (@a1,@a2,@a3,@a4,@a5,@a6,@a7,@a8,@a9,@a10,@a11,@a12,@a13,@a14,@a15,@a16,@a17,@a18,@a19)",
                         New Tuple(Of String, Object)("@a1", txtTempleCode.Text.Trim()),
                         New Tuple(Of String, Object)("@a2", txtTempleName.Text.Trim()),
                         New Tuple(Of String, Object)("@a3", txtTempleAddress.Text.Trim()),
@@ -230,7 +252,10 @@ Namespace TempleAccounting
                         New Tuple(Of String, Object)("@a13", bookkeeperName),
                         New Tuple(Of String, Object)("@a14", cboBookkeeperType.Text.Trim()),
                         New Tuple(Of String, Object)("@a15", ppName),
-                        New Tuple(Of String, Object)("@a16", ppID))
+                        New Tuple(Of String, Object)("@a16", ppID),
+                        New Tuple(Of String, Object)("@a17", If(abbotID.HasValue, abbotID.Value, DBNull.Value)),
+                        New Tuple(Of String, Object)("@a18", If(waiyawatID.HasValue, waiyawatID.Value, DBNull.Value)),
+                        New Tuple(Of String, Object)("@a19", If(bookkeeperID.HasValue, bookkeeperID.Value, DBNull.Value)))
                     MessageBox.Show("✅ บันทึกข้อมูลวัดสำเร็จ!", "สำเร็จ", MessageBoxButtons.OK, MessageBoxIcon.Information)
                     txtTempleCode.Focus()
                 End Using
@@ -242,6 +267,13 @@ Namespace TempleAccounting
         Private Sub btnCancel_Click(sender As Object, e As EventArgs) Handles btnCancel.Click
             LoadTempleData()
             txtTempleCode.Focus()
+        End Sub
+
+        Private Sub btnManagePersonnel_Click(sender As Object, e As EventArgs) Handles btnManagePersonnel.Click
+            Using f As New FrmPersonnelManagement()
+                f.ShowDialog(Me)
+            End Using
+            LoadPersonnel() ' Refresh ComboBoxes after management
         End Sub
 
         Private Sub btnClose_Click(sender As Object, e As EventArgs) Handles btnClose.Click
