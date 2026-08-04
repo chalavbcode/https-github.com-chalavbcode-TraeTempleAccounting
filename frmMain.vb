@@ -677,12 +677,15 @@ Namespace TempleAccounting
                                          MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2)
 
             If result = DialogResult.Yes Then
-                Using fbd As New FolderBrowserDialog()
-                    fbd.Description = "เลือกโฟลเดอร์ Backup (เช่น Backup_YYYYMMDD_HHMMSS) ที่ต้องการคืนค่า"
-                    fbd.UseDescriptionForTitle = True
+                Using ofd As New OpenFileDialog()
+                    ofd.Title = "เลือกไฟล์ฐานข้อมูลจากโฟลเดอร์สำรองข้อมูล (Restore)"
+                    ofd.Filter = "All Supported Files|*.accdb;*.jpg;*.jpeg;*.png;*.bmp|Database Files|*.accdb|Image Files|*.jpg;*.jpeg;*.png;*.bmp|All Files (*.*)|*.*"
+                    ofd.CheckFileExists = True
 
-                    If fbd.ShowDialog() = DialogResult.OK Then
-                        If DatabaseBackupHelper.RestoreFullSystem(fbd.SelectedPath) Then
+                    If ofd.ShowDialog() = DialogResult.OK Then
+                        ' ใช้โฟลเดอร์ที่ไฟล์นั้นตั้งอยู่เป็น backupFolder
+                        Dim backupFolder = Path.GetDirectoryName(ofd.FileName)
+                        If DatabaseBackupHelper.RestoreFullSystem(backupFolder) Then
                             MessageBox.Show("✅ คืนค่าข้อมูลสำเร็จ! โปรแกรมจะเริ่มใหม่ทันที", "สำเร็จ", MessageBoxButtons.OK, MessageBoxIcon.Information)
                             Application.Restart()
                         End If
