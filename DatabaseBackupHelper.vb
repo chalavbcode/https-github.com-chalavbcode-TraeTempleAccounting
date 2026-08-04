@@ -108,19 +108,38 @@ Namespace TempleAccounting
         Public Shared Function RestoreFullSystem(backupFolder As String) As Boolean
             Dim safetyPath As String = Path.Combine(AppPaths.AppRoot, "PreRestore_Temp")
             Try
-                ' 1. ตรวจสอบเบื้องต้น
+                ' 1. ตรวจสอบและปรับจูน Path (Smart Path Resolution)
                 If Not Directory.Exists(backupFolder) Then
                     MessageBoxHelper.ShowError("ไม่พบโฟลเดอร์สำรองข้อมูลที่เลือก")
                     Return False
                 End If
 
-                ' ตรวจสอบว่ามีไฟล์ฐานข้อมูลในโฟลเดอร์ backup หรือไม่ (รองรับทั้งชื่อตรงตัวและชื่อมี Timestamp)
+                ' หากผู้ใช้เลือกไฟล์ข้างในโฟลเดอร์ Receipts ให้ขยับออกมาที่โฟลเดอร์หลัก
+                If backupFolder.EndsWith("Receipts", StringComparison.OrdinalIgnoreCase) Then
+                    Dim parentDir = Directory.GetParent(backupFolder)
+                    If parentDir IsNot Nothing Then backupFolder = parentDir.FullName
+                End If
+
+                ' ตรวจสอบหาไฟล์ฐานข้อมูล (.accdb)
                 Dim dbBackupFile As String = ""
                 Dim files = Directory.GetFiles(backupFolder, "*.accdb")
+                
+                ' หากไม่เจอในโฟลเดอร์นี้ ให้ลองหาใน Parent อีก 1 ระดับ (เผื่อกรณีเลือกโฟลเดอร์ย่อยอื่น)
+                If files.Length = 0 Then
+                    Dim parentDir = Directory.GetParent(backupFolder)
+                    If parentDir IsNot Nothing Then
+                        files = Directory.GetFiles(parentDir.FullName, "*.accdb")
+                        If files.Length > 0 Then
+                            backupFolder = parentDir.FullName
+                        End If
+                    End If
+                End If
+
                 If files.Length > 0 Then
-                    dbBackupFile = files(0) ' ใช้ไฟล์แรกที่เจอ
+                    dbBackupFile = files(0)
                 Else
-                    MessageBoxHelper.ShowError("ไม่พบไฟล์ฐานข้อมูล (.accdb) ในโฟลเดอร์สำรองข้อมูลนี้")
+                    MessageBoxHelper.ShowError("ไม่พบไฟล์ฐานข้อมูล (.accdb) ในโฟลเดอร์ที่เลือกหรือโฟลเดอร์ระดับบน" & Environment.NewLine & 
+                                             "กรุณาเลือกไฟล์สำรองข้อมูลให้ถูกต้อง")
                     Return False
                 End If
 
@@ -198,15 +217,17 @@ Namespace TempleAccounting
                 If Not Directory.Exists(destDir) Then Directory.CreateDirectory(destDir)
 
                 Dim dirInfo As New DirectoryInfo(sourceDir)
-                ' รองรับนามสกุลรูปภาพหลักๆ (Case-insensitive โดยธรรมชาติของ Windows/NTFS)
-                Dim extensions As String() = {".jpg", ".jpeg", ".png", ".bmp"}
+                ' รองรับนามสกุลรูปภาพหลักๆ (Case-insensitive)
+                Dim extensions As String() = {".jpg", ".jpeg", ".png", ".bmp", ".gif", ".webp"}
                 
                 For Each fileItem In dirInfo.GetFiles()
                     Dim ext = fileItem.Extension.ToLower()
-                    If Array.IndexOf(extensions, ext) >= 0 Then
+                    ' กู้คืนไฟล์รูปภาพ: ตรวจสอบจากนามสกุล OR ตรวจสอบจากชื่อไฟล์ (เผื่อไม่มีนามสกุล)
+                    If Array.IndexOf(extensions, ext) >= 0 OrElse fileItem.Name.StartsWith("Receipt_", StringComparison.OrdinalIgnoreCase) Then
                         Try
                             Dim destFilePath = Path.Combine(destDir, fileItem.Name)
-                            ' ตั้งค่า overwrite:=True ตามคำขอ
+                            ' หากปลายทางไม่มีนามสกุล แต่ต้นทางรู้ว่าเป็นรูป ให้เติม .jpg ให้ (ถ้าจำเป็น)
+                            ' แต่ในที่นี้เราจะก๊อบปี้ตามชื่อเดิมเพื่อความแม่นยำของฐานข้อมูล
                             fileItem.CopyTo(destFilePath, True)
                         Catch ex As Exception
                             ' ข้ามไฟล์ที่ติด Lock หรือมีปัญหา
