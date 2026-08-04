@@ -670,6 +670,27 @@ Namespace TempleAccounting
             End Using
         End Sub
 
+        Private Sub btnRestore_Click(sender As Object, e As EventArgs)
+            Dim result = MessageBox.Show("⚠️ คำเตือน: การคืนค่าข้อมูลจะนำข้อมูลจากไฟล์สำรองมาแทนที่ข้อมูลปัจจุบันทั้งหมด" & Environment.NewLine &
+                                         "ระบบจะทำการปิดและเริ่มใหม่เพื่อโหลดข้อมูลชุดใหม่" & Environment.NewLine & Environment.NewLine &
+                                         "คุณต้องการดำเนินการต่อหรือไม่?", "ยืนยันการคืนค่าข้อมูล",
+                                         MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2)
+
+            If result = DialogResult.Yes Then
+                Using fbd As New FolderBrowserDialog()
+                    fbd.Description = "เลือกโฟลเดอร์ Backup (เช่น Backup_YYYYMMDD_HHMMSS) ที่ต้องการคืนค่า"
+                    fbd.UseDescriptionForTitle = True
+
+                    If fbd.ShowDialog() = DialogResult.OK Then
+                        If DatabaseBackupHelper.RestoreFullSystem(fbd.SelectedPath) Then
+                            MessageBox.Show("✅ คืนค่าข้อมูลสำเร็จ! โปรแกรมจะเริ่มใหม่ทันที", "สำเร็จ", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                            Application.Restart()
+                        End If
+                    End If
+                End Using
+            End If
+        End Sub
+
         Private Sub FrmMain_FormClosing(sender As Object, e As FormClosingEventArgs)
             Try
                 ' สำรองข้อมูลอัตโนมัติแบบเต็มระบบเมื่อปิดโปรแกรม (Background Auto-Backup)

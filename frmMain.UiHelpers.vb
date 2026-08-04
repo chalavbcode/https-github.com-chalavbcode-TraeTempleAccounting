@@ -17,6 +17,7 @@ Namespace TempleAccounting
             AddHandler btnActivity.Click, AddressOf NavMenu_Click
             AddHandler btnSetting.Click, AddressOf NavMenu_Click
             AddHandler btnBackup.Click, AddressOf btnBackup_Click
+            AddHandler btnRestore.Click, AddressOf btnRestore_Click
 
             AddHandler pnlCard1.Click, AddressOf OverviewCard_Click
             AddHandler pnlCard2.Click, AddressOf OverviewCard_Click
@@ -68,6 +69,7 @@ Namespace TempleAccounting
                 ilIcons.Images.Add("activity", MakeIconBitmap("🎎", Color.FromArgb(131, 24, 67)))
                 ilIcons.Images.Add("setting", MakeIconBitmap("⚙️", Color.FromArgb(75, 85, 99)))
                 ilIcons.Images.Add("backup", MakeIconBitmap("💾", Color.FromArgb(5, 150, 105)))
+                ilIcons.Images.Add("restore", MakeIconBitmap("🔄", Color.FromArgb(59, 130, 246)))
 
                 ApplyButtonImage(btnDashboard, "home")
                 ApplyButtonImage(btnDonation, "donation")
@@ -78,6 +80,7 @@ Namespace TempleAccounting
                 ApplyButtonImage(btnActivity, "activity")
                 ApplyButtonImage(btnSetting, "setting")
                 ApplyButtonImage(btnBackup, "backup")
+                ApplyButtonImage(btnRestore, "restore")
             Catch
             End Try
 
@@ -163,6 +166,7 @@ Namespace TempleAccounting
             ttMain.SetToolTip(btnActivity, "บันทึกข้อมูลกิจกรรมงานบุญและเทศกาล")
             ttMain.SetToolTip(btnSetting, "ตั้งค่าข้อมูลวัดและข้อมูลพื้นฐานของระบบ")
             ttMain.SetToolTip(btnBackup, "สำรองข้อมูลฐานข้อมูล (Backup Database)")
+            ttMain.SetToolTip(btnRestore, "คืนค่าข้อมูลจากไฟล์สำรอง (Restore Database)")
             ttMain.SetToolTip(btnLogout, "ออกจากระบบและกลับไปหน้า Login")
             ttMain.SetToolTip(btnClose, "ปิดโปรแกรม")
             ttMain.SetToolTip(btnMinimize, "ย่อหน้าต่างโปรแกรมลง")
