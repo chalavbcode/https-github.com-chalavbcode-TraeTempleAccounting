@@ -130,6 +130,9 @@ Namespace TempleAccounting
             btnLocationImport = New Button()
             btnCancel = New Button()
             btnSave = New Button()
+            pnlPersonnelGrid = New Panel()
+            lblPersonnelGrid = New Label()
+            dgvPersonnel = New DataGridView()
             pMain.SuspendLayout()
             tlpFields.SuspendLayout()
             pnlPersonnelGrid.SuspendLayout()
@@ -590,7 +593,6 @@ Namespace TempleAccounting
             ' 
             'pnlPersonnelGrid
             ' 
-            pnlPersonnelGrid = New Panel()
             pnlPersonnelGrid.BackColor = Color.FromArgb(CByte(248), CByte(250), CByte(252))
             pnlPersonnelGrid.BorderStyle = BorderStyle.FixedSingle
             pnlPersonnelGrid.Controls.Add(lblPersonnelGrid)
@@ -604,7 +606,6 @@ Namespace TempleAccounting
             ' 
             'lblPersonnelGrid
             ' 
-            lblPersonnelGrid = New Label()
             lblPersonnelGrid.Dock = DockStyle.Top
             lblPersonnelGrid.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             lblPersonnelGrid.ForeColor = Color.FromArgb(CByte(30), CByte(64), CByte(175))
@@ -617,7 +618,6 @@ Namespace TempleAccounting
             ' 
             'dgvPersonnel
             ' 
-            dgvPersonnel = New DataGridView()
             dgvPersonnel.AllowUserToAddRows = False
             dgvPersonnel.AllowUserToDeleteRows = False
             dgvPersonnel.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
