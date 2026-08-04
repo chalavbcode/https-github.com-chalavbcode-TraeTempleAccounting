@@ -64,6 +64,7 @@ Namespace TempleAccounting
         Friend WithEvents btnCancel As Button
         Friend WithEvents btnClose As Button
         Friend WithEvents btnLocationImport As Button
+        Friend WithEvents btnManagePersonnel As Button
         Friend WithEvents ttMain As ToolTip
 
         <DebuggerNonUserCode()>
@@ -121,6 +122,7 @@ Namespace TempleAccounting
             pButtons = New Panel()
             btnSave = New Button()
             btnCancel = New Button()
+            btnManagePersonnel = New Button()
             btnLocationImport = New Button()
             btnClose = New Button()
             pMain.SuspendLayout()
@@ -555,6 +557,7 @@ Namespace TempleAccounting
             ' flpButtons
             ' 
             flpButtons.Controls.Add(btnClose)
+            flpButtons.Controls.Add(btnManagePersonnel)
             flpButtons.Controls.Add(btnLocationImport)
             flpButtons.Controls.Add(btnCancel)
             flpButtons.Controls.Add(btnSave)
@@ -605,13 +608,26 @@ Namespace TempleAccounting
             btnLocationImport.Text = "📍 นำเข้าจังหวัด/อำเภอ"
             btnLocationImport.UseVisualStyleBackColor = False
             ' 
+            ' btnManagePersonnel
+            ' 
+            btnManagePersonnel.BackColor = System.Drawing.Color.FromArgb(CByte(147), CByte(51), CByte(234))
+            btnManagePersonnel.FlatStyle = FlatStyle.Flat
+            btnManagePersonnel.Font = New Font("Tahoma", 10.5F, FontStyle.Bold)
+            btnManagePersonnel.ForeColor = Color.White
+            btnManagePersonnel.Location = New Point(940, 28)
+            btnManagePersonnel.Name = "btnManagePersonnel"
+            btnManagePersonnel.Size = New Size(220, 50)
+            btnManagePersonnel.TabIndex = 4
+            btnManagePersonnel.Text = "👤 จัดการรายชื่อบุคลากร..."
+            btnManagePersonnel.UseVisualStyleBackColor = False
+            ' 
             ' btnClose
             ' 
             btnClose.BackColor = Color.FromArgb(CByte(75), CByte(85), CByte(99))
             btnClose.FlatStyle = FlatStyle.Flat
             btnClose.Font = New Font("Tahoma", 10.5F, FontStyle.Bold)
             btnClose.ForeColor = Color.White
-            btnClose.Location = New Point(940, 28)
+            btnClose.Location = New Point(1166, 28)
             btnClose.Name = "btnClose"
             btnClose.Size = New Size(100, 50)
             btnClose.TabIndex = 3
