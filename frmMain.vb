@@ -659,22 +659,21 @@ Namespace TempleAccounting
 
         Private Sub btnBackup_Click(sender As Object, e As EventArgs)
             Using fbd As New FolderBrowserDialog()
-                fbd.Description = "เลือกโฟลเดอร์ปลายทางที่ต้องการเก็บไฟล์สำรองฐานข้อมูล"
+                fbd.Description = "เลือกโฟลเดอร์ปลายทางที่ต้องการเก็บโฟลเดอร์สำรองข้อมูล (ฐานข้อมูลและรูปใบเสร็จ)"
                 fbd.UseDescriptionForTitle = True
                 fbd.ShowNewFolderButton = True
 
                 If fbd.ShowDialog() = DialogResult.OK Then
-                    ' เรียกใช้ Helper เพื่อสำรองข้อมูล
-                    DatabaseBackupHelper.BackupDatabase(fbd.SelectedPath, False)
+                    ' เรียกใช้ Helper เพื่อสำรองข้อมูลแบบเต็มระบบ
+                    DatabaseBackupHelper.BackupFullSystem(fbd.SelectedPath, False)
                 End If
             End Using
         End Sub
 
         Private Sub FrmMain_FormClosing(sender As Object, e As FormClosingEventArgs)
             Try
-                ' สำรองข้อมูลอัตโนมัติเมื่อปิดโปรแกรม (Background Auto-Backup)
-                ' จะบันทึกไว้ในโฟลเดอร์ Backup ของโปรแกรมตามค่าเริ่มต้น
-                DatabaseBackupHelper.BackupDatabase(isAuto:=True)
+                ' สำรองข้อมูลอัตโนมัติแบบเต็มระบบเมื่อปิดโปรแกรม (Background Auto-Backup)
+                DatabaseBackupHelper.BackupFullSystem(isAuto:=True)
             Catch
                 ' ไม่ต้องแสดง Error ตอนปิดโปรแกรมเพื่อไม่ให้กวนผู้ใช้
             End Try
