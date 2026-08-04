@@ -56,15 +56,19 @@ Namespace TempleAccounting
 
         Private Sub LoadPersonnel()
             Using conn = Db.OpenConn()
-                ' โหลดเจ้าอาวาส (Monk)
-                Dim abbotTable = Db.GetTable(conn, "SELECT PersonnelID, FullName FROM Personnel WHERE PersonType='Monk' ORDER BY FullName")
+                ' โหลดเจ้าอาวาส (Monk) - JOIN with Positions
+                Dim abbotTable = Db.GetTable(conn, "SELECT p.PersonnelID, p.Title, p.FirstName, p.LastName, p.FullName, p.PersonType, p.Phone, p.PositionID, pos.PositionName " &
+                                              "FROM Personnel p LEFT JOIN Positions pos ON p.PositionID = pos.PositionID " &
+                                              "WHERE p.PersonType='Monk' ORDER BY p.FullName")
                 cboAbbotName.DisplayMember = "FullName"
                 cboAbbotName.ValueMember = "PersonnelID"
                 cboAbbotName.DataSource = abbotTable
 
-                ' โหลดไวยาวัจกรและผู้ทำบัญชี (Layperson)
-                Dim layTable = Db.GetTable(conn, "SELECT PersonnelID, FullName FROM Personnel WHERE PersonType='Layperson' ORDER BY FullName")
-                
+                ' โหลดไวยาวัจกรและผู้ทำบัญชี (Layperson) - JOIN with Positions
+                Dim layTable = Db.GetTable(conn, "SELECT p.PersonnelID, p.Title, p.FirstName, p.LastName, p.FullName, p.PersonType, p.Phone, p.PositionID, pos.PositionName " &
+                                             "FROM Personnel p LEFT JOIN Positions pos ON p.PositionID = pos.PositionID " &
+                                             "WHERE p.PersonType='Layperson' ORDER BY p.FullName")
+
                 cboWaiyawatName.DisplayMember = "FullName"
                 cboWaiyawatName.ValueMember = "PersonnelID"
                 cboWaiyawatName.DataSource = layTable.Copy()
@@ -72,6 +76,44 @@ Namespace TempleAccounting
                 cboBookkeeperName.DisplayMember = "FullName"
                 cboBookkeeperName.ValueMember = "PersonnelID"
                 cboBookkeeperName.DataSource = layTable.Copy()
+
+                ' โหลดรายชื่อผู้ดำรงตำแหน่งในวัดลง DataGridView
+                LoadPersonnelGrid()
+            End Using
+        End Sub
+
+        Private Sub LoadPersonnelGrid()
+            Using conn = Db.OpenConn()
+                ' ดึงรายชื่อผู้ดำรงตำแหน่งจาก TempleInfo โดย JOIN กับ Personnel และ Positions
+                Dim sql = "SELECT p.Title & ' ' & p.FirstName & ' ' & p.LastName AS [ชื่อ-นามสกุล], " &
+                         "pos.PositionName AS [ตำแหน่ง], " &
+                         "p.PersonType AS [ประเภท], " &
+                         "p.Phone AS [เบอร์โทร], " &
+                         "CASE " &
+                         "  WHEN t.AbbotID = p.PersonnelID THEN 'เจ้าอาวาส' " &
+                         "  WHEN t.WaiyawatID = p.PersonnelID THEN 'ไวยาวัจกร' " &
+                         "  WHEN t.BookkeeperID = p.PersonnelID THEN 'ผู้ทำบัญชี' " &
+                         "END AS [บทบาทในวัด] " &
+                         "FROM TempleSetting t " &
+                         "INNER JOIN Personnel p ON (t.AbbotID = p.PersonnelID OR t.WaiyawatID = p.PersonnelID OR t.BookkeeperID = p.PersonnelID) " &
+                         "LEFT JOIN Positions pos ON p.PositionID = pos.PositionID " &
+                         "ORDER BY CASE " &
+                         "  WHEN t.AbbotID = p.PersonnelID THEN 1 " &
+                         "  WHEN t.WaiyawatID = p.PersonnelID THEN 2 " &
+                         "  WHEN t.BookkeeperID = p.PersonnelID THEN 3 " &
+                         "END"
+
+                Dim dt = Db.GetTable(conn, sql)
+                dgvPersonnel.DataSource = dt
+
+                ' ปรับแต่ง Header Text
+                If dgvPersonnel.Columns.Count > 0 Then
+                    dgvPersonnel.Columns("ชื่อ-นามสกุล").HeaderText = "ชื่อ-นามสกุล"
+                    dgvPersonnel.Columns("ตำแหน่ง").HeaderText = "ตำแหน่ง"
+                    dgvPersonnel.Columns("ประเภท").HeaderText = "ประเภท"
+                    dgvPersonnel.Columns("เบอร์โทร").HeaderText = "เบอร์โทร"
+                    dgvPersonnel.Columns("บทบาทในวัด").HeaderText = "บทบาทในวัด"
+                End If
             End Using
         End Sub
 
@@ -248,18 +290,26 @@ Namespace TempleAccounting
                     If TypeOf cboAmphoe.SelectedItem Is DataRowView Then an = CType(cboAmphoe.SelectedItem, DataRowView)("DistrictName")?.ToString() Else an = cboAmphoe.Text
                     If TypeOf cboTambon.SelectedItem Is DataRowView Then tn = CType(cboTambon.SelectedItem, DataRowView)("SubDistrictName")?.ToString() Else tn = cboTambon.Text
 
+                    ' ดึงชื่อจาก ComboBox เพื่อบันทึกแบบ Dual-Saving (Backward Compatible)
                     Dim abbotName = If(TypeOf cboAbbotName.SelectedItem Is DataRowView, CType(cboAbbotName.SelectedItem, DataRowView)("FullName")?.ToString(), cboAbbotName.Text)
                     Dim waiyawatName = If(TypeOf cboWaiyawatName.SelectedItem Is DataRowView, CType(cboWaiyawatName.SelectedItem, DataRowView)("FullName")?.ToString(), cboWaiyawatName.Text)
                     Dim bookkeeperName = If(TypeOf cboBookkeeperName.SelectedItem Is DataRowView, CType(cboBookkeeperName.SelectedItem, DataRowView)("FullName")?.ToString(), cboBookkeeperName.Text)
 
+                    ' ดึง ID จาก ComboBox
                     Dim abbotID = GetSelectedIntValue(cboAbbotName, "PersonnelID")
                     Dim waiyawatID = GetSelectedIntValue(cboWaiyawatName, "PersonnelID")
                     Dim bookkeeperID = GetSelectedIntValue(cboBookkeeperName, "PersonnelID")
 
                     Dim ppName = If(chkUsePromptPay.Checked, txtPromptPayName.Text.Trim(), "")
                     Dim ppID = If(chkUsePromptPay.Checked, txtPromptPayID.Text.Trim(), "")
+
+                    ' บันทึกข้อมูล TempleInfo - เก็บทั้ง ID และ Name (Dual-Saving for Backward Compatibility)
                     Db.ExecuteNonQuery(conn, "DELETE FROM TempleSetting")
-                    Db.InsertAndGetId(conn, "INSERT INTO TempleSetting (TempleCode,TempleName,TempleAddress,Tambon,Amphoe,Province,PostCode,TemplePhone,AbbotName,AbbotOfficeStatus,WaiyawatName,WaiyawatOfficeStatus,BookkeeperName,BookkeeperType,PromptPayName,PromptPayID,AbbotID,WaiyawatID,BookkeeperID) VALUES (@a1,@a2,@a3,@a4,@a5,@a6,@a7,@a8,@a9,@a10,@a11,@a12,@a13,@a14,@a15,@a16,@a17,@a18,@a19)",
+                    Db.InsertAndGetId(conn,
+                        "INSERT INTO TempleSetting (TempleCode,TempleName,TempleAddress,Tambon,Amphoe,Province,PostCode,TemplePhone," &
+                        "AbbotName,AbbotOfficeStatus,WaiyawatName,WaiyawatOfficeStatus,BookkeeperName,BookkeeperType," &
+                        "PromptPayName,PromptPayID,AbbotID,WaiyawatID,BookkeeperID) " &
+                        "VALUES (@a1,@a2,@a3,@a4,@a5,@a6,@a7,@a8,@a9,@a10,@a11,@a12,@a13,@a14,@a15,@a16,@a17,@a18,@a19)",
                         New Tuple(Of String, Object)("@a1", txtTempleCode.Text.Trim()),
                         New Tuple(Of String, Object)("@a2", txtTempleName.Text.Trim()),
                         New Tuple(Of String, Object)("@a3", txtTempleAddress.Text.Trim()),
@@ -279,7 +329,11 @@ Namespace TempleAccounting
                         New Tuple(Of String, Object)("@a17", If(abbotID.HasValue, abbotID.Value, DBNull.Value)),
                         New Tuple(Of String, Object)("@a18", If(waiyawatID.HasValue, waiyawatID.Value, DBNull.Value)),
                         New Tuple(Of String, Object)("@a19", If(bookkeeperID.HasValue, bookkeeperID.Value, DBNull.Value)))
+
                     MessageBox.Show("✅ บันทึกข้อมูลวัดสำเร็จ!", "สำเร็จ", MessageBoxButtons.OK, MessageBoxIcon.Information)
+
+                    ' รีเฟรช DataGridView หลังบันทึก
+                    LoadPersonnelGrid()
                     txtTempleCode.Focus()
                 End Using
             Catch ex As Exception

@@ -67,20 +67,26 @@ Namespace TempleAccounting
                     AppPaths.LogCrash(ex, "Db.EnsureSchema.TempleSettingMigration")
                 End Try
 
-                ' Migration: Add columns to Personnel (if not already there from previous simple version)
+                ' Migration: Add PositionID to Personnel (FK to Positions)
                 Try
                     Dim columns = conn.GetSchema("Columns", New String() {Nothing, Nothing, "Personnel", Nothing})
-                    Dim hasFirstName As Boolean = False
+                    Dim hasPositionID As Boolean = False
+
                     For Each row As DataRow In columns.Rows
-                        If Convert.ToString(row("COLUMN_NAME")).Equals("FirstName", StringComparison.OrdinalIgnoreCase) Then hasFirstName = True
+                        If Convert.ToString(row("COLUMN_NAME")).Equals("PositionID", StringComparison.OrdinalIgnoreCase) Then
+                            hasPositionID = True
+                            Exit For
+                        End If
                     Next
-                    If Not hasFirstName Then
-                        ExecuteNonQuery(conn, "ALTER TABLE Personnel ADD COLUMN Title TEXT(50)")
-                        ExecuteNonQuery(conn, "ALTER TABLE Personnel ADD COLUMN FirstName TEXT(100)")
-                        ExecuteNonQuery(conn, "ALTER TABLE Personnel ADD COLUMN LastName TEXT(100)")
-                        ExecuteNonQuery(conn, "ALTER TABLE Personnel ADD COLUMN Phone TEXT(50)")
+
+                    If Not hasPositionID Then
+                        ExecuteNonQuery(conn, "ALTER TABLE Personnel ADD COLUMN PositionID INTEGER")
+                        ' Set default position for existing personnel
+                        ExecuteNonQuery(conn, "UPDATE Personnel SET PositionID = 1 WHERE PersonType = 'Monk'") ' เจ้าอาวาส
+                        ExecuteNonQuery(conn, "UPDATE Personnel SET PositionID = 2 WHERE PersonType = 'Layperson'") ' ไวยาวัจกร/ผู้ทำบัญชี
                     End If
-                Catch
+                Catch ex As Exception
+                    AppPaths.LogCrash(ex, "Db.EnsureSchema.PositionIDMigration")
                 End Try
 
                 ' Check and migrate missing columns in Transactions table (for older databases)
