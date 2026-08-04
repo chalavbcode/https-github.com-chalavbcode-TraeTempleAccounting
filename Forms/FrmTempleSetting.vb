@@ -84,27 +84,32 @@ Namespace TempleAccounting
 
         Private Sub LoadPersonnelGrid()
             Using conn = Db.OpenConn()
-                ' ดึงรายชื่อผู้ดำรงตำแหน่งจาก TempleInfo โดย JOIN กับ Personnel และ Positions
-                Dim sql = "SELECT p.Title & ' ' & p.FirstName & ' ' & p.LastName AS [ชื่อ-นามสกุล], " &
-                         "pos.PositionName AS [ตำแหน่ง], " &
-                         "p.PersonType AS [ประเภท], " &
-                         "p.Phone AS [เบอร์โทร], " &
-                         "Switch(t.AbbotID = p.PersonnelID, 'เจ้าอาวาส', t.WaiyawatID = p.PersonnelID, 'ไวยาวัจกร', t.BookkeeperID = p.PersonnelID, 'ผู้ทำบัญชี') AS [บทบาทในวัด] " &
-                         "FROM TempleSetting t " &
-                         "INNER JOIN Personnel p ON (t.AbbotID = p.PersonnelID OR t.WaiyawatID = p.PersonnelID OR t.BookkeeperID = p.PersonnelID) " &
-                         "LEFT JOIN Positions pos ON p.PositionID = pos.PositionID " &
-                         "ORDER BY Switch(t.AbbotID = p.PersonnelID, 1, t.WaiyawatID = p.PersonnelID, 2, t.BookkeeperID = p.PersonnelID, 3)"
+                ' ดึงรายชื่อผู้ดำรงตำแหน่งจาก TempleSetting โดยใช้ UNION ALL เพื่อเลี่ยงข้อจำกัด JOIN OR ของ Access
+                Dim sql = "SELECT 'เจ้าอาวาส' AS [บทบาทในวัด], p.Title & ' ' & p.FirstName & ' ' & p.LastName AS [ชื่อ-นามสกุล], " &
+                         "pos.PositionName AS [ตำแหน่ง], p.PersonType AS [ประเภท], p.Phone AS [เบอร์โทร] " &
+                         "FROM ((TempleSetting t INNER JOIN Personnel p ON t.AbbotID = p.PersonnelID) " &
+                         "LEFT JOIN Positions pos ON p.PositionID = pos.PositionID) " &
+                         "UNION ALL " &
+                         "SELECT 'ไวยาวัจกร' AS [บทบาทในวัด], p.Title & ' ' & p.FirstName & ' ' & p.LastName AS [ชื่อ-นามสกุล], " &
+                         "pos.PositionName AS [ตำแหน่ง], p.PersonType AS [ประเภท], p.Phone AS [เบอร์โทร] " &
+                         "FROM ((TempleSetting t INNER JOIN Personnel p ON t.WaiyawatID = p.PersonnelID) " &
+                         "LEFT JOIN Positions pos ON p.PositionID = pos.PositionID) " &
+                         "UNION ALL " &
+                         "SELECT 'ผู้ทำบัญชี' AS [บทบาทในวัด], p.Title & ' ' & p.FirstName & ' ' & p.LastName AS [ชื่อ-นามสกุล], " &
+                         "pos.PositionName AS [ตำแหน่ง], p.PersonType AS [ประเภท], p.Phone AS [เบอร์โทร] " &
+                         "FROM ((TempleSetting t INNER JOIN Personnel p ON t.BookkeeperID = p.PersonnelID) " &
+                         "LEFT JOIN Positions pos ON p.PositionID = pos.PositionID)"
 
                 Dim dt = Db.GetTable(conn, sql)
                 dgvPersonnel.DataSource = dt
 
                 ' ปรับแต่ง Header Text
                 If dgvPersonnel.Columns.Count > 0 Then
+                    dgvPersonnel.Columns("บทบาทในวัด").HeaderText = "บทบาทในวัด"
                     dgvPersonnel.Columns("ชื่อ-นามสกุล").HeaderText = "ชื่อ-นามสกุล"
                     dgvPersonnel.Columns("ตำแหน่ง").HeaderText = "ตำแหน่ง"
                     dgvPersonnel.Columns("ประเภท").HeaderText = "ประเภท"
                     dgvPersonnel.Columns("เบอร์โทร").HeaderText = "เบอร์โทร"
-                    dgvPersonnel.Columns("บทบาทในวัด").HeaderText = "บทบาทในวัด"
                 End If
             End Using
         End Sub
