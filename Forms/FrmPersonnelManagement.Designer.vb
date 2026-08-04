@@ -147,7 +147,7 @@ Namespace TempleAccounting
             Me.pnlEditor.Dock = System.Windows.Forms.DockStyle.Top
             Me.pnlEditor.Location = New System.Drawing.Point(3, 3)
             Me.pnlEditor.Name = "pnlEditor"
-            Me.pnlEditor.Padding = New System.Drawing.Padding(20)
+            Me.pnlEditor.Padding = New System.Windows.Forms.Padding(20)
             Me.pnlEditor.Size = New System.Drawing.Size(886, 220)
             Me.pnlEditor.TabIndex = 0
             '
@@ -378,7 +378,7 @@ Namespace TempleAccounting
             Me.flpButtons.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft
             Me.flpButtons.Location = New System.Drawing.Point(0, 0)
             Me.flpButtons.Name = "flpButtons"
-            Me.flpButtons.Padding = New System.Drawing.Padding(10, 15, 10, 0)
+            Me.flpButtons.Padding = New System.Windows.Forms.Padding(10, 15, 10, 0)
             Me.flpButtons.Size = New System.Drawing.Size(900, 70)
             Me.flpButtons.TabIndex = 0
             '
