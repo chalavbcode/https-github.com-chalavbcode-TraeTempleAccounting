@@ -35,8 +35,10 @@ Namespace TempleAccounting
         Private _balance As Decimal
         Private _templeName As String = ""
         Private _templeAddress As String = ""
-        Private _inspectorName As String = "พระครูวิภักษ์ถาวรวัตร"
-        Private _bookkeeperName As String = "ไวยาวัจกร"
+        Private _abbotName As String = ""
+        Private _waiyawatName As String = ""
+        Private _inspectorName As String = ""
+        Private _bookkeeperName As String = ""
 
         Private _rowFont As Font
         Private _headerFont As Font
@@ -70,6 +72,24 @@ Namespace TempleAccounting
             Public IsCarryForward As Boolean
             Public IsCategorySummary As Boolean
         End Structure
+
+        ''' <summary>
+        ''' ชื่อเจ้าอาวาส (สำหรับแสดงในรายงาน)
+        ''' </summary>
+        Public ReadOnly Property AbbotName As String
+            Get
+                Return _abbotName
+            End Get
+        End Property
+
+        ''' <summary>
+        ''' ชื่อไวยาวัจกร (สำหรับแสดงในรายงาน)
+        ''' </summary>
+        Public ReadOnly Property WaiyawatName As String
+            Get
+                Return _waiyawatName
+            End Get
+        End Property
 
         Public Sub New(fromDate As Date, toDate As Date, Optional mode As ReportModes = ReportModes.Detailed, Optional manualOpeningBalance As Decimal? = Nothing, Optional fundID As Integer? = Nothing, Optional bankID As Integer? = Nothing)
             MyBase.New()
