@@ -478,7 +478,6 @@ Namespace TempleAccounting
             System.Diagnostics.Debug.WriteLine("")
 
             Dim totalRows = Math.Max(_incomeRows.Count, _expenseRows.Count)
-            Dim isLastPage = (_rowIndex >= totalRows)
 
             ' Only draw header if we still have transactions to print
             If _rowIndex < totalRows Then
@@ -565,6 +564,9 @@ Namespace TempleAccounting
                 _rowIndex += 1
                 _pageY += rowH
             End While
+
+            ' After drawing rows, check if we've reached the end of the data
+            Dim isLastPage = (_rowIndex >= totalRows)
 
             ' All rows printed - now check if this is the last page with transactions
             If isLastPage Then
