@@ -768,14 +768,14 @@ Namespace TempleAccounting
             Dim rightBlockX As Integer = _rightX + CInt((usableW - blockWidth) / 2)
 
             ' Balanced spacing constants (shared by both blocks)
-            Const labelToSignLine As Integer = 24  ' Gap between title and signature line
-            Const signLineToName As Integer = 10    ' Gap between signature line and name
-            Const nameToPosition As Integer = 8     ' Gap between name and position
-            Const sectionHeight As Integer = 32     ' Height for each section (title/name/position)
-            Const signatureLineHeight As Integer = 42 ' Height for signature line area
+            Const labelToSignLine As Integer = 18  ' Gap between title and signature line
+            Const signLineToName As Integer = 4     ' Small gap between signature line and name
+            Const nameToPosition As Integer = 10    ' Gap between name and position
+            Const sectionHeight As Integer = 28     ' Height for each section (title/name/position)
+            Const signatureLineHeight As Integer = 16 ' Height for signature line (just dots)
 
             ' Calculate total height for signature section
-            ' Section: title(32) + gap(24) + signline(42) + gap(10) + name(32) + gap(8) + position(32)
+            ' Section: title(28) + gap(18) + signline(16) + gap(4) + name(28) + gap(10) + position(28)
             Dim totalSignatureHeight = sectionHeight + labelToSignLine + signatureLineHeight + signLineToName + sectionHeight + nameToPosition + sectionHeight
 
             ' Position the signature area - both blocks share same top Y
@@ -808,10 +808,8 @@ Namespace TempleAccounting
             g.DrawString("ตรวจถูกต้องแล้ว", _boldFont, Brushes.Black,
                         New RectangleF(leftBlockX, titleY, blockWidth, sectionHeight), fmtTitle)
 
-            ' Signature line (centered, 80% width)
-            Using pen As New Pen(Color.Black, 0.5!)
-                g.DrawLine(pen, signLineLeftX, signLineY + 21, signLineLeftX + signLineWidth, signLineY + 21)
-            End Using
+            ' Signature dotted line (centered, 80% width)
+            DrawDottedSignatureLine(g, signLineLeftX, signLineY, signLineWidth)
 
             ' Abbot name
             Dim abbotDisplay As String = If(String.IsNullOrWhiteSpace(_abbotName), ".....................................", "(" & _abbotName & ")")
@@ -829,10 +827,8 @@ Namespace TempleAccounting
             g.DrawString("ผู้จัดทำบัญชี", _boldFont, Brushes.Black,
                         New RectangleF(rightBlockX, titleY, blockWidth, sectionHeight), fmtTitle)
 
-            ' Signature line (centered, 80% width)
-            Using pen As New Pen(Color.Black, 0.5!)
-                g.DrawLine(pen, signLineRightX, signLineY + 21, signLineRightX + signLineWidth, signLineY + 21)
-            End Using
+            ' Signature dotted line (centered, 80% width)
+            DrawDottedSignatureLine(g, signLineRightX, signLineY, signLineWidth)
 
             ' Waiyawat name
             Dim waiyawatDisplay As String = If(String.IsNullOrWhiteSpace(_waiyawatName), ".....................................", "(" & _waiyawatName & ")")
@@ -846,6 +842,24 @@ Namespace TempleAccounting
                         New RectangleF(rightBlockX, positionY, blockWidth, sectionHeight), fmtTitle)
 
             _pageY = positionY + sectionHeight
+        End Sub
+
+        ''' <summary>
+        ''' Draws a dotted signature line (not a solid line)
+        ''' </summary>
+        Private Sub DrawDottedSignatureLine(g As Graphics, x As Integer, y As Integer, width As Integer)
+            Const dotSpacing As Integer = 6     ' Space between dots
+            Const dotRadius As Integer = 1.5F   ' Dot size
+            Dim dotCount As Integer = CInt(width / dotSpacing)
+            Dim totalDotsWidth As Integer = dotCount * dotSpacing
+            Dim startX As Integer = x + CInt((width - totalDotsWidth) / 2) + CInt(dotSpacing / 2)
+
+            Using dotBrush As New SolidBrush(Color.Black)
+                For i As Integer = 0 To dotCount - 1
+                    Dim dotX As Integer = startX + (i * dotSpacing)
+                    g.FillEllipse(dotBrush, dotX - dotRadius, y - dotRadius, dotRadius * 2, dotRadius * 2)
+                Next
+            End Using
         End Sub
 
         Private Function Truncate(g As Graphics, s As String, f As Font, maxW As Integer) As String
