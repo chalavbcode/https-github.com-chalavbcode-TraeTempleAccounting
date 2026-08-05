@@ -62,7 +62,7 @@ Namespace TempleAccounting
         Private _pageIndex As Integer = 0
         Private _rowIndex As Integer = 0
         Private Const FinalSummaryRows As Integer = 3
-        Private Const FinalSignatureBlockHeight As Integer = 360  ' Height for 2 signature blocks with proper spacing
+        Private Const FinalSignatureBlockHeight As Integer = 155  ' Actual height: label(26) + gap(65) + name(26) + gap(12) + position(26)
         Private Const FinalFooterGapHeight As Integer = 24
 
         Private Structure ReportRow
@@ -487,7 +487,10 @@ Namespace TempleAccounting
             Dim colW4 = CInt(usableW * 0.24)
             Dim rowH = 28
 
-            DrawTableHeader(g, rowH, colW1, colW2, colW3, colW4)
+            ' Only draw table headers if we have transactions to print on THIS page
+            If _rowIndex < totalRows Then
+                DrawTableHeader(g, rowH, colW1, colW2, colW3, colW4)
+            End If
 
             ' Dynamic pagination: draw rows until we run out of space
             While _rowIndex < totalRows
@@ -769,14 +772,14 @@ Namespace TempleAccounting
 
             ' === SHARED SPACING CONSTANTS ===
             Const labelHeight As Integer = 26          ' Height for label text
-            Const labelToSignLine As Integer = 50     ' 50px gap above dotted line (signing space)
-            Const signLineToName As Integer = 1       ' 1px gap - line very close to name
+            Const labelToSignLine As Integer = 65     ' 65px gap above dotted line (more signing space)
+            Const signLineToName As Integer = 0       ' 0px gap - name directly below line
             Const nameHeight As Integer = 26           ' Height for name text
-            Const nameToPosition As Integer = 8       ' Gap between name and position
+            Const nameToPosition As Integer = 12      ' Comfortable gap between name and position
             Const positionHeight As Integer = 26       ' Height for position text
 
             ' Calculate total height for signature section
-            ' Section: label(26) + gap(50) + signLineToName(1) + name(26) + gap(8) + position(26)
+            ' Section: label(26) + gap(65) + signLineToName(0) + name(26) + gap(12) + position(26)
             Dim totalSignatureHeight = labelHeight + labelToSignLine + signLineToName + nameHeight + nameToPosition + positionHeight
 
             ' Position the signature area - both blocks share same bottom Y
@@ -850,8 +853,8 @@ Namespace TempleAccounting
         ''' Draws a dotted signature line (not a solid line)
         ''' </summary>
         Private Sub DrawDottedSignatureLine(g As Graphics, x As Integer, y As Integer, width As Integer)
-            Const dotSpacing As Integer = 8     ' Space between dots (increased)
-            Const dotRadius As Integer = 1.0F   ' Smaller dot size
+            Const dotSpacing As Integer = 8     ' Space between dots (clearly separated)
+            Const dotRadius As Integer = 1.5F   ' Visible dot size (3px diameter)
             Dim dotCount As Integer = CInt(width / dotSpacing)
             Dim totalDotsWidth As Integer = dotCount * dotSpacing
             Dim startX As Integer = x + CInt((width - totalDotsWidth) / 2) + CInt(dotSpacing / 2)
