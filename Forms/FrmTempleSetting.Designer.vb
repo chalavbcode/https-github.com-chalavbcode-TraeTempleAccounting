@@ -52,9 +52,13 @@ Namespace TempleAccounting
 
         ' Layout
         Friend WithEvents tlpTempleInfo As TableLayoutPanel
+        Friend WithEvents tlpContactInfo As TableLayoutPanel
+        Friend WithEvents tlpPromptPay As TableLayoutPanel
         Friend WithEvents tlpPersonnel As TableLayoutPanel
         Friend WithEvents tlpPersonnelList As TableLayoutPanel
         Friend WithEvents gbTempleInfo As GroupBox
+        Friend WithEvents gbContactInfo As GroupBox
+        Friend WithEvents gbPromptPay As GroupBox
         Friend WithEvents gbPersonnel As GroupBox
         Friend WithEvents gbPersonnelList As GroupBox
         Friend WithEvents flpButtons As FlowLayoutPanel
@@ -92,6 +96,10 @@ Namespace TempleAccounting
             pBottom = New Panel()
             gbTempleInfo = New GroupBox()
             tlpTempleInfo = New TableLayoutPanel()
+            gbContactInfo = New GroupBox()
+            tlpContactInfo = New TableLayoutPanel()
+            gbPromptPay = New GroupBox()
+            tlpPromptPay = New TableLayoutPanel()
             lblTempleCode = New Label()
             txtTempleCode = New TextBox()
             lblTempleName = New Label()
