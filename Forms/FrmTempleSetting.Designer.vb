@@ -153,7 +153,6 @@ Namespace TempleAccounting
             tlpTempleInfo.SuspendLayout()
             pBottom.SuspendLayout()
             flpButtons.SuspendLayout()
-            pHeader.SuspendLayout()
             SuspendLayout()
             ' 
             ' lblHeader
@@ -162,7 +161,9 @@ Namespace TempleAccounting
             lblHeader.Dock = DockStyle.Fill
             lblHeader.Font = New Font("Tahoma", 14F, FontStyle.Bold)
             lblHeader.ForeColor = Color.FromArgb(CByte(69), CByte(26), CByte(3))
+            lblHeader.Location = New Point(0, 0)
             lblHeader.Name = "lblHeader"
+            lblHeader.Size = New Size(100, 23)
             lblHeader.TabIndex = 0
             lblHeader.Text = "🏛️ ข้อมูลวัด และผู้ทำงาน"
             lblHeader.TextAlign = ContentAlignment.MiddleCenter
@@ -363,9 +364,11 @@ Namespace TempleAccounting
             gbPromptPay.Dock = DockStyle.Top
             gbPromptPay.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             gbPromptPay.ForeColor = Color.FromArgb(CByte(30), CByte(64), CByte(175))
+            gbPromptPay.Location = New Point(10, 439)
             gbPromptPay.Margin = New Padding(0, 0, 0, 12)
             gbPromptPay.Name = "gbPromptPay"
             gbPromptPay.Padding = New Padding(10, 20, 10, 10)
+            gbPromptPay.Size = New Size(834, 171)
             gbPromptPay.TabIndex = 2
             gbPromptPay.TabStop = False
             gbPromptPay.Text = "💳 พร้อมเพย์"
@@ -460,9 +463,11 @@ Namespace TempleAccounting
             gbContactInfo.Dock = DockStyle.Top
             gbContactInfo.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             gbContactInfo.ForeColor = Color.FromArgb(CByte(30), CByte(64), CByte(175))
+            gbContactInfo.Location = New Point(10, 184)
             gbContactInfo.Margin = New Padding(0, 0, 0, 12)
             gbContactInfo.Name = "gbContactInfo"
             gbContactInfo.Padding = New Padding(10, 20, 10, 10)
+            gbContactInfo.Size = New Size(834, 255)
             gbContactInfo.TabIndex = 1
             gbContactInfo.TabStop = False
             gbContactInfo.Text = "📞 ข้อมูลติดต่อ"
@@ -622,9 +627,11 @@ Namespace TempleAccounting
             gbTempleInfo.Dock = DockStyle.Top
             gbTempleInfo.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             gbTempleInfo.ForeColor = Color.FromArgb(CByte(30), CByte(64), CByte(175))
+            gbTempleInfo.Location = New Point(10, 10)
             gbTempleInfo.Margin = New Padding(0, 0, 0, 12)
             gbTempleInfo.Name = "gbTempleInfo"
             gbTempleInfo.Padding = New Padding(10, 20, 10, 10)
+            gbTempleInfo.Size = New Size(834, 174)
             gbTempleInfo.TabIndex = 0
             gbTempleInfo.TabStop = False
             gbTempleInfo.Text = "🏛️ ข้อมูลพื้นฐานของวัด"
@@ -819,6 +826,13 @@ Namespace TempleAccounting
             btnSave.Text = "💾 บันทึก"
             btnSave.UseVisualStyleBackColor = False
             ' 
+            ' pHeader
+            ' 
+            pHeader.Location = New Point(0, 0)
+            pHeader.Name = "pHeader"
+            pHeader.Size = New Size(200, 100)
+            pHeader.TabIndex = 3
+            ' 
             ' FrmTempleSetting
             ' 
             AutoScaleDimensions = New SizeF(144F, 144F)
@@ -831,7 +845,6 @@ Namespace TempleAccounting
             Name = "FrmTempleSetting"
             Text = "ตั้งค่าข้อมูลวัด"
             pMainContainer.ResumeLayout(False)
-            pMainContainer.PerformLayout()
             pContent.ResumeLayout(False)
             pContent.PerformLayout()
             gbPersonnelList.ResumeLayout(False)
@@ -855,7 +868,6 @@ Namespace TempleAccounting
             tlpTempleInfo.PerformLayout()
             pBottom.ResumeLayout(False)
             flpButtons.ResumeLayout(False)
-            pHeader.ResumeLayout(False)
             ResumeLayout(False)
         End Sub
     End Class
