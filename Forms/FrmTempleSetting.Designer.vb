@@ -655,10 +655,8 @@ Namespace TempleAccounting
             lblTempleCode.AutoSize = True
             lblTempleCode.Dock = DockStyle.Fill
             lblTempleCode.Font = New Font("Tahoma", 10F)
-            lblTempleCode.Location = New Point(4, 4)
             lblTempleCode.Margin = New Padding(4)
             lblTempleCode.Name = "lblTempleCode"
-            lblTempleCode.Size = New Size(77, 32)
             lblTempleCode.TabIndex = 0
             lblTempleCode.Text = "รหัสวัด:"
             lblTempleCode.TextAlign = ContentAlignment.MiddleRight
