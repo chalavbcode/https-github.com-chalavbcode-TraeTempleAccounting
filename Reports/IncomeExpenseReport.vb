@@ -767,29 +767,30 @@ Namespace TempleAccounting
             Dim leftBlockX As Integer = _leftX + CInt((usableW - blockWidth) / 2)
             Dim rightBlockX As Integer = _rightX + CInt((usableW - blockWidth) / 2)
 
-            ' Balanced spacing constants (shared by both blocks)
-            Const labelToSignLine As Integer = 18  ' Gap between title and signature line
-            Const signLineToName As Integer = 4     ' Small gap between signature line and name
-            Const nameToPosition As Integer = 10    ' Gap between name and position
-            Const sectionHeight As Integer = 28     ' Height for each section (title/name/position)
-            Const signatureLineHeight As Integer = 16 ' Height for signature line (just dots)
+            ' === SHARED SPACING CONSTANTS ===
+            Const labelHeight As Integer = 26          ' Height for label text
+            Const labelToSignLine As Integer = 30     ' ~30px gap above dotted line (signing space)
+            Const signLineToName As Integer = 6       ' Small gap between dotted line and name
+            Const nameHeight As Integer = 26           ' Height for name text
+            Const nameToPosition As Integer = 8       ' Gap between name and position
+            Const positionHeight As Integer = 26       ' Height for position text
 
             ' Calculate total height for signature section
-            ' Section: title(28) + gap(18) + signline(16) + gap(4) + name(28) + gap(10) + position(28)
-            Dim totalSignatureHeight = sectionHeight + labelToSignLine + signatureLineHeight + signLineToName + sectionHeight + nameToPosition + sectionHeight
+            ' Section: label(26) + gap(30) + signLineToName(6) + name(26) + gap(8) + position(26)
+            Dim totalSignatureHeight = labelHeight + labelToSignLine + signLineToName + nameHeight + nameToPosition + positionHeight
 
-            ' Position the signature area - both blocks share same top Y
-            Dim blockTop = _pageBottom - totalSignatureHeight - 8
-            If blockTop < minimumTop Then
-                blockTop = minimumTop
+            ' Position the signature area - both blocks share same bottom Y
+            Dim blockBottom = _pageBottom - 8
+            If blockBottom - totalSignatureHeight < minimumTop Then
+                blockBottom = minimumTop + totalSignatureHeight + 8
             End If
 
             ' === SHARED Y COORDINATES ===
-            ' Both blocks use the same Y positions
-            Dim titleY As Integer = blockTop
-            Dim signLineY As Integer = titleY + sectionHeight + labelToSignLine
-            Dim nameY As Integer = signLineY + signatureLineHeight + signLineToName
-            Dim positionY As Integer = nameY + sectionHeight + nameToPosition
+            ' Both blocks use the same Y positions (signatureLabelY marks the TOP of each block)
+            Dim signatureLabelY As Integer = blockBottom - totalSignatureHeight
+            Dim signatureLineY As Integer = signatureLabelY + labelHeight + labelToSignLine
+            Dim signatureNameY As Integer = signatureLineY + signLineToName
+            Dim signaturePositionY As Integer = signatureNameY + nameHeight + nameToPosition
 
             ' Signature line: 80% of block width, centered
             Dim signLineWidth As Integer = CInt(blockWidth * 0.8)
@@ -806,50 +807,50 @@ Namespace TempleAccounting
             ' === DRAW LEFT BLOCK (ABBOT) ===
             ' Title: ตรวจถูกต้องแล้ว
             g.DrawString("ตรวจถูกต้องแล้ว", _boldFont, Brushes.Black,
-                        New RectangleF(leftBlockX, titleY, blockWidth, sectionHeight), fmtTitle)
+                        New RectangleF(leftBlockX, signatureLabelY, blockWidth, labelHeight), fmtTitle)
 
-            ' Signature dotted line (centered, 80% width)
-            DrawDottedSignatureLine(g, signLineLeftX, signLineY, signLineWidth)
+            ' Signature dotted line (centered, 80% width) - drawn at signatureLineY
+            DrawDottedSignatureLine(g, signLineLeftX, signatureLineY, signLineWidth)
 
             ' Abbot name
             Dim abbotDisplay As String = If(String.IsNullOrWhiteSpace(_abbotName), ".....................................", "(" & _abbotName & ")")
             Using nameFont As Font = CreateFittedBoldFont(g, abbotDisplay, New Font("Tahoma", 12.0!, FontStyle.Bold), blockWidth - 8, 10.0!)
                 g.DrawString(abbotDisplay, nameFont, Brushes.Black,
-                           New RectangleF(leftBlockX, nameY, blockWidth, sectionHeight), fmtTitle)
+                           New RectangleF(leftBlockX, signatureNameY, blockWidth, nameHeight), fmtTitle)
             End Using
 
             ' Abbot position
             g.DrawString("เจ้าอาวาส", _rowFont, Brushes.Black,
-                        New RectangleF(leftBlockX, positionY, blockWidth, sectionHeight), fmtTitle)
+                        New RectangleF(leftBlockX, signaturePositionY, blockWidth, positionHeight), fmtTitle)
 
             ' === DRAW RIGHT BLOCK (WAIYAWAT) ===
             ' Title: ผู้จัดทำบัญชี
             g.DrawString("ผู้จัดทำบัญชี", _boldFont, Brushes.Black,
-                        New RectangleF(rightBlockX, titleY, blockWidth, sectionHeight), fmtTitle)
+                        New RectangleF(rightBlockX, signatureLabelY, blockWidth, labelHeight), fmtTitle)
 
-            ' Signature dotted line (centered, 80% width)
-            DrawDottedSignatureLine(g, signLineRightX, signLineY, signLineWidth)
+            ' Signature dotted line (centered, 80% width) - drawn at signatureLineY
+            DrawDottedSignatureLine(g, signLineRightX, signatureLineY, signLineWidth)
 
             ' Waiyawat name
             Dim waiyawatDisplay As String = If(String.IsNullOrWhiteSpace(_waiyawatName), ".....................................", "(" & _waiyawatName & ")")
             Using nameFont As Font = CreateFittedBoldFont(g, waiyawatDisplay, New Font("Tahoma", 12.0!, FontStyle.Bold), blockWidth - 8, 10.0!)
                 g.DrawString(waiyawatDisplay, nameFont, Brushes.Black,
-                           New RectangleF(rightBlockX, nameY, blockWidth, sectionHeight), fmtTitle)
+                           New RectangleF(rightBlockX, signatureNameY, blockWidth, nameHeight), fmtTitle)
             End Using
 
             ' Waiyawat position
             g.DrawString("ไวยาวัจกร", _rowFont, Brushes.Black,
-                        New RectangleF(rightBlockX, positionY, blockWidth, sectionHeight), fmtTitle)
+                        New RectangleF(rightBlockX, signaturePositionY, blockWidth, positionHeight), fmtTitle)
 
-            _pageY = positionY + sectionHeight
+            _pageY = signaturePositionY + positionHeight
         End Sub
 
         ''' <summary>
         ''' Draws a dotted signature line (not a solid line)
         ''' </summary>
         Private Sub DrawDottedSignatureLine(g As Graphics, x As Integer, y As Integer, width As Integer)
-            Const dotSpacing As Integer = 6     ' Space between dots
-            Const dotRadius As Integer = 1.5F   ' Dot size
+            Const dotSpacing As Integer = 8     ' Space between dots (increased)
+            Const dotRadius As Integer = 1.0F   ' Smaller dot size
             Dim dotCount As Integer = CInt(width / dotSpacing)
             Dim totalDotsWidth As Integer = dotCount * dotSpacing
             Dim startX As Integer = x + CInt((width - totalDotsWidth) / 2) + CInt(dotSpacing / 2)
