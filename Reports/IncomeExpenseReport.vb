@@ -469,7 +469,11 @@ Namespace TempleAccounting
             System.Diagnostics.Debug.WriteLine("[REPORT DEBUG] Page Number = " & (_pageIndex + 1))
             System.Diagnostics.Debug.WriteLine("[REPORT DEBUG] Current Y Position = " & _pageY)
             System.Diagnostics.Debug.WriteLine("[REPORT DEBUG] Remaining Height = " & (_pageBottom - _pageY))
+            System.Diagnostics.Debug.WriteLine("[REPORT DEBUG] Required For Final Content = " & CalculateFinalContentHeight(28))
             System.Diagnostics.Debug.WriteLine("[REPORT DEBUG] Signature Reserved Height = " & FinalSignatureBlockHeight)
+            System.Diagnostics.Debug.WriteLine("[REPORT DEBUG] Total Rows = " & Math.Max(_incomeRows.Count, _expenseRows.Count))
+            System.Diagnostics.Debug.WriteLine("[REPORT DEBUG] Current Row Index = " & _rowIndex)
+            System.Diagnostics.Debug.WriteLine("[REPORT DEBUG] Is Last Page = " & (_rowIndex >= Math.Max(_incomeRows.Count, _expenseRows.Count)))
             System.Diagnostics.Debug.WriteLine("[REPORT DEBUG] ====================================")
             System.Diagnostics.Debug.WriteLine("")
 
