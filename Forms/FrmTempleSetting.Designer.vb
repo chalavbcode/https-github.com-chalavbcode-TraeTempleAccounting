@@ -195,7 +195,7 @@ Namespace TempleAccounting
             pContent.Location = New Point(10, 10)
             pContent.Name = "pContent"
             pContent.Padding = New Padding(10)
-            pContent.Size = New Size(880, 732)
+            pContent.Size = New Size(880, 697)
             pContent.TabIndex = 2
             ' 
             ' gbPersonnelList
@@ -253,11 +253,11 @@ Namespace TempleAccounting
             gbPersonnel.Dock = DockStyle.Top
             gbPersonnel.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             gbPersonnel.ForeColor = Color.FromArgb(CByte(30), CByte(64), CByte(175))
-            gbPersonnel.Location = New Point(10, 613)
+            gbPersonnel.Location = New Point(10, 610)
             gbPersonnel.Margin = New Padding(0, 0, 0, 12)
             gbPersonnel.Name = "gbPersonnel"
             gbPersonnel.Padding = New Padding(10, 20, 10, 10)
-            gbPersonnel.Size = New Size(834, 175)
+            gbPersonnel.Size = New Size(834, 178)
             gbPersonnel.TabIndex = 3
             gbPersonnel.TabStop = False
             gbPersonnel.Text = "👤 ผู้ดำรงตำแหน่งในวัด"
@@ -282,7 +282,7 @@ Namespace TempleAccounting
             tlpPersonnel.RowStyles.Add(New RowStyle())
             tlpPersonnel.RowStyles.Add(New RowStyle())
             tlpPersonnel.RowStyles.Add(New RowStyle())
-            tlpPersonnel.Size = New Size(814, 120)
+            tlpPersonnel.Size = New Size(814, 123)
             tlpPersonnel.TabIndex = 0
             ' 
             ' lblAbbotName
@@ -293,7 +293,7 @@ Namespace TempleAccounting
             lblAbbotName.Location = New Point(4, 4)
             lblAbbotName.Margin = New Padding(4)
             lblAbbotName.Name = "lblAbbotName"
-            lblAbbotName.Size = New Size(126, 32)
+            lblAbbotName.Size = New Size(126, 33)
             lblAbbotName.TabIndex = 16
             lblAbbotName.Text = "ชื่อเจ้าอาวาส:"
             lblAbbotName.TextAlign = ContentAlignment.MiddleRight
@@ -314,10 +314,10 @@ Namespace TempleAccounting
             lblWaiyawatName.AutoSize = True
             lblWaiyawatName.Dock = DockStyle.Fill
             lblWaiyawatName.Font = New Font("Tahoma", 10F)
-            lblWaiyawatName.Location = New Point(4, 44)
+            lblWaiyawatName.Location = New Point(4, 45)
             lblWaiyawatName.Margin = New Padding(4)
             lblWaiyawatName.Name = "lblWaiyawatName"
-            lblWaiyawatName.Size = New Size(126, 32)
+            lblWaiyawatName.Size = New Size(126, 33)
             lblWaiyawatName.TabIndex = 18
             lblWaiyawatName.Text = "ชื่อไวยาวัจกร:"
             lblWaiyawatName.TextAlign = ContentAlignment.MiddleRight
@@ -327,7 +327,7 @@ Namespace TempleAccounting
             cboWaiyawatName.Dock = DockStyle.Fill
             cboWaiyawatName.DropDownStyle = ComboBoxStyle.DropDownList
             cboWaiyawatName.Font = New Font("Tahoma", 10F)
-            cboWaiyawatName.Location = New Point(138, 44)
+            cboWaiyawatName.Location = New Point(138, 45)
             cboWaiyawatName.Margin = New Padding(4)
             cboWaiyawatName.Name = "cboWaiyawatName"
             cboWaiyawatName.Size = New Size(672, 32)
@@ -338,10 +338,10 @@ Namespace TempleAccounting
             lblBookkeeperName.AutoSize = True
             lblBookkeeperName.Dock = DockStyle.Fill
             lblBookkeeperName.Font = New Font("Tahoma", 10F)
-            lblBookkeeperName.Location = New Point(4, 84)
+            lblBookkeeperName.Location = New Point(4, 86)
             lblBookkeeperName.Margin = New Padding(4)
             lblBookkeeperName.Name = "lblBookkeeperName"
-            lblBookkeeperName.Size = New Size(126, 32)
+            lblBookkeeperName.Size = New Size(126, 33)
             lblBookkeeperName.TabIndex = 20
             lblBookkeeperName.Text = "ชื่อผู้ทำบัญชี:"
             lblBookkeeperName.TextAlign = ContentAlignment.MiddleRight
@@ -351,7 +351,7 @@ Namespace TempleAccounting
             cboBookkeeperName.Dock = DockStyle.Fill
             cboBookkeeperName.DropDownStyle = ComboBoxStyle.DropDownList
             cboBookkeeperName.Font = New Font("Tahoma", 10F)
-            cboBookkeeperName.Location = New Point(138, 84)
+            cboBookkeeperName.Location = New Point(138, 86)
             cboBookkeeperName.Margin = New Padding(4)
             cboBookkeeperName.Name = "cboBookkeeperName"
             cboBookkeeperName.Size = New Size(672, 32)
@@ -365,7 +365,7 @@ Namespace TempleAccounting
             gbPromptPay.Dock = DockStyle.Top
             gbPromptPay.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             gbPromptPay.ForeColor = Color.FromArgb(CByte(30), CByte(64), CByte(175))
-            gbPromptPay.Location = New Point(10, 442)
+            gbPromptPay.Location = New Point(10, 439)
             gbPromptPay.Margin = New Padding(0, 0, 0, 12)
             gbPromptPay.Name = "gbPromptPay"
             gbPromptPay.Padding = New Padding(10, 20, 10, 10)
@@ -402,8 +402,10 @@ Namespace TempleAccounting
             chkUsePromptPay.Dock = DockStyle.Fill
             chkUsePromptPay.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             chkUsePromptPay.ForeColor = Color.FromArgb(CByte(15), CByte(118), CByte(110))
+            chkUsePromptPay.Location = New Point(222, 4)
             chkUsePromptPay.Margin = New Padding(4)
             chkUsePromptPay.Name = "chkUsePromptPay"
+            chkUsePromptPay.Size = New Size(588, 28)
             chkUsePromptPay.TabIndex = 22
             chkUsePromptPay.Text = "เปิดใช้งานพร้อมเพย์"
             chkUsePromptPay.UseVisualStyleBackColor = True
@@ -413,8 +415,10 @@ Namespace TempleAccounting
             lblPromptPayName.AutoSize = True
             lblPromptPayName.Dock = DockStyle.Fill
             lblPromptPayName.Font = New Font("Tahoma", 10F)
+            lblPromptPayName.Location = New Point(4, 40)
             lblPromptPayName.Margin = New Padding(4)
             lblPromptPayName.Name = "lblPromptPayName"
+            lblPromptPayName.Size = New Size(210, 32)
             lblPromptPayName.TabIndex = 23
             lblPromptPayName.Text = "ชื่อบัญชีพร้อมเพย์:"
             lblPromptPayName.TextAlign = ContentAlignment.MiddleRight
@@ -423,8 +427,10 @@ Namespace TempleAccounting
             ' 
             txtPromptPayName.Dock = DockStyle.Fill
             txtPromptPayName.Font = New Font("Tahoma", 10F)
+            txtPromptPayName.Location = New Point(222, 40)
             txtPromptPayName.Margin = New Padding(4)
             txtPromptPayName.Name = "txtPromptPayName"
+            txtPromptPayName.Size = New Size(588, 32)
             txtPromptPayName.TabIndex = 24
             ' 
             ' lblPromptPayID
@@ -432,8 +438,10 @@ Namespace TempleAccounting
             lblPromptPayID.AutoSize = True
             lblPromptPayID.Dock = DockStyle.Fill
             lblPromptPayID.Font = New Font("Tahoma", 10F)
+            lblPromptPayID.Location = New Point(4, 80)
             lblPromptPayID.Margin = New Padding(4)
             lblPromptPayID.Name = "lblPromptPayID"
+            lblPromptPayID.Size = New Size(210, 32)
             lblPromptPayID.TabIndex = 25
             lblPromptPayID.Text = "เลขพร้อมเพย์/เลขบัญชี:"
             lblPromptPayID.TextAlign = ContentAlignment.MiddleRight
@@ -442,8 +450,10 @@ Namespace TempleAccounting
             ' 
             txtPromptPayID.Dock = DockStyle.Fill
             txtPromptPayID.Font = New Font("Tahoma", 10F)
+            txtPromptPayID.Location = New Point(222, 80)
             txtPromptPayID.Margin = New Padding(4)
             txtPromptPayID.Name = "txtPromptPayID"
+            txtPromptPayID.Size = New Size(588, 32)
             txtPromptPayID.TabIndex = 26
             ' 
             ' gbContactInfo
@@ -458,7 +468,7 @@ Namespace TempleAccounting
             gbContactInfo.Margin = New Padding(0, 0, 0, 12)
             gbContactInfo.Name = "gbContactInfo"
             gbContactInfo.Padding = New Padding(10, 20, 10, 10)
-            gbContactInfo.Size = New Size(834, 258)
+            gbContactInfo.Size = New Size(834, 255)
             gbContactInfo.TabIndex = 1
             gbContactInfo.TabStop = False
             gbContactInfo.Text = "📞 ข้อมูลติดต่อ"
@@ -489,7 +499,7 @@ Namespace TempleAccounting
             tlpContactInfo.RowStyles.Add(New RowStyle())
             tlpContactInfo.RowStyles.Add(New RowStyle())
             tlpContactInfo.RowStyles.Add(New RowStyle())
-            tlpContactInfo.Size = New Size(814, 203)
+            tlpContactInfo.Size = New Size(814, 200)
             tlpContactInfo.TabIndex = 0
             ' 
             ' lblProvince
@@ -500,7 +510,7 @@ Namespace TempleAccounting
             lblProvince.Location = New Point(4, 4)
             lblProvince.Margin = New Padding(4)
             lblProvince.Name = "lblProvince"
-            lblProvince.Size = New Size(128, 33)
+            lblProvince.Size = New Size(128, 32)
             lblProvince.TabIndex = 6
             lblProvince.Text = "จังหวัด:"
             lblProvince.TextAlign = ContentAlignment.MiddleRight
@@ -521,10 +531,10 @@ Namespace TempleAccounting
             lblAmphoe.AutoSize = True
             lblAmphoe.Dock = DockStyle.Fill
             lblAmphoe.Font = New Font("Tahoma", 10F)
-            lblAmphoe.Location = New Point(4, 45)
+            lblAmphoe.Location = New Point(4, 44)
             lblAmphoe.Margin = New Padding(4)
             lblAmphoe.Name = "lblAmphoe"
-            lblAmphoe.Size = New Size(128, 33)
+            lblAmphoe.Size = New Size(128, 32)
             lblAmphoe.TabIndex = 8
             lblAmphoe.Text = "อำเภอ:"
             lblAmphoe.TextAlign = ContentAlignment.MiddleRight
@@ -534,7 +544,7 @@ Namespace TempleAccounting
             cboAmphoe.Dock = DockStyle.Fill
             cboAmphoe.DropDownStyle = ComboBoxStyle.DropDownList
             cboAmphoe.Font = New Font("Tahoma", 10F)
-            cboAmphoe.Location = New Point(140, 45)
+            cboAmphoe.Location = New Point(140, 44)
             cboAmphoe.Margin = New Padding(4)
             cboAmphoe.Name = "cboAmphoe"
             cboAmphoe.Size = New Size(670, 32)
@@ -545,10 +555,10 @@ Namespace TempleAccounting
             lblTambon.AutoSize = True
             lblTambon.Dock = DockStyle.Fill
             lblTambon.Font = New Font("Tahoma", 10F)
-            lblTambon.Location = New Point(4, 86)
+            lblTambon.Location = New Point(4, 84)
             lblTambon.Margin = New Padding(4)
             lblTambon.Name = "lblTambon"
-            lblTambon.Size = New Size(128, 33)
+            lblTambon.Size = New Size(128, 32)
             lblTambon.TabIndex = 10
             lblTambon.Text = "ตำบล:"
             lblTambon.TextAlign = ContentAlignment.MiddleRight
@@ -558,7 +568,7 @@ Namespace TempleAccounting
             cboTambon.Dock = DockStyle.Fill
             cboTambon.DropDownStyle = ComboBoxStyle.DropDownList
             cboTambon.Font = New Font("Tahoma", 10F)
-            cboTambon.Location = New Point(140, 86)
+            cboTambon.Location = New Point(140, 84)
             cboTambon.Margin = New Padding(4)
             cboTambon.Name = "cboTambon"
             cboTambon.Size = New Size(670, 32)
@@ -569,7 +579,7 @@ Namespace TempleAccounting
             lblPostCode.AutoSize = True
             lblPostCode.Dock = DockStyle.Fill
             lblPostCode.Font = New Font("Tahoma", 10F)
-            lblPostCode.Location = New Point(4, 127)
+            lblPostCode.Location = New Point(4, 124)
             lblPostCode.Margin = New Padding(4)
             lblPostCode.Name = "lblPostCode"
             lblPostCode.Size = New Size(128, 32)
@@ -581,7 +591,7 @@ Namespace TempleAccounting
             ' 
             txtPostCode.Dock = DockStyle.Fill
             txtPostCode.Font = New Font("Tahoma", 10F)
-            txtPostCode.Location = New Point(140, 127)
+            txtPostCode.Location = New Point(140, 124)
             txtPostCode.Margin = New Padding(4)
             txtPostCode.Name = "txtPostCode"
             txtPostCode.Size = New Size(670, 32)
@@ -592,7 +602,7 @@ Namespace TempleAccounting
             lblTemplePhone.AutoSize = True
             lblTemplePhone.Dock = DockStyle.Fill
             lblTemplePhone.Font = New Font("Tahoma", 10F)
-            lblTemplePhone.Location = New Point(4, 167)
+            lblTemplePhone.Location = New Point(4, 164)
             lblTemplePhone.Margin = New Padding(4)
             lblTemplePhone.Name = "lblTemplePhone"
             lblTemplePhone.Size = New Size(128, 32)
@@ -604,7 +614,7 @@ Namespace TempleAccounting
             ' 
             txtTemplePhone.Dock = DockStyle.Fill
             txtTemplePhone.Font = New Font("Tahoma", 10F)
-            txtTemplePhone.Location = New Point(140, 167)
+            txtTemplePhone.Location = New Point(140, 164)
             txtTemplePhone.Margin = New Padding(4)
             txtTemplePhone.Name = "txtTemplePhone"
             txtTemplePhone.Size = New Size(670, 32)
@@ -641,11 +651,13 @@ Namespace TempleAccounting
             tlpTempleInfo.Controls.Add(lblTempleAddress, 0, 2)
             tlpTempleInfo.Controls.Add(txtTempleAddress, 1, 2)
             tlpTempleInfo.Dock = DockStyle.Top
+            tlpTempleInfo.Location = New Point(10, 45)
             tlpTempleInfo.Name = "tlpTempleInfo"
             tlpTempleInfo.RowCount = 3
             tlpTempleInfo.RowStyles.Add(New RowStyle())
             tlpTempleInfo.RowStyles.Add(New RowStyle())
             tlpTempleInfo.RowStyles.Add(New RowStyle())
+            tlpTempleInfo.Size = New Size(814, 119)
             tlpTempleInfo.TabIndex = 0
             ' 
             ' lblTempleCode
@@ -653,8 +665,10 @@ Namespace TempleAccounting
             lblTempleCode.AutoSize = True
             lblTempleCode.Dock = DockStyle.Fill
             lblTempleCode.Font = New Font("Tahoma", 10F)
+            lblTempleCode.Location = New Point(4, 4)
             lblTempleCode.Margin = New Padding(4)
             lblTempleCode.Name = "lblTempleCode"
+            lblTempleCode.Size = New Size(77, 32)
             lblTempleCode.TabIndex = 0
             lblTempleCode.Text = "รหัสวัด:"
             lblTempleCode.TextAlign = ContentAlignment.MiddleRight
@@ -663,8 +677,10 @@ Namespace TempleAccounting
             ' 
             txtTempleCode.Dock = DockStyle.Fill
             txtTempleCode.Font = New Font("Tahoma", 10F)
+            txtTempleCode.Location = New Point(89, 4)
             txtTempleCode.Margin = New Padding(4)
             txtTempleCode.Name = "txtTempleCode"
+            txtTempleCode.Size = New Size(721, 32)
             txtTempleCode.TabIndex = 1
             ' 
             ' lblTempleName
@@ -672,8 +688,10 @@ Namespace TempleAccounting
             lblTempleName.AutoSize = True
             lblTempleName.Dock = DockStyle.Fill
             lblTempleName.Font = New Font("Tahoma", 10F)
+            lblTempleName.Location = New Point(4, 44)
             lblTempleName.Margin = New Padding(4)
             lblTempleName.Name = "lblTempleName"
+            lblTempleName.Size = New Size(77, 32)
             lblTempleName.TabIndex = 2
             lblTempleName.Text = "ชื่อวัด:"
             lblTempleName.TextAlign = ContentAlignment.MiddleRight
@@ -682,8 +700,10 @@ Namespace TempleAccounting
             ' 
             txtTempleName.Dock = DockStyle.Fill
             txtTempleName.Font = New Font("Tahoma", 10F)
+            txtTempleName.Location = New Point(89, 44)
             txtTempleName.Margin = New Padding(4)
             txtTempleName.Name = "txtTempleName"
+            txtTempleName.Size = New Size(721, 32)
             txtTempleName.TabIndex = 3
             ' 
             ' lblTempleAddress
@@ -691,8 +711,10 @@ Namespace TempleAccounting
             lblTempleAddress.AutoSize = True
             lblTempleAddress.Dock = DockStyle.Fill
             lblTempleAddress.Font = New Font("Tahoma", 10F)
+            lblTempleAddress.Location = New Point(4, 84)
             lblTempleAddress.Margin = New Padding(4)
             lblTempleAddress.Name = "lblTempleAddress"
+            lblTempleAddress.Size = New Size(77, 31)
             lblTempleAddress.TabIndex = 4
             lblTempleAddress.Text = "ที่อยู่วัด:"
             lblTempleAddress.TextAlign = ContentAlignment.TopRight
@@ -701,10 +723,12 @@ Namespace TempleAccounting
             ' 
             txtTempleAddress.Dock = DockStyle.Fill
             txtTempleAddress.Font = New Font("Tahoma", 10F)
+            txtTempleAddress.Location = New Point(89, 84)
             txtTempleAddress.Margin = New Padding(4)
             txtTempleAddress.Multiline = True
             txtTempleAddress.Name = "txtTempleAddress"
             txtTempleAddress.ScrollBars = ScrollBars.Vertical
+            txtTempleAddress.Size = New Size(721, 31)
             txtTempleAddress.TabIndex = 5
             ' 
             ' pBottom
@@ -712,7 +736,9 @@ Namespace TempleAccounting
             pBottom.BackColor = Color.FromArgb(CByte(241), CByte(245), CByte(249))
             pBottom.Controls.Add(flpButtons)
             pBottom.Dock = DockStyle.Bottom
+            pBottom.Location = New Point(10, 707)
             pBottom.Name = "pBottom"
+            pBottom.Size = New Size(880, 100)
             pBottom.TabIndex = 1
             ' 
             ' flpButtons
@@ -725,8 +751,10 @@ Namespace TempleAccounting
             flpButtons.Controls.Add(btnSave)
             flpButtons.Dock = DockStyle.Fill
             flpButtons.FlowDirection = FlowDirection.RightToLeft
+            flpButtons.Location = New Point(0, 0)
             flpButtons.Name = "flpButtons"
             flpButtons.Padding = New Padding(10, 8, 10, 8)
+            flpButtons.Size = New Size(880, 100)
             flpButtons.TabIndex = 0
             ' 
             ' btnClose
@@ -735,6 +763,7 @@ Namespace TempleAccounting
             btnClose.FlatStyle = FlatStyle.Flat
             btnClose.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             btnClose.ForeColor = Color.White
+            btnClose.Location = New Point(730, 8)
             btnClose.Margin = New Padding(6, 0, 0, 0)
             btnClose.Name = "btnClose"
             btnClose.Size = New Size(130, 45)
@@ -748,6 +777,7 @@ Namespace TempleAccounting
             btnManagePersonnel.FlatStyle = FlatStyle.Flat
             btnManagePersonnel.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             btnManagePersonnel.ForeColor = Color.White
+            btnManagePersonnel.Location = New Point(594, 8)
             btnManagePersonnel.Margin = New Padding(6, 0, 0, 0)
             btnManagePersonnel.Name = "btnManagePersonnel"
             btnManagePersonnel.Size = New Size(130, 45)
@@ -761,6 +791,7 @@ Namespace TempleAccounting
             btnLocationImport.FlatStyle = FlatStyle.Flat
             btnLocationImport.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             btnLocationImport.ForeColor = Color.White
+            btnLocationImport.Location = New Point(458, 8)
             btnLocationImport.Margin = New Padding(6, 0, 0, 0)
             btnLocationImport.Name = "btnLocationImport"
             btnLocationImport.Size = New Size(130, 45)
@@ -774,6 +805,7 @@ Namespace TempleAccounting
             btnCancel.FlatStyle = FlatStyle.Flat
             btnCancel.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             btnCancel.ForeColor = Color.White
+            btnCancel.Location = New Point(322, 8)
             btnCancel.Margin = New Padding(6, 0, 0, 0)
             btnCancel.Name = "btnCancel"
             btnCancel.Size = New Size(130, 45)
@@ -787,22 +819,13 @@ Namespace TempleAccounting
             btnSave.FlatStyle = FlatStyle.Flat
             btnSave.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             btnSave.ForeColor = Color.White
+            btnSave.Location = New Point(186, 8)
             btnSave.Margin = New Padding(6, 0, 0, 0)
             btnSave.Name = "btnSave"
             btnSave.Size = New Size(130, 45)
             btnSave.TabIndex = 0
             btnSave.Text = "💾 บันทึก"
             btnSave.UseVisualStyleBackColor = False
-            ' 
-            ' pHeader
-            ' 
-            pHeader.AutoSize = True
-            pHeader.Controls.Add(lblHeader)
-            pHeader.Dock = DockStyle.Top
-            pHeader.Location = New Point(10, 10)
-            pHeader.Name = "pHeader"
-            pHeader.Size = New Size(880, 0)
-            pHeader.TabIndex = 0
             ' 
             ' FrmTempleSetting
             ' 
