@@ -144,6 +144,10 @@ Namespace TempleAccounting
             pBottom.SuspendLayout()
             gbTempleInfo.SuspendLayout()
             tlpTempleInfo.SuspendLayout()
+            gbContactInfo.SuspendLayout()
+            tlpContactInfo.SuspendLayout()
+            gbPromptPay.SuspendLayout()
+            tlpPromptPay.SuspendLayout()
             gbPersonnel.SuspendLayout()
             tlpPersonnel.SuspendLayout()
             gbPersonnelList.SuspendLayout()
@@ -195,8 +199,94 @@ Namespace TempleAccounting
             pBottom.Dock = DockStyle.Bottom
             pBottom.Location = New Point(10, 737)
             pBottom.Name = "pBottom"
-            pBottom.Size = New Size(880, 70)
+            pBottom.Size = New Size(880, 65)
             pBottom.TabIndex = 1
+            ' 
+            ' flpButtons
+            ' 
+            flpButtons.BackColor = Color.FromArgb(CByte(241), CByte(245), CByte(249))
+            flpButtons.Controls.Add(btnClose)
+            flpButtons.Controls.Add(btnManagePersonnel)
+            flpButtons.Controls.Add(btnLocationImport)
+            flpButtons.Controls.Add(btnCancel)
+            flpButtons.Controls.Add(btnSave)
+            flpButtons.Dock = DockStyle.Fill
+            flpButtons.FlowDirection = FlowDirection.RightToLeft
+            flpButtons.Location = New Point(0, 0)
+            flpButtons.Name = "flpButtons"
+            flpButtons.Padding = New Padding(10, 8, 10, 8)
+            flpButtons.Size = New Size(880, 65)
+            flpButtons.TabIndex = 0
+            ' 
+            ' btnSave
+            ' 
+            btnSave.BackColor = Color.FromArgb(CByte(22), CByte(163), CByte(74))
+            btnSave.FlatStyle = FlatStyle.Flat
+            btnSave.Font = New Font("Tahoma", 10F, FontStyle.Bold)
+            btnSave.ForeColor = Color.White
+            btnSave.Location = New Point(0, 11)
+            btnSave.Margin = New Padding(6, 0, 0, 0)
+            btnSave.Name = "btnSave"
+            btnSave.Size = New Size(130, 45)
+            btnSave.TabIndex = 0
+            btnSave.Text = "💾 บันทึก"
+            btnSave.UseVisualStyleBackColor = False
+            ' 
+            ' btnCancel
+            ' 
+            btnCancel.BackColor = Color.FromArgb(CByte(217), CByte(119), CByte(6))
+            btnCancel.FlatStyle = FlatStyle.Flat
+            btnCancel.Font = New Font("Tahoma", 10F, FontStyle.Bold)
+            btnCancel.ForeColor = Color.White
+            btnCancel.Location = New Point(0, 11)
+            btnCancel.Margin = New Padding(6, 0, 0, 0)
+            btnCancel.Name = "btnCancel"
+            btnCancel.Size = New Size(130, 45)
+            btnCancel.TabIndex = 1
+            btnCancel.Text = "🔄 โหลดใหม่"
+            btnCancel.UseVisualStyleBackColor = False
+            ' 
+            ' btnLocationImport
+            ' 
+            btnLocationImport.BackColor = Color.FromArgb(CByte(37), CByte(99), CByte(235))
+            btnLocationImport.FlatStyle = FlatStyle.Flat
+            btnLocationImport.Font = New Font("Tahoma", 10F, FontStyle.Bold)
+            btnLocationImport.ForeColor = Color.White
+            btnLocationImport.Location = New Point(0, 11)
+            btnLocationImport.Margin = New Padding(6, 0, 0, 0)
+            btnLocationImport.Name = "btnLocationImport"
+            btnLocationImport.Size = New Size(130, 45)
+            btnLocationImport.TabIndex = 2
+            btnLocationImport.Text = "📍 นำเข้าที่อยู่"
+            btnLocationImport.UseVisualStyleBackColor = False
+            ' 
+            ' btnManagePersonnel
+            ' 
+            btnManagePersonnel.BackColor = Color.FromArgb(CByte(147), CByte(51), CByte(234))
+            btnManagePersonnel.FlatStyle = FlatStyle.Flat
+            btnManagePersonnel.Font = New Font("Tahoma", 10F, FontStyle.Bold)
+            btnManagePersonnel.ForeColor = Color.White
+            btnManagePersonnel.Location = New Point(0, 11)
+            btnManagePersonnel.Margin = New Padding(6, 0, 0, 0)
+            btnManagePersonnel.Name = "btnManagePersonnel"
+            btnManagePersonnel.Size = New Size(130, 45)
+            btnManagePersonnel.TabIndex = 3
+            btnManagePersonnel.Text = "👤 จัดการรายชื่อ..."
+            btnManagePersonnel.UseVisualStyleBackColor = False
+            ' 
+            ' btnClose
+            ' 
+            btnClose.BackColor = Color.FromArgb(CByte(75), CByte(85), CByte(99))
+            btnClose.FlatStyle = FlatStyle.Flat
+            btnClose.Font = New Font("Tahoma", 10F, FontStyle.Bold)
+            btnClose.ForeColor = Color.White
+            btnClose.Location = New Point(0, 11)
+            btnClose.Margin = New Padding(6, 0, 0, 0)
+            btnClose.Name = "btnClose"
+            btnClose.Size = New Size(130, 45)
+            btnClose.TabIndex = 4
+            btnClose.Text = "❌ ปิด"
+            btnClose.UseVisualStyleBackColor = False
             ' 
             ' pContent
             ' 
@@ -204,6 +294,8 @@ Namespace TempleAccounting
             pContent.BackColor = Color.White
             pContent.Controls.Add(gbPersonnelList)
             pContent.Controls.Add(gbPersonnel)
+            pContent.Controls.Add(gbPromptPay)
+            pContent.Controls.Add(gbContactInfo)
             pContent.Controls.Add(gbTempleInfo)
             pContent.Dock = DockStyle.Fill
             pContent.Location = New Point(10, 52)
@@ -224,7 +316,7 @@ Namespace TempleAccounting
             gbTempleInfo.Margin = New Padding(0, 0, 0, 12)
             gbTempleInfo.Name = "gbTempleInfo"
             gbTempleInfo.Padding = New Padding(10, 20, 10, 10)
-            gbTempleInfo.Size = New Size(844, 520)
+            gbTempleInfo.Size = New Size(844, 140)
             gbTempleInfo.TabIndex = 0
             gbTempleInfo.TabStop = False
             gbTempleInfo.Text = "🏛️ ข้อมูลพื้นฐานของวัด"
@@ -242,38 +334,100 @@ Namespace TempleAccounting
             tlpTempleInfo.Controls.Add(txtTempleName, 1, 1)
             tlpTempleInfo.Controls.Add(lblTempleAddress, 0, 2)
             tlpTempleInfo.Controls.Add(txtTempleAddress, 1, 2)
-            tlpTempleInfo.Controls.Add(lblProvince, 0, 3)
-            tlpTempleInfo.Controls.Add(cboProvince, 1, 3)
-            tlpTempleInfo.Controls.Add(lblAmphoe, 0, 4)
-            tlpTempleInfo.Controls.Add(cboAmphoe, 1, 4)
-            tlpTempleInfo.Controls.Add(lblTambon, 0, 5)
-            tlpTempleInfo.Controls.Add(cboTambon, 1, 5)
-            tlpTempleInfo.Controls.Add(lblPostCode, 0, 6)
-            tlpTempleInfo.Controls.Add(txtPostCode, 1, 6)
-            tlpTempleInfo.Controls.Add(lblTemplePhone, 0, 7)
-            tlpTempleInfo.Controls.Add(txtTemplePhone, 1, 7)
-            tlpTempleInfo.Controls.Add(chkUsePromptPay, 1, 8)
-            tlpTempleInfo.Controls.Add(lblPromptPayName, 0, 9)
-            tlpTempleInfo.Controls.Add(txtPromptPayName, 1, 9)
-            tlpTempleInfo.Controls.Add(lblPromptPayID, 0, 10)
-            tlpTempleInfo.Controls.Add(txtPromptPayID, 1, 10)
             tlpTempleInfo.Dock = DockStyle.Top
             tlpTempleInfo.Location = New Point(10, 45)
             tlpTempleInfo.Name = "tlpTempleInfo"
-            tlpTempleInfo.RowCount = 11
+            tlpTempleInfo.RowCount = 3
             tlpTempleInfo.RowStyles.Add(New RowStyle())
             tlpTempleInfo.RowStyles.Add(New RowStyle())
             tlpTempleInfo.RowStyles.Add(New RowStyle())
-            tlpTempleInfo.RowStyles.Add(New RowStyle())
-            tlpTempleInfo.RowStyles.Add(New RowStyle())
-            tlpTempleInfo.RowStyles.Add(New RowStyle())
-            tlpTempleInfo.RowStyles.Add(New RowStyle())
-            tlpTempleInfo.RowStyles.Add(New RowStyle())
-            tlpTempleInfo.RowStyles.Add(New RowStyle())
-            tlpTempleInfo.RowStyles.Add(New RowStyle())
-            tlpTempleInfo.RowStyles.Add(New RowStyle())
-            tlpTempleInfo.Size = New Size(824, 465)
+            tlpTempleInfo.Size = New Size(824, 110)
             tlpTempleInfo.TabIndex = 0
+            ' 
+            ' gbContactInfo
+            ' 
+            gbContactInfo.AutoSize = True
+            gbContactInfo.AutoSizeMode = AutoSizeMode.GrowAndShrink
+            gbContactInfo.Controls.Add(tlpContactInfo)
+            gbContactInfo.Dock = DockStyle.Top
+            gbContactInfo.Font = New Font("Tahoma", 10F, FontStyle.Bold)
+            gbContactInfo.ForeColor = Color.FromArgb(CByte(30), CByte(64), CByte(175))
+            gbContactInfo.Location = New Point(10, 134)
+            gbContactInfo.Margin = New Padding(0, 0, 0, 12)
+            gbContactInfo.Name = "gbContactInfo"
+            gbContactInfo.Padding = New Padding(10, 20, 10, 10)
+            gbContactInfo.Size = New Size(844, 200)
+            gbContactInfo.TabIndex = 1
+            gbContactInfo.TabStop = False
+            gbContactInfo.Text = "📞 ข้อมูลติดต่อ"
+            ' 
+            ' tlpContactInfo
+            ' 
+            tlpContactInfo.AutoSize = True
+            tlpContactInfo.AutoSizeMode = AutoSizeMode.GrowAndShrink
+            tlpContactInfo.ColumnCount = 2
+            tlpContactInfo.ColumnStyles.Add(New ColumnStyle())
+            tlpContactInfo.ColumnStyles.Add(New ColumnStyle(SizeType.Percent, 100F))
+            tlpContactInfo.Controls.Add(lblProvince, 0, 0)
+            tlpContactInfo.Controls.Add(cboProvince, 1, 0)
+            tlpContactInfo.Controls.Add(lblAmphoe, 0, 1)
+            tlpContactInfo.Controls.Add(cboAmphoe, 1, 1)
+            tlpContactInfo.Controls.Add(lblTambon, 0, 2)
+            tlpContactInfo.Controls.Add(cboTambon, 1, 2)
+            tlpContactInfo.Controls.Add(lblPostCode, 0, 3)
+            tlpContactInfo.Controls.Add(txtPostCode, 1, 3)
+            tlpContactInfo.Controls.Add(lblTemplePhone, 0, 4)
+            tlpContactInfo.Controls.Add(txtTemplePhone, 1, 4)
+            tlpContactInfo.Dock = DockStyle.Top
+            tlpContactInfo.Location = New Point(10, 45)
+            tlpContactInfo.Name = "tlpContactInfo"
+            tlpContactInfo.RowCount = 5
+            tlpContactInfo.RowStyles.Add(New RowStyle())
+            tlpContactInfo.RowStyles.Add(New RowStyle())
+            tlpContactInfo.RowStyles.Add(New RowStyle())
+            tlpContactInfo.RowStyles.Add(New RowStyle())
+            tlpContactInfo.RowStyles.Add(New RowStyle())
+            tlpContactInfo.Size = New Size(824, 145)
+            tlpContactInfo.TabIndex = 0
+            ' 
+            ' gbPromptPay
+            ' 
+            gbPromptPay.AutoSize = True
+            gbPromptPay.AutoSizeMode = AutoSizeMode.GrowAndShrink
+            gbPromptPay.Controls.Add(tlpPromptPay)
+            gbPromptPay.Dock = DockStyle.Top
+            gbPromptPay.Font = New Font("Tahoma", 10F, FontStyle.Bold)
+            gbPromptPay.ForeColor = Color.FromArgb(CByte(30), CByte(64), CByte(175))
+            gbPromptPay.Location = New Point(10, 346)
+            gbPromptPay.Margin = New Padding(0, 0, 0, 12)
+            gbPromptPay.Name = "gbPromptPay"
+            gbPromptPay.Padding = New Padding(10, 20, 10, 10)
+            gbPromptPay.Size = New Size(844, 170)
+            gbPromptPay.TabIndex = 2
+            gbPromptPay.TabStop = False
+            gbPromptPay.Text = "💳 พร้อมเพย์"
+            ' 
+            ' tlpPromptPay
+            ' 
+            tlpPromptPay.AutoSize = True
+            tlpPromptPay.AutoSizeMode = AutoSizeMode.GrowAndShrink
+            tlpPromptPay.ColumnCount = 2
+            tlpPromptPay.ColumnStyles.Add(New ColumnStyle())
+            tlpPromptPay.ColumnStyles.Add(New ColumnStyle(SizeType.Percent, 100F))
+            tlpPromptPay.Controls.Add(chkUsePromptPay, 1, 0)
+            tlpPromptPay.Controls.Add(lblPromptPayName, 0, 1)
+            tlpPromptPay.Controls.Add(txtPromptPayName, 1, 1)
+            tlpPromptPay.Controls.Add(lblPromptPayID, 0, 2)
+            tlpPromptPay.Controls.Add(txtPromptPayID, 1, 2)
+            tlpPromptPay.Dock = DockStyle.Top
+            tlpPromptPay.Location = New Point(10, 45)
+            tlpPromptPay.Name = "tlpPromptPay"
+            tlpPromptPay.RowCount = 3
+            tlpPromptPay.RowStyles.Add(New RowStyle())
+            tlpPromptPay.RowStyles.Add(New RowStyle())
+            tlpPromptPay.RowStyles.Add(New RowStyle())
+            tlpPromptPay.Size = New Size(824, 105)
+            tlpPromptPay.TabIndex = 0
             ' 
             ' gbPersonnel
             ' 
@@ -288,7 +442,7 @@ Namespace TempleAccounting
             gbPersonnel.Name = "gbPersonnel"
             gbPersonnel.Padding = New Padding(10, 20, 10, 10)
             gbPersonnel.Size = New Size(844, 160)
-            gbPersonnel.TabIndex = 1
+            gbPersonnel.TabIndex = 3
             gbPersonnel.TabStop = False
             gbPersonnel.Text = "👤 ผู้ดำรงตำแหน่งในวัด"
             ' 
@@ -326,7 +480,7 @@ Namespace TempleAccounting
             gbPersonnelList.Name = "gbPersonnelList"
             gbPersonnelList.Padding = New Padding(10, 20, 10, 10)
             gbPersonnelList.Size = New Size(844, 320)
-            gbPersonnelList.TabIndex = 2
+            gbPersonnelList.TabIndex = 4
             gbPersonnelList.TabStop = False
             gbPersonnelList.Text = "📋 รายชื่อและบทบาทบุคลากร"
             ' 
@@ -779,6 +933,14 @@ Namespace TempleAccounting
             gbTempleInfo.PerformLayout()
             tlpTempleInfo.ResumeLayout(False)
             tlpTempleInfo.PerformLayout()
+            gbContactInfo.ResumeLayout(False)
+            gbContactInfo.PerformLayout()
+            tlpContactInfo.ResumeLayout(False)
+            tlpContactInfo.PerformLayout()
+            gbPromptPay.ResumeLayout(False)
+            gbPromptPay.PerformLayout()
+            tlpPromptPay.ResumeLayout(False)
+            tlpPromptPay.PerformLayout()
             gbPersonnel.ResumeLayout(False)
             gbPersonnel.PerformLayout()
             tlpPersonnel.ResumeLayout(False)
