@@ -234,23 +234,17 @@ Namespace TempleAccounting
                 txtPostCode.Text = r("PostCode")?.ToString()
                 txtTemplePhone.Text = r("TemplePhone")?.ToString()
 
-                ' Load Personnel IDs if available, else fallback to names
+                ' Load Personnel IDs
                 If r.Table.Columns.Contains("AbbotID") AndAlso Not IsDBNull(r("AbbotID")) Then
                     cboAbbotName.SelectedValue = r("AbbotID")
-                Else
-                    TrySetComboText(cboAbbotName, r("AbbotName")?.ToString())
                 End If
 
                 If r.Table.Columns.Contains("WaiyawatID") AndAlso Not IsDBNull(r("WaiyawatID")) Then
                     cboWaiyawatName.SelectedValue = r("WaiyawatID")
-                Else
-                    TrySetComboText(cboWaiyawatName, r("WaiyawatName")?.ToString())
                 End If
 
                 If r.Table.Columns.Contains("BookkeeperID") AndAlso Not IsDBNull(r("BookkeeperID")) Then
                     cboBookkeeperName.SelectedValue = r("BookkeeperID")
-                Else
-                    TrySetComboText(cboBookkeeperName, r("BookkeeperName")?.ToString())
                 End If
 
                 TrySetComboText(cboAbbotOfficeStatus, r("AbbotOfficeStatus")?.ToString())
@@ -287,11 +281,6 @@ Namespace TempleAccounting
                     If TypeOf cboAmphoe.SelectedItem Is DataRowView Then an = CType(cboAmphoe.SelectedItem, DataRowView)("DistrictName")?.ToString() Else an = cboAmphoe.Text
                     If TypeOf cboTambon.SelectedItem Is DataRowView Then tn = CType(cboTambon.SelectedItem, DataRowView)("SubDistrictName")?.ToString() Else tn = cboTambon.Text
 
-                    ' ดึงชื่อจาก ComboBox เพื่อบันทึกแบบ Dual-Saving (Backward Compatible)
-                    Dim abbotName = If(TypeOf cboAbbotName.SelectedItem Is DataRowView, CType(cboAbbotName.SelectedItem, DataRowView)("FullName")?.ToString(), cboAbbotName.Text)
-                    Dim waiyawatName = If(TypeOf cboWaiyawatName.SelectedItem Is DataRowView, CType(cboWaiyawatName.SelectedItem, DataRowView)("FullName")?.ToString(), cboWaiyawatName.Text)
-                    Dim bookkeeperName = If(TypeOf cboBookkeeperName.SelectedItem Is DataRowView, CType(cboBookkeeperName.SelectedItem, DataRowView)("FullName")?.ToString(), cboBookkeeperName.Text)
-
                     ' ดึง ID จาก ComboBox
                     Dim abbotID = GetSelectedIntValue(cboAbbotName, "PersonnelID")
                     Dim waiyawatID = GetSelectedIntValue(cboWaiyawatName, "PersonnelID")
@@ -300,13 +289,12 @@ Namespace TempleAccounting
                     Dim ppName = If(chkUsePromptPay.Checked, txtPromptPayName.Text.Trim(), "")
                     Dim ppID = If(chkUsePromptPay.Checked, txtPromptPayID.Text.Trim(), "")
 
-                    ' บันทึกข้อมูล TempleInfo - เก็บทั้ง ID และ Name (Dual-Saving for Backward Compatibility)
+                    ' บันทึกข้อมูล TempleInfo - อ้างอิง PersonnelID เท่านั้น (Modern Refactored Structure)
                     Db.ExecuteNonQuery(conn, "DELETE FROM TempleSetting")
                     Db.InsertAndGetId(conn,
                         "INSERT INTO TempleSetting (TempleCode,TempleName,TempleAddress,Tambon,Amphoe,Province,PostCode,TemplePhone," &
-                        "AbbotName,AbbotOfficeStatus,WaiyawatName,WaiyawatOfficeStatus,BookkeeperName,BookkeeperType," &
                         "PromptPayName,PromptPayID,AbbotID,WaiyawatID,BookkeeperID) " &
-                        "VALUES (@a1,@a2,@a3,@a4,@a5,@a6,@a7,@a8,@a9,@a10,@a11,@a12,@a13,@a14,@a15,@a16,@a17,@a18,@a19)",
+                        "VALUES (@a1,@a2,@a3,@a4,@a5,@a6,@a7,@a8,@a9,@a10,@a11,@a12,@a13)",
                         New Tuple(Of String, Object)("@a1", txtTempleCode.Text.Trim()),
                         New Tuple(Of String, Object)("@a2", txtTempleName.Text.Trim()),
                         New Tuple(Of String, Object)("@a3", txtTempleAddress.Text.Trim()),
@@ -315,17 +303,11 @@ Namespace TempleAccounting
                         New Tuple(Of String, Object)("@a6", pn),
                         New Tuple(Of String, Object)("@a7", txtPostCode.Text.Trim()),
                         New Tuple(Of String, Object)("@a8", txtTemplePhone.Text.Trim()),
-                        New Tuple(Of String, Object)("@a9", abbotName),
-                        New Tuple(Of String, Object)("@a10", cboAbbotOfficeStatus.Text.Trim()),
-                        New Tuple(Of String, Object)("@a11", waiyawatName),
-                        New Tuple(Of String, Object)("@a12", cboWaiyawatOfficeStatus.Text.Trim()),
-                        New Tuple(Of String, Object)("@a13", bookkeeperName),
-                        New Tuple(Of String, Object)("@a14", cboBookkeeperType.Text.Trim()),
-                        New Tuple(Of String, Object)("@a15", ppName),
-                        New Tuple(Of String, Object)("@a16", ppID),
-                        New Tuple(Of String, Object)("@a17", If(abbotID.HasValue, abbotID.Value, DBNull.Value)),
-                        New Tuple(Of String, Object)("@a18", If(waiyawatID.HasValue, waiyawatID.Value, DBNull.Value)),
-                        New Tuple(Of String, Object)("@a19", If(bookkeeperID.HasValue, bookkeeperID.Value, DBNull.Value)))
+                        New Tuple(Of String, Object)("@a9", ppName),
+                        New Tuple(Of String, Object)("@a10", ppID),
+                        New Tuple(Of String, Object)("@a11", If(abbotID.HasValue, abbotID.Value, DBNull.Value)),
+                        New Tuple(Of String, Object)("@a12", If(waiyawatID.HasValue, waiyawatID.Value, DBNull.Value)),
+                        New Tuple(Of String, Object)("@a13", If(bookkeeperID.HasValue, bookkeeperID.Value, DBNull.Value)))
 
                     MessageBox.Show("✅ บันทึกข้อมูลวัดสำเร็จ!", "สำเร็จ", MessageBoxButtons.OK, MessageBoxIcon.Information)
 

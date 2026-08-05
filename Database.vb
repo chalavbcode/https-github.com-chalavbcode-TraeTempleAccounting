@@ -37,7 +37,7 @@ Namespace TempleAccounting
                 TryCreateTable(conn, "District", "CREATE TABLE District (DistrictID INTEGER PRIMARY KEY, ProvinceID INTEGER NOT NULL, DistrictName TEXT(100) NOT NULL)")
                 TryCreateTable(conn, "SubDistrict", "CREATE TABLE SubDistrict (SubDistrictID INTEGER PRIMARY KEY, DistrictID INTEGER NOT NULL, SubDistrictName TEXT(100) NOT NULL, ZipCode TEXT(10))")
 
-                TryCreateTable(conn, "TempleSetting", "CREATE TABLE TempleSetting (ID COUNTER PRIMARY KEY, TempleCode TEXT(20), TempleName TEXT(200), TempleAddress MEMO, Tambon TEXT(100), Amphoe TEXT(100), Province TEXT(100), PostCode TEXT(10), TemplePhone TEXT(30), AbbotID INTEGER, WaiyawatID INTEGER, BookkeeperID INTEGER, PromptPayName TEXT(100), PromptPayID TEXT(50))")
+                TryCreateTable(conn, "TempleSetting", "CREATE TABLE TempleSetting (ID COUNTER PRIMARY KEY, TempleCode TEXT(20), TempleName TEXT(200), TempleAddress MEMO, Tambon TEXT(100), Amphoe TEXT(100), Province TEXT(100), PostCode TEXT(10), TemplePhone TEXT(30), AbbotID INTEGER, WaiyawatID INTEGER, BookkeeperID INTEGER, PromptPayName TEXT(100), PromptPayID TEXT(50), AbbotName TEXT(200), AbbotOfficeStatus TEXT(100), WaiyawatName TEXT(200), WaiyawatOfficeStatus TEXT(100), BookkeeperName TEXT(200), BookkeeperType TEXT(100))")
 
                 TryCreateTable(conn, "Categories", "CREATE TABLE Categories (ID COUNTER PRIMARY KEY, CategoryName TEXT(200) NOT NULL, TranType TEXT(10) NOT NULL)")
                 TryCreateTable(conn, "Funds", "CREATE TABLE Funds (ID COUNTER PRIMARY KEY, FundName TEXT(200) NOT NULL)")
@@ -59,13 +59,25 @@ Namespace TempleAccounting
                     If Not colNames.Contains("WAIYAWATID") Then ExecuteNonQuery(conn, "ALTER TABLE TempleSetting ADD COLUMN WaiyawatID INTEGER")
                     If Not colNames.Contains("BOOKKEEPERID") Then ExecuteNonQuery(conn, "ALTER TABLE TempleSetting ADD COLUMN BookkeeperID INTEGER")
 
-                    ' Drop legacy columns if they exist (Refactoring requirement)
-                    Dim legacyCols = {"ABBOTNAME", "ABBOTOFFICESTATUS", "WAIYAWATNAME", "WAIYAWATOFFICESTATUS", "BOOKKEEPERNAME", "BOOKKEEPERTYPE"}
-                    For Each lc In legacyCols
-                        If colNames.Contains(lc) Then
-                            ExecuteNonQuery(conn, $"ALTER TABLE TempleSetting DROP COLUMN {lc}")
-                        End If
-                    Next
+                    ' Ensure legacy columns exist (as per user request: Do not delete old fields)
+                    If Not colNames.Contains("ABBOTNAME") Then ExecuteNonQuery(conn, "ALTER TABLE TempleSetting ADD COLUMN AbbotName TEXT(200)")
+                    If Not colNames.Contains("ABBOTOFFICESTATUS") Then ExecuteNonQuery(conn, "ALTER TABLE TempleSetting ADD COLUMN AbbotOfficeStatus TEXT(100)")
+                    If Not colNames.Contains("WAIYAWATNAME") Then ExecuteNonQuery(conn, "ALTER TABLE TempleSetting ADD COLUMN WaiyawatName TEXT(200)")
+                    If Not colNames.Contains("WAIYAWATOFFICESTATUS") Then ExecuteNonQuery(conn, "ALTER TABLE TempleSetting ADD COLUMN WaiyawatOfficeStatus TEXT(100)")
+                    If Not colNames.Contains("BOOKKEEPERNAME") Then ExecuteNonQuery(conn, "ALTER TABLE TempleSetting ADD COLUMN BookkeeperName TEXT(200)")
+                    If Not colNames.Contains("BOOKKEEPERTYPE") Then ExecuteNonQuery(conn, "ALTER TABLE TempleSetting ADD COLUMN BookkeeperType TEXT(100)")
+
+                    ' Migration: Convert old name fields into PersonnelID (Data Migration)
+                    ' Do not delete old fields as per user request
+                    If colNames.Contains("ABBOTNAME") Then
+                        ExecuteNonQuery(conn, "UPDATE TempleSetting INNER JOIN Personnel ON TempleSetting.AbbotName = Personnel.FullName SET TempleSetting.AbbotID = Personnel.PersonnelID WHERE TempleSetting.AbbotID IS NULL")
+                    End If
+                    If colNames.Contains("WAIYAWATNAME") Then
+                        ExecuteNonQuery(conn, "UPDATE TempleSetting INNER JOIN Personnel ON TempleSetting.WaiyawatName = Personnel.FullName SET TempleSetting.WaiyawatID = Personnel.PersonnelID WHERE TempleSetting.WaiyawatID IS NULL")
+                    End If
+                    If colNames.Contains("BOOKKEEPERNAME") Then
+                        ExecuteNonQuery(conn, "UPDATE TempleSetting INNER JOIN Personnel ON TempleSetting.BookkeeperName = Personnel.FullName SET TempleSetting.BookkeeperID = Personnel.PersonnelID WHERE TempleSetting.BookkeeperID IS NULL")
+                    End If
                 Catch ex As Exception
                     AppPaths.LogCrash(ex, "Db.EnsureSchema.TempleSettingMigration")
                 End Try
