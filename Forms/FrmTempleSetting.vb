@@ -286,6 +286,15 @@ Namespace TempleAccounting
                     Dim waiyawatID = GetSelectedIntValue(cboWaiyawatName, "PersonnelID")
                     Dim bookkeeperID = GetSelectedIntValue(cboBookkeeperName, "PersonnelID")
 
+                    ' DEBUG: Log values before save
+                    System.Diagnostics.Debug.WriteLine("[FrmTempleSetting] Save Debug:")
+                    System.Diagnostics.Debug.WriteLine("  cboAbbotName.SelectedValue = " & If(cboAbbotName.SelectedValue IsNot Nothing, cboAbbotName.SelectedValue.ToString(), "Nothing"))
+                    System.Diagnostics.Debug.WriteLine("  cboWaiyawatName.SelectedValue = " & If(cboWaiyawatName.SelectedValue IsNot Nothing, cboWaiyawatName.SelectedValue.ToString(), "Nothing"))
+                    System.Diagnostics.Debug.WriteLine("  cboBookkeeperName.SelectedValue = " & If(cboBookkeeperName.SelectedValue IsNot Nothing, cboBookkeeperName.SelectedValue.ToString(), "Nothing"))
+                    System.Diagnostics.Debug.WriteLine("  abbotID = " & If(abbotID.HasValue, abbotID.Value.ToString(), "Nothing"))
+                    System.Diagnostics.Debug.WriteLine("  waiyawatID = " & If(waiyawatID.HasValue, waiyawatID.Value.ToString(), "Nothing"))
+                    System.Diagnostics.Debug.WriteLine("  bookkeeperID = " & If(bookkeeperID.HasValue, bookkeeperID.Value.ToString(), "Nothing"))
+
                     Dim ppName = If(chkUsePromptPay.Checked, txtPromptPayName.Text.Trim(), "")
                     Dim ppID = If(chkUsePromptPay.Checked, txtPromptPayID.Text.Trim(), "")
 
