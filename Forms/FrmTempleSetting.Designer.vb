@@ -158,8 +158,9 @@ Namespace TempleAccounting
             ' 
             pMain.AutoScroll = True
             pMain.BackColor = Color.White
-            pMain.Controls.Add(tlpFields)
-            pMain.Controls.Add(pnlPersonnelGrid)
+            pMain.Controls.Add(gbPersonnelList)
+            pMain.Controls.Add(gbPersonnel)
+            pMain.Controls.Add(gbTempleInfo)
             pMain.Dock = DockStyle.Fill
             pMain.Location = New Point(0, 42)
             pMain.Name = "pMain"
@@ -167,59 +168,114 @@ Namespace TempleAccounting
             pMain.Size = New Size(900, 705)
             pMain.TabIndex = 1
             ' 
-            ' tlpFields
+            ' gbTempleInfo
             ' 
-            tlpFields.AutoSize = True
-            tlpFields.ColumnCount = 2
-            tlpFields.ColumnStyles.Add(New ColumnStyle(SizeType.Absolute, 180F))
-            tlpFields.ColumnStyles.Add(New ColumnStyle(SizeType.Percent, 100F))
-            tlpFields.Controls.Add(lblTempleCode, 0, 0)
-            tlpFields.Controls.Add(txtTempleCode, 1, 0)
-            tlpFields.Controls.Add(lblTempleName, 0, 1)
-            tlpFields.Controls.Add(txtTempleName, 1, 1)
-            tlpFields.Controls.Add(lblTempleAddress, 0, 2)
-            tlpFields.Controls.Add(txtTempleAddress, 1, 2)
-            tlpFields.Controls.Add(lblProvince, 0, 3)
-            tlpFields.Controls.Add(cboProvince, 1, 3)
-            tlpFields.Controls.Add(lblAmphoe, 0, 4)
-            tlpFields.Controls.Add(cboAmphoe, 1, 4)
-            tlpFields.Controls.Add(lblTambon, 0, 5)
-            tlpFields.Controls.Add(cboTambon, 1, 5)
-            tlpFields.Controls.Add(lblPostCode, 0, 6)
-            tlpFields.Controls.Add(txtPostCode, 1, 6)
-            tlpFields.Controls.Add(lblTemplePhone, 0, 7)
-            tlpFields.Controls.Add(txtTemplePhone, 1, 7)
-            tlpFields.Controls.Add(lblAbbotName, 0, 8)
-            tlpFields.Controls.Add(cboAbbotName, 1, 8)
-            tlpFields.Controls.Add(lblWaiyawatName, 0, 9)
-            tlpFields.Controls.Add(cboWaiyawatName, 1, 9)
-            tlpFields.Controls.Add(lblBookkeeperName, 0, 10)
-            tlpFields.Controls.Add(cboBookkeeperName, 1, 10)
-            tlpFields.Controls.Add(chkUsePromptPay, 1, 11)
-            tlpFields.Controls.Add(lblPromptPayName, 0, 12)
-            tlpFields.Controls.Add(txtPromptPayName, 1, 12)
-            tlpFields.Controls.Add(lblPromptPayID, 0, 13)
-            tlpFields.Controls.Add(txtPromptPayID, 1, 13)
-            tlpFields.Dock = DockStyle.Top
-            tlpFields.Location = New Point(20, 20)
-            tlpFields.Name = "tlpFields"
-            tlpFields.RowCount = 14
-            tlpFields.RowStyles.Add(New RowStyle(SizeType.Absolute, 40F))
-            tlpFields.RowStyles.Add(New RowStyle(SizeType.Absolute, 40F))
-            tlpFields.RowStyles.Add(New RowStyle(SizeType.Absolute, 80F))
-            tlpFields.RowStyles.Add(New RowStyle(SizeType.Absolute, 40F))
-            tlpFields.RowStyles.Add(New RowStyle(SizeType.Absolute, 40F))
-            tlpFields.RowStyles.Add(New RowStyle(SizeType.Absolute, 40F))
-            tlpFields.RowStyles.Add(New RowStyle(SizeType.Absolute, 40F))
-            tlpFields.RowStyles.Add(New RowStyle(SizeType.Absolute, 40F))
-            tlpFields.RowStyles.Add(New RowStyle(SizeType.Absolute, 40F))
-            tlpFields.RowStyles.Add(New RowStyle(SizeType.Absolute, 40F))
-            tlpFields.RowStyles.Add(New RowStyle(SizeType.Absolute, 40F))
-            tlpFields.RowStyles.Add(New RowStyle(SizeType.Absolute, 40F))
-            tlpFields.RowStyles.Add(New RowStyle(SizeType.Absolute, 40F))
-            tlpFields.RowStyles.Add(New RowStyle(SizeType.Absolute, 40F))
-            tlpFields.Size = New Size(834, 560)
-            tlpFields.TabIndex = 0
+            gbTempleInfo.Controls.Add(tlpTempleInfo)
+            gbTempleInfo.Dock = DockStyle.Top
+            gbTempleInfo.Font = New Font("Tahoma", 10F, FontStyle.Bold)
+            gbTempleInfo.ForeColor = Color.FromArgb(CByte(30), CByte(64), CByte(175))
+            gbTempleInfo.Location = New Point(20, 20)
+            gbTempleInfo.Name = "gbTempleInfo"
+            gbTempleInfo.Padding = New Padding(10, 20, 10, 10)
+            gbTempleInfo.Size = New Size(834, 520)
+            gbTempleInfo.TabIndex = 0
+            gbTempleInfo.TabStop = False
+            gbTempleInfo.Text = "🏛️ ข้อมูลพื้นฐานของวัด"
+            ' 
+            ' tlpTempleInfo
+            ' 
+            tlpTempleInfo.AutoSize = True
+            tlpTempleInfo.ColumnCount = 2
+            tlpTempleInfo.ColumnStyles.Add(New ColumnStyle(SizeType.Absolute, 180F))
+            tlpTempleInfo.ColumnStyles.Add(New ColumnStyle(SizeType.Percent, 100F))
+            tlpTempleInfo.Controls.Add(lblTempleCode, 0, 0)
+            tlpTempleInfo.Controls.Add(txtTempleCode, 1, 0)
+            tlpTempleInfo.Controls.Add(lblTempleName, 0, 1)
+            tlpTempleInfo.Controls.Add(txtTempleName, 1, 1)
+            tlpTempleInfo.Controls.Add(lblTempleAddress, 0, 2)
+            tlpTempleInfo.Controls.Add(txtTempleAddress, 1, 2)
+            tlpTempleInfo.Controls.Add(lblProvince, 0, 3)
+            tlpTempleInfo.Controls.Add(cboProvince, 1, 3)
+            tlpTempleInfo.Controls.Add(lblAmphoe, 0, 4)
+            tlpTempleInfo.Controls.Add(cboAmphoe, 1, 4)
+            tlpTempleInfo.Controls.Add(lblTambon, 0, 5)
+            tlpTempleInfo.Controls.Add(cboTambon, 1, 5)
+            tlpTempleInfo.Controls.Add(lblPostCode, 0, 6)
+            tlpTempleInfo.Controls.Add(txtPostCode, 1, 6)
+            tlpTempleInfo.Controls.Add(lblTemplePhone, 0, 7)
+            tlpTempleInfo.Controls.Add(txtTemplePhone, 1, 7)
+            tlpTempleInfo.Controls.Add(chkUsePromptPay, 1, 8)
+            tlpTempleInfo.Controls.Add(lblPromptPayName, 0, 9)
+            tlpTempleInfo.Controls.Add(txtPromptPayName, 1, 9)
+            tlpTempleInfo.Controls.Add(lblPromptPayID, 0, 10)
+            tlpTempleInfo.Controls.Add(txtPromptPayID, 1, 10)
+            tlpTempleInfo.Dock = DockStyle.Fill
+            tlpTempleInfo.Location = New Point(10, 45)
+            tlpTempleInfo.Name = "tlpTempleInfo"
+            tlpTempleInfo.RowCount = 11
+            tlpTempleInfo.RowStyles.Add(New RowStyle(SizeType.Absolute, 40F))
+            tlpTempleInfo.RowStyles.Add(New RowStyle(SizeType.Absolute, 40F))
+            tlpTempleInfo.RowStyles.Add(New RowStyle(SizeType.Absolute, 80F))
+            tlpTempleInfo.RowStyles.Add(New RowStyle(SizeType.Absolute, 40F))
+            tlpTempleInfo.RowStyles.Add(New RowStyle(SizeType.Absolute, 40F))
+            tlpTempleInfo.RowStyles.Add(New RowStyle(SizeType.Absolute, 40F))
+            tlpTempleInfo.RowStyles.Add(New RowStyle(SizeType.Absolute, 40F))
+            tlpTempleInfo.RowStyles.Add(New RowStyle(SizeType.Absolute, 40F))
+            tlpTempleInfo.RowStyles.Add(New RowStyle(SizeType.Absolute, 40F))
+            tlpTempleInfo.RowStyles.Add(New RowStyle(SizeType.Absolute, 40F))
+            tlpTempleInfo.RowStyles.Add(New RowStyle(SizeType.Absolute, 40F))
+            tlpTempleInfo.Size = New Size(814, 465)
+            tlpTempleInfo.TabIndex = 0
+            ' 
+            ' gbPersonnel
+            ' 
+            gbPersonnel.Controls.Add(tlpPersonnel)
+            gbPersonnel.Dock = DockStyle.Top
+            gbPersonnel.Font = New Font("Tahoma", 10F, FontStyle.Bold)
+            gbPersonnel.ForeColor = Color.FromArgb(CByte(30), CByte(64), CByte(175))
+            gbPersonnel.Location = New Point(20, 540)
+            gbPersonnel.Name = "gbPersonnel"
+            gbPersonnel.Padding = New Padding(10, 20, 10, 10)
+            gbPersonnel.Size = New Size(834, 160)
+            gbPersonnel.TabIndex = 1
+            gbPersonnel.TabStop = False
+            gbPersonnel.Text = "👤 ผู้ดำรงตำแหน่งในวัด"
+            ' 
+            ' tlpPersonnel
+            ' 
+            tlpPersonnel.AutoSize = True
+            tlpPersonnel.ColumnCount = 2
+            tlpPersonnel.ColumnStyles.Add(New ColumnStyle(SizeType.Absolute, 180F))
+            tlpPersonnel.ColumnStyles.Add(New ColumnStyle(SizeType.Percent, 100F))
+            tlpPersonnel.Controls.Add(lblAbbotName, 0, 0)
+            tlpPersonnel.Controls.Add(cboAbbotName, 1, 0)
+            tlpPersonnel.Controls.Add(lblWaiyawatName, 0, 1)
+            tlpPersonnel.Controls.Add(cboWaiyawatName, 1, 1)
+            tlpPersonnel.Controls.Add(lblBookkeeperName, 0, 2)
+            tlpPersonnel.Controls.Add(cboBookkeeperName, 1, 2)
+            tlpPersonnel.Dock = DockStyle.Fill
+            tlpPersonnel.Location = New Point(10, 45)
+            tlpPersonnel.Name = "tlpPersonnel"
+            tlpPersonnel.RowCount = 3
+            tlpPersonnel.RowStyles.Add(New RowStyle(SizeType.Absolute, 40F))
+            tlpPersonnel.RowStyles.Add(New RowStyle(SizeType.Absolute, 40F))
+            tlpPersonnel.RowStyles.Add(New RowStyle(SizeType.Absolute, 40F))
+            tlpPersonnel.Size = New Size(814, 105)
+            tlpPersonnel.TabIndex = 0
+            ' 
+            ' gbPersonnelList
+            ' 
+            gbPersonnelList.Controls.Add(pnlPersonnelGrid)
+            gbPersonnelList.Dock = DockStyle.Top
+            gbPersonnelList.Font = New Font("Tahoma", 10F, FontStyle.Bold)
+            gbPersonnelList.ForeColor = Color.FromArgb(CByte(30), CByte(64), CByte(175))
+            gbPersonnelList.Location = New Point(20, 700)
+            gbPersonnelList.Name = "gbPersonnelList"
+            gbPersonnelList.Padding = New Padding(10, 20, 10, 10)
+            gbPersonnelList.Size = New Size(834, 250)
+            gbPersonnelList.TabIndex = 2
+            gbPersonnelList.TabStop = False
+            gbPersonnelList.Text = "📋 รายชื่อและบทบาทบุคลากร"
             ' 
             ' lblTempleCode
             ' 
