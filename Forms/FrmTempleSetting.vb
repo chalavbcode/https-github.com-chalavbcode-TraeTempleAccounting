@@ -126,8 +126,8 @@ Namespace TempleAccounting
             If _enterFlow.Count > 0 Then Return
             _enterFlow.AddRange({
                 txtTempleCode, txtTempleName, txtTempleAddress, cboProvince, cboAmphoe, cboTambon,
-                txtPostCode, txtTemplePhone, cboAbbotName, cboAbbotOfficeStatus,
-                cboWaiyawatName, cboWaiyawatOfficeStatus, cboBookkeeperName, cboBookkeeperType,
+                txtPostCode, txtTemplePhone, cboAbbotName,
+                cboWaiyawatName, cboBookkeeperName,
                 chkUsePromptPay, txtPromptPayName, txtPromptPayID, btnSave
             })
             For Each ctrl In _enterFlow
@@ -247,9 +247,6 @@ Namespace TempleAccounting
                     cboBookkeeperName.SelectedValue = r("BookkeeperID")
                 End If
 
-                TrySetComboText(cboAbbotOfficeStatus, r("AbbotOfficeStatus")?.ToString())
-                TrySetComboText(cboWaiyawatOfficeStatus, r("WaiyawatOfficeStatus")?.ToString())
-                TrySetComboText(cboBookkeeperType, r("BookkeeperType")?.ToString())
                 txtPromptPayName.Text = r("PromptPayName")?.ToString()
                 txtPromptPayID.Text = r("PromptPayID")?.ToString()
                 chkUsePromptPay.Checked = (Not String.IsNullOrWhiteSpace(txtPromptPayName.Text) OrElse Not String.IsNullOrWhiteSpace(txtPromptPayID.Text))
