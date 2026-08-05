@@ -564,11 +564,14 @@ Namespace TempleAccounting
 
             ' All rows printed - now check if this is the last page with transactions
             If isLastPage Then
-                ' Calculate required height for final content (summary + signatures)
+                ' H_page = e.PageBounds.Height (A4 Landscape = 1122px at 96dpi)
+                ' H_remaining = H_page - TopMargin - BottomMargin - H_header - H_tableData
+                ' In code: availableSpace = _pageBottom - _pageY
                 Dim requiredForFinalContent = CalculateFinalContentHeight(rowH)
                 Dim availableSpace = _pageBottom - _pageY
 
-                ' Check if we have enough space for final content
+                ' If H_remaining >= H_sig: render on current page
+                ' If H_remaining < H_sig: trigger new page
                 If availableSpace < requiredForFinalContent Then
                     ' Not enough space - create a new page for signatures only
                     e.HasMorePages = True
@@ -606,17 +609,19 @@ Namespace TempleAccounting
 
         ''' <summary>
         ''' Calculate the total height required for final summary section and signatures
+        ''' H_sig = H_summary + H_signature + H_footerGap + H_topGap
         ''' </summary>
         Private Function CalculateFinalContentHeight(rowH As Integer) As Integer
-            ' Summary rows (2 main rows + gap)
+            ' Summary rows (3 rows * 28px = 84px) + gap(12px) = 96px
             Dim summaryHeight = (FinalSummaryRows * rowH) + 12
-            ' Signature block height
+            ' Signature block height = 155px (label + gap + name + gap + position)
             Dim signatureHeight = FinalSignatureBlockHeight
-            ' Gap before footer
+            ' Gap before footer = 24px
             Dim footerGap = FinalFooterGapHeight
-            ' Minimum top margin
+            ' Minimum top gap = 12px
             Dim topGap = 12
 
+            ' Total: 96 + 155 + 24 + 12 = 287px
             Return summaryHeight + signatureHeight + footerGap + topGap
         End Function
 
