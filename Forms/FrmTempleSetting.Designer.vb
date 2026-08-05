@@ -27,11 +27,8 @@ Namespace TempleAccounting
         Friend WithEvents lblPostCode As Label
         Friend WithEvents lblTemplePhone As Label
         Friend WithEvents lblAbbotName As Label
-        Friend WithEvents lblAbbotOfficeStatus As Label
         Friend WithEvents lblWaiyawatName As Label
-        Friend WithEvents lblWaiyawatOfficeStatus As Label
         Friend WithEvents lblBookkeeperName As Label
-        Friend WithEvents lblBookkeeperType As Label
         Friend WithEvents lblPromptPayName As Label
         Friend WithEvents lblPromptPayID As Label
 
@@ -49,9 +46,6 @@ Namespace TempleAccounting
         Friend WithEvents cboProvince As ComboBox
         Friend WithEvents cboAmphoe As ComboBox
         Friend WithEvents cboTambon As ComboBox
-        Friend WithEvents cboAbbotOfficeStatus As ComboBox
-        Friend WithEvents cboWaiyawatOfficeStatus As ComboBox
-        Friend WithEvents cboBookkeeperType As ComboBox
         Friend WithEvents chkUsePromptPay As CheckBox
 
         ' Layout
@@ -108,16 +102,10 @@ Namespace TempleAccounting
             txtTemplePhone = New TextBox()
             lblAbbotName = New Label()
             cboAbbotName = New ComboBox()
-            lblAbbotOfficeStatus = New Label()
-            cboAbbotOfficeStatus = New ComboBox()
             lblWaiyawatName = New Label()
             cboWaiyawatName = New ComboBox()
-            lblWaiyawatOfficeStatus = New Label()
-            cboWaiyawatOfficeStatus = New ComboBox()
             lblBookkeeperName = New Label()
             cboBookkeeperName = New ComboBox()
-            lblBookkeeperType = New Label()
-            cboBookkeeperType = New ComboBox()
             chkUsePromptPay = New CheckBox()
             lblPromptPayName = New Label()
             txtPromptPayName = New TextBox()
@@ -191,25 +179,19 @@ Namespace TempleAccounting
             tlpFields.Controls.Add(txtTemplePhone, 1, 7)
             tlpFields.Controls.Add(lblAbbotName, 0, 8)
             tlpFields.Controls.Add(cboAbbotName, 1, 8)
-            tlpFields.Controls.Add(lblAbbotOfficeStatus, 0, 9)
-            tlpFields.Controls.Add(cboAbbotOfficeStatus, 1, 9)
-            tlpFields.Controls.Add(lblWaiyawatName, 0, 10)
-            tlpFields.Controls.Add(cboWaiyawatName, 1, 10)
-            tlpFields.Controls.Add(lblWaiyawatOfficeStatus, 0, 11)
-            tlpFields.Controls.Add(cboWaiyawatOfficeStatus, 1, 11)
-            tlpFields.Controls.Add(lblBookkeeperName, 0, 12)
-            tlpFields.Controls.Add(cboBookkeeperName, 1, 12)
-            tlpFields.Controls.Add(lblBookkeeperType, 0, 13)
-            tlpFields.Controls.Add(cboBookkeeperType, 1, 13)
-            tlpFields.Controls.Add(chkUsePromptPay, 1, 14)
-            tlpFields.Controls.Add(lblPromptPayName, 0, 15)
-            tlpFields.Controls.Add(txtPromptPayName, 1, 15)
-            tlpFields.Controls.Add(lblPromptPayID, 0, 16)
-            tlpFields.Controls.Add(txtPromptPayID, 1, 16)
+            tlpFields.Controls.Add(lblWaiyawatName, 0, 9)
+            tlpFields.Controls.Add(cboWaiyawatName, 1, 9)
+            tlpFields.Controls.Add(lblBookkeeperName, 0, 10)
+            tlpFields.Controls.Add(cboBookkeeperName, 1, 10)
+            tlpFields.Controls.Add(chkUsePromptPay, 1, 11)
+            tlpFields.Controls.Add(lblPromptPayName, 0, 12)
+            tlpFields.Controls.Add(txtPromptPayName, 1, 12)
+            tlpFields.Controls.Add(lblPromptPayID, 0, 13)
+            tlpFields.Controls.Add(txtPromptPayID, 1, 13)
             tlpFields.Dock = DockStyle.Top
             tlpFields.Location = New Point(20, 20)
             tlpFields.Name = "tlpFields"
-            tlpFields.RowCount = 17
+            tlpFields.RowCount = 14
             tlpFields.RowStyles.Add(New RowStyle(SizeType.Absolute, 40F))
             tlpFields.RowStyles.Add(New RowStyle(SizeType.Absolute, 40F))
             tlpFields.RowStyles.Add(New RowStyle(SizeType.Absolute, 80F))
@@ -224,10 +206,7 @@ Namespace TempleAccounting
             tlpFields.RowStyles.Add(New RowStyle(SizeType.Absolute, 40F))
             tlpFields.RowStyles.Add(New RowStyle(SizeType.Absolute, 40F))
             tlpFields.RowStyles.Add(New RowStyle(SizeType.Absolute, 40F))
-            tlpFields.RowStyles.Add(New RowStyle(SizeType.Absolute, 40F))
-            tlpFields.RowStyles.Add(New RowStyle(SizeType.Absolute, 40F))
-            tlpFields.RowStyles.Add(New RowStyle(SizeType.Absolute, 40F))
-            tlpFields.Size = New Size(834, 720)
+            tlpFields.Size = New Size(834, 560)
             tlpFields.TabIndex = 0
             ' 
             ' lblTempleCode
