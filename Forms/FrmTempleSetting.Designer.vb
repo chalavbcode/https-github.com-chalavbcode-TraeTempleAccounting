@@ -169,6 +169,16 @@ Namespace TempleAccounting
             lblHeader.Text = "🏛️ ข้อมูลวัด และผู้ทำงาน"
             lblHeader.TextAlign = ContentAlignment.MiddleCenter
             ' 
+            ' pHeader
+            ' 
+            pHeader.AutoSize = True
+            pHeader.Controls.Add(lblHeader)
+            pHeader.Dock = DockStyle.Top
+            pHeader.Location = New Point(10, 10)
+            pHeader.Name = "pHeader"
+            pHeader.Size = New Size(880, 0)
+            pHeader.TabIndex = 0
+            ' 
             ' pMainContainer
             ' 
             pMainContainer.BackColor = Color.Transparent
