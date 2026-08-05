@@ -53,6 +53,7 @@ Namespace TempleAccounting
         ' Layout
         Friend WithEvents tlpTempleInfo As TableLayoutPanel
         Friend WithEvents tlpPersonnel As TableLayoutPanel
+        Friend WithEvents tlpPersonnelList As TableLayoutPanel
         Friend WithEvents gbTempleInfo As GroupBox
         Friend WithEvents gbPersonnel As GroupBox
         Friend WithEvents gbPersonnelList As GroupBox
@@ -68,8 +69,6 @@ Namespace TempleAccounting
 
         ' Personnel Grid
         Friend WithEvents dgvPersonnel As DataGridView
-        Friend WithEvents pnlPersonnelGrid As Panel
-        Friend WithEvents lblPersonnelGrid As Label
 
         <DebuggerNonUserCode()>
         Protected Overrides Sub Dispose(disposing As Boolean)
@@ -123,8 +122,7 @@ Namespace TempleAccounting
             lblBookkeeperName = New Label()
             cboBookkeeperName = New ComboBox()
             gbPersonnelList = New GroupBox()
-            pnlPersonnelGrid = New Panel()
-            lblPersonnelGrid = New Label()
+            tlpPersonnelList = New TableLayoutPanel()
             dgvPersonnel = New DataGridView()
             flpButtons = New FlowLayoutPanel()
             btnClose = New Button()
@@ -141,7 +139,7 @@ Namespace TempleAccounting
             gbPersonnel.SuspendLayout()
             tlpPersonnel.SuspendLayout()
             gbPersonnelList.SuspendLayout()
-            pnlPersonnelGrid.SuspendLayout()
+            tlpPersonnelList.SuspendLayout()
             CType(dgvPersonnel, ISupportInitialize).BeginInit()
             flpButtons.SuspendLayout()
             SuspendLayout()
@@ -311,7 +309,7 @@ Namespace TempleAccounting
             ' 
             ' gbPersonnelList
             ' 
-            gbPersonnelList.Controls.Add(pnlPersonnelGrid)
+            gbPersonnelList.Controls.Add(tlpPersonnelList)
             gbPersonnelList.Dock = DockStyle.Top
             gbPersonnelList.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             gbPersonnelList.ForeColor = Color.FromArgb(CByte(30), CByte(64), CByte(175))
@@ -323,6 +321,19 @@ Namespace TempleAccounting
             gbPersonnelList.TabIndex = 2
             gbPersonnelList.TabStop = False
             gbPersonnelList.Text = "📋 รายชื่อและบทบาทบุคลากร"
+            ' 
+            ' tlpPersonnelList
+            ' 
+            tlpPersonnelList.ColumnCount = 1
+            tlpPersonnelList.ColumnStyles.Add(New ColumnStyle(SizeType.Percent, 100F))
+            tlpPersonnelList.Controls.Add(dgvPersonnel, 0, 0)
+            tlpPersonnelList.Dock = DockStyle.Fill
+            tlpPersonnelList.Location = New Point(10, 45)
+            tlpPersonnelList.Name = "tlpPersonnelList"
+            tlpPersonnelList.RowCount = 1
+            tlpPersonnelList.RowStyles.Add(New RowStyle(SizeType.Percent, 100F))
+            tlpPersonnelList.Size = New Size(824, 265)
+            tlpPersonnelList.TabIndex = 0
             ' 
             ' lblTempleCode
             ' 
@@ -634,21 +645,6 @@ Namespace TempleAccounting
             txtPromptPayID.Size = New Size(648, 32)
             txtPromptPayID.TabIndex = 26
             ' 
-            ' pnlPersonnelGrid
-            ' 
-            pnlPersonnelGrid.BackColor = Color.FromArgb(CByte(248), CByte(250), CByte(252))
-            pnlPersonnelGrid.BorderStyle = BorderStyle.None
-            pnlPersonnelGrid.Controls.Add(dgvPersonnel)
-            pnlPersonnelGrid.Dock = DockStyle.Fill
-            pnlPersonnelGrid.Location = New Point(10, 45)
-            pnlPersonnelGrid.Name = "pnlPersonnelGrid"
-            pnlPersonnelGrid.Size = New Size(824, 265)
-            pnlPersonnelGrid.TabIndex = 0
-            ' 
-            ' lblPersonnelGrid
-            ' 
-            lblPersonnelGrid.Visible = False
-            ' 
             ' dgvPersonnel
             ' 
             dgvPersonnel.AllowUserToAddRows = False
@@ -780,7 +776,7 @@ Namespace TempleAccounting
             tlpPersonnel.ResumeLayout(False)
             tlpPersonnel.PerformLayout()
             gbPersonnelList.ResumeLayout(False)
-            pnlPersonnelGrid.ResumeLayout(False)
+            tlpPersonnelList.ResumeLayout(False)
             CType(dgvPersonnel, ISupportInitialize).EndInit()
             flpButtons.ResumeLayout(False)
             ResumeLayout(False)
