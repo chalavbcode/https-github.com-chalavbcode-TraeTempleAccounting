@@ -756,32 +756,45 @@ Namespace TempleAccounting
         Private Sub DrawSignatures(g As Graphics, rowH As Integer, c1 As Integer, c2 As Integer, c3 As Integer, c4 As Integer, usableW As Integer)
             Dim minimumTop = _pageY + 12
 
-            ' Signature area dimensions
-            Dim leftBlockX As Integer = _leftX + 24
-            Dim rightBlockX As Integer = _rightX + 24
-            Dim blockWidth As Integer = Math.Max(usableW - 48, 150)
+            ' === SHARED LAYOUT CALCULATION ===
+            ' Signature block dimensions - centered in each half of page
+            ' Each half (leftSection/rightSection) has usableW width
+            ' Leave 40px margin on each side for balanced appearance
+            Const marginEachSide As Integer = 40
+            Dim blockWidth As Integer = Math.Max(usableW - (marginEachSide * 2), 180)
+            
+            ' Center each block in its respective half
+            Dim leftBlockX As Integer = _leftX + CInt((usableW - blockWidth) / 2)
+            Dim rightBlockX As Integer = _rightX + CInt((usableW - blockWidth) / 2)
 
-            ' Signature line: 75% of block width, centered
-            Dim signLineWidth As Integer = CInt(blockWidth * 0.75)
-            Dim signLineX As Integer = leftBlockX + CInt((blockWidth - signLineWidth) / 2)
-            Dim signLineRightX As Integer = rightBlockX + CInt((blockWidth - signLineWidth) / 2)
+            ' Balanced spacing constants (shared by both blocks)
+            Const labelToSignLine As Integer = 24  ' Gap between title and signature line
+            Const signLineToName As Integer = 10    ' Gap between signature line and name
+            Const nameToPosition As Integer = 8     ' Gap between name and position
+            Const sectionHeight As Integer = 32     ' Height for each section (title/name/position)
+            Const signatureLineHeight As Integer = 42 ' Height for signature line area
 
-            ' Balanced spacing
-            Dim labelToSignLine As Integer = 20  ' Gap between title and signature line
-            Dim signLineToName As Integer = 8     ' Gap between signature line and name
-            Dim nameToPosition As Integer = 6     ' Gap between name and position
-            Dim sectionHeight As Integer = 30     ' Height for each section (title/name/position)
+            ' Calculate total height for signature section
+            ' Section: title(32) + gap(24) + signline(42) + gap(10) + name(32) + gap(8) + position(32)
+            Dim totalSignatureHeight = sectionHeight + labelToSignLine + signatureLineHeight + signLineToName + sectionHeight + nameToPosition + sectionHeight
 
-            ' Calculate total height for both signature blocks
-            ' Each block: label(30) + gap(20) + signline area(40) + gap(8) + name(28) + gap(6) + position(22)
-            Dim oneBlockHeight = sectionHeight + labelToSignLine + 40 + signLineToName + sectionHeight + nameToPosition + sectionHeight
-            Dim totalSignatureHeight = (oneBlockHeight * 2) + 30 ' 2 blocks + spacing between
-
-            ' Position the signature area
-            Dim blockTop = _pageBottom - totalSignatureHeight - 6
+            ' Position the signature area - both blocks share same top Y
+            Dim blockTop = _pageBottom - totalSignatureHeight - 8
             If blockTop < minimumTop Then
                 blockTop = minimumTop
             End If
+
+            ' === SHARED Y COORDINATES ===
+            ' Both blocks use the same Y positions
+            Dim titleY As Integer = blockTop
+            Dim signLineY As Integer = titleY + sectionHeight + labelToSignLine
+            Dim nameY As Integer = signLineY + signatureLineHeight + signLineToName
+            Dim positionY As Integer = nameY + sectionHeight + nameToPosition
+
+            ' Signature line: 80% of block width, centered
+            Dim signLineWidth As Integer = CInt(blockWidth * 0.8)
+            Dim signLineLeftX As Integer = leftBlockX + CInt((blockWidth - signLineWidth) / 2)
+            Dim signLineRightX As Integer = rightBlockX + CInt((blockWidth - signLineWidth) / 2)
 
             ' Title format
             Dim fmtTitle As New StringFormat() With {
@@ -790,57 +803,49 @@ Namespace TempleAccounting
                 .FormatFlags = StringFormatFlags.NoWrap
             }
 
-            ' Draw LEFT signature block (Abbot)
+            ' === DRAW LEFT BLOCK (ABBOT) ===
             ' Title: ตรวจถูกต้องแล้ว
             g.DrawString("ตรวจถูกต้องแล้ว", _boldFont, Brushes.Black,
-                        New RectangleF(leftBlockX, blockTop, blockWidth, sectionHeight), fmtTitle)
+                        New RectangleF(leftBlockX, titleY, blockWidth, sectionHeight), fmtTitle)
 
-            ' Signature line (centered, 75% width)
-            Dim signLine1Y = blockTop + sectionHeight + labelToSignLine
+            ' Signature line (centered, 80% width)
             Using pen As New Pen(Color.Black, 0.5!)
-                g.DrawLine(pen, signLineX, signLine1Y + 20, signLineX + signLineWidth, signLine1Y + 20)
+                g.DrawLine(pen, signLineLeftX, signLineY + 21, signLineLeftX + signLineWidth, signLineY + 21)
             End Using
 
             ' Abbot name
-            Dim name1Y = signLine1Y + 40 + signLineToName
             Dim abbotDisplay As String = If(String.IsNullOrWhiteSpace(_abbotName), ".....................................", "(" & _abbotName & ")")
             Using nameFont As Font = CreateFittedBoldFont(g, abbotDisplay, New Font("Tahoma", 12.0!, FontStyle.Bold), blockWidth - 8, 10.0!)
                 g.DrawString(abbotDisplay, nameFont, Brushes.Black,
-                           New RectangleF(leftBlockX, name1Y, blockWidth, sectionHeight), fmtTitle)
+                           New RectangleF(leftBlockX, nameY, blockWidth, sectionHeight), fmtTitle)
             End Using
 
             ' Abbot position
-            Dim pos1Y = name1Y + sectionHeight + nameToPosition
             g.DrawString("เจ้าอาวาส", _rowFont, Brushes.Black,
-                        New RectangleF(leftBlockX, pos1Y, blockWidth, sectionHeight), fmtTitle)
+                        New RectangleF(leftBlockX, positionY, blockWidth, sectionHeight), fmtTitle)
 
-            ' Draw RIGHT signature block (Waiyawat) - positioned below Abbot
-            Dim rightBlockTop = pos1Y + sectionHeight + 30 ' Add spacing between blocks
-
+            ' === DRAW RIGHT BLOCK (WAIYAWAT) ===
             ' Title: ผู้จัดทำบัญชี
             g.DrawString("ผู้จัดทำบัญชี", _boldFont, Brushes.Black,
-                        New RectangleF(rightBlockX, rightBlockTop, blockWidth, sectionHeight), fmtTitle)
+                        New RectangleF(rightBlockX, titleY, blockWidth, sectionHeight), fmtTitle)
 
-            ' Signature line (centered, 75% width)
-            Dim signLine2Y = rightBlockTop + sectionHeight + labelToSignLine
+            ' Signature line (centered, 80% width)
             Using pen As New Pen(Color.Black, 0.5!)
-                g.DrawLine(pen, signLineRightX, signLine2Y + 20, signLineRightX + signLineWidth, signLine2Y + 20)
+                g.DrawLine(pen, signLineRightX, signLineY + 21, signLineRightX + signLineWidth, signLineY + 21)
             End Using
 
             ' Waiyawat name
-            Dim name2Y = signLine2Y + 40 + signLineToName
             Dim waiyawatDisplay As String = If(String.IsNullOrWhiteSpace(_waiyawatName), ".....................................", "(" & _waiyawatName & ")")
             Using nameFont As Font = CreateFittedBoldFont(g, waiyawatDisplay, New Font("Tahoma", 12.0!, FontStyle.Bold), blockWidth - 8, 10.0!)
                 g.DrawString(waiyawatDisplay, nameFont, Brushes.Black,
-                           New RectangleF(rightBlockX, name2Y, blockWidth, sectionHeight), fmtTitle)
+                           New RectangleF(rightBlockX, nameY, blockWidth, sectionHeight), fmtTitle)
             End Using
 
             ' Waiyawat position
-            Dim pos2Y = name2Y + sectionHeight + nameToPosition
             g.DrawString("ไวยาวัจกร", _rowFont, Brushes.Black,
-                        New RectangleF(rightBlockX, pos2Y, blockWidth, sectionHeight), fmtTitle)
+                        New RectangleF(rightBlockX, positionY, blockWidth, sectionHeight), fmtTitle)
 
-            _pageY = pos2Y + sectionHeight
+            _pageY = positionY + sectionHeight
         End Sub
 
         Private Function Truncate(g As Graphics, s As String, f As Font, maxW As Integer) As String
