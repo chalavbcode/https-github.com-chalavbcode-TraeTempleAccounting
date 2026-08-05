@@ -164,7 +164,7 @@ Namespace TempleAccounting
             pMain.Location = New Point(0, 42)
             pMain.Name = "pMain"
             pMain.Padding = New Padding(20)
-            pMain.Size = New Size(900, 608)
+            pMain.Size = New Size(900, 705)
             pMain.TabIndex = 1
             ' 
             ' tlpFields
@@ -639,7 +639,7 @@ Namespace TempleAccounting
             pButtons.BackColor = Color.FromArgb(CByte(245), CByte(245), CByte(240))
             pButtons.Controls.Add(flpButtons)
             pButtons.Dock = DockStyle.Bottom
-            pButtons.Location = New Point(0, 650)
+            pButtons.Location = New Point(0, 747)
             pButtons.Name = "pButtons"
             pButtons.Size = New Size(900, 70)
             pButtons.TabIndex = 2
@@ -729,7 +729,7 @@ Namespace TempleAccounting
             AutoScaleDimensions = New SizeF(144F, 144F)
             AutoScaleMode = AutoScaleMode.Dpi
             BackColor = Color.FromArgb(CByte(254), CByte(249), CByte(235))
-            ClientSize = New Size(900, 720)
+            ClientSize = New Size(900, 817)
             Controls.Add(pMain)
             Controls.Add(pButtons)
             Controls.Add(lblHeader)
