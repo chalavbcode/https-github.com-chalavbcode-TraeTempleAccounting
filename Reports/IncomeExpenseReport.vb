@@ -285,6 +285,25 @@ Namespace TempleAccounting
                 End If
             Catch
             End Try
+
+            ' ดึงชื่อเจ้าอาวาสและไวยาวัจกรจาก PositionService
+            Try
+                Dim abbot = PositionService.GetCurrentAbbot()
+                If abbot.HasValue Then
+                    _abbotName = abbot.Value.FullName
+                End If
+            Catch ex As Exception
+                System.Diagnostics.Debug.WriteLine("[IncomeExpenseReport] GetCurrentAbbot error: " & ex.Message)
+            End Try
+
+            Try
+                Dim waiyawat = PositionService.GetCurrentWaiyawat()
+                If waiyawat.HasValue Then
+                    _waiyawatName = waiyawat.Value.FullName
+                End If
+            Catch ex As Exception
+                System.Diagnostics.Debug.WriteLine("[IncomeExpenseReport] GetCurrentWaiyawat error: " & ex.Message)
+            End Try
         End Sub
 
         Private Function ToThaiNumerals(s As String) As String
@@ -623,34 +642,61 @@ Namespace TempleAccounting
         Private Sub DrawSignatures(g As Graphics, rowH As Integer, c1 As Integer, c2 As Integer, c3 As Integer, c4 As Integer, usableW As Integer)
             Dim minimumTop = _pageY + 12
             Dim titleHeight As Integer = 30
-            Dim signHeight As Integer = 34
-            Dim roleHeight As Integer = 30
-            Dim verticalGap1 As Integer = 34
-            Dim verticalGap2 As Integer = 14
+            Dim signHeight As Integer = 32
+            Dim nameHeight As Integer = 28
+            Dim roleHeight As Integer = 22
+            Dim verticalGap1 As Integer = 30
+            Dim verticalGap2 As Integer = 6
+            Dim verticalGap3 As Integer = 6
             Dim signatureText As String = "ลงชื่อ .............................................................."
-            Dim totalHeight As Integer = titleHeight + verticalGap1 + signHeight + verticalGap2 + roleHeight
+            Dim totalHeight As Integer = titleHeight + verticalGap1 + signHeight + verticalGap2 + nameHeight + verticalGap3 + roleHeight
             Dim blockTop = _pageBottom - totalHeight - 6
             If blockTop < minimumTop Then
                 blockTop = minimumTop
             End If
 
-            Dim fmtTitle As New StringFormat() With {.Alignment = StringAlignment.Center, .LineAlignment = StringAlignment.Center}
-            Dim fmtSign As New StringFormat() With {.Alignment = StringAlignment.Center, .LineAlignment = StringAlignment.Center}
+            Dim fmtTitle As New StringFormat() With {
+                .Alignment = StringAlignment.Center,
+                .LineAlignment = StringAlignment.Center,
+                .FormatFlags = StringFormatFlags.NoWrap
+            }
+            Dim fmtSign As New StringFormat() With {
+                .Alignment = StringAlignment.Center,
+                .LineAlignment = StringAlignment.Center
+            }
 
             Dim leftBlockX As Integer = _leftX + 24
             Dim rightBlockX As Integer = _rightX + 24
-            Dim blockWidth As Integer = Math.Max(usableW - 48, 120)
+            Dim blockWidth As Integer = Math.Max(usableW - 48, 150)
 
+            ' Title: ตรวจถูกต้องแล้ว / ผู้จัดทำบัญชี
             g.DrawString("ตรวจถูกต้องแล้ว", _boldFont, Brushes.Black, New RectangleF(leftBlockX, blockTop, blockWidth, titleHeight), fmtTitle)
             g.DrawString("ผู้จัดทำบัญชี", _boldFont, Brushes.Black, New RectangleF(rightBlockX, blockTop, blockWidth, titleHeight), fmtTitle)
 
+            ' Signature line
             Dim signY = blockTop + titleHeight + verticalGap1
             g.DrawString(signatureText, _rowFont, Brushes.Black, New RectangleF(leftBlockX, signY, blockWidth, signHeight), fmtSign)
             g.DrawString(signatureText, _rowFont, Brushes.Black, New RectangleF(rightBlockX, signY, blockWidth, signHeight), fmtSign)
 
-            Dim roleY = signY + signHeight + verticalGap2
-            g.DrawString("เจ้าอาวาส", _boldFont, Brushes.Black, New RectangleF(leftBlockX, roleY, blockWidth, roleHeight), fmtTitle)
-            g.DrawString("ไวยาวัจกร", _boldFont, Brushes.Black, New RectangleF(rightBlockX, roleY, blockWidth, roleHeight), fmtTitle)
+            ' FullName: 12pt Bold, centered (or dots if empty)
+            Dim nameY = signY + signHeight + verticalGap2
+            Dim nameFont As New Font("Tahoma", 12.0!, FontStyle.Bold)
+            Dim abbotDisplay As String = If(String.IsNullOrWhiteSpace(_abbotName), ".....................................", _abbotName)
+            Dim waiyawatDisplay As String = If(String.IsNullOrWhiteSpace(_waiyawatName), ".....................................", _waiyawatName)
+
+            ' Use fitted font to prevent clipping for long names
+            Using fittedFont As Font = CreateFittedBoldFont(g, abbotDisplay, nameFont, blockWidth - 8, 9.0F)
+                g.DrawString(abbotDisplay, fittedFont, Brushes.Black, New RectangleF(leftBlockX, nameY, blockWidth, nameHeight), fmtTitle)
+            End Using
+            Using fittedFont As Font = CreateFittedBoldFont(g, waiyawatDisplay, nameFont, blockWidth - 8, 9.0F)
+                g.DrawString(waiyawatDisplay, fittedFont, Brushes.Black, New RectangleF(rightBlockX, nameY, blockWidth, nameHeight), fmtTitle)
+            End Using
+            nameFont.Dispose()
+
+            ' Position: 10pt Regular, centered
+            Dim roleY = nameY + nameHeight + verticalGap3
+            g.DrawString("เจ้าอาวาส", _rowFont, Brushes.Black, New RectangleF(leftBlockX, roleY, blockWidth, roleHeight), fmtTitle)
+            g.DrawString("ไวยาวัจกร", _rowFont, Brushes.Black, New RectangleF(rightBlockX, roleY, blockWidth, roleHeight), fmtTitle)
 
             _pageY = roleY + roleHeight
         End Sub
