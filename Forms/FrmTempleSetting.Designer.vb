@@ -164,7 +164,7 @@ Namespace TempleAccounting
             pMain.Dock = DockStyle.Fill
             pMain.Location = New Point(0, 42)
             pMain.Name = "pMain"
-            pMain.Padding = New Padding(20)
+            pMain.Padding = New Padding(20, 20, 20, 32)
             pMain.Size = New Size(900, 705)
             pMain.TabIndex = 1
             ' 
@@ -575,27 +575,17 @@ Namespace TempleAccounting
             ' pnlPersonnelGrid
             ' 
             pnlPersonnelGrid.BackColor = Color.FromArgb(CByte(248), CByte(250), CByte(252))
-            pnlPersonnelGrid.BorderStyle = BorderStyle.FixedSingle
-            pnlPersonnelGrid.Controls.Add(lblPersonnelGrid)
+            pnlPersonnelGrid.BorderStyle = BorderStyle.None
             pnlPersonnelGrid.Controls.Add(dgvPersonnel)
-            pnlPersonnelGrid.Dock = DockStyle.Bottom
-            pnlPersonnelGrid.Location = New Point(20, 720)
+            pnlPersonnelGrid.Dock = DockStyle.Fill
+            pnlPersonnelGrid.Location = New Point(10, 45)
             pnlPersonnelGrid.Name = "pnlPersonnelGrid"
-            pnlPersonnelGrid.Padding = New Padding(10)
-            pnlPersonnelGrid.Size = New Size(834, 200)
-            pnlPersonnelGrid.TabIndex = 27
+            pnlPersonnelGrid.Size = New Size(814, 195)
+            pnlPersonnelGrid.TabIndex = 0
             ' 
             ' lblPersonnelGrid
             ' 
-            lblPersonnelGrid.Dock = DockStyle.Top
-            lblPersonnelGrid.Font = New Font("Tahoma", 10F, FontStyle.Bold)
-            lblPersonnelGrid.ForeColor = Color.FromArgb(CByte(30), CByte(64), CByte(175))
-            lblPersonnelGrid.Location = New Point(10, 10)
-            lblPersonnelGrid.Name = "lblPersonnelGrid"
-            lblPersonnelGrid.Padding = New Padding(0, 0, 0, 5)
-            lblPersonnelGrid.Size = New Size(812, 30)
-            lblPersonnelGrid.TabIndex = 0
-            lblPersonnelGrid.Text = "📋 รายชื่อผู้ดำรงตำแหน่งในวัด (เจ้าอาวาส, ไวยาวัจกร, ผู้ทำบัญชี)"
+            lblPersonnelGrid.Visible = False
             ' 
             ' dgvPersonnel
             ' 
@@ -603,26 +593,26 @@ Namespace TempleAccounting
             dgvPersonnel.AllowUserToDeleteRows = False
             dgvPersonnel.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
             dgvPersonnel.BackgroundColor = Color.White
-            dgvPersonnel.BorderStyle = BorderStyle.None
+            dgvPersonnel.BorderStyle = BorderStyle.Fixed3D
             dgvPersonnel.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize
             dgvPersonnel.Dock = DockStyle.Fill
-            dgvPersonnel.Location = New Point(10, 10)
+            dgvPersonnel.Location = New Point(0, 0)
             dgvPersonnel.MultiSelect = False
             dgvPersonnel.Name = "dgvPersonnel"
             dgvPersonnel.ReadOnly = True
-            dgvPersonnel.RowHeadersWidth = 51
+            dgvPersonnel.RowHeadersVisible = False
             dgvPersonnel.SelectionMode = DataGridViewSelectionMode.FullRowSelect
-            dgvPersonnel.Size = New Size(812, 178)
-            dgvPersonnel.TabIndex = 1
+            dgvPersonnel.Size = New Size(814, 195)
+            dgvPersonnel.TabIndex = 0
             ' 
             ' pButtons
             ' 
             pButtons.BackColor = Color.FromArgb(CByte(245), CByte(245), CByte(240))
             pButtons.Controls.Add(flpButtons)
             pButtons.Dock = DockStyle.Bottom
-            pButtons.Location = New Point(0, 747)
+            pButtons.Location = New Point(0, 757)
             pButtons.Name = "pButtons"
-            pButtons.Size = New Size(900, 70)
+            pButtons.Size = New Size(900, 60)
             pButtons.TabIndex = 2
             ' 
             ' flpButtons
@@ -636,8 +626,8 @@ Namespace TempleAccounting
             flpButtons.FlowDirection = FlowDirection.RightToLeft
             flpButtons.Location = New Point(0, 0)
             flpButtons.Name = "flpButtons"
-            flpButtons.Padding = New Padding(10, 15, 10, 15)
-            flpButtons.Size = New Size(900, 70)
+            flpButtons.Padding = New Padding(10, 10, 10, 10)
+            flpButtons.Size = New Size(900, 60)
             flpButtons.TabIndex = 0
             ' 
             ' btnClose
@@ -718,10 +708,20 @@ Namespace TempleAccounting
             MinimumSize = New Size(800, 600)
             Name = "FrmTempleSetting"
             Text = "ตั้งค่าข้อมูลวัด"
+            pMain.SendToBack()
+            pButtons.BringToFront()
+            lblHeader.BringToFront()
             pMain.ResumeLayout(False)
             pMain.PerformLayout()
-            tlpFields.ResumeLayout(False)
-            tlpFields.PerformLayout()
+            gbTempleInfo.ResumeLayout(False)
+            gbTempleInfo.PerformLayout()
+            tlpTempleInfo.ResumeLayout(False)
+            tlpTempleInfo.PerformLayout()
+            gbPersonnel.ResumeLayout(False)
+            gbPersonnel.PerformLayout()
+            tlpPersonnel.ResumeLayout(False)
+            tlpPersonnel.PerformLayout()
+            gbPersonnelList.ResumeLayout(False)
             pnlPersonnelGrid.ResumeLayout(False)
             CType(dgvPersonnel, ISupportInitialize).EndInit()
             pButtons.ResumeLayout(False)
