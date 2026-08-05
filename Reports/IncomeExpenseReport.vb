@@ -449,7 +449,10 @@ Namespace TempleAccounting
             _rightX = _startX + _leftSectionWidth + 12
             Dim usableW = _leftSectionWidth
 
-            DrawHeader(g, pageW)
+            ' Only draw header if we still have transactions to print
+            If _rowIndex < totalRows Then
+                DrawHeader(g, pageW)
+            End If
 
             Dim colW1 = CInt(usableW * 0.16)
             Dim colW2 = CInt(usableW * 0.1)
@@ -460,24 +463,19 @@ Namespace TempleAccounting
             DrawTableHeader(g, rowH, colW1, colW2, colW3, colW4)
 
             Dim totalRows = Math.Max(_incomeRows.Count, _expenseRows.Count)
-            Dim maxRows As Integer
-            If _mode = ReportModes.Detailed Then
-                Dim finalReservedHeight = (FinalSummaryRows * rowH) + FinalSignatureBlockHeight + FinalFooterGapHeight + 80
-                Dim finalPageCapacity = Math.Max(1, CInt((e.MarginBounds.Bottom - _pageY - finalReservedHeight) / rowH))
-                Dim midSummaryCapacity = Math.Max(1, CInt((e.MarginBounds.Bottom - _pageY - rowH) / rowH))
-                Dim remainingRows = totalRows - _rowIndex
-                If remainingRows > finalPageCapacity Then
-                    ' Push as many rows as possible to earlier pages so the true last page keeps room for signatures.
-                    maxRows = Math.Min(midSummaryCapacity, Math.Max(1, remainingRows - 1))
-                Else
-                    maxRows = finalPageCapacity
-                End If
-            Else
-                maxRows = Math.Max(1, CInt((e.MarginBounds.Bottom - _pageY - 320) / rowH))
-            End If
-            Dim rowsPrinted = 0
+            Dim isLastPage = (_rowIndex >= totalRows)
 
-            While _rowIndex < totalRows AndAlso rowsPrinted < maxRows
+            ' Dynamic pagination: draw rows until we run out of space
+            While _rowIndex < totalRows
+                ' Check if we can fit the next row
+                If _pageY + rowH > _pageBottom Then
+                    ' Cannot fit this row - need new page (middle page, no signatures)
+                    e.HasMorePages = True
+                    _pageIndex += 1
+                    Return
+                End If
+
+                ' Draw the row
                 Dim y = _pageY
                 Dim hasLeft = (_rowIndex < _incomeRows.Count)
                 Dim hasRight = (_rowIndex < _expenseRows.Count)
@@ -534,22 +532,66 @@ Namespace TempleAccounting
                 End If
 
                 _rowIndex += 1
-                rowsPrinted += 1
                 _pageY += rowH
             End While
 
-            If _rowIndex >= totalRows Then
-                DrawEmptyRows(g, rowsPrinted, maxRows, rowH, colW1, colW2, colW3, colW4, usableW)
+            ' All rows printed - now check if this is the last page with transactions
+            If isLastPage Then
+                ' Calculate required height for final content (summary + signatures)
+                Dim requiredForFinalContent = CalculateFinalContentHeight(rowH)
+                Dim availableSpace = _pageBottom - _pageY
+
+                ' Check if we have enough space for final content
+                If availableSpace < requiredForFinalContent Then
+                    ' Not enough space - create a new page for signatures only
+                    e.HasMorePages = True
+                    _pageIndex += 1
+                    Return
+                End If
+
+                ' We have enough space - fill remaining with empty rows, then draw summaries and signatures
+                While _pageY < _pageBottom - requiredForFinalContent
+                    g.DrawRectangle(_blackPen, _leftX, _pageY, usableW, rowH)
+                    g.DrawRectangle(_blackPen, _leftX, _pageY, colW1, rowH)
+                    g.DrawRectangle(_blackPen, _leftX + colW1, _pageY, colW2, rowH)
+                    g.DrawRectangle(_blackPen, _leftX + colW1 + colW2, _pageY, colW3, rowH)
+                    g.DrawRectangle(_blackPen, _leftX + colW1 + colW2 + colW3, _pageY, colW4, rowH)
+                    g.DrawLine(_blackPen, _leftX + colW1 + colW2 + colW3, _pageY, _leftX + colW1 + colW2 + colW3, _pageY + rowH)
+                    g.DrawRectangle(_blackPen, _rightX, _pageY, usableW, rowH)
+                    g.DrawRectangle(_blackPen, _rightX, _pageY, colW1, rowH)
+                    g.DrawRectangle(_blackPen, _rightX + colW1, _pageY, colW2, rowH)
+                    g.DrawRectangle(_blackPen, _rightX + colW1 + colW2, _pageY, colW3, rowH)
+                    g.DrawRectangle(_blackPen, _rightX + colW1 + colW2 + colW3, _pageY, colW4, rowH)
+                    g.DrawLine(_blackPen, _rightX + colW1 + colW2 + colW3, _pageY, _rightX + colW1 + colW2 + colW3, _pageY + rowH)
+                    _pageY += rowH
+                End While
+
                 DrawSummaries(g, rowH, colW1, colW2, colW3, colW4)
                 DrawSignatures(g, rowH, colW1, colW2, colW3, colW4, usableW)
                 e.HasMorePages = False
             Else
-                DrawEmptyRows(g, rowsPrinted, maxRows, rowH, colW1, colW2, colW3, colW4, usableW)
+                ' Not the last page - draw mid-summary
                 DrawMidSummary(g, rowH, colW1, colW2, colW3, colW4, usableW)
                 e.HasMorePages = True
                 _pageIndex += 1
             End If
         End Sub
+
+        ''' <summary>
+        ''' Calculate the total height required for final summary section and signatures
+        ''' </summary>
+        Private Function CalculateFinalContentHeight(rowH As Integer) As Integer
+            ' Summary rows (2 main rows + gap)
+            Dim summaryHeight = (FinalSummaryRows * rowH) + 12
+            ' Signature block height
+            Dim signatureHeight = FinalSignatureBlockHeight
+            ' Gap before footer
+            Dim footerGap = FinalFooterGapHeight
+            ' Minimum top margin
+            Dim topGap = 12
+
+            Return summaryHeight + signatureHeight + footerGap + topGap
+        End Function
 
         Private Sub DrawEmptyRows(g As Graphics, printed As Integer, max As Integer, rowH As Integer,
                                   c1 As Integer, c2 As Integer, c3 As Integer, c4 As Integer, usableW As Integer)
