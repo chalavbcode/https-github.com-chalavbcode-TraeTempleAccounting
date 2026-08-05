@@ -123,6 +123,9 @@ Namespace TempleAccounting
             txtPromptPayName = New TextBox()
             lblPromptPayID = New Label()
             txtPromptPayID = New TextBox()
+            pnlPersonnelGrid = New Panel()
+            lblPersonnelGrid = New Label()
+            dgvPersonnel = New DataGridView()
             pButtons = New Panel()
             flpButtons = New FlowLayoutPanel()
             btnClose = New Button()
@@ -130,9 +133,6 @@ Namespace TempleAccounting
             btnLocationImport = New Button()
             btnCancel = New Button()
             btnSave = New Button()
-            pnlPersonnelGrid = New Panel()
-            lblPersonnelGrid = New Label()
-            dgvPersonnel = New DataGridView()
             pMain.SuspendLayout()
             tlpFields.SuspendLayout()
             pnlPersonnelGrid.SuspendLayout()
@@ -164,7 +164,7 @@ Namespace TempleAccounting
             pMain.Location = New Point(0, 42)
             pMain.Name = "pMain"
             pMain.Padding = New Padding(20)
-            pMain.Size = New Size(900, 508)
+            pMain.Size = New Size(900, 608)
             pMain.TabIndex = 1
             ' 
             ' tlpFields
@@ -582,7 +582,7 @@ Namespace TempleAccounting
             lblPromptPayID.Text = "เลขพร้อมเพย์/เลขบัญชี:"
             lblPromptPayID.TextAlign = ContentAlignment.MiddleRight
             ' 
-            'txtPromptPayID
+            ' txtPromptPayID
             ' 
             txtPromptPayID.Anchor = AnchorStyles.Left Or AnchorStyles.Right
             txtPromptPayID.Font = New Font("Tahoma", 10F)
@@ -591,20 +591,20 @@ Namespace TempleAccounting
             txtPromptPayID.Size = New Size(648, 32)
             txtPromptPayID.TabIndex = 32
             ' 
-            'pnlPersonnelGrid
+            ' pnlPersonnelGrid
             ' 
             pnlPersonnelGrid.BackColor = Color.FromArgb(CByte(248), CByte(250), CByte(252))
             pnlPersonnelGrid.BorderStyle = BorderStyle.FixedSingle
             pnlPersonnelGrid.Controls.Add(lblPersonnelGrid)
             pnlPersonnelGrid.Controls.Add(dgvPersonnel)
             pnlPersonnelGrid.Dock = DockStyle.Bottom
-            pnlPersonnelGrid.Location = New Point(20, 730)
+            pnlPersonnelGrid.Location = New Point(20, 720)
             pnlPersonnelGrid.Name = "pnlPersonnelGrid"
             pnlPersonnelGrid.Padding = New Padding(10)
-            pnlPersonnelGrid.Size = New Size(840, 200)
+            pnlPersonnelGrid.Size = New Size(834, 200)
             pnlPersonnelGrid.TabIndex = 33
             ' 
-            'lblPersonnelGrid
+            ' lblPersonnelGrid
             ' 
             lblPersonnelGrid.Dock = DockStyle.Top
             lblPersonnelGrid.Font = New Font("Tahoma", 10F, FontStyle.Bold)
@@ -612,11 +612,11 @@ Namespace TempleAccounting
             lblPersonnelGrid.Location = New Point(10, 10)
             lblPersonnelGrid.Name = "lblPersonnelGrid"
             lblPersonnelGrid.Padding = New Padding(0, 0, 0, 5)
-            lblPersonnelGrid.Size = New Size(818, 30)
+            lblPersonnelGrid.Size = New Size(812, 30)
             lblPersonnelGrid.TabIndex = 0
             lblPersonnelGrid.Text = "📋 รายชื่อผู้ดำรงตำแหน่งในวัด (เจ้าอาวาส, ไวยาวัจกร, ผู้ทำบัญชี)"
             ' 
-            'dgvPersonnel
+            ' dgvPersonnel
             ' 
             dgvPersonnel.AllowUserToAddRows = False
             dgvPersonnel.AllowUserToDeleteRows = False
@@ -625,21 +625,21 @@ Namespace TempleAccounting
             dgvPersonnel.BorderStyle = BorderStyle.None
             dgvPersonnel.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize
             dgvPersonnel.Dock = DockStyle.Fill
-            dgvPersonnel.Location = New Point(10, 45)
+            dgvPersonnel.Location = New Point(10, 10)
             dgvPersonnel.MultiSelect = False
             dgvPersonnel.Name = "dgvPersonnel"
             dgvPersonnel.ReadOnly = True
             dgvPersonnel.RowHeadersWidth = 51
             dgvPersonnel.SelectionMode = DataGridViewSelectionMode.FullRowSelect
-            dgvPersonnel.Size = New Size(818, 133)
+            dgvPersonnel.Size = New Size(812, 178)
             dgvPersonnel.TabIndex = 1
             ' 
-            'pButtons
+            ' pButtons
             ' 
             pButtons.BackColor = Color.FromArgb(CByte(245), CByte(245), CByte(240))
             pButtons.Controls.Add(flpButtons)
             pButtons.Dock = DockStyle.Bottom
-            pButtons.Location = New Point(0, 550)
+            pButtons.Location = New Point(0, 650)
             pButtons.Name = "pButtons"
             pButtons.Size = New Size(900, 70)
             pButtons.TabIndex = 2
@@ -724,12 +724,12 @@ Namespace TempleAccounting
             btnSave.Text = "💾 บันทึกข้อมูล"
             btnSave.UseVisualStyleBackColor = False
             ' 
-            'FrmTempleSetting
+            ' FrmTempleSetting
             ' 
             AutoScaleDimensions = New SizeF(144F, 144F)
             AutoScaleMode = AutoScaleMode.Dpi
             BackColor = Color.FromArgb(CByte(254), CByte(249), CByte(235))
-            ClientSize = New Size(900, 620)
+            ClientSize = New Size(900, 720)
             Controls.Add(pMain)
             Controls.Add(pButtons)
             Controls.Add(lblHeader)
