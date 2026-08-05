@@ -37,7 +37,7 @@ Namespace TempleAccounting
                 TryCreateTable(conn, "District", "CREATE TABLE District (DistrictID INTEGER PRIMARY KEY, ProvinceID INTEGER NOT NULL, DistrictName TEXT(100) NOT NULL)")
                 TryCreateTable(conn, "SubDistrict", "CREATE TABLE SubDistrict (SubDistrictID INTEGER PRIMARY KEY, DistrictID INTEGER NOT NULL, SubDistrictName TEXT(100) NOT NULL, ZipCode TEXT(10))")
 
-                TryCreateTable(conn, "TempleSetting", "CREATE TABLE TempleSetting (ID COUNTER PRIMARY KEY, TempleCode TEXT(20), TempleName TEXT(200), TempleAddress MEMO, Tambon TEXT(100), Amphoe TEXT(100), Province TEXT(100), PostCode TEXT(10), TemplePhone TEXT(30), AbbotID INTEGER, WaiyawatID INTEGER, BookkeeperID INTEGER, PromptPayName TEXT(100), PromptPayID TEXT(50), AbbotName TEXT(200), AbbotOfficeStatus TEXT(100), WaiyawatName TEXT(200), WaiyawatOfficeStatus TEXT(100), BookkeeperName TEXT(200), BookkeeperType TEXT(100))")
+                TryCreateTable(conn, "TempleSetting", "CREATE TABLE TempleSetting (ID COUNTER PRIMARY KEY, TempleCode TEXT(20), TempleName TEXT(200), TempleAddress MEMO, Tambon TEXT(100), Amphoe TEXT(100), Province TEXT(100), PostCode TEXT(10), TemplePhone TEXT(30), AbbotPersonnelID INTEGER, WaiyawatPersonnelID INTEGER, BookkeeperPersonnelID INTEGER, PromptPayName TEXT(100), PromptPayID TEXT(50))")
 
                 TryCreateTable(conn, "Categories", "CREATE TABLE Categories (ID COUNTER PRIMARY KEY, CategoryName TEXT(200) NOT NULL, TranType TEXT(10) NOT NULL)")
                 TryCreateTable(conn, "Funds", "CREATE TABLE Funds (ID COUNTER PRIMARY KEY, FundName TEXT(200) NOT NULL)")
@@ -71,30 +71,41 @@ Namespace TempleAccounting
                         colNames.Add(Convert.ToString(row("COLUMN_NAME")).ToUpper())
                     Next
 
-                    ' Add missing ID columns
-                    If Not colNames.Contains("ABBOTID") Then ExecuteNonQuery(conn, "ALTER TABLE TempleSetting ADD COLUMN AbbotID INTEGER")
-                    If Not colNames.Contains("WAIYAWATID") Then ExecuteNonQuery(conn, "ALTER TABLE TempleSetting ADD COLUMN WaiyawatID INTEGER")
-                    If Not colNames.Contains("BOOKKEEPERID") Then ExecuteNonQuery(conn, "ALTER TABLE TempleSetting ADD COLUMN BookkeeperID INTEGER")
+                    ' Add missing ID columns (New requested names)
+                    If Not colNames.Contains("ABBOTPERSONNELID") Then ExecuteNonQuery(conn, "ALTER TABLE TempleSetting ADD COLUMN AbbotPersonnelID INTEGER")
+                    If Not colNames.Contains("WAIYAWATPERSONNELID") Then ExecuteNonQuery(conn, "ALTER TABLE TempleSetting ADD COLUMN WaiyawatPersonnelID INTEGER")
+                    If Not colNames.Contains("BOOKKEEPERPERSONNELID") Then ExecuteNonQuery(conn, "ALTER TABLE TempleSetting ADD COLUMN BookkeeperPersonnelID INTEGER")
 
-                    ' Ensure legacy columns exist (as per user request: Do not delete old fields)
-                    If Not colNames.Contains("ABBOTNAME") Then ExecuteNonQuery(conn, "ALTER TABLE TempleSetting ADD COLUMN AbbotName TEXT(200)")
-                    If Not colNames.Contains("ABBOTOFFICESTATUS") Then ExecuteNonQuery(conn, "ALTER TABLE TempleSetting ADD COLUMN AbbotOfficeStatus TEXT(100)")
-                    If Not colNames.Contains("WAIYAWATNAME") Then ExecuteNonQuery(conn, "ALTER TABLE TempleSetting ADD COLUMN WaiyawatName TEXT(200)")
-                    If Not colNames.Contains("WAIYAWATOFFICESTATUS") Then ExecuteNonQuery(conn, "ALTER TABLE TempleSetting ADD COLUMN WaiyawatOfficeStatus TEXT(100)")
-                    If Not colNames.Contains("BOOKKEEPERNAME") Then ExecuteNonQuery(conn, "ALTER TABLE TempleSetting ADD COLUMN BookkeeperName TEXT(200)")
-                    If Not colNames.Contains("BOOKKEEPERTYPE") Then ExecuteNonQuery(conn, "ALTER TABLE TempleSetting ADD COLUMN BookkeeperType TEXT(100)")
-
-                    ' Migration: Convert old name fields into PersonnelID (Data Migration)
-                    ' Do not delete old fields as per user request
+                    ' Data Migration from old names/IDs to new requested IDs
                     If colNames.Contains("ABBOTNAME") Then
-                        ExecuteNonQuery(conn, "UPDATE TempleSetting INNER JOIN Personnel ON TempleSetting.AbbotName = Personnel.FullName SET TempleSetting.AbbotID = Personnel.PersonnelID WHERE TempleSetting.AbbotID IS NULL")
+                        ExecuteNonQuery(conn, "UPDATE TempleSetting INNER JOIN Personnel ON TempleSetting.AbbotName = Personnel.FullName SET TempleSetting.AbbotPersonnelID = Personnel.PersonnelID WHERE TempleSetting.AbbotPersonnelID IS NULL")
+                    ElseIf colNames.Contains("ABBOTID") Then
+                        ExecuteNonQuery(conn, "UPDATE TempleSetting SET AbbotPersonnelID = AbbotID WHERE AbbotPersonnelID IS NULL")
                     End If
+
                     If colNames.Contains("WAIYAWATNAME") Then
-                        ExecuteNonQuery(conn, "UPDATE TempleSetting INNER JOIN Personnel ON TempleSetting.WaiyawatName = Personnel.FullName SET TempleSetting.WaiyawatID = Personnel.PersonnelID WHERE TempleSetting.WaiyawatID IS NULL")
+                        ExecuteNonQuery(conn, "UPDATE TempleSetting INNER JOIN Personnel ON TempleSetting.WaiyawatName = Personnel.FullName SET TempleSetting.WaiyawatPersonnelID = Personnel.PersonnelID WHERE TempleSetting.WaiyawatPersonnelID IS NULL")
+                    ElseIf colNames.Contains("WAIYAWATID") Then
+                        ExecuteNonQuery(conn, "UPDATE TempleSetting SET WaiyawatPersonnelID = WaiyawatID WHERE WaiyawatPersonnelID IS NULL")
                     End If
+
                     If colNames.Contains("BOOKKEEPERNAME") Then
-                        ExecuteNonQuery(conn, "UPDATE TempleSetting INNER JOIN Personnel ON TempleSetting.BookkeeperName = Personnel.FullName SET TempleSetting.BookkeeperID = Personnel.PersonnelID WHERE TempleSetting.BookkeeperID IS NULL")
+                        ExecuteNonQuery(conn, "UPDATE TempleSetting INNER JOIN Personnel ON TempleSetting.BookkeeperName = Personnel.FullName SET TempleSetting.BookkeeperPersonnelID = Personnel.PersonnelID WHERE TempleSetting.BookkeeperPersonnelID IS NULL")
+                    ElseIf colNames.Contains("BOOKKEEPERID") Then
+                        ExecuteNonQuery(conn, "UPDATE TempleSetting SET BookkeeperPersonnelID = BookkeeperID WHERE BookkeeperPersonnelID IS NULL")
                     End If
+
+                    ' Drop redundant name and status fields as per "Do not store duplicate names" requirement
+                    Dim legacyCols = {"ABBOTNAME", "ABBOTOFFICESTATUS", "WAIYAWATNAME", "WAIYAWATOFFICESTATUS", "BOOKKEEPERNAME", "BOOKKEEPERTYPE", "ABBOTID", "WAIYAWATID", "BOOKKEEPERID"}
+                    For Each lc In legacyCols
+                        If colNames.Contains(lc) Then
+                            Try
+                                ExecuteNonQuery(conn, $"ALTER TABLE TempleSetting DROP COLUMN {lc}")
+                            Catch
+                                ' Some versions of Access might not support DROP COLUMN via OLEDB for some reason, ignore if it fails
+                            End Try
+                        End If
+                    Next
                 Catch ex As Exception
                     AppPaths.LogCrash(ex, "Db.EnsureSchema.TempleSettingMigration")
                 End Try
