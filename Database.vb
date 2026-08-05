@@ -145,20 +145,39 @@ Namespace TempleAccounting
                 SeedCategories(conn)
                 SeedFunds(conn)
                 SeedBankAccounts(conn)
+                SeedPositions(conn)
                 SeedPersonnel(conn)
             End Using
+        End Sub
+
+        Private Sub SeedPositions(conn As OleDbConnection)
+            Dim positions = New String() {
+                "เจ้าอาวาส", "รองเจ้าอาวาส", "ผู้ช่วยเจ้าอาวาส", "เลขานุการเจ้าอาวาส",
+                "พระภิกษุ", "พระลูกวัด", "พระอาจารย์", "สามเณร",
+                "ไวยาวัจกร", "รองไวยาวัจกร", "ผู้ช่วยไวยาวัจกร", "เหรัญญิก",
+                "ผู้ทำบัญชี", "เจ้าหน้าที่การเงิน", "กรรมการวัด", "ผู้ดูแลทรัพย์สิน",
+                "เจ้าหน้าที่สำนักงานวัด", "อาสาสมัคร", "อื่น ๆ"
+            }
+            
+            Dim insertedCount As Integer = 0
+            For Each posName In positions
+                Dim exists = DbScalar(conn, "SELECT COUNT(*) FROM Positions WHERE PositionName = @n", New Tuple(Of String, Object)("@n", posName))
+                If CInt(exists) = 0 Then
+                    ExecuteNonQuery(conn, "INSERT INTO Positions (PositionName) VALUES (@n)", New Tuple(Of String, Object)("@n", posName))
+                    insertedCount += 1
+                End If
+            Next
+            
+            If insertedCount > 0 Then
+                System.Diagnostics.Debug.WriteLine($"[SeedPositions] Inserted {insertedCount} positions.")
+            End If
         End Sub
 
         Private Sub SeedPersonnel(conn As OleDbConnection)
             Dim count As Integer = CInt(DbScalar(conn, "SELECT COUNT(*) FROM Personnel"))
             If count > 0 Then Return
             
-            ' Seed Positions
-            ExecuteNonQuery(conn, "INSERT INTO Positions (PositionName) VALUES ('เจ้าอาวาส')")
-            ExecuteNonQuery(conn, "INSERT INTO Positions (PositionName) VALUES ('ไวยาวัจกร')")
-            ExecuteNonQuery(conn, "INSERT INTO Positions (PositionName) VALUES ('ผู้ทำบัญชี')")
-
-            ' Seed Personnel
+            ' Seed Personnel (Default records)
             Dim list = New List(Of (Title As String, First As String, Last As String, PType As String)) From {
                 ("พระอธิการ", "สมชาย", "ขันติโก", "Monk"),
                 ("นาย", "มานะ", "มีบุญ", "Layperson"),
