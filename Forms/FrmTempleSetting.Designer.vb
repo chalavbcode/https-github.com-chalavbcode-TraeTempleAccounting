@@ -641,13 +641,11 @@ Namespace TempleAccounting
             tlpTempleInfo.Controls.Add(lblTempleAddress, 0, 2)
             tlpTempleInfo.Controls.Add(txtTempleAddress, 1, 2)
             tlpTempleInfo.Dock = DockStyle.Top
-            tlpTempleInfo.Location = New Point(10, 45)
             tlpTempleInfo.Name = "tlpTempleInfo"
             tlpTempleInfo.RowCount = 3
             tlpTempleInfo.RowStyles.Add(New RowStyle())
             tlpTempleInfo.RowStyles.Add(New RowStyle())
             tlpTempleInfo.RowStyles.Add(New RowStyle())
-            tlpTempleInfo.Size = New Size(814, 119)
             tlpTempleInfo.TabIndex = 0
             ' 
             ' lblTempleCode
