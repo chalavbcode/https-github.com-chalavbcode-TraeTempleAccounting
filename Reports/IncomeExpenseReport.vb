@@ -35,7 +35,9 @@ Namespace TempleAccounting
         Private _balance As Decimal
         Private _templeName As String = ""
         Private _templeAddress As String = ""
+        Private _abbotPersonnelID As Integer? = Nothing
         Private _abbotName As String = ""
+        Private _waiyawatPersonnelID As Integer? = Nothing
         Private _waiyawatName As String = ""
         Private _inspectorName As String = ""
 
@@ -60,7 +62,7 @@ Namespace TempleAccounting
         Private _pageIndex As Integer = 0
         Private _rowIndex As Integer = 0
         Private Const FinalSummaryRows As Integer = 3
-        Private Const FinalSignatureBlockHeight As Integer = 150
+        Private Const FinalSignatureBlockHeight As Integer = 360  ' Height for 2 signature blocks with proper spacing
         Private Const FinalFooterGapHeight As Integer = 24
 
         Private Structure ReportRow
@@ -284,6 +286,14 @@ Namespace TempleAccounting
                     System.Diagnostics.Debug.WriteLine("[TRACE] Step 1c: AbbotPersonnelID = " & If(abbotID Is Nothing OrElse abbotID Is DBNull.Value, "NULL", abbotID.ToString()))
                     System.Diagnostics.Debug.WriteLine("[TRACE] Step 1c: WaiyawatPersonnelID = " & If(waiyawatID Is Nothing OrElse waiyawatID Is DBNull.Value, "NULL", waiyawatID.ToString()))
 
+                    ' Store PersonnelIDs in private fields
+                    If abbotID IsNot Nothing AndAlso Not IsDBNull(abbotID) Then
+                        _abbotPersonnelID = Convert.ToInt32(abbotID)
+                    End If
+                    If waiyawatID IsNot Nothing AndAlso Not IsDBNull(waiyawatID) Then
+                        _waiyawatPersonnelID = Convert.ToInt32(waiyawatID)
+                    End If
+
                     ' STEP 1d: Try to read AbbotName (legacy column - might be dropped)
                     System.Diagnostics.Debug.WriteLine("[TRACE] Step 1d: Checking for AbbotName column in TempleSetting...")
                     If dt.Columns.Contains("AbbotName") Then
@@ -449,6 +459,23 @@ Namespace TempleAccounting
             _rightX = _startX + _leftSectionWidth + 12
             Dim usableW = _leftSectionWidth
 
+            ' [REPORT DEBUG] - Pagination accuracy testing
+            System.Diagnostics.Debug.WriteLine("")
+            System.Diagnostics.Debug.WriteLine("[REPORT DEBUG] ====================================")
+            System.Diagnostics.Debug.WriteLine("[REPORT DEBUG] AbbotPersonnelID = " & If(_abbotPersonnelID.HasValue, _abbotPersonnelID.Value.ToString(), "NULL"))
+            System.Diagnostics.Debug.WriteLine("[REPORT DEBUG] AbbotName = " & _abbotName)
+            System.Diagnostics.Debug.WriteLine("[REPORT DEBUG] WaiyawatPersonnelID = " & If(_waiyawatPersonnelID.HasValue, _waiyawatPersonnelID.Value.ToString(), "NULL"))
+            System.Diagnostics.Debug.WriteLine("[REPORT DEBUG] WaiyawatName = " & _waiyawatName)
+            System.Diagnostics.Debug.WriteLine("[REPORT DEBUG] Page Number = " & (_pageIndex + 1))
+            System.Diagnostics.Debug.WriteLine("[REPORT DEBUG] Current Y Position = " & _pageY)
+            System.Diagnostics.Debug.WriteLine("[REPORT DEBUG] Remaining Height = " & (_pageBottom - _pageY))
+            System.Diagnostics.Debug.WriteLine("[REPORT DEBUG] Signature Reserved Height = " & FinalSignatureBlockHeight)
+            System.Diagnostics.Debug.WriteLine("[REPORT DEBUG] ====================================")
+            System.Diagnostics.Debug.WriteLine("")
+
+            Dim totalRows = Math.Max(_incomeRows.Count, _expenseRows.Count)
+            Dim isLastPage = (_rowIndex >= totalRows)
+
             ' Only draw header if we still have transactions to print
             If _rowIndex < totalRows Then
                 DrawHeader(g, pageW)
@@ -461,9 +488,6 @@ Namespace TempleAccounting
             Dim rowH = 28
 
             DrawTableHeader(g, rowH, colW1, colW2, colW3, colW4)
-
-            Dim totalRows = Math.Max(_incomeRows.Count, _expenseRows.Count)
-            Dim isLastPage = (_rowIndex >= totalRows)
 
             ' Dynamic pagination: draw rows until we run out of space
             While _rowIndex < totalRows
@@ -731,73 +755,92 @@ Namespace TempleAccounting
 
         Private Sub DrawSignatures(g As Graphics, rowH As Integer, c1 As Integer, c2 As Integer, c3 As Integer, c4 As Integer, usableW As Integer)
             Dim minimumTop = _pageY + 12
-            Dim titleHeight As Integer = 30
-            Dim signHeight As Integer = 32
-            Dim nameHeight As Integer = 28
-            Dim roleHeight As Integer = 22
-            Dim verticalGap1 As Integer = 30
-            Dim verticalGap2 As Integer = 6
-            Dim verticalGap3 As Integer = 6
-            Dim signatureText As String = "ลงชื่อ .............................................................."
-            Dim totalHeight As Integer = titleHeight + verticalGap1 + signHeight + verticalGap2 + nameHeight + verticalGap3 + roleHeight
-            Dim blockTop = _pageBottom - totalHeight - 6
+
+            ' Signature area dimensions
+            Dim leftBlockX As Integer = _leftX + 24
+            Dim rightBlockX As Integer = _rightX + 24
+            Dim blockWidth As Integer = Math.Max(usableW - 48, 150)
+
+            ' Signature line: 75% of block width, centered
+            Dim signLineWidth As Integer = CInt(blockWidth * 0.75)
+            Dim signLineX As Integer = leftBlockX + CInt((blockWidth - signLineWidth) / 2)
+            Dim signLineRightX As Integer = rightBlockX + CInt((blockWidth - signLineWidth) / 2)
+
+            ' Balanced spacing
+            Dim labelToSignLine As Integer = 20  ' Gap between title and signature line
+            Dim signLineToName As Integer = 8     ' Gap between signature line and name
+            Dim nameToPosition As Integer = 6     ' Gap between name and position
+            Dim sectionHeight As Integer = 30     ' Height for each section (title/name/position)
+
+            ' Calculate total height for both signature blocks
+            ' Each block: label(30) + gap(20) + signline area(40) + gap(8) + name(28) + gap(6) + position(22)
+            Dim oneBlockHeight = sectionHeight + labelToSignLine + 40 + signLineToName + sectionHeight + nameToPosition + sectionHeight
+            Dim totalSignatureHeight = (oneBlockHeight * 2) + 30 ' 2 blocks + spacing between
+
+            ' Position the signature area
+            Dim blockTop = _pageBottom - totalSignatureHeight - 6
             If blockTop < minimumTop Then
                 blockTop = minimumTop
             End If
 
+            ' Title format
             Dim fmtTitle As New StringFormat() With {
                 .Alignment = StringAlignment.Center,
                 .LineAlignment = StringAlignment.Center,
                 .FormatFlags = StringFormatFlags.NoWrap
             }
-            Dim fmtSign As New StringFormat() With {
-                .Alignment = StringAlignment.Center,
-                .LineAlignment = StringAlignment.Center
-            }
 
-            Dim leftBlockX As Integer = _leftX + 24
-            Dim rightBlockX As Integer = _rightX + 24
-            Dim blockWidth As Integer = Math.Max(usableW - 48, 150)
+            ' Draw LEFT signature block (Abbot)
+            ' Title: ตรวจถูกต้องแล้ว
+            g.DrawString("ตรวจถูกต้องแล้ว", _boldFont, Brushes.Black,
+                        New RectangleF(leftBlockX, blockTop, blockWidth, sectionHeight), fmtTitle)
 
-            ' Title: ตรวจถูกต้องแล้ว / ผู้จัดทำบัญชี
-            g.DrawString("ตรวจถูกต้องแล้ว", _boldFont, Brushes.Black, New RectangleF(leftBlockX, blockTop, blockWidth, titleHeight), fmtTitle)
-            g.DrawString("ผู้จัดทำบัญชี", _boldFont, Brushes.Black, New RectangleF(rightBlockX, blockTop, blockWidth, titleHeight), fmtTitle)
+            ' Signature line (centered, 75% width)
+            Dim signLine1Y = blockTop + sectionHeight + labelToSignLine
+            Using pen As New Pen(Color.Black, 0.5!)
+                g.DrawLine(pen, signLineX, signLine1Y + 20, signLineX + signLineWidth, signLine1Y + 20)
+            End Using
 
-            ' Signature line
-            Dim signY = blockTop + titleHeight + verticalGap1
-            g.DrawString(signatureText, _rowFont, Brushes.Black, New RectangleF(leftBlockX, signY, blockWidth, signHeight), fmtSign)
-            g.DrawString(signatureText, _rowFont, Brushes.Black, New RectangleF(rightBlockX, signY, blockWidth, signHeight), fmtSign)
-
-            ' STEP 5: Immediately before drawing names - verify values
-            System.Diagnostics.Debug.WriteLine("[TRACE] Step 5: DrawSignatures - About to draw signatures")
-            System.Diagnostics.Debug.WriteLine("[TRACE]   _abbotName = '" & _abbotName & "'")
-            System.Diagnostics.Debug.WriteLine("[TRACE]   _waiyawatName = '" & _waiyawatName & "'")
-            System.Diagnostics.Debug.WriteLine("[TRACE]   AbbotName Property = '" & AbbotName & "'")
-            System.Diagnostics.Debug.WriteLine("[TRACE]   WaiyawatName Property = '" & WaiyawatName & "'")
-
-            ' FullName: 12pt Bold, centered in parentheses (or dots if empty)
-            Dim nameY = signY + signHeight + verticalGap2
-            Dim nameFont As New Font("Tahoma", 12.0!, FontStyle.Bold)
+            ' Abbot name
+            Dim name1Y = signLine1Y + 40 + signLineToName
             Dim abbotDisplay As String = If(String.IsNullOrWhiteSpace(_abbotName), ".....................................", "(" & _abbotName & ")")
+            Using nameFont As Font = CreateFittedBoldFont(g, abbotDisplay, New Font("Tahoma", 12.0!, FontStyle.Bold), blockWidth - 8, 10.0!)
+                g.DrawString(abbotDisplay, nameFont, Brushes.Black,
+                           New RectangleF(leftBlockX, name1Y, blockWidth, sectionHeight), fmtTitle)
+            End Using
+
+            ' Abbot position
+            Dim pos1Y = name1Y + sectionHeight + nameToPosition
+            g.DrawString("เจ้าอาวาส", _rowFont, Brushes.Black,
+                        New RectangleF(leftBlockX, pos1Y, blockWidth, sectionHeight), fmtTitle)
+
+            ' Draw RIGHT signature block (Waiyawat) - positioned below Abbot
+            Dim rightBlockTop = pos1Y + sectionHeight + 30 ' Add spacing between blocks
+
+            ' Title: ผู้จัดทำบัญชี
+            g.DrawString("ผู้จัดทำบัญชี", _boldFont, Brushes.Black,
+                        New RectangleF(rightBlockX, rightBlockTop, blockWidth, sectionHeight), fmtTitle)
+
+            ' Signature line (centered, 75% width)
+            Dim signLine2Y = rightBlockTop + sectionHeight + labelToSignLine
+            Using pen As New Pen(Color.Black, 0.5!)
+                g.DrawLine(pen, signLineRightX, signLine2Y + 20, signLineRightX + signLineWidth, signLine2Y + 20)
+            End Using
+
+            ' Waiyawat name
+            Dim name2Y = signLine2Y + 40 + signLineToName
             Dim waiyawatDisplay As String = If(String.IsNullOrWhiteSpace(_waiyawatName), ".....................................", "(" & _waiyawatName & ")")
-            System.Diagnostics.Debug.WriteLine("[TRACE]   abbotDisplay = '" & abbotDisplay & "'")
-            System.Diagnostics.Debug.WriteLine("[TRACE]   waiyawatDisplay = '" & waiyawatDisplay & "'")
-
-            ' Use fitted font to prevent clipping for long names
-            Using fittedFont As Font = CreateFittedBoldFont(g, abbotDisplay, nameFont, blockWidth - 8, 9.0F)
-                g.DrawString(abbotDisplay, fittedFont, Brushes.Black, New RectangleF(leftBlockX, nameY, blockWidth, nameHeight), fmtTitle)
+            Using nameFont As Font = CreateFittedBoldFont(g, waiyawatDisplay, New Font("Tahoma", 12.0!, FontStyle.Bold), blockWidth - 8, 10.0!)
+                g.DrawString(waiyawatDisplay, nameFont, Brushes.Black,
+                           New RectangleF(rightBlockX, name2Y, blockWidth, sectionHeight), fmtTitle)
             End Using
-            Using fittedFont As Font = CreateFittedBoldFont(g, waiyawatDisplay, nameFont, blockWidth - 8, 9.0F)
-                g.DrawString(waiyawatDisplay, fittedFont, Brushes.Black, New RectangleF(rightBlockX, nameY, blockWidth, nameHeight), fmtTitle)
-            End Using
-            nameFont.Dispose()
 
-            ' Position: 10pt Regular, centered
-            Dim roleY = nameY + nameHeight + verticalGap3
-            g.DrawString("เจ้าอาวาส", _rowFont, Brushes.Black, New RectangleF(leftBlockX, roleY, blockWidth, roleHeight), fmtTitle)
-            g.DrawString("ไวยาวัจกร", _rowFont, Brushes.Black, New RectangleF(rightBlockX, roleY, blockWidth, roleHeight), fmtTitle)
+            ' Waiyawat position
+            Dim pos2Y = name2Y + sectionHeight + nameToPosition
+            g.DrawString("ไวยาวัจกร", _rowFont, Brushes.Black,
+                        New RectangleF(rightBlockX, pos2Y, blockWidth, sectionHeight), fmtTitle)
 
-            _pageY = roleY + roleHeight
+            _pageY = pos2Y + sectionHeight
         End Sub
 
         Private Function Truncate(g As Graphics, s As String, f As Font, maxW As Integer) As String
