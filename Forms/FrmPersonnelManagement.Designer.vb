@@ -32,6 +32,8 @@ Namespace TempleAccounting
         Friend WithEvents cboPersonType As ComboBox
         Friend WithEvents lblPhone As Label
         Friend WithEvents txtPhone As TextBox
+        Friend WithEvents lblPositionID As Label
+        Friend WithEvents cboPositionID As ComboBox
         Friend WithEvents dgvPositions As DataGridView
         Friend WithEvents pnlPosEditor As Panel
         Friend WithEvents tlpPosEditor As TableLayoutPanel
@@ -76,6 +78,8 @@ Namespace TempleAccounting
             Me.cboPersonType = New System.Windows.Forms.ComboBox()
             Me.lblPhone = New System.Windows.Forms.Label()
             Me.txtPhone = New System.Windows.Forms.TextBox()
+            Me.lblPositionID = New System.Windows.Forms.Label()
+            Me.cboPositionID = New System.Windows.Forms.ComboBox()
             Me.tpPositions = New System.Windows.Forms.TabPage()
             Me.dgvPositions = New System.Windows.Forms.DataGridView()
             Me.pnlPosEditor = New System.Windows.Forms.Panel()
@@ -205,6 +209,8 @@ Namespace TempleAccounting
             Me.tlpEditor.Controls.Add(Me.cboPersonType, 1, 2)
             Me.tlpEditor.Controls.Add(Me.lblPhone, 2, 2)
             Me.tlpEditor.Controls.Add(Me.txtPhone, 3, 2)
+            Me.tlpEditor.Controls.Add(Me.lblPositionID, 2, 0)
+            Me.tlpEditor.Controls.Add(Me.cboPositionID, 3, 0)
             Me.tlpEditor.Dock = System.Windows.Forms.DockStyle.Fill
             Me.tlpEditor.Location = New System.Drawing.Point(20, 20)
             Me.tlpEditor.Name = "tlpEditor"
@@ -317,6 +323,28 @@ Namespace TempleAccounting
             Me.txtPhone.Name = "txtPhone"
             Me.txtPhone.Size = New System.Drawing.Size(317, 28)
             Me.txtPhone.TabIndex = 9
+            '
+            'lblPositionID
+            '
+            Me.lblPositionID.Anchor = System.Windows.Forms.AnchorStyles.Right
+            Me.lblPositionID.AutoSize = True
+            Me.lblPositionID.Font = New System.Drawing.Font("Tahoma", 10.0!)
+            Me.lblPositionID.Location = New System.Drawing.Point(440, 19)
+            Me.lblPositionID.Name = "lblPositionID"
+            Me.lblPositionID.Size = New System.Drawing.Size(80, 21)
+            Me.lblPositionID.TabIndex = 10
+            Me.lblPositionID.Text = "ตำแหน่ง:"
+            '
+            'cboPositionID
+            '
+            Me.cboPositionID.Anchor = CType(System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right, System.Windows.Forms.AnchorStyles)
+            Me.cboPositionID.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+            Me.cboPositionID.Font = New System.Drawing.Font("Tahoma", 10.0!)
+            Me.cboPositionID.FormattingEnabled = True
+            Me.cboPositionID.Location = New System.Drawing.Point(526, 15)
+            Me.cboPositionID.Name = "cboPositionID"
+            Me.cboPositionID.Size = New System.Drawing.Size(317, 29)
+            Me.cboPositionID.TabIndex = 11
             '
             'tpPositions
             '

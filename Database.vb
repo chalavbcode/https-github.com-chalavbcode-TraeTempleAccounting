@@ -37,32 +37,35 @@ Namespace TempleAccounting
                 TryCreateTable(conn, "District", "CREATE TABLE District (DistrictID INTEGER PRIMARY KEY, ProvinceID INTEGER NOT NULL, DistrictName TEXT(100) NOT NULL)")
                 TryCreateTable(conn, "SubDistrict", "CREATE TABLE SubDistrict (SubDistrictID INTEGER PRIMARY KEY, DistrictID INTEGER NOT NULL, SubDistrictName TEXT(100) NOT NULL, ZipCode TEXT(10))")
 
-                TryCreateTable(conn, "TempleSetting", "CREATE TABLE TempleSetting (ID COUNTER PRIMARY KEY, TempleCode TEXT(20), TempleName TEXT(200), TempleAddress MEMO, Tambon TEXT(100), Amphoe TEXT(100), Province TEXT(100), PostCode TEXT(10), TemplePhone TEXT(30), AbbotName TEXT(100), AbbotOfficeStatus TEXT(50), WaiyawatName TEXT(100), WaiyawatOfficeStatus TEXT(50), BookkeeperName TEXT(100), BookkeeperType TEXT(50), PromptPayName TEXT(100), PromptPayID TEXT(50))")
+                TryCreateTable(conn, "TempleSetting", "CREATE TABLE TempleSetting (ID COUNTER PRIMARY KEY, TempleCode TEXT(20), TempleName TEXT(200), TempleAddress MEMO, Tambon TEXT(100), Amphoe TEXT(100), Province TEXT(100), PostCode TEXT(10), TemplePhone TEXT(30), AbbotID INTEGER, WaiyawatID INTEGER, BookkeeperID INTEGER, PromptPayName TEXT(100), PromptPayID TEXT(50))")
 
                 TryCreateTable(conn, "Categories", "CREATE TABLE Categories (ID COUNTER PRIMARY KEY, CategoryName TEXT(200) NOT NULL, TranType TEXT(10) NOT NULL)")
                 TryCreateTable(conn, "Funds", "CREATE TABLE Funds (ID COUNTER PRIMARY KEY, FundName TEXT(200) NOT NULL)")
                 TryCreateTable(conn, "BankAccounts", "CREATE TABLE BankAccounts (ID COUNTER PRIMARY KEY, BankName TEXT(100) NOT NULL, AccountNo TEXT(50), AccountName TEXT(200))")
                 TryCreateTable(conn, "Transactions", "CREATE TABLE Transactions (ID COUNTER PRIMARY KEY, TranDate DATETIME NOT NULL, TranType TEXT(10) NOT NULL, CategoryID INTEGER, FundID INTEGER, BankID INTEGER, Detail TEXT(255), Amount CURRENCY NOT NULL, Note MEMO, CreateDate DATETIME DEFAULT Now(), ToFundID INTEGER, ToBankID INTEGER, ReceiptPath TEXT(255))")
-                TryCreateTable(conn, "Personnel", "CREATE TABLE Personnel (PersonnelID COUNTER PRIMARY KEY, Title TEXT(50), FirstName TEXT(100), LastName TEXT(100), FullName TEXT(255), PersonType TEXT(50), Phone TEXT(50))")
+                TryCreateTable(conn, "Personnel", "CREATE TABLE Personnel (PersonnelID COUNTER PRIMARY KEY, Title TEXT(50), FirstName TEXT(100), LastName TEXT(100), FullName TEXT(255), PersonType TEXT(50), PositionID INTEGER, Phone TEXT(50))")
                 TryCreateTable(conn, "Positions", "CREATE TABLE Positions (PositionID COUNTER PRIMARY KEY, PositionName TEXT(100))")
 
-                ' Migration: Add ID columns to TempleSetting
+                ' Migration: Manage columns in TempleSetting
                 Try
                     Dim columns = conn.GetSchema("Columns", New String() {Nothing, Nothing, "TempleSetting", Nothing})
-                    Dim hasAbbotID As Boolean = False
-                    Dim hasWaiyawatID As Boolean = False
-                    Dim hasBookkeeperID As Boolean = False
-
+                    Dim colNames As New List(Of String)
                     For Each row As DataRow In columns.Rows
-                        Dim colName = Convert.ToString(row("COLUMN_NAME"))
-                        If colName.Equals("AbbotID", StringComparison.OrdinalIgnoreCase) Then hasAbbotID = True
-                        If colName.Equals("WaiyawatID", StringComparison.OrdinalIgnoreCase) Then hasWaiyawatID = True
-                        If colName.Equals("BookkeeperID", StringComparison.OrdinalIgnoreCase) Then hasBookkeeperID = True
+                        colNames.Add(Convert.ToString(row("COLUMN_NAME")).ToUpper())
                     Next
 
-                    If Not hasAbbotID Then ExecuteNonQuery(conn, "ALTER TABLE TempleSetting ADD COLUMN AbbotID INTEGER")
-                    If Not hasWaiyawatID Then ExecuteNonQuery(conn, "ALTER TABLE TempleSetting ADD COLUMN WaiyawatID INTEGER")
-                    If Not hasBookkeeperID Then ExecuteNonQuery(conn, "ALTER TABLE TempleSetting ADD COLUMN BookkeeperID INTEGER")
+                    ' Add missing ID columns
+                    If Not colNames.Contains("ABBOTID") Then ExecuteNonQuery(conn, "ALTER TABLE TempleSetting ADD COLUMN AbbotID INTEGER")
+                    If Not colNames.Contains("WAIYAWATID") Then ExecuteNonQuery(conn, "ALTER TABLE TempleSetting ADD COLUMN WaiyawatID INTEGER")
+                    If Not colNames.Contains("BOOKKEEPERID") Then ExecuteNonQuery(conn, "ALTER TABLE TempleSetting ADD COLUMN BookkeeperID INTEGER")
+
+                    ' Drop legacy columns if they exist (Refactoring requirement)
+                    Dim legacyCols = {"ABBOTNAME", "ABBOTOFFICESTATUS", "WAIYAWATNAME", "WAIYAWATOFFICESTATUS", "BOOKKEEPERNAME", "BOOKKEEPERTYPE"}
+                    For Each lc In legacyCols
+                        If colNames.Contains(lc) Then
+                            ExecuteNonQuery(conn, $"ALTER TABLE TempleSetting DROP COLUMN {lc}")
+                        End If
+                    Next
                 Catch ex As Exception
                     AppPaths.LogCrash(ex, "Db.EnsureSchema.TempleSettingMigration")
                 End Try
@@ -71,7 +74,6 @@ Namespace TempleAccounting
                 Try
                     Dim columns = conn.GetSchema("Columns", New String() {Nothing, Nothing, "Personnel", Nothing})
                     Dim hasPositionID As Boolean = False
-
                     For Each row As DataRow In columns.Rows
                         If Convert.ToString(row("COLUMN_NAME")).Equals("PositionID", StringComparison.OrdinalIgnoreCase) Then
                             hasPositionID = True
