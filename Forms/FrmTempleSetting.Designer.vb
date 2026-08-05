@@ -405,28 +405,6 @@ Namespace TempleAccounting
             cboAbbotName.Size = New Size(648, 32)
             cboAbbotName.TabIndex = 17
             ' 
-            ' lblAbbotOfficeStatus
-            ' 
-            lblAbbotOfficeStatus.Anchor = AnchorStyles.Left Or AnchorStyles.Right
-            lblAbbotOfficeStatus.AutoSize = True
-            lblAbbotOfficeStatus.Font = New Font("Tahoma", 10F)
-            lblAbbotOfficeStatus.Location = New Point(3, 408)
-            lblAbbotOfficeStatus.Name = "lblAbbotOfficeStatus"
-            lblAbbotOfficeStatus.Size = New Size(174, 24)
-            lblAbbotOfficeStatus.TabIndex = 18
-            lblAbbotOfficeStatus.Text = "ตำแหน่งเจ้าอาวาส:"
-            lblAbbotOfficeStatus.TextAlign = ContentAlignment.MiddleRight
-            ' 
-            ' cboAbbotOfficeStatus
-            ' 
-            cboAbbotOfficeStatus.Anchor = AnchorStyles.Left Or AnchorStyles.Right
-            cboAbbotOfficeStatus.Font = New Font("Tahoma", 10F)
-            cboAbbotOfficeStatus.Items.AddRange(New Object() {"เจ้าคณะรอง", "พระครู", "พระราชาคณะ", "อื่นๆ"})
-            cboAbbotOfficeStatus.Location = New Point(183, 404)
-            cboAbbotOfficeStatus.Name = "cboAbbotOfficeStatus"
-            cboAbbotOfficeStatus.Size = New Size(648, 32)
-            cboAbbotOfficeStatus.TabIndex = 19
-            ' 
             ' lblWaiyawatName
             ' 
             lblWaiyawatName.Anchor = AnchorStyles.Left Or AnchorStyles.Right
@@ -435,7 +413,7 @@ Namespace TempleAccounting
             lblWaiyawatName.Location = New Point(3, 448)
             lblWaiyawatName.Name = "lblWaiyawatName"
             lblWaiyawatName.Size = New Size(174, 24)
-            lblWaiyawatName.TabIndex = 20
+            lblWaiyawatName.TabIndex = 18
             lblWaiyawatName.Text = "ชื่อไวยาวัจกร:"
             lblWaiyawatName.TextAlign = ContentAlignment.MiddleRight
             ' 
@@ -447,29 +425,7 @@ Namespace TempleAccounting
             cboWaiyawatName.Location = New Point(183, 444)
             cboWaiyawatName.Name = "cboWaiyawatName"
             cboWaiyawatName.Size = New Size(648, 32)
-            cboWaiyawatName.TabIndex = 21
-            ' 
-            ' lblWaiyawatOfficeStatus
-            ' 
-            lblWaiyawatOfficeStatus.Anchor = AnchorStyles.Left Or AnchorStyles.Right
-            lblWaiyawatOfficeStatus.AutoSize = True
-            lblWaiyawatOfficeStatus.Font = New Font("Tahoma", 10F)
-            lblWaiyawatOfficeStatus.Location = New Point(3, 488)
-            lblWaiyawatOfficeStatus.Name = "lblWaiyawatOfficeStatus"
-            lblWaiyawatOfficeStatus.Size = New Size(174, 24)
-            lblWaiyawatOfficeStatus.TabIndex = 22
-            lblWaiyawatOfficeStatus.Text = "ตำแหน่งไวยาวัจกร:"
-            lblWaiyawatOfficeStatus.TextAlign = ContentAlignment.MiddleRight
-            ' 
-            ' cboWaiyawatOfficeStatus
-            ' 
-            cboWaiyawatOfficeStatus.Anchor = AnchorStyles.Left Or AnchorStyles.Right
-            cboWaiyawatOfficeStatus.Font = New Font("Tahoma", 10F)
-            cboWaiyawatOfficeStatus.Items.AddRange(New Object() {"ผู้ดูแลวัด", "อาวาส", "เจ้าสำนัก", "อื่นๆ"})
-            cboWaiyawatOfficeStatus.Location = New Point(183, 484)
-            cboWaiyawatOfficeStatus.Name = "cboWaiyawatOfficeStatus"
-            cboWaiyawatOfficeStatus.Size = New Size(648, 32)
-            cboWaiyawatOfficeStatus.TabIndex = 23
+            cboWaiyawatName.TabIndex = 19
             ' 
             ' lblBookkeeperName
             ' 
@@ -479,7 +435,7 @@ Namespace TempleAccounting
             lblBookkeeperName.Location = New Point(3, 528)
             lblBookkeeperName.Name = "lblBookkeeperName"
             lblBookkeeperName.Size = New Size(174, 24)
-            lblBookkeeperName.TabIndex = 24
+            lblBookkeeperName.TabIndex = 20
             lblBookkeeperName.Text = "ชื่อผู้ทำบัญชี:"
             lblBookkeeperName.TextAlign = ContentAlignment.MiddleRight
             ' 
@@ -491,29 +447,7 @@ Namespace TempleAccounting
             cboBookkeeperName.Location = New Point(183, 524)
             cboBookkeeperName.Name = "cboBookkeeperName"
             cboBookkeeperName.Size = New Size(648, 32)
-            cboBookkeeperName.TabIndex = 25
-            ' 
-            ' lblBookkeeperType
-            ' 
-            lblBookkeeperType.Anchor = AnchorStyles.Left Or AnchorStyles.Right
-            lblBookkeeperType.AutoSize = True
-            lblBookkeeperType.Font = New Font("Tahoma", 10F)
-            lblBookkeeperType.Location = New Point(3, 568)
-            lblBookkeeperType.Name = "lblBookkeeperType"
-            lblBookkeeperType.Size = New Size(174, 24)
-            lblBookkeeperType.TabIndex = 26
-            lblBookkeeperType.Text = "ประเภทผู้ทำบัญชี:"
-            lblBookkeeperType.TextAlign = ContentAlignment.MiddleRight
-            ' 
-            ' cboBookkeeperType
-            ' 
-            cboBookkeeperType.Anchor = AnchorStyles.Left Or AnchorStyles.Right
-            cboBookkeeperType.Font = New Font("Tahoma", 10F)
-            cboBookkeeperType.Items.AddRange(New Object() {"เจ้าหน้าที่วัด", "ชาวบ้านสมัครใจ", "ที่ปรึกษาบัญชี", "อื่นๆ"})
-            cboBookkeeperType.Location = New Point(183, 564)
-            cboBookkeeperType.Name = "cboBookkeeperType"
-            cboBookkeeperType.Size = New Size(648, 32)
-            cboBookkeeperType.TabIndex = 27
+            cboBookkeeperName.TabIndex = 21
             ' 
             ' chkUsePromptPay
             ' 
@@ -524,7 +458,7 @@ Namespace TempleAccounting
             chkUsePromptPay.Location = New Point(183, 606)
             chkUsePromptPay.Name = "chkUsePromptPay"
             chkUsePromptPay.Size = New Size(648, 28)
-            chkUsePromptPay.TabIndex = 28
+            chkUsePromptPay.TabIndex = 22
             chkUsePromptPay.Text = "เปิดใช้งานพร้อมเพย์"
             chkUsePromptPay.UseVisualStyleBackColor = True
             ' 
@@ -536,7 +470,7 @@ Namespace TempleAccounting
             lblPromptPayName.Location = New Point(3, 648)
             lblPromptPayName.Name = "lblPromptPayName"
             lblPromptPayName.Size = New Size(174, 24)
-            lblPromptPayName.TabIndex = 29
+            lblPromptPayName.TabIndex = 23
             lblPromptPayName.Text = "ชื่อบัญชีพร้อมเพย์:"
             lblPromptPayName.TextAlign = ContentAlignment.MiddleRight
             ' 
@@ -547,7 +481,7 @@ Namespace TempleAccounting
             txtPromptPayName.Location = New Point(183, 644)
             txtPromptPayName.Name = "txtPromptPayName"
             txtPromptPayName.Size = New Size(648, 32)
-            txtPromptPayName.TabIndex = 30
+            txtPromptPayName.TabIndex = 24
             ' 
             ' lblPromptPayID
             ' 
@@ -557,7 +491,7 @@ Namespace TempleAccounting
             lblPromptPayID.Location = New Point(3, 680)
             lblPromptPayID.Name = "lblPromptPayID"
             lblPromptPayID.Size = New Size(174, 40)
-            lblPromptPayID.TabIndex = 31
+            lblPromptPayID.TabIndex = 25
             lblPromptPayID.Text = "เลขพร้อมเพย์/เลขบัญชี:"
             lblPromptPayID.TextAlign = ContentAlignment.MiddleRight
             ' 
@@ -568,7 +502,7 @@ Namespace TempleAccounting
             txtPromptPayID.Location = New Point(183, 684)
             txtPromptPayID.Name = "txtPromptPayID"
             txtPromptPayID.Size = New Size(648, 32)
-            txtPromptPayID.TabIndex = 32
+            txtPromptPayID.TabIndex = 26
             ' 
             ' pnlPersonnelGrid
             ' 
@@ -581,7 +515,7 @@ Namespace TempleAccounting
             pnlPersonnelGrid.Name = "pnlPersonnelGrid"
             pnlPersonnelGrid.Padding = New Padding(10)
             pnlPersonnelGrid.Size = New Size(834, 200)
-            pnlPersonnelGrid.TabIndex = 33
+            pnlPersonnelGrid.TabIndex = 27
             ' 
             ' lblPersonnelGrid
             ' 
