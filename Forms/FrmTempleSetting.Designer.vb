@@ -155,16 +155,13 @@ Namespace TempleAccounting
             flpButtons.SuspendLayout()
             pHeader.SuspendLayout()
             SuspendLayout()
-            ' 
             ' lblHeader
             ' 
             lblHeader.BackColor = Color.FromArgb(CByte(253), CByte(230), CByte(138))
             lblHeader.Dock = DockStyle.Fill
             lblHeader.Font = New Font("Tahoma", 14F, FontStyle.Bold)
             lblHeader.ForeColor = Color.FromArgb(CByte(69), CByte(26), CByte(3))
-            lblHeader.Location = New Point(0, 0)
             lblHeader.Name = "lblHeader"
-            lblHeader.Size = New Size(880, 0)
             lblHeader.TabIndex = 0
             lblHeader.Text = "🏛️ ข้อมูลวัด และผู้ทำงาน"
             lblHeader.TextAlign = ContentAlignment.MiddleCenter
@@ -174,9 +171,7 @@ Namespace TempleAccounting
             pHeader.AutoSize = True
             pHeader.Controls.Add(lblHeader)
             pHeader.Dock = DockStyle.Top
-            pHeader.Location = New Point(10, 10)
             pHeader.Name = "pHeader"
-            pHeader.Size = New Size(880, 0)
             pHeader.TabIndex = 0
             ' 
             ' pMainContainer
@@ -186,10 +181,8 @@ Namespace TempleAccounting
             pMainContainer.Controls.Add(pBottom)
             pMainContainer.Controls.Add(pHeader)
             pMainContainer.Dock = DockStyle.Fill
-            pMainContainer.Location = New Point(0, 0)
             pMainContainer.Name = "pMainContainer"
             pMainContainer.Padding = New Padding(10)
-            pMainContainer.Size = New Size(900, 817)
             pMainContainer.TabIndex = 0
             ' 
             ' pContent
@@ -202,10 +195,8 @@ Namespace TempleAccounting
             pContent.Controls.Add(gbContactInfo)
             pContent.Controls.Add(gbTempleInfo)
             pContent.Dock = DockStyle.Fill
-            pContent.Location = New Point(10, 10)
             pContent.Name = "pContent"
             pContent.Padding = New Padding(10)
-            pContent.Size = New Size(880, 732)
             pContent.TabIndex = 2
             ' 
             ' gbPersonnelList
@@ -214,11 +205,9 @@ Namespace TempleAccounting
             gbPersonnelList.Dock = DockStyle.Top
             gbPersonnelList.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             gbPersonnelList.ForeColor = Color.FromArgb(CByte(30), CByte(64), CByte(175))
-            gbPersonnelList.Location = New Point(10, 791)
             gbPersonnelList.Margin = New Padding(0, 0, 0, 12)
             gbPersonnelList.Name = "gbPersonnelList"
             gbPersonnelList.Padding = New Padding(10, 20, 10, 10)
-            gbPersonnelList.Size = New Size(834, 320)
             gbPersonnelList.TabIndex = 4
             gbPersonnelList.TabStop = False
             gbPersonnelList.Text = "📋 รายชื่อและบทบาทบุคลากร"
@@ -229,11 +218,9 @@ Namespace TempleAccounting
             tlpPersonnelList.ColumnStyles.Add(New ColumnStyle(SizeType.Percent, 100F))
             tlpPersonnelList.Controls.Add(dgvPersonnel, 0, 0)
             tlpPersonnelList.Dock = DockStyle.Fill
-            tlpPersonnelList.Location = New Point(10, 45)
             tlpPersonnelList.Name = "tlpPersonnelList"
             tlpPersonnelList.RowCount = 1
             tlpPersonnelList.RowStyles.Add(New RowStyle(SizeType.Percent, 100F))
-            tlpPersonnelList.Size = New Size(814, 265)
             tlpPersonnelList.TabIndex = 0
             ' 
             ' dgvPersonnel
@@ -245,14 +232,11 @@ Namespace TempleAccounting
             dgvPersonnel.BorderStyle = BorderStyle.Fixed3D
             dgvPersonnel.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize
             dgvPersonnel.Dock = DockStyle.Fill
-            dgvPersonnel.Location = New Point(3, 3)
             dgvPersonnel.MultiSelect = False
             dgvPersonnel.Name = "dgvPersonnel"
             dgvPersonnel.ReadOnly = True
             dgvPersonnel.RowHeadersVisible = False
-            dgvPersonnel.RowHeadersWidth = 62
             dgvPersonnel.SelectionMode = DataGridViewSelectionMode.FullRowSelect
-            dgvPersonnel.Size = New Size(808, 259)
             dgvPersonnel.TabIndex = 0
             ' 
             ' gbPersonnel
@@ -263,11 +247,9 @@ Namespace TempleAccounting
             gbPersonnel.Dock = DockStyle.Top
             gbPersonnel.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             gbPersonnel.ForeColor = Color.FromArgb(CByte(30), CByte(64), CByte(175))
-            gbPersonnel.Location = New Point(10, 613)
             gbPersonnel.Margin = New Padding(0, 0, 0, 12)
             gbPersonnel.Name = "gbPersonnel"
             gbPersonnel.Padding = New Padding(10, 20, 10, 10)
-            gbPersonnel.Size = New Size(834, 178)
             gbPersonnel.TabIndex = 3
             gbPersonnel.TabStop = False
             gbPersonnel.Text = "👤 ผู้ดำรงตำแหน่งในวัด"
@@ -286,13 +268,11 @@ Namespace TempleAccounting
             tlpPersonnel.Controls.Add(lblBookkeeperName, 0, 2)
             tlpPersonnel.Controls.Add(cboBookkeeperName, 1, 2)
             tlpPersonnel.Dock = DockStyle.Top
-            tlpPersonnel.Location = New Point(10, 45)
             tlpPersonnel.Name = "tlpPersonnel"
             tlpPersonnel.RowCount = 3
             tlpPersonnel.RowStyles.Add(New RowStyle())
             tlpPersonnel.RowStyles.Add(New RowStyle())
             tlpPersonnel.RowStyles.Add(New RowStyle())
-            tlpPersonnel.Size = New Size(814, 123)
             tlpPersonnel.TabIndex = 0
             ' 
             ' lblAbbotName
@@ -773,7 +753,6 @@ Namespace TempleAccounting
             btnClose.FlatStyle = FlatStyle.Flat
             btnClose.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             btnClose.ForeColor = Color.White
-            btnClose.Location = New Point(730, 8)
             btnClose.Margin = New Padding(6, 0, 0, 0)
             btnClose.Name = "btnClose"
             btnClose.Size = New Size(130, 45)
@@ -787,7 +766,6 @@ Namespace TempleAccounting
             btnManagePersonnel.FlatStyle = FlatStyle.Flat
             btnManagePersonnel.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             btnManagePersonnel.ForeColor = Color.White
-            btnManagePersonnel.Location = New Point(594, 8)
             btnManagePersonnel.Margin = New Padding(6, 0, 0, 0)
             btnManagePersonnel.Name = "btnManagePersonnel"
             btnManagePersonnel.Size = New Size(130, 45)
@@ -801,7 +779,6 @@ Namespace TempleAccounting
             btnLocationImport.FlatStyle = FlatStyle.Flat
             btnLocationImport.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             btnLocationImport.ForeColor = Color.White
-            btnLocationImport.Location = New Point(458, 8)
             btnLocationImport.Margin = New Padding(6, 0, 0, 0)
             btnLocationImport.Name = "btnLocationImport"
             btnLocationImport.Size = New Size(130, 45)
@@ -815,7 +792,6 @@ Namespace TempleAccounting
             btnCancel.FlatStyle = FlatStyle.Flat
             btnCancel.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             btnCancel.ForeColor = Color.White
-            btnCancel.Location = New Point(322, 8)
             btnCancel.Margin = New Padding(6, 0, 0, 0)
             btnCancel.Name = "btnCancel"
             btnCancel.Size = New Size(130, 45)
@@ -829,7 +805,6 @@ Namespace TempleAccounting
             btnSave.FlatStyle = FlatStyle.Flat
             btnSave.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             btnSave.ForeColor = Color.White
-            btnSave.Location = New Point(186, 8)
             btnSave.Margin = New Padding(6, 0, 0, 0)
             btnSave.Name = "btnSave"
             btnSave.Size = New Size(130, 45)
