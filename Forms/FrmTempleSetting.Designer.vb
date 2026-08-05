@@ -170,6 +170,8 @@ Namespace TempleAccounting
             ' 
             ' gbTempleInfo
             ' 
+            gbTempleInfo.AutoSize = True
+            gbTempleInfo.AutoSizeMode = AutoSizeMode.GrowAndShrink
             gbTempleInfo.Controls.Add(tlpTempleInfo)
             gbTempleInfo.Dock = DockStyle.Top
             gbTempleInfo.Font = New Font("Tahoma", 10F, FontStyle.Bold)
@@ -185,6 +187,7 @@ Namespace TempleAccounting
             ' tlpTempleInfo
             ' 
             tlpTempleInfo.AutoSize = True
+            tlpTempleInfo.AutoSizeMode = AutoSizeMode.GrowAndShrink
             tlpTempleInfo.ColumnCount = 2
             tlpTempleInfo.ColumnStyles.Add(New ColumnStyle(SizeType.Absolute, 180F))
             tlpTempleInfo.ColumnStyles.Add(New ColumnStyle(SizeType.Percent, 100F))
@@ -209,7 +212,7 @@ Namespace TempleAccounting
             tlpTempleInfo.Controls.Add(txtPromptPayName, 1, 9)
             tlpTempleInfo.Controls.Add(lblPromptPayID, 0, 10)
             tlpTempleInfo.Controls.Add(txtPromptPayID, 1, 10)
-            tlpTempleInfo.Dock = DockStyle.Fill
+            tlpTempleInfo.Dock = DockStyle.Top
             tlpTempleInfo.Location = New Point(10, 45)
             tlpTempleInfo.Name = "tlpTempleInfo"
             tlpTempleInfo.RowCount = 11
@@ -224,11 +227,13 @@ Namespace TempleAccounting
             tlpTempleInfo.RowStyles.Add(New RowStyle(SizeType.Absolute, 40F))
             tlpTempleInfo.RowStyles.Add(New RowStyle(SizeType.Absolute, 40F))
             tlpTempleInfo.RowStyles.Add(New RowStyle(SizeType.Absolute, 40F))
-            tlpTempleInfo.Size = New Size(814, 465)
+            tlpTempleInfo.Size = New Size(840, 465)
             tlpTempleInfo.TabIndex = 0
             ' 
             ' gbPersonnel
             ' 
+            gbPersonnel.AutoSize = True
+            gbPersonnel.AutoSizeMode = AutoSizeMode.GrowAndShrink
             gbPersonnel.Controls.Add(tlpPersonnel)
             gbPersonnel.Dock = DockStyle.Top
             gbPersonnel.Font = New Font("Tahoma", 10F, FontStyle.Bold)
@@ -244,6 +249,7 @@ Namespace TempleAccounting
             ' tlpPersonnel
             ' 
             tlpPersonnel.AutoSize = True
+            tlpPersonnel.AutoSizeMode = AutoSizeMode.GrowAndShrink
             tlpPersonnel.ColumnCount = 2
             tlpPersonnel.ColumnStyles.Add(New ColumnStyle(SizeType.Absolute, 180F))
             tlpPersonnel.ColumnStyles.Add(New ColumnStyle(SizeType.Percent, 100F))
@@ -253,7 +259,7 @@ Namespace TempleAccounting
             tlpPersonnel.Controls.Add(cboWaiyawatName, 1, 1)
             tlpPersonnel.Controls.Add(lblBookkeeperName, 0, 2)
             tlpPersonnel.Controls.Add(cboBookkeeperName, 1, 2)
-            tlpPersonnel.Dock = DockStyle.Fill
+            tlpPersonnel.Dock = DockStyle.Top
             tlpPersonnel.Location = New Point(10, 45)
             tlpPersonnel.Name = "tlpPersonnel"
             tlpPersonnel.RowCount = 3
@@ -272,7 +278,7 @@ Namespace TempleAccounting
             gbPersonnelList.Location = New Point(20, 700)
             gbPersonnelList.Name = "gbPersonnelList"
             gbPersonnelList.Padding = New Padding(10, 20, 10, 10)
-            gbPersonnelList.Size = New Size(860, 250)
+            gbPersonnelList.Size = New Size(860, 320)
             gbPersonnelList.TabIndex = 2
             gbPersonnelList.TabStop = False
             gbPersonnelList.Text = "📋 รายชื่อและบทบาทบุคลากร"
@@ -580,7 +586,7 @@ Namespace TempleAccounting
             pnlPersonnelGrid.Dock = DockStyle.Fill
             pnlPersonnelGrid.Location = New Point(10, 45)
             pnlPersonnelGrid.Name = "pnlPersonnelGrid"
-            pnlPersonnelGrid.Size = New Size(840, 195)
+            pnlPersonnelGrid.Size = New Size(840, 265)
             pnlPersonnelGrid.TabIndex = 0
             ' 
             ' lblPersonnelGrid
@@ -602,7 +608,7 @@ Namespace TempleAccounting
             dgvPersonnel.ReadOnly = True
             dgvPersonnel.RowHeadersVisible = False
             dgvPersonnel.SelectionMode = DataGridViewSelectionMode.FullRowSelect
-            dgvPersonnel.Size = New Size(840, 195)
+            dgvPersonnel.Size = New Size(840, 265)
             dgvPersonnel.TabIndex = 0
             ' 
             ' pButtons
@@ -610,10 +616,10 @@ Namespace TempleAccounting
             pButtons.BackColor = Color.FromArgb(CByte(241), CByte(245), CByte(249))
             pButtons.Controls.Add(flpButtons)
             pButtons.Dock = DockStyle.Bottom
-            pButtons.Location = New Point(0, 757)
+            pButtons.Location = New Point(0, 749)
             pButtons.Name = "pButtons"
             pButtons.Padding = New Padding(0, 1, 0, 0)
-            pButtons.Size = New Size(900, 60)
+            pButtons.Size = New Size(900, 68)
             pButtons.TabIndex = 2
             ' 
             ' flpButtons
@@ -628,8 +634,8 @@ Namespace TempleAccounting
             flpButtons.FlowDirection = FlowDirection.RightToLeft
             flpButtons.Location = New Point(0, 1)
             flpButtons.Name = "flpButtons"
-            flpButtons.Padding = New Padding(10, 8, 10, 8)
-            flpButtons.Size = New Size(900, 59)
+            flpButtons.Padding = New Padding(10, 12, 10, 12)
+            flpButtons.Size = New Size(900, 67)
             flpButtons.TabIndex = 0
             ' 
             ' btnClose
