@@ -769,18 +769,19 @@ Namespace TempleAccounting
 
             ' === SHARED SPACING CONSTANTS ===
             Const labelHeight As Integer = 26          ' Height for label text
-            Const labelToSignLine As Integer = 30     ' ~30px gap above dotted line (signing space)
-            Const signLineToName As Integer = 6       ' Small gap between dotted line and name
+            Const labelToSignLine As Integer = 50     ' 50px gap above dotted line (signing space)
+            Const signLineToName As Integer = 1       ' 1px gap - line very close to name
             Const nameHeight As Integer = 26           ' Height for name text
             Const nameToPosition As Integer = 8       ' Gap between name and position
             Const positionHeight As Integer = 26       ' Height for position text
 
             ' Calculate total height for signature section
-            ' Section: label(26) + gap(30) + signLineToName(6) + name(26) + gap(8) + position(26)
+            ' Section: label(26) + gap(50) + signLineToName(1) + name(26) + gap(8) + position(26)
             Dim totalSignatureHeight = labelHeight + labelToSignLine + signLineToName + nameHeight + nameToPosition + positionHeight
 
             ' Position the signature area - both blocks share same bottom Y
-            Dim blockBottom = _pageBottom - 8
+            ' Use smaller bottom margin to move signature block upward
+            Dim blockBottom = _pageBottom - 4
             If blockBottom - totalSignatureHeight < minimumTop Then
                 blockBottom = minimumTop + totalSignatureHeight + 8
             End If
@@ -792,8 +793,8 @@ Namespace TempleAccounting
             Dim signatureNameY As Integer = signatureLineY + signLineToName
             Dim signaturePositionY As Integer = signatureNameY + nameHeight + nameToPosition
 
-            ' Signature line: 80% of block width, centered
-            Dim signLineWidth As Integer = CInt(blockWidth * 0.8)
+            ' Signature line: fixed 280px width (250-300px range), centered within block
+            Const signLineWidth As Integer = 280
             Dim signLineLeftX As Integer = leftBlockX + CInt((blockWidth - signLineWidth) / 2)
             Dim signLineRightX As Integer = rightBlockX + CInt((blockWidth - signLineWidth) / 2)
 
