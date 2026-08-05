@@ -260,11 +260,39 @@ Namespace TempleAccounting
         End Sub
 
         Private Sub LoadTempleInfo(conn As OleDbConnection)
+            ' STEP 1: Load TempleSetting from database
             Try
+                System.Diagnostics.Debug.WriteLine("[TRACE] Step 1: Loading TempleSetting...")
                 Dim dt = Db.GetTable(conn, "SELECT TOP 1 * FROM TempleSetting ORDER BY ID DESC")
                 If dt.Rows.Count > 0 Then
                     Dim r = dt.Rows(0)
+                    ' Print all TempleSetting columns
+                    For Each col As DataColumn In dt.Columns
+                        System.Diagnostics.Debug.WriteLine("[TRACE]   TS Column: " & col.ColumnName & " = " & r(col).ToString())
+                    Next
+
+                    ' Temple basic info
                     If Not IsDBNull(r!TempleName) Then _templeName = CStr(r!TempleName)
+                    System.Diagnostics.Debug.WriteLine("[TRACE] Step 1a: TempleCode = " & If(dt.Columns.Contains("TempleCode") AndAlso Not IsDBNull(r!TempleCode), r!TempleCode.ToString(), "N/A"))
+                    System.Diagnostics.Debug.WriteLine("[TRACE] Step 1b: TempleName = " & _templeName)
+
+                    ' STEP 1c: Check AbbotPersonnelID and WaiyawatPersonnelID
+                    Dim abbotID As Object = Nothing
+                    Dim waiyawatID As Object = Nothing
+                    If dt.Columns.Contains("AbbotPersonnelID") Then abbotID = r!AbbotPersonnelID
+                    If dt.Columns.Contains("WaiyawatPersonnelID") Then waiyawatID = r!WaiyawatPersonnelID
+                    System.Diagnostics.Debug.WriteLine("[TRACE] Step 1c: AbbotPersonnelID = " & If(abbotID Is Nothing OrElse abbotID Is DBNull.Value, "NULL", abbotID.ToString()))
+                    System.Diagnostics.Debug.WriteLine("[TRACE] Step 1c: WaiyawatPersonnelID = " & If(waiyawatID Is Nothing OrElse waiyawatID Is DBNull.Value, "NULL", waiyawatID.ToString()))
+
+                    ' STEP 1d: Try to read AbbotName (legacy column - might be dropped)
+                    System.Diagnostics.Debug.WriteLine("[TRACE] Step 1d: Checking for AbbotName column in TempleSetting...")
+                    If dt.Columns.Contains("AbbotName") Then
+                        System.Diagnostics.Debug.WriteLine("[TRACE] Step 1d: AbbotName EXISTS in TempleSetting = " & If(IsDBNull(r!AbbotName), "NULL", r!AbbotName.ToString()))
+                    Else
+                        System.Diagnostics.Debug.WriteLine("[TRACE] Step 1d: AbbotName column DOES NOT EXIST in TempleSetting (may have been dropped)")
+                    End If
+
+                    ' Address building
                     Dim templeAddressLine = ""
                     If Not IsDBNull(r!TempleAddress) Then templeAddressLine = CStr(r!TempleAddress).Trim()
                     If Not IsDBNull(r!AbbotName) Then _inspectorName = CStr(r!AbbotName)
@@ -280,29 +308,50 @@ Namespace TempleAccounting
                     If Not String.IsNullOrWhiteSpace(prov) Then addressParts.Add("จ." & prov.Trim())
                     If Not String.IsNullOrWhiteSpace(post) Then addressParts.Add(post.Trim())
                     _templeAddress = String.Join(" ", addressParts).Trim()
+                    System.Diagnostics.Debug.WriteLine("[TRACE] Step 1e: TempleAddress = " & _templeAddress)
+                Else
+                    System.Diagnostics.Debug.WriteLine("[TRACE] Step 1: NO TempleSetting ROWS FOUND")
                 End If
-            Catch
+            Catch ex As Exception
+                System.Diagnostics.Debug.WriteLine("[TRACE] Step 1 ERROR: " & ex.ToString())
             End Try
 
-            ' ดึงชื่อเจ้าอาวาสและไวยาวัจกรจาก TempleSetting พร้อมกันในคราวเดียว
+            ' STEP 2: Load AbbotName and WaiyawatName via JOIN
+            System.Diagnostics.Debug.WriteLine("[TRACE] Step 2: Loading Abbot/Waiyawat via JOIN...")
             Try
                 ' ใช้ Personnel.FullName โดยตรงเพื่อหลีกเลี่ยงปัญหา NULL จาก Title/FirstName/LastName
                 Dim sql = "SELECT PA.FullName AS AbbotName, PW.FullName AS WaiyawatName " &
                           "FROM (TempleSetting AS TS " &
                           "LEFT JOIN Personnel AS PA ON TS.AbbotPersonnelID = PA.PersonnelID) " &
                           "LEFT JOIN Personnel AS PW ON TS.WaiyawatPersonnelID = PW.PersonnelID"
+                System.Diagnostics.Debug.WriteLine("[TRACE] Step 2 SQL: " & sql)
                 Dim dt = Db.GetTable(conn, sql)
+                System.Diagnostics.Debug.WriteLine("[TRACE] Step 2: JOIN returned " & dt.Rows.Count & " rows")
                 If dt.Rows.Count > 0 Then
                     Dim r = dt.Rows(0)
+                    For Each col As DataColumn In dt.Columns
+                        System.Diagnostics.Debug.WriteLine("[TRACE]   JOIN Column: " & col.ColumnName & " = " & If(IsDBNull(r(col)), "NULL", r(col).ToString()))
+                    Next
+
+                    ' STEP 3: Assign to _abbotName and _waiyawatName
+                    System.Diagnostics.Debug.WriteLine("[TRACE] Step 3: Before assignment...")
+                    System.Diagnostics.Debug.WriteLine("[TRACE]   r!AbbotName = " & If(IsDBNull(r!AbbotName), "NULL", r!AbbotName.ToString()))
+                    System.Diagnostics.Debug.WriteLine("[TRACE]   r!WaiyawatName = " & If(IsDBNull(r!WaiyawatName), "NULL", r!WaiyawatName.ToString()))
+
                     _abbotName = If(IsDBNull(r!AbbotName), "", r!AbbotName.ToString())
                     _waiyawatName = If(IsDBNull(r!WaiyawatName), "", r!WaiyawatName.ToString())
-                    ' Debug output
-                    System.Diagnostics.Debug.WriteLine("[IncomeExpenseReport] Abbot = " & _abbotName)
-                    System.Diagnostics.Debug.WriteLine("[IncomeExpenseReport] Waiyawat = " & _waiyawatName)
+
+                    ' STEP 4: After assignment - verify fields
+                    System.Diagnostics.Debug.WriteLine("[TRACE] Step 4: After assignment to _fields...")
+                    System.Diagnostics.Debug.WriteLine("[TRACE]   _abbotName = '" & _abbotName & "'")
+                    System.Diagnostics.Debug.WriteLine("[TRACE]   _waiyawatName = '" & _waiyawatName & "'")
+                Else
+                    System.Diagnostics.Debug.WriteLine("[TRACE] Step 2: NO ROWS returned from JOIN - TempleSetting may be empty")
                 End If
             Catch ex As Exception
-                System.Diagnostics.Debug.WriteLine("[IncomeExpenseReport] GetSignatures error: " & ex.ToString())
+                System.Diagnostics.Debug.WriteLine("[TRACE] Step 2 ERROR: " & ex.ToString())
             End Try
+            System.Diagnostics.Debug.WriteLine("[TRACE] LoadTempleInfo COMPLETE. _abbotName='" & _abbotName & "', _waiyawatName='" & _waiyawatName & "'")
         End Sub
 
         Private Function ToThaiNumerals(s As String) As String
@@ -677,11 +726,20 @@ Namespace TempleAccounting
             g.DrawString(signatureText, _rowFont, Brushes.Black, New RectangleF(leftBlockX, signY, blockWidth, signHeight), fmtSign)
             g.DrawString(signatureText, _rowFont, Brushes.Black, New RectangleF(rightBlockX, signY, blockWidth, signHeight), fmtSign)
 
+            ' STEP 5: Immediately before drawing names - verify values
+            System.Diagnostics.Debug.WriteLine("[TRACE] Step 5: DrawSignatures - About to draw signatures")
+            System.Diagnostics.Debug.WriteLine("[TRACE]   _abbotName = '" & _abbotName & "'")
+            System.Diagnostics.Debug.WriteLine("[TRACE]   _waiyawatName = '" & _waiyawatName & "'")
+            System.Diagnostics.Debug.WriteLine("[TRACE]   AbbotName Property = '" & AbbotName & "'")
+            System.Diagnostics.Debug.WriteLine("[TRACE]   WaiyawatName Property = '" & WaiyawatName & "'")
+
             ' FullName: 12pt Bold, centered in parentheses (or dots if empty)
             Dim nameY = signY + signHeight + verticalGap2
             Dim nameFont As New Font("Tahoma", 12.0!, FontStyle.Bold)
             Dim abbotDisplay As String = If(String.IsNullOrWhiteSpace(_abbotName), ".....................................", "(" & _abbotName & ")")
             Dim waiyawatDisplay As String = If(String.IsNullOrWhiteSpace(_waiyawatName), ".....................................", "(" & _waiyawatName & ")")
+            System.Diagnostics.Debug.WriteLine("[TRACE]   abbotDisplay = '" & abbotDisplay & "'")
+            System.Diagnostics.Debug.WriteLine("[TRACE]   waiyawatDisplay = '" & waiyawatDisplay & "'")
 
             ' Use fitted font to prevent clipping for long names
             Using fittedFont As Font = CreateFittedBoldFont(g, abbotDisplay, nameFont, blockWidth - 8, 9.0F)
