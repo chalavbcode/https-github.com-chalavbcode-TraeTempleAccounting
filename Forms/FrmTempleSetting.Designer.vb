@@ -15,6 +15,10 @@ Namespace TempleAccounting
         Private components As IContainer = Nothing
 
         Friend WithEvents lblHeader As Label
+        Friend WithEvents pMainContainer As Panel
+        Friend WithEvents pHeader As Panel
+        Friend WithEvents pContent As Panel
+        Friend WithEvents pBottom As Panel
         Friend WithEvents pMain As Panel
 
         ' Labels
@@ -86,6 +90,10 @@ Namespace TempleAccounting
             components = New Container()
             ttMain = New ToolTip(components)
             lblHeader = New Label()
+            pMainContainer = New Panel()
+            pHeader = New Panel()
+            pContent = New Panel()
+            pBottom = New Panel()
             pMain = New Panel()
             gbTempleInfo = New GroupBox()
             tlpTempleInfo = New TableLayoutPanel()
@@ -129,6 +137,10 @@ Namespace TempleAccounting
             btnLocationImport = New Button()
             btnCancel = New Button()
             btnSave = New Button()
+            pMainContainer.SuspendLayout()
+            pHeader.SuspendLayout()
+            pContent.SuspendLayout()
+            pBottom.SuspendLayout()
             pMain.SuspendLayout()
             gbTempleInfo.SuspendLayout()
             tlpTempleInfo.SuspendLayout()
@@ -144,15 +156,61 @@ Namespace TempleAccounting
             ' lblHeader
             ' 
             lblHeader.BackColor = Color.FromArgb(CByte(253), CByte(230), CByte(138))
-            lblHeader.Dock = DockStyle.Top
+            lblHeader.Dock = DockStyle.Fill
             lblHeader.Font = New Font("Tahoma", 14F, FontStyle.Bold)
             lblHeader.ForeColor = Color.FromArgb(CByte(69), CByte(26), CByte(3))
             lblHeader.Location = New Point(0, 0)
             lblHeader.Name = "lblHeader"
-            lblHeader.Size = New Size(900, 42)
+            lblHeader.Size = New Size(880, 42)
             lblHeader.TabIndex = 0
             lblHeader.Text = "🏛️ ข้อมูลวัด และผู้ทำงาน"
             lblHeader.TextAlign = ContentAlignment.MiddleCenter
+            ' 
+            ' pMainContainer
+            ' 
+            pMainContainer.BackColor = Color.Transparent
+            pMainContainer.Controls.Add(pContent)
+            pMainContainer.Controls.Add(pBottom)
+            pMainContainer.Controls.Add(pHeader)
+            pMainContainer.Dock = DockStyle.Fill
+            pMainContainer.Location = New Point(0, 0)
+            pMainContainer.Name = "pMainContainer"
+            pMainContainer.Padding = New Padding(10)
+            pMainContainer.Size = New Size(900, 817)
+            pMainContainer.TabIndex = 0
+            ' 
+            ' pHeader
+            ' 
+            pHeader.AutoSize = True
+            pHeader.Controls.Add(lblHeader)
+            pHeader.Dock = DockStyle.Top
+            pHeader.Location = New Point(10, 10)
+            pHeader.Name = "pHeader"
+            pHeader.Size = New Size(880, 42)
+            pHeader.TabIndex = 0
+            ' 
+            ' pBottom
+            ' 
+            pBottom.Controls.Add(flpButtons)
+            pBottom.Dock = DockStyle.Bottom
+            pBottom.Location = New Point(10, 737)
+            pBottom.Name = "pBottom"
+            pBottom.Size = New Size(880, 70)
+            pBottom.TabIndex = 1
+            ' 
+            ' pContent
+            ' 
+            pContent.AutoScroll = True
+            pContent.BackColor = Color.White
+            pContent.Controls.Add(gbPersonnelList)
+            pContent.Controls.Add(gbPersonnel)
+            pContent.Controls.Add(gbTempleInfo)
+            pContent.Dock = DockStyle.Fill
+            pContent.Location = New Point(10, 52)
+            pContent.Name = "pContent"
+            pContent.Padding = New Padding(10)
+            pContent.Size = New Size(880, 685)
+            pContent.TabIndex = 2
             ' 
             ' pMain
             ' 
