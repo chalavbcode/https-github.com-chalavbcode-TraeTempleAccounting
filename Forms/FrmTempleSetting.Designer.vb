@@ -386,13 +386,11 @@ Namespace TempleAccounting
             tlpPromptPay.Controls.Add(lblPromptPayID, 0, 2)
             tlpPromptPay.Controls.Add(txtPromptPayID, 1, 2)
             tlpPromptPay.Dock = DockStyle.Top
-            tlpPromptPay.Location = New Point(10, 45)
             tlpPromptPay.Name = "tlpPromptPay"
             tlpPromptPay.RowCount = 3
             tlpPromptPay.RowStyles.Add(New RowStyle())
             tlpPromptPay.RowStyles.Add(New RowStyle())
             tlpPromptPay.RowStyles.Add(New RowStyle())
-            tlpPromptPay.Size = New Size(814, 116)
             tlpPromptPay.TabIndex = 0
             ' 
             ' chkUsePromptPay
@@ -401,10 +399,8 @@ Namespace TempleAccounting
             chkUsePromptPay.Dock = DockStyle.Fill
             chkUsePromptPay.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             chkUsePromptPay.ForeColor = Color.FromArgb(CByte(15), CByte(118), CByte(110))
-            chkUsePromptPay.Location = New Point(222, 4)
             chkUsePromptPay.Margin = New Padding(4)
             chkUsePromptPay.Name = "chkUsePromptPay"
-            chkUsePromptPay.Size = New Size(588, 28)
             chkUsePromptPay.TabIndex = 22
             chkUsePromptPay.Text = "เปิดใช้งานพร้อมเพย์"
             chkUsePromptPay.UseVisualStyleBackColor = True
@@ -414,10 +410,8 @@ Namespace TempleAccounting
             lblPromptPayName.AutoSize = True
             lblPromptPayName.Dock = DockStyle.Fill
             lblPromptPayName.Font = New Font("Tahoma", 10F)
-            lblPromptPayName.Location = New Point(4, 40)
             lblPromptPayName.Margin = New Padding(4)
             lblPromptPayName.Name = "lblPromptPayName"
-            lblPromptPayName.Size = New Size(210, 32)
             lblPromptPayName.TabIndex = 23
             lblPromptPayName.Text = "ชื่อบัญชีพร้อมเพย์:"
             lblPromptPayName.TextAlign = ContentAlignment.MiddleRight
@@ -426,10 +420,8 @@ Namespace TempleAccounting
             ' 
             txtPromptPayName.Dock = DockStyle.Fill
             txtPromptPayName.Font = New Font("Tahoma", 10F)
-            txtPromptPayName.Location = New Point(222, 40)
             txtPromptPayName.Margin = New Padding(4)
             txtPromptPayName.Name = "txtPromptPayName"
-            txtPromptPayName.Size = New Size(588, 32)
             txtPromptPayName.TabIndex = 24
             ' 
             ' lblPromptPayID
@@ -437,10 +429,8 @@ Namespace TempleAccounting
             lblPromptPayID.AutoSize = True
             lblPromptPayID.Dock = DockStyle.Fill
             lblPromptPayID.Font = New Font("Tahoma", 10F)
-            lblPromptPayID.Location = New Point(4, 80)
             lblPromptPayID.Margin = New Padding(4)
             lblPromptPayID.Name = "lblPromptPayID"
-            lblPromptPayID.Size = New Size(210, 32)
             lblPromptPayID.TabIndex = 25
             lblPromptPayID.Text = "เลขพร้อมเพย์/เลขบัญชี:"
             lblPromptPayID.TextAlign = ContentAlignment.MiddleRight
@@ -449,10 +439,8 @@ Namespace TempleAccounting
             ' 
             txtPromptPayID.Dock = DockStyle.Fill
             txtPromptPayID.Font = New Font("Tahoma", 10F)
-            txtPromptPayID.Location = New Point(222, 80)
             txtPromptPayID.Margin = New Padding(4)
             txtPromptPayID.Name = "txtPromptPayID"
-            txtPromptPayID.Size = New Size(588, 32)
             txtPromptPayID.TabIndex = 26
             ' 
             ' gbContactInfo
