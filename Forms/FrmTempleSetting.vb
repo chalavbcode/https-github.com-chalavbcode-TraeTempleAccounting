@@ -56,18 +56,18 @@ Namespace TempleAccounting
 
         Private Sub LoadPersonnel()
             Using conn = Db.OpenConn()
-                ' โหลดเจ้าอาวาส (Monk) - JOIN with Positions
-                Dim abbotTable = Db.GetTable(conn, "SELECT p.PersonnelID, p.Title, p.FirstName, p.LastName, p.FullName, p.PersonType, p.Phone, p.PositionID, pos.PositionName " &
-                                              "FROM Personnel p LEFT JOIN Positions pos ON p.PositionID = pos.PositionID " &
-                                              "WHERE p.PersonType='Monk' ORDER BY p.FullName")
+                ' โหลดเจ้าอาวาส (กรองเฉพาะกลุ่มพระ)
+                Dim abbotTable = Db.GetTable(conn, "SELECT p.PersonnelID, p.FullName " &
+                                              "FROM Personnel p INNER JOIN Positions pos ON p.PositionID = pos.PositionID " &
+                                              "WHERE pos.PositionGroup = 'พระ' ORDER BY p.FullName")
                 cboAbbotName.DisplayMember = "FullName"
                 cboAbbotName.ValueMember = "PersonnelID"
                 cboAbbotName.DataSource = abbotTable
 
-                ' โหลดไวยาวัจกรและผู้ทำบัญชี (Layperson) - JOIN with Positions
-                Dim layTable = Db.GetTable(conn, "SELECT p.PersonnelID, p.Title, p.FirstName, p.LastName, p.FullName, p.PersonType, p.Phone, p.PositionID, pos.PositionName " &
-                                             "FROM Personnel p LEFT JOIN Positions pos ON p.PositionID = pos.PositionID " &
-                                             "WHERE p.PersonType='Layperson' ORDER BY p.FullName")
+                ' โหลดไวยาวัจกรและผู้ทำบัญชี (กรองเฉพาะกลุ่มฆราวาส)
+                Dim layTable = Db.GetTable(conn, "SELECT p.PersonnelID, p.FullName " &
+                                             "FROM Personnel p INNER JOIN Positions pos ON p.PositionID = pos.PositionID " &
+                                             "WHERE pos.PositionGroup = 'ฆราวาส' ORDER BY p.FullName")
 
                 cboWaiyawatName.DisplayMember = "FullName"
                 cboWaiyawatName.ValueMember = "PersonnelID"
@@ -87,17 +87,17 @@ Namespace TempleAccounting
                 ' ดึงรายชื่อผู้ดำรงตำแหน่งจาก TempleSetting โดยใช้ UNION ALL เพื่อเลี่ยงข้อจำกัด JOIN OR ของ Access
                 Dim sql = "SELECT 'เจ้าอาวาส' AS [บทบาทในวัด], p.Title & ' ' & p.FirstName & ' ' & p.LastName AS [ชื่อ-นามสกุล], " &
                          "pos.PositionName AS [ตำแหน่ง], p.PersonType AS [ประเภท], p.Phone AS [เบอร์โทร] " &
-                         "FROM ((TempleSetting t INNER JOIN Personnel p ON t.AbbotID = p.PersonnelID) " &
+                         "FROM ((TempleSetting t INNER JOIN Personnel p ON t.AbbotPersonnelID = p.PersonnelID) " &
                          "LEFT JOIN Positions pos ON p.PositionID = pos.PositionID) " &
                          "UNION ALL " &
                          "SELECT 'ไวยาวัจกร' AS [บทบาทในวัด], p.Title & ' ' & p.FirstName & ' ' & p.LastName AS [ชื่อ-นามสกุล], " &
                          "pos.PositionName AS [ตำแหน่ง], p.PersonType AS [ประเภท], p.Phone AS [เบอร์โทร] " &
-                         "FROM ((TempleSetting t INNER JOIN Personnel p ON t.WaiyawatID = p.PersonnelID) " &
+                         "FROM ((TempleSetting t INNER JOIN Personnel p ON t.WaiyawatPersonnelID = p.PersonnelID) " &
                          "LEFT JOIN Positions pos ON p.PositionID = pos.PositionID) " &
                          "UNION ALL " &
                          "SELECT 'ผู้ทำบัญชี' AS [บทบาทในวัด], p.Title & ' ' & p.FirstName & ' ' & p.LastName AS [ชื่อ-นามสกุล], " &
                          "pos.PositionName AS [ตำแหน่ง], p.PersonType AS [ประเภท], p.Phone AS [เบอร์โทร] " &
-                         "FROM ((TempleSetting t INNER JOIN Personnel p ON t.BookkeeperID = p.PersonnelID) " &
+                         "FROM ((TempleSetting t INNER JOIN Personnel p ON t.BookkeeperPersonnelID = p.PersonnelID) " &
                          "LEFT JOIN Positions pos ON p.PositionID = pos.PositionID)"
 
                 Dim dt = Db.GetTable(conn, sql)
@@ -235,16 +235,16 @@ Namespace TempleAccounting
                 txtTemplePhone.Text = r("TemplePhone")?.ToString()
 
                 ' Load Personnel IDs
-                If r.Table.Columns.Contains("AbbotID") AndAlso Not IsDBNull(r("AbbotID")) Then
-                    cboAbbotName.SelectedValue = r("AbbotID")
+                If r.Table.Columns.Contains("AbbotPersonnelID") AndAlso Not IsDBNull(r("AbbotPersonnelID")) Then
+                    cboAbbotName.SelectedValue = r("AbbotPersonnelID")
                 End If
 
-                If r.Table.Columns.Contains("WaiyawatID") AndAlso Not IsDBNull(r("WaiyawatID")) Then
-                    cboWaiyawatName.SelectedValue = r("WaiyawatID")
+                If r.Table.Columns.Contains("WaiyawatPersonnelID") AndAlso Not IsDBNull(r("WaiyawatPersonnelID")) Then
+                    cboWaiyawatName.SelectedValue = r("WaiyawatPersonnelID")
                 End If
 
-                If r.Table.Columns.Contains("BookkeeperID") AndAlso Not IsDBNull(r("BookkeeperID")) Then
-                    cboBookkeeperName.SelectedValue = r("BookkeeperID")
+                If r.Table.Columns.Contains("BookkeeperPersonnelID") AndAlso Not IsDBNull(r("BookkeeperPersonnelID")) Then
+                    cboBookkeeperName.SelectedValue = r("BookkeeperPersonnelID")
                 End If
 
                 txtPromptPayName.Text = r("PromptPayName")?.ToString()
@@ -290,7 +290,7 @@ Namespace TempleAccounting
                     Db.ExecuteNonQuery(conn, "DELETE FROM TempleSetting")
                     Db.InsertAndGetId(conn,
                         "INSERT INTO TempleSetting (TempleCode,TempleName,TempleAddress,Tambon,Amphoe,Province,PostCode,TemplePhone," &
-                        "PromptPayName,PromptPayID,AbbotID,WaiyawatID,BookkeeperID) " &
+                        "PromptPayName,PromptPayID,AbbotPersonnelID,WaiyawatPersonnelID,BookkeeperPersonnelID) " &
                         "VALUES (@a1,@a2,@a3,@a4,@a5,@a6,@a7,@a8,@a9,@a10,@a11,@a12,@a13)",
                         New Tuple(Of String, Object)("@a1", txtTempleCode.Text.Trim()),
                         New Tuple(Of String, Object)("@a2", txtTempleName.Text.Trim()),
