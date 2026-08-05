@@ -38,7 +38,6 @@ Namespace TempleAccounting
         Private _abbotName As String = ""
         Private _waiyawatName As String = ""
         Private _inspectorName As String = ""
-        Private _bookkeeperName As String = ""
 
         Private _rowFont As Font
         Private _headerFont As Font
@@ -269,7 +268,6 @@ Namespace TempleAccounting
                     Dim templeAddressLine = ""
                     If Not IsDBNull(r!TempleAddress) Then templeAddressLine = CStr(r!TempleAddress).Trim()
                     If Not IsDBNull(r!AbbotName) Then _inspectorName = CStr(r!AbbotName)
-                    If Not IsDBNull(r!BookkeeperName) Then _bookkeeperName = CStr(r!BookkeeperName)
                     Dim tambon = "", amphoe = "", prov = "", post = ""
                     If Not IsDBNull(r!Tambon) Then tambon = CStr(r!Tambon)
                     If Not IsDBNull(r!Amphoe) Then amphoe = CStr(r!Amphoe)
@@ -286,23 +284,21 @@ Namespace TempleAccounting
             Catch
             End Try
 
-            ' ดึงชื่อเจ้าอาวาสและไวยาวัจกรจาก PositionService
+            ' ดึงชื่อเจ้าอาวาสและไวยาวัจกรจาก TempleSetting พร้อมกันในคราวเดียว
             Try
-                Dim abbot = PositionService.GetCurrentAbbot()
-                If abbot.HasValue Then
-                    _abbotName = abbot.Value.FullName
+                Dim sql = "SELECT TS.AbbotPersonnelID, PA.Title & ' ' & PA.FirstName & ' ' & PA.LastName AS AbbotName, " &
+                          "TS.WaiyawatPersonnelID, PW.Title & ' ' & PW.FirstName & ' ' & PW.LastName AS WaiyawatName " &
+                          "FROM (TempleSetting AS TS " &
+                          "LEFT JOIN Personnel AS PA ON TS.AbbotPersonnelID = PA.PersonnelID) " &
+                          "LEFT JOIN Personnel AS PW ON TS.WaiyawatPersonnelID = PW.PersonnelID"
+                Dim dt = Db.GetTable(conn, sql)
+                If dt.Rows.Count > 0 Then
+                    Dim r = dt.Rows(0)
+                    If Not IsDBNull(r!AbbotName) Then _abbotName = r!AbbotName.ToString()
+                    If Not IsDBNull(r!WaiyawatName) Then _waiyawatName = r!WaiyawatName.ToString()
                 End If
             Catch ex As Exception
-                System.Diagnostics.Debug.WriteLine("[IncomeExpenseReport] GetCurrentAbbot error: " & ex.Message)
-            End Try
-
-            Try
-                Dim waiyawat = PositionService.GetCurrentWaiyawat()
-                If waiyawat.HasValue Then
-                    _waiyawatName = waiyawat.Value.FullName
-                End If
-            Catch ex As Exception
-                System.Diagnostics.Debug.WriteLine("[IncomeExpenseReport] GetCurrentWaiyawat error: " & ex.Message)
+                System.Diagnostics.Debug.WriteLine("[IncomeExpenseReport] GetSignatures error: " & ex.Message)
             End Try
         End Sub
 
@@ -678,11 +674,11 @@ Namespace TempleAccounting
             g.DrawString(signatureText, _rowFont, Brushes.Black, New RectangleF(leftBlockX, signY, blockWidth, signHeight), fmtSign)
             g.DrawString(signatureText, _rowFont, Brushes.Black, New RectangleF(rightBlockX, signY, blockWidth, signHeight), fmtSign)
 
-            ' FullName: 12pt Bold, centered (or dots if empty)
+            ' FullName: 12pt Bold, centered in parentheses (or dots if empty)
             Dim nameY = signY + signHeight + verticalGap2
             Dim nameFont As New Font("Tahoma", 12.0!, FontStyle.Bold)
-            Dim abbotDisplay As String = If(String.IsNullOrWhiteSpace(_abbotName), ".....................................", _abbotName)
-            Dim waiyawatDisplay As String = If(String.IsNullOrWhiteSpace(_waiyawatName), ".....................................", _waiyawatName)
+            Dim abbotDisplay As String = If(String.IsNullOrWhiteSpace(_abbotName), ".....................................", "(" & _abbotName & ")")
+            Dim waiyawatDisplay As String = If(String.IsNullOrWhiteSpace(_waiyawatName), ".....................................", "(" & _waiyawatName & ")")
 
             ' Use fitted font to prevent clipping for long names
             Using fittedFont As Font = CreateFittedBoldFont(g, abbotDisplay, nameFont, blockWidth - 8, 9.0F)
