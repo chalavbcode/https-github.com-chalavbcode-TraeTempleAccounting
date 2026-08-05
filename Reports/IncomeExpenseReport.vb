@@ -286,19 +286,22 @@ Namespace TempleAccounting
 
             ' ดึงชื่อเจ้าอาวาสและไวยาวัจกรจาก TempleSetting พร้อมกันในคราวเดียว
             Try
-                Dim sql = "SELECT TS.AbbotPersonnelID, PA.Title & ' ' & PA.FirstName & ' ' & PA.LastName AS AbbotName, " &
-                          "TS.WaiyawatPersonnelID, PW.Title & ' ' & PW.FirstName & ' ' & PW.LastName AS WaiyawatName " &
+                ' ใช้ Personnel.FullName โดยตรงเพื่อหลีกเลี่ยงปัญหา NULL จาก Title/FirstName/LastName
+                Dim sql = "SELECT PA.FullName AS AbbotName, PW.FullName AS WaiyawatName " &
                           "FROM (TempleSetting AS TS " &
                           "LEFT JOIN Personnel AS PA ON TS.AbbotPersonnelID = PA.PersonnelID) " &
                           "LEFT JOIN Personnel AS PW ON TS.WaiyawatPersonnelID = PW.PersonnelID"
                 Dim dt = Db.GetTable(conn, sql)
                 If dt.Rows.Count > 0 Then
                     Dim r = dt.Rows(0)
-                    If Not IsDBNull(r!AbbotName) Then _abbotName = r!AbbotName.ToString()
-                    If Not IsDBNull(r!WaiyawatName) Then _waiyawatName = r!WaiyawatName.ToString()
+                    _abbotName = If(IsDBNull(r!AbbotName), "", r!AbbotName.ToString())
+                    _waiyawatName = If(IsDBNull(r!WaiyawatName), "", r!WaiyawatName.ToString())
+                    ' Debug output
+                    System.Diagnostics.Debug.WriteLine("[IncomeExpenseReport] Abbot = " & _abbotName)
+                    System.Diagnostics.Debug.WriteLine("[IncomeExpenseReport] Waiyawat = " & _waiyawatName)
                 End If
             Catch ex As Exception
-                System.Diagnostics.Debug.WriteLine("[IncomeExpenseReport] GetSignatures error: " & ex.Message)
+                System.Diagnostics.Debug.WriteLine("[IncomeExpenseReport] GetSignatures error: " & ex.ToString())
             End Try
         End Sub
 
