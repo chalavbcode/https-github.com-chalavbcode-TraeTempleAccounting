@@ -827,19 +827,9 @@ Namespace TempleAccounting
             btnSave.Text = "💾 บันทึก"
             btnSave.UseVisualStyleBackColor = False
             ' 
-            ' pHeader
-            ' 
-            pHeader.AutoSize = True
-            pHeader.Controls.Add(lblHeader)
-            pHeader.Dock = DockStyle.Top
-            pHeader.Location = New Point(10, 10)
-            pHeader.Name = "pHeader"
-            pHeader.Size = New Size(880, 0)
-            pHeader.TabIndex = 0
-            ' 
             ' FrmTempleSetting
             ' 
-            AutoScaleDimensions = New SizeF(144F, 144F)
+            AutoScaleDimensions = New SizeF(96F, 96F)
             AutoScaleMode = AutoScaleMode.Dpi
             BackColor = Color.FromArgb(CByte(254), CByte(249), CByte(235))
             ClientSize = New Size(900, 817)
