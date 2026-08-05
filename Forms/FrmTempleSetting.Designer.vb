@@ -49,7 +49,11 @@ Namespace TempleAccounting
         Friend WithEvents chkUsePromptPay As CheckBox
 
         ' Layout
-        Friend WithEvents tlpFields As TableLayoutPanel
+        Friend WithEvents tlpTempleInfo As TableLayoutPanel
+        Friend WithEvents tlpPersonnel As TableLayoutPanel
+        Friend WithEvents gbTempleInfo As GroupBox
+        Friend WithEvents gbPersonnel As GroupBox
+        Friend WithEvents gbPersonnelList As GroupBox
         Friend WithEvents flpButtons As FlowLayoutPanel
 
         ' Buttons
@@ -83,7 +87,8 @@ Namespace TempleAccounting
             ttMain = New ToolTip(components)
             lblHeader = New Label()
             pMain = New Panel()
-            tlpFields = New TableLayoutPanel()
+            gbTempleInfo = New GroupBox()
+            tlpTempleInfo = New TableLayoutPanel()
             lblTempleCode = New Label()
             txtTempleCode = New TextBox()
             lblTempleName = New Label()
@@ -100,17 +105,20 @@ Namespace TempleAccounting
             txtPostCode = New TextBox()
             lblTemplePhone = New Label()
             txtTemplePhone = New TextBox()
+            chkUsePromptPay = New CheckBox()
+            lblPromptPayName = New Label()
+            txtPromptPayName = New TextBox()
+            lblPromptPayID = New Label()
+            txtPromptPayID = New TextBox()
+            gbPersonnel = New GroupBox()
+            tlpPersonnel = New TableLayoutPanel()
             lblAbbotName = New Label()
             cboAbbotName = New ComboBox()
             lblWaiyawatName = New Label()
             cboWaiyawatName = New ComboBox()
             lblBookkeeperName = New Label()
             cboBookkeeperName = New ComboBox()
-            chkUsePromptPay = New CheckBox()
-            lblPromptPayName = New Label()
-            txtPromptPayName = New TextBox()
-            lblPromptPayID = New Label()
-            txtPromptPayID = New TextBox()
+            gbPersonnelList = New GroupBox()
             pnlPersonnelGrid = New Panel()
             lblPersonnelGrid = New Label()
             dgvPersonnel = New DataGridView()
@@ -122,7 +130,11 @@ Namespace TempleAccounting
             btnCancel = New Button()
             btnSave = New Button()
             pMain.SuspendLayout()
-            tlpFields.SuspendLayout()
+            gbTempleInfo.SuspendLayout()
+            tlpTempleInfo.SuspendLayout()
+            gbPersonnel.SuspendLayout()
+            tlpPersonnel.SuspendLayout()
+            gbPersonnelList.SuspendLayout()
             pnlPersonnelGrid.SuspendLayout()
             CType(dgvPersonnel, ISupportInitialize).BeginInit()
             pButtons.SuspendLayout()
