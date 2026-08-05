@@ -8,10 +8,21 @@ Namespace TempleAccounting
         Private _selectedPositionID As Integer = -1
 
         Private Sub FrmPersonnelManagement_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+            LoadPositionCombo()
             LoadPersonnelData()
             LoadPositionData()
             ClearPersonnelEditor()
             ClearPositionEditor()
+        End Sub
+
+        Private Sub LoadPositionCombo()
+            Using conn = Db.OpenConn()
+                Dim dt = Db.GetTable(conn, "SELECT PositionID, PositionName FROM Positions ORDER BY PositionName")
+                cboPositionID.DataSource = dt
+                cboPositionID.DisplayMember = "PositionName"
+                cboPositionID.ValueMember = "PositionID"
+                cboPositionID.SelectedIndex = -1
+            End Using
         End Sub
 
         Private Sub tcMain_SelectedIndexChanged(sender As Object, e As EventArgs) Handles tcMain.SelectedIndexChanged
@@ -25,16 +36,20 @@ Namespace TempleAccounting
         #Region "Personnel Management"
         Private Sub LoadPersonnelData()
             Using conn = Db.OpenConn()
-                Dim dt = Db.GetTable(conn, "SELECT PersonnelID, Title, FirstName, LastName, FullName, PersonType, Phone FROM Personnel ORDER BY FullName")
+                Dim sql = "SELECT p.PersonnelID, p.Title, p.FirstName, p.LastName, p.FullName, p.PersonType, p.Phone, p.PositionID, pos.PositionName " &
+                         "FROM Personnel p LEFT JOIN Positions pos ON p.PositionID = pos.PositionID ORDER BY p.FullName"
+                Dim dt = Db.GetTable(conn, sql)
                 dgvPersonnel.DataSource = dt
                 
                 If dgvPersonnel.Columns.Count > 0 Then
                     dgvPersonnel.Columns("PersonnelID").Visible = False
+                    dgvPersonnel.Columns("PositionID").Visible = False
                     dgvPersonnel.Columns("Title").HeaderText = "คำนำหน้า"
                     dgvPersonnel.Columns("FirstName").HeaderText = "ชื่อ"
                     dgvPersonnel.Columns("LastName").HeaderText = "นามสกุล"
                     dgvPersonnel.Columns("FullName").HeaderText = "ชื่อ-นามสกุล"
                     dgvPersonnel.Columns("PersonType").HeaderText = "ประเภท"
+                    dgvPersonnel.Columns("PositionName").HeaderText = "ตำแหน่ง"
                     dgvPersonnel.Columns("Phone").HeaderText = "เบอร์โทร"
                 End If
             End Using
@@ -46,6 +61,7 @@ Namespace TempleAccounting
             txtFirstName.Clear()
             txtLastName.Clear()
             cboPersonType.SelectedIndex = -1
+            cboPositionID.SelectedIndex = -1
             txtPhone.Clear()
             If tcMain.SelectedTab Is tpPersonnel Then btnDelete.Enabled = False
             txtTitle.Focus()
@@ -60,6 +76,13 @@ Namespace TempleAccounting
                 txtLastName.Text = row.Cells("LastName").Value.ToString()
                 cboPersonType.Text = row.Cells("PersonType").Value.ToString()
                 txtPhone.Text = row.Cells("Phone").Value.ToString()
+                
+                If row.Cells("PositionID").Value IsNot DBNull.Value Then
+                    cboPositionID.SelectedValue = row.Cells("PositionID").Value
+                Else
+                    cboPositionID.SelectedIndex = -1
+                End If
+
                 If tcMain.SelectedTab Is tpPersonnel Then btnDelete.Enabled = True
             End If
         End Sub
@@ -118,24 +141,27 @@ Namespace TempleAccounting
             End If
 
             Dim fullName = $"{txtTitle.Text.Trim()}{txtFirstName.Text.Trim()} {txtLastName.Text.Trim()}"
+            Dim positionID As Object = If(cboPositionID.SelectedValue IsNot Nothing, cboPositionID.SelectedValue, DBNull.Value)
 
             Try
                 Using conn = Db.OpenConn()
                     If _selectedPersonnelID = -1 Then
-                        Db.ExecuteNonQuery(conn, "INSERT INTO Personnel (Title, FirstName, LastName, FullName, PersonType, Phone) VALUES (@t, @f, @l, @fn, @pt, @ph)",
+                        Db.ExecuteNonQuery(conn, "INSERT INTO Personnel (Title, FirstName, LastName, FullName, PersonType, PositionID, Phone) VALUES (@t, @f, @l, @fn, @pt, @pos, @ph)",
                             New Tuple(Of String, Object)("@t", txtTitle.Text.Trim()),
                             New Tuple(Of String, Object)("@f", txtFirstName.Text.Trim()),
                             New Tuple(Of String, Object)("@l", txtLastName.Text.Trim()),
                             New Tuple(Of String, Object)("@fn", fullName),
                             New Tuple(Of String, Object)("@pt", cboPersonType.Text),
+                            New Tuple(Of String, Object)("@pos", positionID),
                             New Tuple(Of String, Object)("@ph", txtPhone.Text.Trim()))
                     Else
-                        Db.ExecuteNonQuery(conn, "UPDATE Personnel SET Title=@t, FirstName=@f, LastName=@l, FullName=@fn, PersonType=@pt, Phone=@ph WHERE PersonnelID=@id",
+                        Db.ExecuteNonQuery(conn, "UPDATE Personnel SET Title=@t, FirstName=@f, LastName=@l, FullName=@fn, PersonType=@pt, PositionID=@pos, Phone=@ph WHERE PersonnelID=@id",
                             New Tuple(Of String, Object)("@t", txtTitle.Text.Trim()),
                             New Tuple(Of String, Object)("@f", txtFirstName.Text.Trim()),
                             New Tuple(Of String, Object)("@l", txtLastName.Text.Trim()),
                             New Tuple(Of String, Object)("@fn", fullName),
                             New Tuple(Of String, Object)("@pt", cboPersonType.Text),
+                            New Tuple(Of String, Object)("@pos", positionID),
                             New Tuple(Of String, Object)("@ph", txtPhone.Text.Trim()),
                             New Tuple(Of String, Object)("@id", _selectedPersonnelID))
                     End If
