@@ -44,7 +44,24 @@ Namespace TempleAccounting
                 TryCreateTable(conn, "BankAccounts", "CREATE TABLE BankAccounts (ID COUNTER PRIMARY KEY, BankName TEXT(100) NOT NULL, AccountNo TEXT(50), AccountName TEXT(200))")
                 TryCreateTable(conn, "Transactions", "CREATE TABLE Transactions (ID COUNTER PRIMARY KEY, TranDate DATETIME NOT NULL, TranType TEXT(10) NOT NULL, CategoryID INTEGER, FundID INTEGER, BankID INTEGER, Detail TEXT(255), Amount CURRENCY NOT NULL, Note MEMO, CreateDate DATETIME DEFAULT Now(), ToFundID INTEGER, ToBankID INTEGER, ReceiptPath TEXT(255))")
                 TryCreateTable(conn, "Personnel", "CREATE TABLE Personnel (PersonnelID COUNTER PRIMARY KEY, Title TEXT(50), FirstName TEXT(100), LastName TEXT(100), FullName TEXT(255), PersonType TEXT(50), PositionID INTEGER, Phone TEXT(50))")
-                TryCreateTable(conn, "Positions", "CREATE TABLE Positions (PositionID COUNTER PRIMARY KEY, PositionName TEXT(100))")
+                TryCreateTable(conn, "Positions", "CREATE TABLE Positions (PositionID COUNTER PRIMARY KEY, PositionName TEXT(100), PositionGroup TEXT(20))")
+
+                ' Migration: Manage columns in Positions
+                Try
+                    Dim columns = conn.GetSchema("Columns", New String() {Nothing, Nothing, "Positions", Nothing})
+                    Dim hasPositionGroup As Boolean = False
+                    For Each row As DataRow In columns.Rows
+                        If Convert.ToString(row("COLUMN_NAME")).Equals("PositionGroup", StringComparison.OrdinalIgnoreCase) Then
+                            hasPositionGroup = True
+                            Exit For
+                        End If
+                    Next
+                    If Not hasPositionGroup Then
+                        ExecuteNonQuery(conn, "ALTER TABLE Positions ADD COLUMN PositionGroup TEXT(20)")
+                    End If
+                Catch ex As Exception
+                    AppPaths.LogCrash(ex, "Db.EnsureSchema.PositionsMigration")
+                End Try
 
                 ' Migration: Manage columns in TempleSetting
                 Try
@@ -151,47 +168,75 @@ Namespace TempleAccounting
         End Sub
 
         Private Sub SeedPositions(conn As OleDbConnection)
-            Dim positions = New String() {
-                "เจ้าอาวาส", "รองเจ้าอาวาส", "ผู้ช่วยเจ้าอาวาส", "เลขานุการเจ้าอาวาส",
-                "พระภิกษุ", "พระลูกวัด", "พระอาจารย์", "สามเณร",
-                "ไวยาวัจกร", "รองไวยาวัจกร", "ผู้ช่วยไวยาวัจกร", "เหรัญญิก",
-                "ผู้ทำบัญชี", "เจ้าหน้าที่การเงิน", "กรรมการวัด", "ผู้ดูแลทรัพย์สิน",
-                "เจ้าหน้าที่สำนักงานวัด", "อาสาสมัคร", "อื่น ๆ"
+            Dim posList = New List(Of (Name As String, Group As String)) From {
+                ("เจ้าอาวาส", "พระ"), ("รองเจ้าอาวาส", "พระ"), ("ผู้ช่วยเจ้าอาวาส", "พระ"), ("เลขานุการเจ้าอาวาส", "พระ"),
+                ("พระภิกษุ", "พระ"), ("พระลูกวัด", "พระ"), ("พระอาจารย์", "พระ"), ("สามเณร", "พระ"),
+                ("ไวยาวัจกร", "ฆราวาส"), ("รองไวยาวัจกร", "ฆราวาส"), ("ผู้ช่วยไวยาวัจกร", "ฆราวาส"), ("เหรัญญิก", "ฆราวาส"),
+                ("ผู้ทำบัญชี", "ฆราวาส"), ("เจ้าหน้าที่การเงิน", "ฆราวาส"), ("กรรมการวัด", "ฆราวาส"), ("ผู้ดูแลทรัพย์สิน", "ฆราวาส"),
+                ("เจ้าหน้าที่สำนักงานวัด", "ฆราวาส"), ("อาสาสมัคร", "ทั่วไป"), ("อื่น ๆ", "ทั่วไป")
             }
             
             Dim insertedCount As Integer = 0
-            For Each posName In positions
-                Dim exists = DbScalar(conn, "SELECT COUNT(*) FROM Positions WHERE PositionName = @n", New Tuple(Of String, Object)("@n", posName))
+            Dim updatedCount As Integer = 0
+
+            For Each pos In posList
+                Dim exists = DbScalar(conn, "SELECT COUNT(*) FROM Positions WHERE PositionName = @n", New Tuple(Of String, Object)("@n", pos.Name))
                 If CInt(exists) = 0 Then
-                    ExecuteNonQuery(conn, "INSERT INTO Positions (PositionName) VALUES (@n)", New Tuple(Of String, Object)("@n", posName))
+                    ExecuteNonQuery(conn, "INSERT INTO Positions (PositionName, PositionGroup) VALUES (@n, @g)", 
+                                    New Tuple(Of String, Object)("@n", pos.Name),
+                                    New Tuple(Of String, Object)("@g", pos.Group))
                     insertedCount += 1
+                Else
+                    ' Update group for existing records if needed
+                    ExecuteNonQuery(conn, "UPDATE Positions SET PositionGroup = @g WHERE PositionName = @n", 
+                                    New Tuple(Of String, Object)("@g", pos.Group),
+                                    New Tuple(Of String, Object)("@n", pos.Name))
+                    updatedCount += 1
                 End If
             Next
             
-            If insertedCount > 0 Then
-                System.Diagnostics.Debug.WriteLine($"[SeedPositions] Inserted {insertedCount} positions.")
+            If insertedCount > 0 OrElse updatedCount > 0 Then
+                System.Diagnostics.Debug.WriteLine($"[SeedPositions] Inserted {insertedCount}, Updated {updatedCount} positions.")
             End If
         End Sub
 
         Private Sub SeedPersonnel(conn As OleDbConnection)
-            Dim count As Integer = CInt(DbScalar(conn, "SELECT COUNT(*) FROM Personnel"))
-            If count > 0 Then Return
-            
-            ' Seed Personnel (Default records)
-            Dim list = New List(Of (Title As String, First As String, Last As String, PType As String)) From {
-                ("พระอธิการ", "สมชาย", "ขันติโก", "Monk"),
-                ("นาย", "มานะ", "มีบุญ", "Layperson"),
-                ("นางสาว", "ใจดี", "รักเรียน", "Layperson")
+            ' Sample records provided by user
+            Dim samples = New List(Of (Title As String, First As String, Last As String, PosName As String, PType As String)) From {
+                ("พระครูสมุห์", "สมชาย", "", "เจ้าอาวาส", "Monk"),
+                ("พระมหา", "วิทยา", "", "พระภิกษุ", "Monk"),
+                ("นาย", "สมศักดิ์", "ใจดี", "ไวยาวัจกร", "Layperson"),
+                ("นาย", "ประเสริฐ", "บุญมี", "เหรัญญิก", "Layperson"),
+                ("นางสาว", "พรทิพย์", "สุขใจ", "ผู้ทำบัญชี", "Layperson"),
+                ("นาย", "อนันต์", "แสงทอง", "กรรมการวัด", "Layperson")
             }
-            For Each item In list
-                Dim fullName = $"{item.Title}{item.First} {item.Last}"
-                ExecuteNonQuery(conn, "INSERT INTO Personnel (Title, FirstName, LastName, FullName, PersonType) VALUES (@t, @f, @l, @fn, @pt)",
-                                New Tuple(Of String, Object)("@t", item.Title),
-                                New Tuple(Of String, Object)("@f", item.First),
-                                New Tuple(Of String, Object)("@l", item.Last),
-                                New Tuple(Of String, Object)("@fn", fullName),
-                                New Tuple(Of String, Object)("@pt", item.PType))
+
+            Dim insertedCount As Integer = 0
+
+            For Each item In samples
+                Dim fullName = $"{item.Title}{item.First}"
+                If Not String.IsNullOrWhiteSpace(item.Last) Then fullName &= $" {item.Last}"
+
+                ' Check for duplicates
+                Dim exists = DbScalar(conn, "SELECT COUNT(*) FROM Personnel WHERE FullName = @fn", New Tuple(Of String, Object)("@fn", fullName))
+                If CInt(exists) = 0 Then
+                    ' Lookup PositionID
+                    Dim posId = DbScalar(conn, "SELECT PositionID FROM Positions WHERE PositionName = @pn", New Tuple(Of String, Object)("@pn", item.PosName))
+                    
+                    ExecuteNonQuery(conn, "INSERT INTO Personnel (Title, FirstName, LastName, FullName, PersonType, PositionID) VALUES (@t, @f, @l, @fn, @pt, @pid)",
+                                    New Tuple(Of String, Object)("@t", item.Title),
+                                    New Tuple(Of String, Object)("@f", item.First),
+                                    New Tuple(Of String, Object)("@l", item.Last),
+                                    New Tuple(Of String, Object)("@fn", fullName),
+                                    New Tuple(Of String, Object)("@pt", item.PType),
+                                    New Tuple(Of String, Object)("@pid", If(posId Is Nothing, DBNull.Value, posId)))
+                    insertedCount += 1
+                End If
             Next
+
+            If insertedCount > 0 Then
+                System.Diagnostics.Debug.WriteLine($"[SeedPersonnel] Inserted {insertedCount} sample records.")
+            End If
         End Sub
 
         Private Sub TryCreateTable(conn As OleDbConnection, tableName As String, sql As String)
