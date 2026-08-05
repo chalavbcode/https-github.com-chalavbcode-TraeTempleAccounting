@@ -667,10 +667,8 @@ Namespace TempleAccounting
             ' 
             txtTempleCode.Dock = DockStyle.Fill
             txtTempleCode.Font = New Font("Tahoma", 10F)
-            txtTempleCode.Location = New Point(89, 4)
             txtTempleCode.Margin = New Padding(4)
             txtTempleCode.Name = "txtTempleCode"
-            txtTempleCode.Size = New Size(721, 32)
             txtTempleCode.TabIndex = 1
             ' 
             ' lblTempleName
@@ -678,10 +676,8 @@ Namespace TempleAccounting
             lblTempleName.AutoSize = True
             lblTempleName.Dock = DockStyle.Fill
             lblTempleName.Font = New Font("Tahoma", 10F)
-            lblTempleName.Location = New Point(4, 44)
             lblTempleName.Margin = New Padding(4)
             lblTempleName.Name = "lblTempleName"
-            lblTempleName.Size = New Size(77, 32)
             lblTempleName.TabIndex = 2
             lblTempleName.Text = "ชื่อวัด:"
             lblTempleName.TextAlign = ContentAlignment.MiddleRight
@@ -690,10 +686,8 @@ Namespace TempleAccounting
             ' 
             txtTempleName.Dock = DockStyle.Fill
             txtTempleName.Font = New Font("Tahoma", 10F)
-            txtTempleName.Location = New Point(89, 44)
             txtTempleName.Margin = New Padding(4)
             txtTempleName.Name = "txtTempleName"
-            txtTempleName.Size = New Size(721, 32)
             txtTempleName.TabIndex = 3
             ' 
             ' lblTempleAddress
@@ -701,10 +695,8 @@ Namespace TempleAccounting
             lblTempleAddress.AutoSize = True
             lblTempleAddress.Dock = DockStyle.Fill
             lblTempleAddress.Font = New Font("Tahoma", 10F)
-            lblTempleAddress.Location = New Point(4, 84)
             lblTempleAddress.Margin = New Padding(4)
             lblTempleAddress.Name = "lblTempleAddress"
-            lblTempleAddress.Size = New Size(77, 31)
             lblTempleAddress.TabIndex = 4
             lblTempleAddress.Text = "ที่อยู่วัด:"
             lblTempleAddress.TextAlign = ContentAlignment.TopRight
@@ -713,12 +705,10 @@ Namespace TempleAccounting
             ' 
             txtTempleAddress.Dock = DockStyle.Fill
             txtTempleAddress.Font = New Font("Tahoma", 10F)
-            txtTempleAddress.Location = New Point(89, 84)
             txtTempleAddress.Margin = New Padding(4)
             txtTempleAddress.Multiline = True
             txtTempleAddress.Name = "txtTempleAddress"
             txtTempleAddress.ScrollBars = ScrollBars.Vertical
-            txtTempleAddress.Size = New Size(721, 31)
             txtTempleAddress.TabIndex = 5
             ' 
             ' pBottom
@@ -726,9 +716,7 @@ Namespace TempleAccounting
             pBottom.BackColor = Color.FromArgb(CByte(241), CByte(245), CByte(249))
             pBottom.Controls.Add(flpButtons)
             pBottom.Dock = DockStyle.Bottom
-            pBottom.Location = New Point(10, 742)
             pBottom.Name = "pBottom"
-            pBottom.Size = New Size(880, 65)
             pBottom.TabIndex = 1
             ' 
             ' flpButtons
@@ -741,10 +729,8 @@ Namespace TempleAccounting
             flpButtons.Controls.Add(btnSave)
             flpButtons.Dock = DockStyle.Fill
             flpButtons.FlowDirection = FlowDirection.RightToLeft
-            flpButtons.Location = New Point(0, 0)
             flpButtons.Name = "flpButtons"
             flpButtons.Padding = New Padding(10, 8, 10, 8)
-            flpButtons.Size = New Size(880, 65)
             flpButtons.TabIndex = 0
             ' 
             ' btnClose
@@ -753,7 +739,6 @@ Namespace TempleAccounting
             btnClose.FlatStyle = FlatStyle.Flat
             btnClose.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             btnClose.ForeColor = Color.White
-            btnClose.Location = New Point(730, 8)
             btnClose.Margin = New Padding(6, 0, 0, 0)
             btnClose.Name = "btnClose"
             btnClose.Size = New Size(130, 45)
@@ -767,7 +752,6 @@ Namespace TempleAccounting
             btnManagePersonnel.FlatStyle = FlatStyle.Flat
             btnManagePersonnel.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             btnManagePersonnel.ForeColor = Color.White
-            btnManagePersonnel.Location = New Point(594, 8)
             btnManagePersonnel.Margin = New Padding(6, 0, 0, 0)
             btnManagePersonnel.Name = "btnManagePersonnel"
             btnManagePersonnel.Size = New Size(130, 45)
@@ -781,7 +765,6 @@ Namespace TempleAccounting
             btnLocationImport.FlatStyle = FlatStyle.Flat
             btnLocationImport.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             btnLocationImport.ForeColor = Color.White
-            btnLocationImport.Location = New Point(458, 8)
             btnLocationImport.Margin = New Padding(6, 0, 0, 0)
             btnLocationImport.Name = "btnLocationImport"
             btnLocationImport.Size = New Size(130, 45)
@@ -795,7 +778,6 @@ Namespace TempleAccounting
             btnCancel.FlatStyle = FlatStyle.Flat
             btnCancel.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             btnCancel.ForeColor = Color.White
-            btnCancel.Location = New Point(322, 8)
             btnCancel.Margin = New Padding(6, 0, 0, 0)
             btnCancel.Name = "btnCancel"
             btnCancel.Size = New Size(130, 45)
@@ -809,7 +791,6 @@ Namespace TempleAccounting
             btnSave.FlatStyle = FlatStyle.Flat
             btnSave.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             btnSave.ForeColor = Color.White
-            btnSave.Location = New Point(186, 8)
             btnSave.Margin = New Padding(6, 0, 0, 0)
             btnSave.Name = "btnSave"
             btnSave.Size = New Size(130, 45)
