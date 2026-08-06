@@ -27,6 +27,7 @@ Namespace TempleAccounting
 
         Private Sub FrmReports_Load(sender As Object, e As EventArgs) Handles MyBase.Load
             Try
+                Me.KeyPreview = True
                 HelpSystem.SetupHelp(Me, "FrmReports")
                 Db.EnsureSchema()
                 Using conn = Db.OpenConn()
@@ -41,6 +42,14 @@ Namespace TempleAccounting
             Catch ex As Exception
                 Throw
             End Try
+        End Sub
+
+        Private Sub FrmReports_KeyDown(sender As Object, e As KeyEventArgs) Handles Me.KeyDown
+            If e.KeyCode = Keys.F1 Then
+                e.Handled = True
+                e.SuppressKeyPress = True
+                HelpSystem.ShowManual("FrmReports")
+            End If
         End Sub
 
         Private Sub SetupToolTips()

@@ -23,6 +23,7 @@ Namespace TempleAccounting
 
         Private Sub FrmTempleSetting_Load(sender As Object, e As EventArgs) Handles MyBase.Load
             Try
+                Me.KeyPreview = True
                 HelpSystem.SetupHelp(Me, "FrmTempleSetting")
                 ' ตรวจสอบและสร้าง Schema หากยังไม่มี
                 Db.EnsureSchema()
@@ -56,6 +57,14 @@ Namespace TempleAccounting
                                MessageBoxIcon.Error)
                 System.Diagnostics.Debug.WriteLine("[FrmTempleSetting] Load Error: " & ex.ToString())
             End Try
+        End Sub
+
+        Private Sub FrmTempleSetting_KeyDown(sender As Object, e As KeyEventArgs) Handles Me.KeyDown
+            If e.KeyCode = Keys.F1 Then
+                e.Handled = True
+                e.SuppressKeyPress = True
+                HelpSystem.ShowManual("FrmTempleSetting")
+            End If
         End Sub
 
         Private Sub LoadPersonnel()

@@ -38,11 +38,21 @@ Namespace TempleAccounting
 
         Private Sub FrmMain_Load(sender As Object, e As EventArgs)
             Try
+                Me.KeyPreview = True
+                HelpSystem.SetupHelp(Me, "FrmMain")
                 Dim tt As New ToolTip()
                 tt.SetToolTip(lblStatusCenter, "ดับเบิ้ลคลิก: เปิดโฟลเดอร์ฐานข้อมูล" & vbCrLf & "คลิกขวา: คัดลอกที่อยู่ไฟล์ฐานข้อมูล" & vbCrLf & "ไฟล์: " & AppPaths.DatabaseFile)
             Catch
             End Try
             ShowDashboard()
+        End Sub
+
+        Private Sub FrmMain_KeyDown(sender As Object, e As KeyEventArgs) Handles Me.KeyDown
+            If e.KeyCode = Keys.F1 Then
+                e.Handled = True
+                e.SuppressKeyPress = True
+                HelpSystem.ShowManual("FrmMain")
+            End If
         End Sub
 
         Private Sub StatusCenter_DoubleClick(sender As Object, e As EventArgs)

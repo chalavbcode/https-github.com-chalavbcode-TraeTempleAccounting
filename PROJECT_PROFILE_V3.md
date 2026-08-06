@@ -82,3 +82,11 @@
 - **Main Title:** `สรุปบัญชีรายรับ - รายจ่าย`.
 - **Date String:** `ประจำปี พ.ศ. ... ตั้งแต่วันที่ (๑ ... พ.ศ. ... – ๓๑ ... พ.ศ. ...)`.
 - **Indicator:** Report type labels like `(แบบย่อ)` or `(แบบละเอียด)` must be appended to the date line using the smaller signature font size (10pt).
+
+### 6. Contextual Help System (F1 Shortcut)
+- **Problem:** Users unable to access help documentation quickly.
+- **Rule:** Every primary form MUST implement F1 support.
+    - **KeyPreview:** Set `Me.KeyPreview = True` in `Form_Load`.
+    - **KeyDown Handler:** Use `Handles Me.KeyDown` to catch `Keys.F1`.
+    - **Logic:** Call `HelpSystem.ShowManual("FormName")` and set `e.Handled = True` / `e.SuppressKeyPress = True`.
+    - **Visual Hint:** Call `HelpSystem.SetupHelp(Me, "FormName")` in `Form_Load` to add the Status Bar instruction label.
