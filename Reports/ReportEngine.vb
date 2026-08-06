@@ -474,7 +474,8 @@ Namespace TempleAccounting
                                   fromDate As Date, toDate As Date,
                                   titleFont As Font, subtitleFont As Font,
                                   startX As Integer, startY As Integer, pageWidth As Integer,
-                                  Optional pageNumber As Integer = 0, Optional totalPages As Integer = 0) As Integer
+                                  Optional pageNumber As Integer = 0, Optional totalPages As Integer = 0,
+                                  Optional reportType As String = "") As Integer
             
             ' Safety Check: Graphics object must exist
             If g Is Nothing Then Return startY
@@ -538,9 +539,32 @@ Namespace TempleAccounting
             If displayYear < 2400 Then displayYear += 543
             
             Dim dateLabel = "ประจำปี พ.ศ. " & ThaiNumerals(displayYear.ToString()) &
-                           "    ตั้งแต่วันที่ ( " & ToBuddhistFull(safeFromDate) & " – " & ToBuddhistFull(safeToDate) & " )"
-            g.DrawString(dateLabel, safeSubtitleFont, Brushes.Black,
-                         New RectangleF(startX, y, pageWidth - 2 * startX, 30), fmtC)
+                           "    ตั้งแต่วันที่ " & ToBuddhistFull(safeFromDate) & " – " & ToBuddhistFull(safeToDate)
+            
+            If String.IsNullOrEmpty(reportType) Then
+                ' No report type, just draw centered as usual
+                g.DrawString(dateLabel, safeSubtitleFont, Brushes.Black,
+                             New RectangleF(startX, y, pageWidth - 2 * startX, 30), fmtC)
+            else
+                ' Draw dateLabel and reportType together centered
+                ' Use 10pt for reportType to match signature positions
+                Using smallFont As New Font(safeSubtitleFont.FontFamily, 10.0!, FontStyle.Regular)
+                    Dim reportTypeText = " " & reportType.Trim()
+                    
+                    ' Measure both parts
+                    Dim sizeDate = g.MeasureString(dateLabel, safeSubtitleFont)
+                    Dim sizeType = g.MeasureString(reportTypeText, smallFont)
+                    
+                    Dim totalWidth = sizeDate.Width + sizeType.Width
+                    Dim currentX = (pageWidth - totalWidth) / 2
+                    
+                    ' Draw date label
+                    g.DrawString(dateLabel, safeSubtitleFont, Brushes.Black, currentX, y + (30 - sizeDate.Height) / 2)
+                    
+                    ' Draw report type with smaller font
+                    g.DrawString(reportTypeText, smallFont, Brushes.Black, currentX + sizeDate.Width, y + (30 - sizeType.Height) / 2)
+                End Using
+            End If
             y += 36
 
             ' Draw page number in upper-right corner
