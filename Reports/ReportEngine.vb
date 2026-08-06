@@ -394,9 +394,18 @@ Namespace TempleAccounting
         End Sub
 
         ''' <summary>
+        ''' Get a safe font or create a fallback if the font is Nothing
+        ''' </summary>
+        Private Function GetSafeFont(f As Font, Optional defaultSize As Single = 10.0!, Optional defaultStyle As FontStyle = FontStyle.Regular) As Font
+            If f IsNot Nothing Then Return f
+            Return New Font("Tahoma", defaultSize, defaultStyle)
+        End Function
+
+        ''' <summary>
         ''' Draw a page border around the printable area
         ''' </summary>
         Public Sub DrawBorder(g As Graphics, left As Integer, top As Integer, width As Integer, height As Integer, Optional pen As Pen = Nothing)
+            If g Is Nothing Then Return
             If pen Is Nothing Then
                 pen = New Pen(Color.Black, 1)
             End If
@@ -407,6 +416,9 @@ Namespace TempleAccounting
         ''' Draw page number in format "หน้า X" at bottom center of page
         ''' </summary>
         Public Sub DrawPageNumber(g As Graphics, pageIndex As Integer, totalPages As Integer, pageBottom As Integer, pageWidth As Integer, font As Font, Optional showTotal As Boolean = True)
+            If g Is Nothing Then Return
+            
+            Dim safeFont = GetSafeFont(font)
             Dim pageNumText As String
             If showTotal AndAlso totalPages > 0 Then
                 pageNumText = "หน้า " & ThaiNumerals(pageIndex.ToString()) & " / " & ThaiNumerals(totalPages.ToString())
@@ -419,17 +431,22 @@ Namespace TempleAccounting
                 .LineAlignment = StringAlignment.Center
             }
 
-            Dim textSize = g.MeasureString(pageNumText, font)
+            Dim textSize = g.MeasureString(pageNumText, safeFont)
             Dim x = (pageWidth - textSize.Width) / 2
             Dim y = pageBottom + 8
 
-            g.DrawString(pageNumText, font, Brushes.Black, New RectangleF(x, y, textSize.Width, textSize.Height), fmt)
+            g.DrawString(pageNumText, safeFont, Brushes.Black, New RectangleF(x, y, textSize.Width, textSize.Height), fmt)
+            
+            ' Dispose safeFont if it was created as a fallback
+            If font Is Nothing AndAlso safeFont IsNot Nothing Then safeFont.Dispose()
         End Sub
 
         ''' <summary>
         ''' Draw top border line (double line for official look)
         ''' </summary>
         Public Sub DrawTopBorder(g As Graphics, x As Integer, y As Integer, width As Integer, pen As Pen, Optional gap As Integer = 3)
+            If g Is Nothing Then Return
+            If pen Is Nothing Then pen = Pens.Black
             g.DrawLine(pen, x, y, x + width, y)
             g.DrawLine(pen, x, y + gap, x + width, y + gap)
         End Sub
@@ -444,6 +461,19 @@ Namespace TempleAccounting
                                   titleFont As Font, subtitleFont As Font,
                                   startX As Integer, startY As Integer, pageWidth As Integer,
                                   Optional pageNumber As Integer = 0, Optional totalPages As Integer = 0) As Integer
+            
+            ' Safety Check: Graphics object must exist
+            If g Is Nothing Then Return startY
+
+            ' Safety Check: Fallback values for Thai text to prevent NullReferenceException
+            title = If(String.IsNullOrWhiteSpace(title), "รายงาน", title.Trim())
+            templeName = If(String.IsNullOrWhiteSpace(templeName), "วัด (ไม่ได้ระบุชื่อ)", templeName.Trim())
+            templeAddress = If(String.IsNullOrWhiteSpace(templeAddress), "-", templeAddress.Trim())
+
+            ' Safety Check: Font fallback to prevent crash if font is Nothing
+            Dim safeTitleFont As Font = GetSafeFont(titleFont, 16.0!, FontStyle.Bold)
+            Dim safeSubtitleFont As Font = GetSafeFont(subtitleFont, 12.0!, FontStyle.Bold)
+
             Dim fmtC As New StringFormat() With {
                 .Alignment = StringAlignment.Center,
                 .LineAlignment = StringAlignment.Center
@@ -451,22 +481,18 @@ Namespace TempleAccounting
             Dim y = startY
 
             ' Report title
-            g.DrawString(title, titleFont, Brushes.Black,
+            g.DrawString(title, safeTitleFont, Brushes.Black,
                          New RectangleF(startX, y, pageWidth - 2 * startX, 36), fmtC)
             y += 36
 
             ' Temple name and address
-            Dim templeInfo = templeName.Trim()
-            If Not String.IsNullOrEmpty(templeAddress.Trim()) Then
-                If Not String.IsNullOrEmpty(templeInfo) Then
-                    templeInfo &= "  " & templeAddress.Trim()
-                Else
-                    templeInfo = templeAddress.Trim()
-                End If
+            Dim templeInfo = templeName
+            If Not String.IsNullOrEmpty(templeAddress) AndAlso templeAddress <> "-" Then
+                templeInfo &= "  " & templeAddress
             End If
 
             If Not String.IsNullOrEmpty(templeInfo) Then
-                g.DrawString(ThaiNumerals(templeInfo), subtitleFont, Brushes.Black,
+                g.DrawString(ThaiNumerals(templeInfo), safeSubtitleFont, Brushes.Black,
                              New RectangleF(startX, y, pageWidth - 2 * startX, 30), fmtC)
                 y += 30
             End If
@@ -475,14 +501,18 @@ Namespace TempleAccounting
             Dim yearB = (fromDate.Year + 543)
             Dim dateLabel = "ประจำปี พ.ศ. " & ThaiNumerals(yearB.ToString()) &
                            "    ตั้งแต่วันที่ ( " & ToBuddhistFull(fromDate) & " – " & ToBuddhistFull(toDate) & " )"
-            g.DrawString(dateLabel, subtitleFont, Brushes.Black,
+            g.DrawString(dateLabel, safeSubtitleFont, Brushes.Black,
                          New RectangleF(startX, y, pageWidth - 2 * startX, 30), fmtC)
             y += 36
 
             ' Draw page number in upper-right corner
             If pageNumber > 0 Then
-                DrawPageNumberCorner(g, pageNumber, totalPages, startX, pageWidth, startY, titleFont)
+                DrawPageNumberCorner(g, pageNumber, totalPages, startX, pageWidth, startY, safeTitleFont)
             End If
+
+            ' Clean up local fallback fonts if they were created here
+            If titleFont Is Nothing AndAlso safeTitleFont IsNot Nothing Then safeTitleFont.Dispose()
+            If subtitleFont Is Nothing AndAlso safeSubtitleFont IsNot Nothing Then safeSubtitleFont.Dispose()
 
             Return y
         End Function
@@ -493,6 +523,9 @@ Namespace TempleAccounting
         ''' </summary>
         Private Sub DrawPageNumberCorner(g As Graphics, pageNumber As Integer, totalPages As Integer,
                                         startX As Integer, pageWidth As Integer, headerTop As Integer, font As Font)
+            If g Is Nothing Then Return
+            Dim safeFont = GetSafeFont(font, 10.0!, FontStyle.Bold)
+            
             Dim pageNumText As String
             If totalPages > 0 Then
                 pageNumText = "หน้า " & ToThaiNumber(pageNumber) & " / " & ToThaiNumber(totalPages)
@@ -505,11 +538,14 @@ Namespace TempleAccounting
                 .LineAlignment = StringAlignment.Near
             }
 
-            Dim textWidth = g.MeasureString(pageNumText, font).Width
+            Dim textWidth = g.MeasureString(pageNumText, safeFont).Width
             Dim x = pageWidth - startX - CInt(textWidth) - 8
             Dim y = headerTop + 4
 
-            g.DrawString(pageNumText, font, Brushes.Black, New RectangleF(x, y, textWidth + 20, 30), fmtR)
+            g.DrawString(pageNumText, safeFont, Brushes.Black, New RectangleF(x, y, textWidth + 20, 30), fmtR)
+            
+            ' Dispose safeFont if it was created as a fallback
+            If font Is Nothing AndAlso safeFont IsNot Nothing Then safeFont.Dispose()
         End Sub
 
         ''' <summary>
@@ -610,20 +646,23 @@ Namespace TempleAccounting
         ''' Create a fitted font that scales down text to fit within maxWidth
         ''' </summary>
         Public Function CreateFittedFont(g As Graphics, text As String, baseFont As Font, maxWidth As Integer, minSize As Single, Optional style As FontStyle = FontStyle.Regular) As Font
-            Dim size = baseFont.Size
-            Dim bestFit As Font = baseFont
-            If style = FontStyle.Regular AndAlso baseFont.Style <> FontStyle.Regular Then
-                style = baseFont.Style
+            If g Is Nothing Then Return baseFont
+            Dim safeFont = GetSafeFont(baseFont)
+            
+            Dim size = safeFont.Size
+            Dim bestFit As Font = safeFont
+            If style = FontStyle.Regular AndAlso safeFont.Style <> FontStyle.Regular Then
+                style = safeFont.Style
             End If
 
             While size >= minSize
-                Dim trial As New Font(baseFont.FontFamily, size, style)
+                Dim trial As New Font(safeFont.FontFamily, size, style)
                 Dim textSize = g.MeasureString(text, trial, Integer.MaxValue, New StringFormat(StringFormatFlags.NoWrap))
                 If textSize.Width <= maxWidth Then
-                    If Not Object.ReferenceEquals(bestFit, baseFont) Then bestFit.Dispose()
+                    If Not Object.ReferenceEquals(bestFit, safeFont) Then bestFit.Dispose()
                     Return trial
                 End If
-                If Not Object.ReferenceEquals(bestFit, baseFont) Then bestFit.Dispose()
+                If Not Object.ReferenceEquals(bestFit, safeFont) Then bestFit.Dispose()
                 bestFit = trial
                 size -= 0.5F
             End While
@@ -635,18 +674,26 @@ Namespace TempleAccounting
         ''' Draw a centered string with the specified font
         ''' </summary>
         Public Sub DrawCenteredString(g As Graphics, text As String, font As Font, brush As Brush, x As Single, y As Single, width As Single, height As Single)
+            If g Is Nothing Then Return
+            Dim safeFont = GetSafeFont(font)
+            
             Dim fmt As New StringFormat() With {
                 .Alignment = StringAlignment.Center,
                 .LineAlignment = StringAlignment.Center,
                 .FormatFlags = StringFormatFlags.NoWrap
             }
-            g.DrawString(text, font, brush, New RectangleF(x, y, width, height), fmt)
+            g.DrawString(text, safeFont, brush, New RectangleF(x, y, width, height), fmt)
+            
+            ' Dispose safeFont if it was created as a fallback
+            If font Is Nothing AndAlso safeFont IsNot Nothing Then safeFont.Dispose()
         End Sub
 
         ''' <summary>
         ''' Draw a dotted signature line
         ''' </summary>
         Public Sub DrawDottedLine(g As Graphics, x As Integer, y As Integer, width As Integer, Optional dotSpacing As Integer = 8, Optional dotRadius As Single = 1.5F)
+            If g Is Nothing Then Return
+            
             Dim dotCount As Integer = CInt(width / dotSpacing)
             Dim totalDotsWidth As Integer = dotCount * dotSpacing
             Dim startX As Integer = x + CInt((width - totalDotsWidth) / 2) + CInt(dotSpacing / 2)
@@ -663,7 +710,15 @@ Namespace TempleAccounting
         ''' Measure string width without wrapping
         ''' </summary>
         Public Function MeasureStringWidth(g As Graphics, text As String, font As Font) As SizeF
-            Return g.MeasureString(text, font, Integer.MaxValue, New StringFormat(StringFormatFlags.NoWrap))
+            If g Is Nothing Then Return SizeF.Empty
+            Dim safeFont = GetSafeFont(font)
+            
+            Dim size = g.MeasureString(text, safeFont, Integer.MaxValue, New StringFormat(StringFormatFlags.NoWrap))
+            
+            ' Dispose safeFont if it was created as a fallback
+            If font Is Nothing AndAlso safeFont IsNot Nothing Then safeFont.Dispose()
+            
+            Return size
         End Function
 
         ''' <summary>
@@ -698,6 +753,11 @@ Namespace TempleAccounting
                                           boldFont As Font, rowFont As Font,
                                           Optional dotSpacing As Integer = 8, Optional dotRadius As Single = 1.5F,
                                           Optional signLineWidth As Integer = 280) As Integer
+
+            If g Is Nothing Then Return currentY
+            
+            Dim safeBoldFont = GetSafeFont(boldFont, 10.0!, FontStyle.Bold)
+            Dim safeRowFont = GetSafeFont(rowFont, 10.0!)
 
             Const labelHeight As Integer = 26
             Const labelToSignLine As Integer = 50
@@ -735,7 +795,7 @@ Namespace TempleAccounting
 
             ' === DRAW LEFT BLOCK ===
             ' Title
-            g.DrawString(leftTitle, boldFont, Brushes.Black,
+            g.DrawString(leftTitle, safeBoldFont, Brushes.Black,
                         New RectangleF(leftBlockX, signatureLabelY, blockWidth, labelHeight), fmtTitle)
 
             ' Dotted signature line
@@ -750,12 +810,12 @@ Namespace TempleAccounting
             End Using
 
             ' Position
-            g.DrawString(leftPosition, rowFont, Brushes.Black,
+            g.DrawString(leftPosition, safeRowFont, Brushes.Black,
                         New RectangleF(leftBlockX, signaturePositionY, blockWidth, positionHeight), fmtTitle)
 
             ' === DRAW RIGHT BLOCK ===
             ' Title
-            g.DrawString(rightTitle, boldFont, Brushes.Black,
+            g.DrawString(rightTitle, safeBoldFont, Brushes.Black,
                         New RectangleF(rightBlockX, signatureLabelY, blockWidth, labelHeight), fmtTitle)
 
             ' Dotted signature line
@@ -770,8 +830,12 @@ Namespace TempleAccounting
             End Using
 
             ' Position
-            g.DrawString(rightPosition, rowFont, Brushes.Black,
+            g.DrawString(rightPosition, safeRowFont, Brushes.Black,
                         New RectangleF(rightBlockX, signaturePositionY, blockWidth, positionHeight), fmtTitle)
+
+            ' Dispose safe fonts if they were created as fallbacks
+            If boldFont Is Nothing AndAlso safeBoldFont IsNot Nothing Then safeBoldFont.Dispose()
+            If rowFont Is Nothing AndAlso safeRowFont IsNot Nothing Then safeRowFont.Dispose()
 
             Return signaturePositionY + positionHeight
         End Function

@@ -699,9 +699,19 @@ Namespace TempleAccounting
                 Dim template = ReportEngine.GetTemplateInfo()
                 _reportInfo = New ReportInfo(reportTitle, template.TempleName, template.TempleAddress, _fromDate, _toDate)
             End If
-            _pageY = ReportEngine.DrawHeader(g, _reportInfo.ReportTitle, _reportInfo.TempleName, _reportInfo.TempleAddress,
+
+            ' Safety check for _reportInfo properties before sending to DrawHeader
+            Dim title = If(_reportInfo.ReportTitle, "รายงานรายรับ-รายจ่าย")
+            Dim templeName = If(_reportInfo.TempleName, "วัด (ไม่ได้ระบุชื่อ)")
+            Dim templeAddress = If(_reportInfo.TempleAddress, "-")
+
+            ' Safety check for fonts
+            Dim titleFont = If(_theme?.TitleFont, New Font("Tahoma", 16, FontStyle.Bold))
+            Dim subtitleFont = If(_theme?.SubTitleFont, New Font("Tahoma", 12, FontStyle.Bold))
+
+            _pageY = ReportEngine.DrawHeader(g, title, templeName, templeAddress,
                                             _reportInfo.FromDate, _reportInfo.ToDate,
-                                            _theme.TitleFont, _theme.SubTitleFont, _startX, _pageY, pageW,
+                                            titleFont, subtitleFont, _startX, _pageY, pageW,
                                             pageNumber, totalPages)
         End Sub
 
