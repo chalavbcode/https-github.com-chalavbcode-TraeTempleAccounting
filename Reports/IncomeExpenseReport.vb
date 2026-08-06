@@ -392,75 +392,83 @@ Namespace TempleAccounting
                 DrawTableHeader(g, rowH, colW1, colW2, colW3, colW4)
             End If
 
-            ' Dynamic pagination: draw rows until we run out of space
-            While _rowIndex < totalRows
-                ' Check if we can fit the next row
-                If _pageY + rowH > _pageBottom Then
-                    ' Cannot fit this row - need new page (middle page, no signatures)
-                    e.HasMorePages = True
-                    _pageIndex += 1
-                    Return
-                End If
+            ' Fixed standard for rows per page
+            Dim maxRowsPerPage = 15
+            Dim rowsProcessedThisPage = 0
+            
+            ' Draw rows (up to maxRowsPerPage) only if we haven't finished all data
+            ' OR if we are on a page that should have a grid
+            If _rowIndex < totalRows Then
+                For i As Integer = 0 To maxRowsPerPage - 1
+                    Dim y = _pageY
+                    Dim hasLeft = (_rowIndex < _incomeRows.Count)
+                    Dim hasRight = (_rowIndex < _expenseRows.Count)
+                    
+                    ' Render Income row data if available, else render empty Income cell grid
+                    If hasLeft Then
+                        Dim row = _incomeRows(_rowIndex)
+                        g.DrawRectangle(_theme.BlackPen, _leftX, y, usableW, rowH)
+                        g.DrawRectangle(_theme.BlackPen, _leftX, y, colW1, rowH)
+                        g.DrawRectangle(_theme.BlackPen, _leftX + colW1, y, colW2, rowH)
+                        g.DrawRectangle(_theme.BlackPen, _leftX + colW1 + colW2, y, colW3, rowH)
+                        g.DrawRectangle(_theme.BlackPen, _leftX + colW1 + colW2 + colW3, y, colW4, rowH)
+                        g.DrawLine(_theme.BlackPen, _leftX + colW1 + colW2 + colW3, y, _leftX + colW1 + colW2 + colW3, y + rowH)
 
-                ' Draw the row
-                Dim y = _pageY
-                Dim hasLeft = (_rowIndex < _incomeRows.Count)
-                Dim hasRight = (_rowIndex < _expenseRows.Count)
+                        Dim fmt As New StringFormat() With {.Alignment = StringAlignment.Center, .LineAlignment = StringAlignment.Center}
+                        Dim fmtL As New StringFormat() With {.Alignment = StringAlignment.Near, .LineAlignment = StringAlignment.Center}
+                        Dim fmtR As New StringFormat() With {.Alignment = StringAlignment.Far, .LineAlignment = StringAlignment.Center}
 
-                If hasLeft Then
-                    Dim row = _incomeRows(_rowIndex)
-                    Dim col = 0
-                    g.DrawRectangle(_theme.BlackPen, _leftX, y, usableW, rowH)
-                    g.DrawRectangle(_theme.BlackPen, _leftX, y, colW1, rowH)
-                    g.DrawRectangle(_theme.BlackPen, _leftX + colW1, y, colW2, rowH)
-                    g.DrawRectangle(_theme.BlackPen, _leftX + colW1 + colW2, y, colW3, rowH)
-                    g.DrawRectangle(_theme.BlackPen, _leftX + colW1 + colW2 + colW3, y, colW4, rowH)
-                    g.DrawLine(_theme.BlackPen, _leftX + colW1 + colW2 + colW3, y, _leftX + colW1 + colW2 + colW3, y + rowH)
+                        g.DrawString(ToBuddhistDateShort(row.TranDate), _theme.RowFont, Brushes.Black, New RectangleF(_leftX, y, colW1, rowH), fmt)
+                        g.DrawString(ToThaiNumerals(row.DayCode.ToString()), _theme.RowFont, Brushes.Black, New RectangleF(_leftX + colW1, y, colW2, rowH), fmt)
+                        g.DrawString(Truncate(g, row.Description, _theme.RowFont, colW3 - 6), _theme.RowFont, Brushes.Black,
+                                     New RectangleF(_leftX + colW1 + colW2 + 3, y, colW3 - 6, rowH), fmtL)
+                        g.DrawString(FormatThaiAmount(row.Amount), _theme.RowFont, If(row.IsCarryForward, Brushes.Red, Brushes.Black),
+                                     New RectangleF(_leftX + colW1 + colW2 + colW3, y, colW4 - 4, rowH), fmtR)
+                    Else
+                        ' Render empty Income cell grid
+                        g.DrawRectangle(_theme.BlackPen, _leftX, y, usableW, rowH)
+                        g.DrawRectangle(_theme.BlackPen, _leftX, y, colW1, rowH)
+                        g.DrawRectangle(_theme.BlackPen, _leftX + colW1, y, colW2, rowH)
+                        g.DrawRectangle(_theme.BlackPen, _leftX + colW1 + colW2, y, colW3, rowH)
+                        g.DrawRectangle(_theme.BlackPen, _leftX + colW1 + colW2 + colW3, y, colW4, rowH)
+                        g.DrawLine(_theme.BlackPen, _leftX + colW1 + colW2 + colW3, y, _leftX + colW1 + colW2 + colW3, y + rowH)
+                    End If
 
-                    Dim fmt As New StringFormat() With {.Alignment = StringAlignment.Center, .LineAlignment = StringAlignment.Center}
-                    Dim fmtL As New StringFormat() With {.Alignment = StringAlignment.Near, .LineAlignment = StringAlignment.Center}
-                    Dim fmtR As New StringFormat() With {.Alignment = StringAlignment.Far, .LineAlignment = StringAlignment.Center}
+                    ' Render Expense row data if available, else render empty Expense cell grid
+                    If hasRight Then
+                        Dim row = _expenseRows(_rowIndex)
+                        g.DrawRectangle(_theme.BlackPen, _rightX, y, usableW, rowH)
+                        g.DrawRectangle(_theme.BlackPen, _rightX, y, colW1, rowH)
+                        g.DrawRectangle(_theme.BlackPen, _rightX + colW1, y, colW2, rowH)
+                        g.DrawRectangle(_theme.BlackPen, _rightX + colW1 + colW2, y, colW3, rowH)
+                        g.DrawRectangle(_theme.BlackPen, _rightX + colW1 + colW2 + colW3, y, colW4, rowH)
+                        g.DrawLine(_theme.BlackPen, _rightX + colW1 + colW2 + colW3, y, _rightX + colW1 + colW2 + colW3, y + rowH)
 
-                    g.DrawString(ToBuddhistDateShort(row.TranDate), _theme.RowFont, Brushes.Black, New RectangleF(_leftX, y, colW1, rowH), fmt)
-                    g.DrawString(ToThaiNumerals(row.DayCode.ToString()), _theme.RowFont, Brushes.Black, New RectangleF(_leftX + colW1, y, colW2, rowH), fmt)
-                    g.DrawString(Truncate(g, row.Description, _theme.RowFont, colW3 - 6), _theme.RowFont, Brushes.Black,
-                                 New RectangleF(_leftX + colW1 + colW2 + 3, y, colW3 - 6, rowH), fmtL)
-                    Dim redColor As Color = If(row.IsCarryForward, Color.Red, Color.Black)
-                    g.DrawString(FormatThaiAmount(row.Amount), _theme.RowFont, If(row.IsCarryForward, Brushes.Red, Brushes.Black),
-                                 New RectangleF(_leftX + colW1 + colW2 + colW3, y, colW4 - 4, rowH), fmtR)
-                End If
+                        Dim fmt As New StringFormat() With {.Alignment = StringAlignment.Center, .LineAlignment = StringAlignment.Center}
+                        Dim fmtL As New StringFormat() With {.Alignment = StringAlignment.Near, .LineAlignment = StringAlignment.Center}
+                        Dim fmtR As New StringFormat() With {.Alignment = StringAlignment.Far, .LineAlignment = StringAlignment.Center}
 
-                If hasRight Then
-                    Dim row = _expenseRows(_rowIndex)
-                    g.DrawRectangle(_theme.BlackPen, _rightX, y, usableW, rowH)
-                    g.DrawRectangle(_theme.BlackPen, _rightX, y, colW1, rowH)
-                    g.DrawRectangle(_theme.BlackPen, _rightX + colW1, y, colW2, rowH)
-                    g.DrawRectangle(_theme.BlackPen, _rightX + colW1 + colW2, y, colW3, rowH)
-                    g.DrawRectangle(_theme.BlackPen, _rightX + colW1 + colW2 + colW3, y, colW4, rowH)
-                    g.DrawLine(_theme.BlackPen, _rightX + colW1 + colW2 + colW3, y, _rightX + colW1 + colW2 + colW3, y + rowH)
+                        g.DrawString(ToBuddhistDateShort(row.TranDate), _theme.RowFont, Brushes.Black, New RectangleF(_rightX, y, colW1, rowH), fmt)
+                        g.DrawString(ToThaiNumerals(row.DayCode.ToString()), _theme.RowFont, Brushes.Black, New RectangleF(_rightX + colW1, y, colW2, rowH), fmt)
+                        g.DrawString(Truncate(g, row.Description, _theme.RowFont, colW3 - 6), _theme.RowFont, Brushes.Black,
+                                     New RectangleF(_rightX + colW1 + colW2 + 3, y, colW3 - 6, rowH), fmtL)
+                        g.DrawString(FormatThaiAmount(row.Amount), _theme.RowFont, Brushes.Black,
+                                     New RectangleF(_rightX + colW1 + colW2 + colW3, y, colW4 - 4, rowH), fmtR)
+                    Else
+                        ' Render empty Expense cell grid
+                        g.DrawRectangle(_theme.BlackPen, _rightX, y, usableW, rowH)
+                        g.DrawRectangle(_theme.BlackPen, _rightX, y, colW1, rowH)
+                        g.DrawRectangle(_theme.BlackPen, _rightX + colW1, y, colW2, rowH)
+                        g.DrawRectangle(_theme.BlackPen, _rightX + colW1 + colW2, y, colW3, rowH)
+                        g.DrawRectangle(_theme.BlackPen, _rightX + colW1 + colW2 + colW3, y, colW4, rowH)
+                        g.DrawLine(_theme.BlackPen, _rightX + colW1 + colW2 + colW3, y, _rightX + colW1 + colW2 + colW3, y + rowH)
+                    End If
 
-                    Dim fmt As New StringFormat() With {.Alignment = StringAlignment.Center, .LineAlignment = StringAlignment.Center}
-                    Dim fmtL As New StringFormat() With {.Alignment = StringAlignment.Near, .LineAlignment = StringAlignment.Center}
-                    Dim fmtR As New StringFormat() With {.Alignment = StringAlignment.Far, .LineAlignment = StringAlignment.Center}
-
-                    g.DrawString(ToBuddhistDateShort(row.TranDate), _theme.RowFont, Brushes.Black, New RectangleF(_rightX, y, colW1, rowH), fmt)
-                    g.DrawString(ToThaiNumerals(row.DayCode.ToString()), _theme.RowFont, Brushes.Black, New RectangleF(_rightX + colW1, y, colW2, rowH), fmt)
-                    g.DrawString(Truncate(g, row.Description, _theme.RowFont, colW3 - 6), _theme.RowFont, Brushes.Black,
-                                 New RectangleF(_rightX + colW1 + colW2 + 3, y, colW3 - 6, rowH), fmtL)
-                    g.DrawString(FormatThaiAmount(row.Amount), _theme.RowFont, Brushes.Black,
-                                 New RectangleF(_rightX + colW1 + colW2 + colW3, y, colW4 - 4, rowH), fmtR)
-                Else
-                    g.DrawRectangle(_theme.BlackPen, _rightX, y, usableW, rowH)
-                    g.DrawRectangle(_theme.BlackPen, _rightX, y, colW1, rowH)
-                    g.DrawRectangle(_theme.BlackPen, _rightX + colW1, y, colW2, rowH)
-                    g.DrawRectangle(_theme.BlackPen, _rightX + colW1 + colW2, y, colW3, rowH)
-                    g.DrawRectangle(_theme.BlackPen, _rightX + colW1 + colW2 + colW3, y, colW4, rowH)
-                    g.DrawLine(_theme.BlackPen, _rightX + colW1 + colW2 + colW3, y, _rightX + colW1 + colW2 + colW3, y + rowH)
-                End If
-
-                _rowIndex += 1
-                _pageY += rowH
-            End While
+                    _rowIndex += 1
+                    _pageY += rowH
+                    rowsProcessedThisPage += 1
+                Next
+            End If
 
             ' After drawing rows, check if we've reached the end of the data
             Dim isLastPage = (_rowIndex >= totalRows)
@@ -482,23 +490,7 @@ Namespace TempleAccounting
                     Return
                 End If
 
-                ' We have enough space - fill remaining with empty rows, then draw summaries and signatures
-                While _pageY < _pageBottom - requiredForFinalContent
-                    g.DrawRectangle(_theme.BlackPen, _leftX, _pageY, usableW, rowH)
-                    g.DrawRectangle(_theme.BlackPen, _leftX, _pageY, colW1, rowH)
-                    g.DrawRectangle(_theme.BlackPen, _leftX + colW1, _pageY, colW2, rowH)
-                    g.DrawRectangle(_theme.BlackPen, _leftX + colW1 + colW2, _pageY, colW3, rowH)
-                    g.DrawRectangle(_theme.BlackPen, _leftX + colW1 + colW2 + colW3, _pageY, colW4, rowH)
-                    g.DrawLine(_theme.BlackPen, _leftX + colW1 + colW2 + colW3, _pageY, _leftX + colW1 + colW2 + colW3, _pageY + rowH)
-                    g.DrawRectangle(_theme.BlackPen, _rightX, _pageY, usableW, rowH)
-                    g.DrawRectangle(_theme.BlackPen, _rightX, _pageY, colW1, rowH)
-                    g.DrawRectangle(_theme.BlackPen, _rightX + colW1, _pageY, colW2, rowH)
-                    g.DrawRectangle(_theme.BlackPen, _rightX + colW1 + colW2, _pageY, colW3, rowH)
-                    g.DrawRectangle(_theme.BlackPen, _rightX + colW1 + colW2 + colW3, _pageY, colW4, rowH)
-                    g.DrawLine(_theme.BlackPen, _rightX + colW1 + colW2 + colW3, _pageY, _rightX + colW1 + colW2 + colW3, _pageY + rowH)
-                    _pageY += rowH
-                End While
-
+                ' We have enough space - draw summaries and signatures
                 DrawSummaries(g, rowH, colW1, colW2, colW3, colW4)
                 DrawSignatures(g, rowH, colW1, colW2, colW3, colW4, usableW)
                 e.HasMorePages = False
@@ -551,6 +543,8 @@ Namespace TempleAccounting
             Dim y = _pageY
             Dim fmtC As New StringFormat() With {.Alignment = StringAlignment.Center, .LineAlignment = StringAlignment.Center}
             Dim fmtR As New StringFormat() With {.Alignment = StringAlignment.Far, .LineAlignment = StringAlignment.Center}
+            
+            ' Calculate running totals
             Dim runningIncome As Decimal = 0D
             For i = 0 To Math.Min(_rowIndex, _incomeRows.Count) - 1
                 runningIncome += _incomeRows(i).Amount
@@ -561,30 +555,38 @@ Namespace TempleAccounting
                 runningExpense += _expenseRows(i).Amount
             Next
 
+            ' LEFT Section Mid-Summary
+            g.DrawRectangle(_theme.BlackPen, _leftX, y, usableW, rowH)
+            g.DrawLine(_theme.BlackPen, _leftX + c1 + c2, y, _leftX + c1 + c2, y + rowH)
+            g.DrawLine(_theme.BlackPen, _leftX + c1 + c2 + c3, y, _leftX + c1 + c2 + c3, y + rowH)
             g.DrawString("รวมทั้งสิ้น", _theme.BoldFont, Brushes.Black,
                          New RectangleF(_leftX + c1 + c2, y, c3, rowH), fmtC)
-            g.DrawRectangle(_theme.BlackPen, _leftX + c1 + c2 + c3, y, c4, rowH)
             g.DrawString(FormatThaiAmount(runningIncome), _theme.BoldFont, Brushes.Black,
                          New RectangleF(_leftX + c1 + c2 + c3, y, c4 - 4, rowH), fmtR)
 
+            ' RIGHT Section Mid-Summary
+            g.DrawRectangle(_theme.BlackPen, _rightX, y, usableW, rowH)
+            g.DrawLine(_theme.BlackPen, _rightX + c1 + c2, y, _rightX + c1 + c2, y + rowH)
+            g.DrawLine(_theme.BlackPen, _rightX + c1 + c2 + c3, y, _rightX + c1 + c2 + c3, y + rowH)
             g.DrawString("รวมทั้งสิ้น", _theme.BoldFont, Brushes.Black,
                          New RectangleF(_rightX + c1 + c2, y, c3, rowH), fmtC)
-            g.DrawRectangle(_theme.BlackPen, _rightX + c1 + c2 + c3, y, c4, rowH)
             g.DrawString(FormatThaiAmount(runningExpense), _theme.BoldFont, Brushes.Black,
                          New RectangleF(_rightX + c1 + c2 + c3, y, c4 - 4, rowH), fmtR)
+            
+            _pageY += rowH
         End Sub
 
         Private Sub DrawSummaries(g As Graphics, rowH As Integer, c1 As Integer, c2 As Integer, c3 As Integer, c4 As Integer,
                                   Optional blankCount As Integer = 0)
-            Dim baseY = _pageY
+            Dim y = _pageY
             Dim usableW = _leftSectionWidth
             Dim fmtC As New StringFormat() With {.Alignment = StringAlignment.Center, .LineAlignment = StringAlignment.Center}
             Dim fmtR As New StringFormat() With {.Alignment = StringAlignment.Far, .LineAlignment = StringAlignment.Center}
             Dim fmtL As New StringFormat() With {.Alignment = StringAlignment.Near, .LineAlignment = StringAlignment.Center, .FormatFlags = StringFormatFlags.NoWrap}
             Dim balanceLabel = BuildCarryForwardLabel()
 
-            ' LEFT Income Total
-            Dim y = baseY
+            ' --- ROW 1: Totals (รวมรายรับ / รวมรายจ่าย) ---
+            ' LEFT
             g.DrawRectangle(_theme.BlackPen, _leftX, y, usableW, rowH)
             g.DrawLine(_theme.BlackPen, _leftX + c1 + c2, y, _leftX + c1 + c2, y + rowH)
             g.DrawLine(_theme.BlackPen, _leftX + c1 + c2 + c3, y, _leftX + c1 + c2 + c3, y + rowH)
@@ -592,17 +594,7 @@ Namespace TempleAccounting
                          New RectangleF(_leftX + c1 + c2, y, c3, rowH), fmtC)
             g.DrawString(FormatThaiAmount(_totalIncome), _theme.BigBoldFont, Brushes.Black,
                          New RectangleF(_leftX + c1 + c2 + c3, y, c4 - 4, rowH), fmtR)
-
-            ' LEFT Grand total row (ยอดยกมา + รายรับ)
-            y = baseY + rowH
-            g.DrawString("รวมทั้งสิ้น", _theme.BigBoldFont, Brushes.Black,
-                         New RectangleF(_leftX + c1 + c2, y, c3, rowH), fmtC)
-            g.DrawRectangle(_theme.BlackPen, _leftX + c1 + c2 + c3, y, c4, rowH)
-            g.DrawString(FormatThaiAmount(_reportGrandTotal), _theme.BigBoldFont, Brushes.Black,
-                         New RectangleF(_leftX + c1 + c2 + c3, y, c4 - 4, rowH), fmtR)
-
-            ' RIGHT Expense Total
-            y = baseY
+            ' RIGHT
             g.DrawRectangle(_theme.BlackPen, _rightX, y, usableW, rowH)
             g.DrawLine(_theme.BlackPen, _rightX + c1 + c2, y, _rightX + c1 + c2, y + rowH)
             g.DrawLine(_theme.BlackPen, _rightX + c1 + c2 + c3, y, _rightX + c1 + c2 + c3, y + rowH)
@@ -610,27 +602,52 @@ Namespace TempleAccounting
                          New RectangleF(_rightX + c1 + c2, y, c3, rowH), fmtC)
             g.DrawString(FormatThaiAmount(_totalExpense), _theme.BigBoldFont, Brushes.Black,
                          New RectangleF(_rightX + c1 + c2 + c3, y, c4 - 4, rowH), fmtR)
+            
+            y += rowH
 
-            ' RIGHT Carry forward row
-            y = baseY + rowH
+            ' --- ROW 2: Adjustments (รวมทั้งสิ้น / ยอดคงเหลือยกไป) ---
+            ' LEFT (รวมทั้งสิ้น: ยอดยกมา + รายรับ)
+            g.DrawRectangle(_theme.BlackPen, _leftX, y, usableW, rowH)
+            g.DrawLine(_theme.BlackPen, _leftX + c1 + c2, y, _leftX + c1 + c2, y + rowH)
+            g.DrawLine(_theme.BlackPen, _leftX + c1 + c2 + c3, y, _leftX + c1 + c2 + c3, y + rowH)
+            g.DrawString("รวมทั้งสิ้น", _theme.BigBoldFont, Brushes.Black,
+                         New RectangleF(_leftX + c1 + c2, y, c3, rowH), fmtC)
+            g.DrawString(FormatThaiAmount(_reportGrandTotal), _theme.BigBoldFont, Brushes.Black,
+                         New RectangleF(_leftX + c1 + c2 + c3, y, c4 - 4, rowH), fmtR)
+            ' RIGHT (ยอดคงเหลือยกไป)
+            g.DrawRectangle(_theme.BlackPen, _rightX, y, usableW, rowH)
+            g.DrawLine(_theme.BlackPen, _rightX + c1 + c2 + c3, y, _rightX + c1 + c2 + c3, y + rowH)
             Dim carryLabelX = _rightX + 6
             Dim carryLabelWidth = c1 + c2 + c3 - 12
             Using fittedCarryFont = CreateFittedBoldFont(g, balanceLabel, _theme.BigBoldFont, carryLabelWidth, 9.5F)
                 g.DrawString(balanceLabel, fittedCarryFont, Brushes.Red,
                              New RectangleF(carryLabelX, y, carryLabelWidth, rowH), fmtL)
             End Using
-            g.DrawRectangle(_theme.BlackPen, _rightX + c1 + c2 + c3, y, c4, rowH)
             g.DrawString(FormatThaiAmount(_balance), _theme.BigBoldFont, Brushes.Red,
                          New RectangleF(_rightX + c1 + c2 + c3, y, c4 - 4, rowH), fmtR)
+            
+            y += rowH
 
-            ' RIGHT Grand total row (ต้องเท่ากับฝั่งรายรับรวมยอดยกมา)
-            y = baseY + (rowH * 2)
+            ' --- ROW 3: Final Grand Totals (รวมทั้งสิ้น: ต้องเท่ากันทั้งสองฝั่ง) ---
+            ' LEFT (Already drawn in ROW 2, but standard requires 3 rows for alignment)
+            ' Draw empty or duplicated grand total to match RIGHT
+            g.DrawRectangle(_theme.BlackPen, _leftX, y, usableW, rowH)
+            g.DrawLine(_theme.BlackPen, _leftX + c1 + c2, y, _leftX + c1 + c2, y + rowH)
+            g.DrawLine(_theme.BlackPen, _leftX + c1 + c2 + c3, y, _leftX + c1 + c2 + c3, y + rowH)
+            g.DrawString("รวมทั้งสิ้น", _theme.BigBoldFont, Brushes.Black,
+                         New RectangleF(_leftX + c1 + c2, y, c3, rowH), fmtC)
+            g.DrawString(FormatThaiAmount(_reportGrandTotal), _theme.BigBoldFont, Brushes.Black,
+                         New RectangleF(_leftX + c1 + c2 + c3, y, c4 - 4, rowH), fmtR)
+            ' RIGHT
+            g.DrawRectangle(_theme.BlackPen, _rightX, y, usableW, rowH)
+            g.DrawLine(_theme.BlackPen, _rightX + c1 + c2, y, _rightX + c1 + c2, y + rowH)
+            g.DrawLine(_theme.BlackPen, _rightX + c1 + c2 + c3, y, _rightX + c1 + c2 + c3, y + rowH)
             g.DrawString("รวมทั้งสิ้น", _theme.BigBoldFont, Brushes.Black,
                          New RectangleF(_rightX + c1 + c2, y, c3, rowH), fmtC)
-            g.DrawRectangle(_theme.BlackPen, _rightX + c1 + c2 + c3, y, c4, rowH)
             g.DrawString(FormatThaiAmount(_reportGrandTotal), _theme.BigBoldFont, Brushes.Black,
                          New RectangleF(_rightX + c1 + c2 + c3, y, c4 - 4, rowH), fmtR)
-            _pageY = baseY + (rowH * 3)
+
+            _pageY = y + rowH
         End Sub
 
         Private Function BuildCarryForwardLabel() As String
