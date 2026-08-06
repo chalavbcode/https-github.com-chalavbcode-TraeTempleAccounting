@@ -2,6 +2,7 @@ Option Strict Off
 Option Explicit On
 
 Imports System
+Imports System.Collections.Generic
 Imports System.Drawing
 Imports System.Drawing.Drawing2D
 Imports System.Drawing.Printing
@@ -31,6 +32,49 @@ Namespace TempleAccounting
             ToDate = toDate
             FiscalYear = fromDate.Year + 543
         End Sub
+    End Class
+
+    ''' <summary>
+    ''' Template Information - stores temple and personnel settings for reports
+    ''' Loaded once from database and shared across all reports
+    ''' </summary>
+    Public Class TemplateInfo
+        Public Property TempleName As String
+        Public Property TempleAddress As String
+        Public Property AbbotName As String
+        Public Property AccountantName As String
+        Public Property AbbotTitle As String
+        Public Property AccountantTitle As String
+
+        ''' <summary>
+        ''' Default constructor with empty values
+        ''' </summary>
+        Public Sub New()
+            TempleName = ""
+            TempleAddress = ""
+            AbbotName = ""
+            AccountantName = ""
+            AbbotTitle = "เจ้าอาวาส"
+            AccountantTitle = "ไวยาวัจกร"
+        End Sub
+
+        ''' <summary>
+        ''' Full constructor
+        ''' </summary>
+        Public Sub New(templeName As String, templeAddress As String, abbotName As String, accountantName As String)
+            Me.New()
+            Me.TempleName = templeName
+            Me.TempleAddress = templeAddress
+            Me.AbbotName = abbotName
+            Me.AccountantName = accountantName
+        End Sub
+
+        ''' <summary>
+        ''' Returns true if template info has been loaded (has at least a temple name)
+        ''' </summary>
+        Public Function IsLoaded() As Boolean
+            Return Not String.IsNullOrWhiteSpace(TempleName)
+        End Function
     End Class
 
     ''' <summary>
@@ -271,6 +315,79 @@ Namespace TempleAccounting
     ''' Provides reusable methods for borders, page numbers, fonts, and formatting
     ''' </summary>
     Public Module ReportEngine
+
+        ' Cached TemplateInfo - loaded once and reused (module fields are implicitly shared)
+        Private _cachedTemplateInfo As TemplateInfo = Nothing
+
+        ''' <summary>
+        ''' Get the cached TemplateInfo instance, loading from database if not yet loaded
+        ''' Reports should use this instead of querying database directly
+        ''' </summary>
+        Public Function GetTemplateInfo() As TemplateInfo
+            If _cachedTemplateInfo Is Nothing Then
+                _cachedTemplateInfo = LoadTemplateInfoFromDatabase()
+            End If
+            Return _cachedTemplateInfo
+        End Function
+
+        ''' <summary>
+        ''' Load TemplateInfo from database (called once, result cached)
+        ''' </summary>
+        Private Function LoadTemplateInfoFromDatabase() As TemplateInfo
+            Dim info As New TemplateInfo()
+            Dim templeName As String = ""
+            Dim templeAddress As String = ""
+            Dim abbotName As String = ""
+            Dim accountantName As String = ""
+
+            Try
+                Using conn = Db.OpenConn()
+                    ' Load TempleSetting
+                    Dim dt = Db.GetTable(conn, "SELECT TOP 1 * FROM TempleSetting ORDER BY ID DESC")
+                    If dt.Rows.Count > 0 Then
+                        Dim r = dt.Rows(0)
+
+                        ' Temple basic info
+                        If Not IsDBNull(r!TempleName) Then templeName = CStr(r!TempleName)
+
+                        ' Build address
+                        Dim addressParts As New List(Of String)()
+                        If Not IsDBNull(r!TempleAddress) Then addressParts.Add(CStr(r!TempleAddress).Trim())
+                        If Not IsDBNull(r!Tambon) Then addressParts.Add("ต." & CStr(r!Tambon).Trim())
+                        If Not IsDBNull(r!Amphoe) Then addressParts.Add("อ." & CStr(r!Amphoe).Trim())
+                        If Not IsDBNull(r!Province) Then addressParts.Add("จ." & CStr(r!Province).Trim())
+                        If Not IsDBNull(r!PostCode) Then addressParts.Add(CStr(r!PostCode).Trim())
+                        templeAddress = String.Join(" ", addressParts).Trim()
+
+                        ' Load Abbot and Accountant names via JOIN
+                        Dim abbotID As Object = If(dt.Columns.Contains("AbbotPersonnelID") AndAlso Not IsDBNull(r!AbbotPersonnelID), r!AbbotPersonnelID, Nothing)
+                        Dim accountantID As Object = If(dt.Columns.Contains("WaiyawatPersonnelID") AndAlso Not IsDBNull(r!WaiyawatPersonnelID), r!WaiyawatPersonnelID, Nothing)
+
+                        Dim sql = "SELECT PA.FullName AS AbbotName, PW.FullName AS AccountantName " &
+                                  "FROM (TempleSetting AS TS " &
+                                  "LEFT JOIN Personnel AS PA ON TS.AbbotPersonnelID = PA.PersonnelID) " &
+                                  "LEFT JOIN Personnel AS PW ON TS.WaiyawatPersonnelID = PW.PersonnelID"
+                        Dim dtPersonnel = Db.GetTable(conn, sql)
+                        If dtPersonnel.Rows.Count > 0 Then
+                            Dim pr = dtPersonnel.Rows(0)
+                            abbotName = If(IsDBNull(pr!AbbotName), "", CStr(pr!AbbotName))
+                            accountantName = If(IsDBNull(pr!AccountantName), "", CStr(pr!AccountantName))
+                        End If
+                    End If
+                End Using
+            Catch ex As Exception
+                System.Diagnostics.Debug.WriteLine("[ERROR] Failed to load TemplateInfo: " & ex.ToString())
+            End Try
+
+            Return New TemplateInfo(templeName, templeAddress, abbotName, accountantName)
+        End Function
+
+        ''' <summary>
+        ''' Clear the cached TemplateInfo (useful for testing or when settings change)
+        ''' </summary>
+        Public Sub ClearTemplateInfoCache()
+            _cachedTemplateInfo = Nothing
+        End Sub
 
         ''' <summary>
         ''' Draw a page border around the printable area
