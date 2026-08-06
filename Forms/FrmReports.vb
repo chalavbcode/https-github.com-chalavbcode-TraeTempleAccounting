@@ -289,21 +289,17 @@ Namespace TempleAccounting
 
         Private Sub btnPrintDetail_Click(sender As Object, e As EventArgs) Handles btnPrintDetail.Click
             Try
-                ' 1. Read dates directly from UI controls at the exact moment of click
-                ' Ensure toDate includes the full day up to 23:59:59
-                Dim fDate As DateTime = dtpFrom.Value.Date
-                Dim tDate As DateTime = dtpTo.Value.Date.AddDays(1).AddSeconds(-1)
-
-                ' 2. Normalize dates to Gregorian for database querying if needed
-                Dim fromDate = Db.NormalizeGregorianDate(fDate)
-                Dim toDate = Db.NormalizeGregorianDate(tDate)
+                ' 1. Read dates explicitly from UI controls
+                Dim startDate As DateTime = dtpFrom.Value.Date
+                Dim endDate As DateTime = dtpTo.Value.Date.AddDays(1).AddSeconds(-1) ' Include entire end day
 
                 Dim fundID = If(cboFund.SelectedValue IsNot Nothing, CInt(cboFund.SelectedValue), 0)
                 Dim bankID = If(cboBank.SelectedValue IsNot Nothing, CInt(cboBank.SelectedValue), 0)
                 
-                System.Diagnostics.Debug.WriteLine("[DEBUG FrmReports] btnPrintDetail_Click - dtpFrom: " & fDate & ", dtpTo: " & tDate)
+                System.Diagnostics.Debug.WriteLine("[DEBUG FrmReports] btnPrintDetail_Click - startDate: " & startDate & ", endDate: " & endDate)
                 
-                IncomeExpenseReport.ShowPreview(fromDate, toDate, Me, IncomeExpenseReport.ReportModes.Detailed, GetManualBalance(), If(fundID = 0, Nothing, fundID), If(bankID = 0, Nothing, bankID))
+                ' 2. Pass explicit dates to the report
+                IncomeExpenseReport.ShowPreview(startDate, endDate, Me, IncomeExpenseReport.ReportModes.Detailed, GetManualBalance(), If(fundID = 0, Nothing, fundID), If(bankID = 0, Nothing, bankID))
             Catch ex As Exception
                 MessageBox.Show("เกิดข้อผิดพลาด: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
             End Try
@@ -311,21 +307,17 @@ Namespace TempleAccounting
 
         Private Sub btnPrintSummary_Click(sender As Object, e As EventArgs) Handles btnPrintSummary.Click
             Try
-                ' 1. Read dates directly from UI controls at the exact moment of click
-                ' Ensure toDate includes the full day up to 23:59:59
-                Dim fDate As DateTime = dtpFrom.Value.Date
-                Dim tDate As DateTime = dtpTo.Value.Date.AddDays(1).AddSeconds(-1)
-
-                ' 2. Normalize dates to Gregorian for database querying if needed
-                Dim fromDate = Db.NormalizeGregorianDate(fDate)
-                Dim toDate = Db.NormalizeGregorianDate(tDate)
+                ' 1. Read dates explicitly from UI controls
+                Dim startDate As DateTime = dtpFrom.Value.Date
+                Dim endDate As DateTime = dtpTo.Value.Date.AddDays(1).AddSeconds(-1) ' Include entire end day
 
                 Dim fundID = If(cboFund.SelectedValue IsNot Nothing, CInt(cboFund.SelectedValue), 0)
                 Dim bankID = If(cboBank.SelectedValue IsNot Nothing, CInt(cboBank.SelectedValue), 0)
                 
-                System.Diagnostics.Debug.WriteLine("[DEBUG FrmReports] btnPrintSummary_Click - dtpFrom: " & fDate & ", dtpTo: " & tDate)
+                System.Diagnostics.Debug.WriteLine("[DEBUG FrmReports] btnPrintSummary_Click - startDate: " & startDate & ", endDate: " & endDate)
                 
-                IncomeExpenseReport.ShowPreview(fromDate, toDate, Me, IncomeExpenseReport.ReportModes.Summary, GetManualBalance(), If(fundID = 0, Nothing, fundID), If(bankID = 0, Nothing, bankID))
+                ' 2. Pass explicit dates to the report
+                IncomeExpenseReport.ShowPreview(startDate, endDate, Me, IncomeExpenseReport.ReportModes.Summary, GetManualBalance(), If(fundID = 0, Nothing, fundID), If(bankID = 0, Nothing, bankID))
             Catch ex As Exception
                 MessageBox.Show("เกิดข้อผิดพลาด: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
             End Try
