@@ -54,8 +54,8 @@ Namespace TempleAccounting
         Private _rowIndex As Integer = 0
 
         Private Const FinalSummaryRows As Integer = 3
-        Private Const FinalSignatureBlockHeight As Integer = 135  ' Reduced from 145
-        Private Const FinalFooterGapHeight As Integer = 8        ' Reduced from 12
+        Private Const FinalSignatureBlockHeight As Integer = 140  ' Increased from 135 to match ReportEngine.totalSignatureHeight
+        Private Const FinalFooterGapHeight As Integer = 20       ' Increased from 8 to match the 20px shift-up in ReportEngine
         Private Const SectionGap As Integer = 12               ' Gap between left/right sections
 
         Private Structure ReportRow
