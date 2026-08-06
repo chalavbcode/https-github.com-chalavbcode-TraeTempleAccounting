@@ -177,12 +177,15 @@ Namespace TempleAccounting
             Dim safeDate As Date = beforeDate.Date
             System.Diagnostics.Debug.WriteLine("[DEBUG GetBalanceBeforeDate] beforeDate: " & beforeDate & ", safeDate: " & safeDate)
             
+            ' Use Parameterized Query for safety and clarity
+            ' The DateSerial part handles potential Buddhist year records in the database
             Dim sql = "SELECT SUM(IIF(t.TranType='Income', t.Amount, -t.Amount)) " &
                       "FROM Transactions t " &
-                      "WHERE DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate), Day(t.TranDate)) < " &
-                      Db.AccessDateLiteral(safeDate)
+                      "WHERE DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate), Day(t.TranDate)) < @beforeDate"
             
             Dim params As New List(Of Tuple(Of String, Object))()
+            params.Add(New Tuple(Of String, Object)("@beforeDate", safeDate))
+
             If fundID.HasValue AndAlso fundID.Value <> 0 Then
                 sql &= " AND t.FundID = @f"
                 params.Add(New Tuple(Of String, Object)("@f", fundID.Value))
@@ -218,8 +221,13 @@ Namespace TempleAccounting
             Dim toDateEnd As Date = _toDate.Date.AddDays(1).AddSeconds(-1)
             System.Diagnostics.Debug.WriteLine("[DEBUG LoadRowsByMode] _fromDate: " & _fromDate & ", _toDate: " & _toDate & ", toDateEnd: " & toDateEnd)
 
+            ' Use Parameterized Query for safety and clarity
+            ' The DateSerial part handles potential Buddhist year records in the database
             Dim whereClause = "WHERE t.TranType='" & tranType & "' AND DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate), Day(t.TranDate)) " &
-                              "BETWEEN " & Db.AccessDateLiteral(_fromDate) & " AND " & Db.AccessDateLiteral(toDateEnd)
+                              "BETWEEN @fromDate AND @toDate"
+            
+            params.Add(New Tuple(Of String, Object)("@fromDate", _fromDate))
+            params.Add(New Tuple(Of String, Object)("@toDate", toDateEnd))
             
             If fundID.HasValue AndAlso fundID.Value <> 0 Then
                 whereClause &= " AND t.FundID = @f"
