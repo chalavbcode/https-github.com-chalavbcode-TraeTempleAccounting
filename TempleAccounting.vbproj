@@ -35,7 +35,9 @@
     <Compile Include="ReceiptImageHelper.vb" />
     <Compile Include="MessageBoxHelper.vb" />
     <Compile Include="ExcelTransactionImporter.vb" />
+    <Compile Include="Reports\BaseReport.vb" />
     <Compile Include="Reports\IncomeExpenseReport.vb" />
+    <Compile Include="Reports\ReportEngine.vb" />
 
     <!-- ===== frmMain ===== -->
     <Compile Include="frmMain.vb">

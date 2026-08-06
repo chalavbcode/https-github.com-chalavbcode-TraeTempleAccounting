@@ -120,6 +120,115 @@ Namespace TempleAccounting
     End Class
 
     ''' <summary>
+    ''' Report Theme - encapsulates all visual settings for reports
+    ''' Includes fonts, pens, colors, spacing, and drawing styles
+    ''' </summary>
+    Public Class ReportTheme
+        ' Fonts
+        Public Property RowFont As Font
+        Public Property BoldFont As Font
+        Public Property HeaderFont As Font
+        Public Property BigBoldFont As Font
+        Public Property TitleFont As Font
+        Public Property SubTitleFont As Font
+        Public Property NameFont As Font
+
+        ' Pens
+        Public Property BlackPen As Pen
+        Public Property Pen2 As Pen
+
+        ' Colors
+        Public Property TextColor As Color
+        Public Property RedColor As Color
+        Public Property WhiteColor As Color
+
+        ' Spacing
+        Public Property RowHeight As Integer
+        Public Property HeaderHeight As Integer
+        Public Property CellPadding As Integer
+        Public Property SectionGap As Integer
+        Public Property SmallGap As Integer
+        Public Property MediumGap As Integer
+        Public Property LargeGap As Integer
+
+        ' Table header
+        Public Property TableHeaderHeightMultiplier As Integer
+
+        ' Signature block
+        Public Property SignatureLabelHeight As Integer
+        Public Property SignatureLineGap As Integer
+        Public Property SignatureNameGap As Integer
+        Public Property SignaturePositionGap As Integer
+
+        ''' <summary>
+        ''' Create a default theme with standard Thai accounting report settings
+        ''' </summary>
+        Public Shared Function CreateDefault() As ReportTheme
+            Dim theme As New ReportTheme()
+
+            ' Fonts - Tahoma family
+            theme.RowFont = New Font("Tahoma", 10.0!)
+            theme.BoldFont = New Font("Tahoma", 10.0!, FontStyle.Bold)
+            theme.HeaderFont = New Font("Tahoma", 10.0!, FontStyle.Bold)
+            theme.BigBoldFont = New Font("Tahoma", 14.0!, FontStyle.Bold)
+            theme.TitleFont = New Font("Tahoma", 16.0!, FontStyle.Bold)
+            theme.SubTitleFont = New Font("Tahoma", 12.0!, FontStyle.Bold)
+            theme.NameFont = New Font("Tahoma", 12.0!, FontStyle.Bold)
+
+            ' Pens
+            theme.BlackPen = New Pen(Color.Black, 1)
+            theme.Pen2 = New Pen(Color.Black, 2)
+
+            ' Colors
+            theme.TextColor = Color.Black
+            theme.RedColor = Color.Red
+            theme.WhiteColor = Color.White
+
+            ' Spacing
+            theme.RowHeight = 28
+            theme.HeaderHeight = 28
+            theme.CellPadding = 4
+            theme.SectionGap = 12
+            theme.SmallGap = 4
+            theme.MediumGap = 8
+            theme.LargeGap = 12
+
+            ' Table header
+            theme.TableHeaderHeightMultiplier = 2
+
+            ' Signature block
+            theme.SignatureLabelHeight = 26
+            theme.SignatureLineGap = 50
+            theme.SignatureNameGap = 0
+            theme.SignaturePositionGap = 8
+
+            Return theme
+        End Function
+
+        ''' <summary>
+        ''' Create theme for A4 Landscape reports
+        ''' </summary>
+        Public Shared Function CreateA4Landscape() As ReportTheme
+            Return CreateDefault()
+        End Function
+
+        ''' <summary>
+        ''' Dispose of all managed resources
+        ''' </summary>
+        Public Sub Dispose()
+            If RowFont IsNot Nothing Then RowFont.Dispose()
+            If BoldFont IsNot Nothing Then BoldFont.Dispose()
+            If HeaderFont IsNot Nothing Then HeaderFont.Dispose()
+            If BigBoldFont IsNot Nothing Then BigBoldFont.Dispose()
+            If TitleFont IsNot Nothing Then TitleFont.Dispose()
+            If SubTitleFont IsNot Nothing Then SubTitleFont.Dispose()
+            If NameFont IsNot Nothing Then NameFont.Dispose()
+            If BlackPen IsNot Nothing Then BlackPen.Dispose()
+            If Pen2 IsNot Nothing Then Pen2.Dispose()
+        End Sub
+    End Class
+
+    ''' <summary>
     ''' Report Engine - Common drawing utilities for TempleAccounting reports
     ''' Provides reusable methods for borders, page numbers, fonts, and formatting
     ''' </summary>
@@ -383,7 +492,6 @@ Namespace TempleAccounting
                                           Optional dotSpacing As Integer = 8, Optional dotRadius As Single = 1.5F,
                                           Optional signLineWidth As Integer = 280) As Integer
 
-            Const marginEachSide As Integer = 40
             Const labelHeight As Integer = 26
             Const labelToSignLine As Integer = 50
             Const signLineToName As Integer = 0
