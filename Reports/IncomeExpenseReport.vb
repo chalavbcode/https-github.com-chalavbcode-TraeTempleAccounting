@@ -20,8 +20,9 @@ Namespace TempleAccounting
             Summary = 1
         End Enum
 
-        Private _fromDate As Date
-        Private _toDate As Date
+        ' Report date range - MUST be set via constructor
+        Private ReadOnly _fromDate As Date
+        Private ReadOnly _toDate As Date
         Private _mode As ReportModes = ReportModes.Detailed
         Private _fundID As Integer? = Nothing
         Private _bankID As Integer? = Nothing
