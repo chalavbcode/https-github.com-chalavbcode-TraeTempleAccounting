@@ -94,6 +94,7 @@ Namespace TempleAccounting
         Private Sub FrmTransactions_Load(sender As Object, e As EventArgs) Handles MyBase.Load
             ' SetupRuntimeLayout() ' ลบออกเพื่อให้ใช้ค่าจาก Designer
             SetupToolTips()
+            HelpSystem.SetupHelp(Me, "FrmTransactions")
 #Region "debug-point A:form-load"
             DebugReport("A", "FrmTransactions_Load", "load-start", New Dictionary(Of String, Object) From {
                 {"baseDir", AppDomain.CurrentDomain.BaseDirectory},
