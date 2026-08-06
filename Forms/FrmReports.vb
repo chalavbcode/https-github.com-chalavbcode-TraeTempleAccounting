@@ -286,6 +286,7 @@ Namespace TempleAccounting
             Try
                 Dim fundID = If(cboFund.SelectedValue IsNot Nothing, CInt(cboFund.SelectedValue), 0)
                 Dim bankID = If(cboBank.SelectedValue IsNot Nothing, CInt(cboBank.SelectedValue), 0)
+                System.Diagnostics.Debug.WriteLine("[DEBUG FrmReports] btnPrintDetail_Click - dtpFrom: " & dtpFrom.Value & ", dtpTo: " & dtpTo.Value)
                 IncomeExpenseReport.ShowPreview(Db.NormalizeGregorianDate(dtpFrom.Value.Date), Db.NormalizeGregorianDate(dtpTo.Value.Date), Me, IncomeExpenseReport.ReportModes.Detailed, GetManualBalance(), If(fundID = 0, Nothing, fundID), If(bankID = 0, Nothing, bankID))
             Catch ex As Exception
                 MessageBox.Show("เกิดข้อผิดพลาด: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
@@ -296,6 +297,7 @@ Namespace TempleAccounting
             Try
                 Dim fundID = If(cboFund.SelectedValue IsNot Nothing, CInt(cboFund.SelectedValue), 0)
                 Dim bankID = If(cboBank.SelectedValue IsNot Nothing, CInt(cboBank.SelectedValue), 0)
+                System.Diagnostics.Debug.WriteLine("[DEBUG FrmReports] btnPrintSummary_Click - dtpFrom: " & dtpFrom.Value & ", dtpTo: " & dtpTo.Value)
                 IncomeExpenseReport.ShowPreview(Db.NormalizeGregorianDate(dtpFrom.Value.Date), Db.NormalizeGregorianDate(dtpTo.Value.Date), Me, IncomeExpenseReport.ReportModes.Summary, GetManualBalance(), If(fundID = 0, Nothing, fundID), If(bankID = 0, Nothing, bankID))
             Catch ex As Exception
                 MessageBox.Show("เกิดข้อผิดพลาด: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
