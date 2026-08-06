@@ -805,14 +805,16 @@ Namespace TempleAccounting
             Const labelToSignLine As Integer = 50
             Const signLineToName As Integer = 0
             Const nameHeight As Integer = 26
-            Const nameToPosition As Integer = 8
+            Const nameToPosition As Integer = 12
             Const positionHeight As Integer = 26
 
             ' Calculate total signature section height
+            ' 26 + 50 + 0 + 26 + 12 + 26 = 140px
             Dim totalSignatureHeight = labelHeight + labelToSignLine + signLineToName + nameHeight + nameToPosition + positionHeight
 
             ' Position signature block - both blocks share same bottom Y
-            Dim blockBottom = pageBottom - 2
+            ' Shifting up by 20 pixels to ensure titles don't overflow bottom margin
+            Dim blockBottom = pageBottom - 20
             Dim minimumTop = currentY + 12
             If blockBottom - totalSignatureHeight < minimumTop Then
                 blockBottom = minimumTop + totalSignatureHeight + 8
