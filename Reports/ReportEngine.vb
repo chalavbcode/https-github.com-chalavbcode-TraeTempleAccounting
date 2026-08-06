@@ -553,8 +553,10 @@ Namespace TempleAccounting
 
             ' Date range - validate dates to prevent Buddhist year showing 544 (= DateTime.MinValue.Year + 543)
             ' If year is less than 2500, it's likely not properly initialized, so use current date as fallback
+            System.Diagnostics.Debug.WriteLine("[DEBUG DrawHeader] fromDate.Year: " & fromDate.Year & ", toDate.Year: " & toDate.Year)
             Dim safeFromDate As Date = If(fromDate.Year > 2500, fromDate, DateTime.Now)
             Dim safeToDate As Date = If(toDate.Year > 2500, toDate, DateTime.Now)
+            System.Diagnostics.Debug.WriteLine("[DEBUG DrawHeader] safeFromDate: " & safeFromDate & ", safeToDate: " & safeToDate)
             Dim yearB = (safeFromDate.Year + 543)
             Dim dateLabel = "ประจำปี พ.ศ. " & ThaiNumerals(yearB.ToString()) &
                            "    ตั้งแต่วันที่ ( " & ToBuddhistFull(safeFromDate) & " – " & ToBuddhistFull(safeToDate) & " )"
