@@ -27,6 +27,7 @@ Namespace TempleAccounting
 
         Private Sub FrmReports_Load(sender As Object, e As EventArgs) Handles MyBase.Load
             Try
+                HelpSystem.SetupHelp(Me, "FrmReports")
                 Db.EnsureSchema()
                 Using conn = Db.OpenConn()
                     Dim ft = Db.GetTable(conn, "SELECT 0 AS ID, '(ทุกกองทุน)' AS FundName FROM (SELECT COUNT(*) FROM Funds) C1 UNION ALL SELECT ID, FundName FROM Funds ORDER BY ID")

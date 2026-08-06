@@ -147,6 +147,12 @@ Namespace TempleAccounting
             End Get
         End Property
 
+        Public ReadOnly Property ManualFile As String
+            Get
+                Return Path.Combine(AppRoot, "USER_MANUAL_TH.md")
+            End Get
+        End Property
+
         Public Function ProvinceCsv() As String
             Return Path.Combine(ImportFolder, "province.csv")
         End Function

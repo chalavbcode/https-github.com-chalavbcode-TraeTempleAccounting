@@ -27,6 +27,7 @@ Namespace TempleAccounting
         End Function
 
         Private Sub FrmTransfer_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+            HelpSystem.SetupHelp(Me, "FrmTransfer")
             Db.EnsureSchema()
             SetupToolTips()
             Using conn = Db.OpenConn()

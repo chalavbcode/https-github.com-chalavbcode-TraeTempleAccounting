@@ -8,6 +8,7 @@ Namespace TempleAccounting
         Private _selectedPositionID As Integer = -1
 
         Private Sub FrmPersonnelManagement_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+            HelpSystem.SetupHelp(Me, "FrmPersonnelManagement")
             LoadPositionCombo()
             LoadPersonnelData()
             LoadPositionData()
