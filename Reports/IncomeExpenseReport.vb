@@ -155,9 +155,7 @@ Namespace TempleAccounting
 
                     ' Initialize ReportInfo for header rendering using shared TemplateInfo
                     Dim reportTitle = If(_mode = ReportModes.Summary, "สรุปบัญชีรายรับ - รายจ่าย (แบบย่อ)", "สรุปบัญชีรายรับ - รายจ่าย (แบบละเอียด)")
-                    Dim templeName = If(String.IsNullOrWhiteSpace(_templateInfo.TempleName), "วัดแหลมยาง", _templateInfo.TempleName)
-                    Dim templeAddress = If(String.IsNullOrWhiteSpace(_templateInfo.TempleAddress), "ต.ป่ามะคาบ อ.เมืองพิจิตร จ.พิจิตร", _templateInfo.TempleAddress)
-                    _reportInfo = New ReportInfo(reportTitle, templeName, templeAddress, _fromDate, _toDate)
+                    _reportInfo = New ReportInfo(reportTitle, _templateInfo.TempleName, _templateInfo.TempleAddress, _fromDate, _toDate)
                 End Using
             Catch ex As Exception
                 Throw
@@ -696,12 +694,10 @@ Namespace TempleAccounting
             ' Delegate to shared ReportEngine.DrawHeader for consistent rendering
             ' Uses _reportInfo which is initialized in LoadData
             If _reportInfo Is Nothing Then
-                ' Fallback if _reportInfo not initialized - use shared TemplateInfo
+                ' Fallback if _reportInfo not initialized - use shared TemplateInfo (already has defaults)
                 Dim reportTitle = If(_mode = ReportModes.Summary, "สรุปบัญชีรายรับ - รายจ่าย (แบบย่อ)", "สรุปบัญชีรายรับ - รายจ่าย (แบบละเอียด)")
                 Dim template = ReportEngine.GetTemplateInfo()
-                Dim templeName = If(String.IsNullOrWhiteSpace(template.TempleName), "วัดแหลมยาง", template.TempleName)
-                Dim templeAddress = If(String.IsNullOrWhiteSpace(template.TempleAddress), "ต.ป่ามะคาบ อ.เมืองพิจิตร จ.พิจิตร", template.TempleAddress)
-                _reportInfo = New ReportInfo(reportTitle, templeName, templeAddress, _fromDate, _toDate)
+                _reportInfo = New ReportInfo(reportTitle, template.TempleName, template.TempleAddress, _fromDate, _toDate)
             End If
             _pageY = ReportEngine.DrawHeader(g, _reportInfo.ReportTitle, _reportInfo.TempleName, _reportInfo.TempleAddress,
                                             _reportInfo.FromDate, _reportInfo.ToDate,

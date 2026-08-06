@@ -3,6 +3,8 @@ Option Explicit On
 
 Imports System
 Imports System.Collections.Generic
+Imports System.Data
+Imports System.Data.OleDb
 Imports System.Drawing
 Imports System.Drawing.Drawing2D
 Imports System.Drawing.Printing
@@ -334,9 +336,9 @@ Namespace TempleAccounting
         ''' Load TemplateInfo from database (called once, result cached)
         ''' </summary>
         Private Function LoadTemplateInfoFromDatabase() As TemplateInfo
-            Dim info As New TemplateInfo()
-            Dim templeName As String = ""
-            Dim templeAddress As String = ""
+            ' Default values
+            Dim templeName As String = "วัดแหลมยาง"
+            Dim templeAddress As String = "ต.ป่ามะคาบ อ.เมืองพิจิตร จ.พิจิตร"
             Dim abbotName As String = ""
             Dim accountantName As String = ""
 
@@ -348,21 +350,23 @@ Namespace TempleAccounting
                         Dim r = dt.Rows(0)
 
                         ' Temple basic info
-                        If Not IsDBNull(r!TempleName) Then templeName = CStr(r!TempleName)
+                        If Not IsDBNull(r!TempleName) AndAlso Not String.IsNullOrWhiteSpace(CStr(r!TempleName)) Then
+                            templeName = CStr(r!TempleName).Trim()
+                        End If
 
                         ' Build address
                         Dim addressParts As New List(Of String)()
-                        If Not IsDBNull(r!TempleAddress) Then addressParts.Add(CStr(r!TempleAddress).Trim())
-                        If Not IsDBNull(r!Tambon) Then addressParts.Add("ต." & CStr(r!Tambon).Trim())
-                        If Not IsDBNull(r!Amphoe) Then addressParts.Add("อ." & CStr(r!Amphoe).Trim())
-                        If Not IsDBNull(r!Province) Then addressParts.Add("จ." & CStr(r!Province).Trim())
-                        If Not IsDBNull(r!PostCode) Then addressParts.Add(CStr(r!PostCode).Trim())
-                        templeAddress = String.Join(" ", addressParts).Trim()
+                        If Not IsDBNull(r!TempleAddress) AndAlso Not String.IsNullOrWhiteSpace(CStr(r!TempleAddress)) Then addressParts.Add(CStr(r!TempleAddress).Trim())
+                        If Not IsDBNull(r!Tambon) AndAlso Not String.IsNullOrWhiteSpace(CStr(r!Tambon)) Then addressParts.Add("ต." & CStr(r!Tambon).Trim())
+                        If Not IsDBNull(r!Amphoe) AndAlso Not String.IsNullOrWhiteSpace(CStr(r!Amphoe)) Then addressParts.Add("อ." & CStr(r!Amphoe).Trim())
+                        If Not IsDBNull(r!Province) AndAlso Not String.IsNullOrWhiteSpace(CStr(r!Province)) Then addressParts.Add("จ." & CStr(r!Province).Trim())
+                        If Not IsDBNull(r!PostCode) AndAlso Not String.IsNullOrWhiteSpace(CStr(r!PostCode)) Then addressParts.Add(CStr(r!PostCode).Trim())
+
+                        If addressParts.Count > 0 Then
+                            templeAddress = String.Join(" ", addressParts).Trim()
+                        End If
 
                         ' Load Abbot and Accountant names via JOIN
-                        Dim abbotID As Object = If(dt.Columns.Contains("AbbotPersonnelID") AndAlso Not IsDBNull(r!AbbotPersonnelID), r!AbbotPersonnelID, Nothing)
-                        Dim accountantID As Object = If(dt.Columns.Contains("WaiyawatPersonnelID") AndAlso Not IsDBNull(r!WaiyawatPersonnelID), r!WaiyawatPersonnelID, Nothing)
-
                         Dim sql = "SELECT PA.FullName AS AbbotName, PW.FullName AS AccountantName " &
                                   "FROM (TempleSetting AS TS " &
                                   "LEFT JOIN Personnel AS PA ON TS.AbbotPersonnelID = PA.PersonnelID) " &
@@ -370,8 +374,8 @@ Namespace TempleAccounting
                         Dim dtPersonnel = Db.GetTable(conn, sql)
                         If dtPersonnel.Rows.Count > 0 Then
                             Dim pr = dtPersonnel.Rows(0)
-                            abbotName = If(IsDBNull(pr!AbbotName), "", CStr(pr!AbbotName))
-                            accountantName = If(IsDBNull(pr!AccountantName), "", CStr(pr!AccountantName))
+                            abbotName = If(IsDBNull(pr!AbbotName), "", CStr(pr!AbbotName).Trim())
+                            accountantName = If(IsDBNull(pr!AccountantName), "", CStr(pr!AccountantName).Trim())
                         End If
                     End If
                 End Using
@@ -452,13 +456,20 @@ Namespace TempleAccounting
             y += 36
 
             ' Temple name and address
-            Dim templeInfo = templeName
-            If Not String.IsNullOrEmpty(templeAddress) Then
-                templeInfo &= "  " & templeAddress
+            Dim templeInfo = templeName.Trim()
+            If Not String.IsNullOrEmpty(templeAddress.Trim()) Then
+                If Not String.IsNullOrEmpty(templeInfo) Then
+                    templeInfo &= "  " & templeAddress.Trim()
+                Else
+                    templeInfo = templeAddress.Trim()
+                End If
             End If
-            g.DrawString(ThaiNumerals(templeInfo), subtitleFont, Brushes.Black,
-                         New RectangleF(startX, y, pageWidth - 2 * startX, 30), fmtC)
-            y += 30
+
+            If Not String.IsNullOrEmpty(templeInfo) Then
+                g.DrawString(ThaiNumerals(templeInfo), subtitleFont, Brushes.Black,
+                             New RectangleF(startX, y, pageWidth - 2 * startX, 30), fmtC)
+                y += 30
+            End If
 
             ' Date range
             Dim yearB = (fromDate.Year + 543)

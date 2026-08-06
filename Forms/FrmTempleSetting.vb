@@ -320,6 +320,9 @@ Namespace TempleAccounting
 
                     MessageBox.Show("✅ บันทึกข้อมูลวัดสำเร็จ!", "สำเร็จ", MessageBoxButtons.OK, MessageBoxIcon.Information)
 
+                    ' Clear TemplateInfo cache so reports pick up the new settings
+                    ReportEngine.ClearTemplateInfoCache()
+
                     ' รีเฟรช DataGridView หลังบันทึก
                     LoadPersonnelGrid()
                     txtTempleCode.Focus()
