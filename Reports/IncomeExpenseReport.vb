@@ -133,6 +133,9 @@ Namespace TempleAccounting
 
                 ' Get shared TemplateInfo (loaded once from database)
                 _templateInfo = ReportEngine.GetTemplateInfo()
+                
+                ' DEBUG: Log what we got
+                System.Diagnostics.Debug.WriteLine("[DEBUG IncomeExpenseReport.LoadData] _templateInfo.TempleName: '" & _templateInfo.TempleName & "'")
 
                 Using conn = Db.OpenConn()
                     _incomeRows.Clear()
