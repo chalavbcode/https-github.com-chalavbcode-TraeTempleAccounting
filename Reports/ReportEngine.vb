@@ -369,5 +369,97 @@ Namespace TempleAccounting
             Return New PaperSize("A4", 827, 1169)
         End Function
 
+        ''' <summary>
+        ''' Draw signature section with two aligned blocks (left and right signers)
+        ''' Both blocks share identical Y coordinates for perfect alignment
+        ''' Returns the Y position after drawing the signature block
+        ''' </summary>
+        Public Function DrawSignatureBlock(g As Graphics,
+                                          leftTitle As String, leftName As String, leftPosition As String,
+                                          rightTitle As String, rightName As String, rightPosition As String,
+                                          leftX As Integer, rightX As Integer, blockWidth As Integer,
+                                          pageBottom As Integer, currentY As Integer,
+                                          boldFont As Font, rowFont As Font,
+                                          Optional dotSpacing As Integer = 8, Optional dotRadius As Single = 1.5F,
+                                          Optional signLineWidth As Integer = 280) As Integer
+
+            Const marginEachSide As Integer = 40
+            Const labelHeight As Integer = 26
+            Const labelToSignLine As Integer = 50
+            Const signLineToName As Integer = 0
+            Const nameHeight As Integer = 26
+            Const nameToPosition As Integer = 8
+            Const positionHeight As Integer = 26
+
+            ' Calculate total signature section height
+            Dim totalSignatureHeight = labelHeight + labelToSignLine + signLineToName + nameHeight + nameToPosition + positionHeight
+
+            ' Position signature block - both blocks share same bottom Y
+            Dim blockBottom = pageBottom - 2
+            Dim minimumTop = currentY + 12
+            If blockBottom - totalSignatureHeight < minimumTop Then
+                blockBottom = minimumTop + totalSignatureHeight + 8
+            End If
+
+            ' Shared Y coordinates for both blocks
+            Dim signatureLabelY As Integer = blockBottom - totalSignatureHeight
+            Dim signatureLineY As Integer = signatureLabelY + labelHeight + labelToSignLine
+            Dim signatureNameY As Integer = signatureLineY + signLineToName
+            Dim signaturePositionY As Integer = signatureNameY + nameHeight + nameToPosition
+
+            ' Center each block in its respective half
+            Dim leftBlockX As Integer = leftX + CInt((blockWidth - signLineWidth) / 2)
+            Dim rightBlockX As Integer = rightX + CInt((blockWidth - signLineWidth) / 2)
+
+            ' Title format
+            Dim fmtTitle As New StringFormat() With {
+                .Alignment = StringAlignment.Center,
+                .LineAlignment = StringAlignment.Center,
+                .FormatFlags = StringFormatFlags.NoWrap
+            }
+
+            ' === DRAW LEFT BLOCK ===
+            ' Title
+            g.DrawString(leftTitle, boldFont, Brushes.Black,
+                        New RectangleF(leftBlockX, signatureLabelY, blockWidth, labelHeight), fmtTitle)
+
+            ' Dotted signature line
+            DrawDottedLine(g, leftBlockX + CInt((blockWidth - signLineWidth) / 2), signatureLineY, signLineWidth, dotSpacing, dotRadius)
+
+            ' Name with fallback dots
+            Dim leftDisplay As String = If(String.IsNullOrWhiteSpace(leftName), ".....................................",
+                                           "(" & leftName & ")")
+            Using nameFont As Font = CreateFittedFont(g, leftDisplay, New Font("Tahoma", 12.0!, FontStyle.Bold), blockWidth - 8, 10.0!, FontStyle.Bold)
+                g.DrawString(leftDisplay, nameFont, Brushes.Black,
+                           New RectangleF(leftBlockX, signatureNameY, blockWidth, nameHeight), fmtTitle)
+            End Using
+
+            ' Position
+            g.DrawString(leftPosition, rowFont, Brushes.Black,
+                        New RectangleF(leftBlockX, signaturePositionY, blockWidth, positionHeight), fmtTitle)
+
+            ' === DRAW RIGHT BLOCK ===
+            ' Title
+            g.DrawString(rightTitle, boldFont, Brushes.Black,
+                        New RectangleF(rightBlockX, signatureLabelY, blockWidth, labelHeight), fmtTitle)
+
+            ' Dotted signature line
+            DrawDottedLine(g, rightBlockX + CInt((blockWidth - signLineWidth) / 2), signatureLineY, signLineWidth, dotSpacing, dotRadius)
+
+            ' Name with fallback dots
+            Dim rightDisplay As String = If(String.IsNullOrWhiteSpace(rightName), ".....................................",
+                                           "(" & rightName & ")")
+            Using nameFont As Font = CreateFittedFont(g, rightDisplay, New Font("Tahoma", 12.0!, FontStyle.Bold), blockWidth - 8, 10.0!, FontStyle.Bold)
+                g.DrawString(rightDisplay, nameFont, Brushes.Black,
+                           New RectangleF(rightBlockX, signatureNameY, blockWidth, nameHeight), fmtTitle)
+            End Using
+
+            ' Position
+            g.DrawString(rightPosition, rowFont, Brushes.Black,
+                        New RectangleF(rightBlockX, signaturePositionY, blockWidth, positionHeight), fmtTitle)
+
+            Return signaturePositionY + positionHeight
+        End Function
+
     End Module
 End Namespace
