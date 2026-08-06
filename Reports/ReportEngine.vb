@@ -514,28 +514,31 @@ Namespace TempleAccounting
                 y += 30
             End If
 
-            ' Date range - validate dates to prevent Buddhist year showing 544 (= DateTime.MinValue.Year + 543)
-            ' Note: fromDate is stored as Gregorian (e.g., 2026-07-01), so we check if year is reasonable
-            ' A valid date should have year between 1900 and 2100 in Gregorian, or we fallback to DateTime.Now
+            ' Date range - validate dates
+            ' We only fallback to DateTime.Now if the year is extremely small (e.g. 1), which indicates uninitialized date
+            ' Otherwise we trust the date passed from the form (which could be Gregorian 2026 or Buddhist 2569)
             System.Diagnostics.Debug.WriteLine("[DEBUG DrawHeader] Received fromDate: " & fromDate.ToString("yyyy-MM-dd") & ", toDate: " & toDate.ToString("yyyy-MM-dd"))
             
             Dim safeFromDate As Date = fromDate
             Dim safeToDate As Date = toDate
             
-            If fromDate.Year < 1900 OrElse fromDate.Year > 2100 Then
-                System.Diagnostics.Debug.WriteLine("[DEBUG DrawHeader] fromDate.Year " & fromDate.Year & " is out of range, using DateTime.Now")
+            If fromDate.Year < 100 Then
+                System.Diagnostics.Debug.WriteLine("[DEBUG DrawHeader] fromDate.Year " & fromDate.Year & " is too small, using DateTime.Now")
                 safeFromDate = DateTime.Now
             End If
             
-            If toDate.Year < 1900 OrElse toDate.Year > 2100 Then
-                System.Diagnostics.Debug.WriteLine("[DEBUG DrawHeader] toDate.Year " & toDate.Year & " is out of range, using DateTime.Now")
+            If toDate.Year < 100 Then
+                System.Diagnostics.Debug.WriteLine("[DEBUG DrawHeader] toDate.Year " & toDate.Year & " is too small, using DateTime.Now")
                 safeToDate = DateTime.Now
             End If
             
             System.Diagnostics.Debug.WriteLine("[DEBUG DrawHeader] Final safeFromDate: " & safeFromDate.ToString("yyyy-MM-dd") & ", safeToDate: " & safeToDate.ToString("yyyy-MM-dd"))
             
-            Dim yearB = (safeFromDate.Year + 543)
-            Dim dateLabel = "ประจำปี พ.ศ. " & ThaiNumerals(yearB.ToString()) &
+            ' Determine if we need to add 543 (if the date is in Gregorian)
+            Dim displayYear As Integer = safeFromDate.Year
+            If displayYear < 2400 Then displayYear += 543
+            
+            Dim dateLabel = "ประจำปี พ.ศ. " & ThaiNumerals(displayYear.ToString()) &
                            "    ตั้งแต่วันที่ ( " & ToBuddhistFull(safeFromDate) & " – " & ToBuddhistFull(safeToDate) & " )"
             g.DrawString(dateLabel, safeSubtitleFont, Brushes.Black,
                          New RectangleF(startX, y, pageWidth - 2 * startX, 30), fmtC)
@@ -654,14 +657,18 @@ Namespace TempleAccounting
         ''' Convert Date to Buddhist date short format (ม.ค.-56)
         ''' </summary>
         Public Function ToBuddhistDateShort(ByVal d As Date) As String
-            Return ThaiMonthAbbr(d.Month) & "-" & ThaiNumerals(((d.Year + 543) Mod 100).ToString())
+            Dim displayYear = d.Year
+            If displayYear < 2400 Then displayYear += 543
+            Return ThaiMonthAbbr(d.Month) & "-" & ThaiNumerals((displayYear Mod 100).ToString())
         End Function
 
         ''' <summary>
         ''' Convert Date to Buddhist full date format (1 มกราคม 2566 พ.ศ.)
         ''' </summary>
         Public Function ToBuddhistFull(ByVal d As Date) As String
-            Return ThaiNumerals(d.Day.ToString()) & " " & ThaiMonthFull(d.Month) & " พ.ศ. " & ThaiNumerals((d.Year + 543).ToString())
+            Dim displayYear = d.Year
+            If displayYear < 2400 Then displayYear += 543
+            Return ThaiNumerals(d.Day.ToString()) & " " & ThaiMonthFull(d.Month) & " พ.ศ. " & ThaiNumerals(displayYear.ToString())
         End Function
 
         ''' <summary>

@@ -287,11 +287,15 @@ Namespace TempleAccounting
         End Function
 
         Private Function ToBuddhistDateShort(ByVal d As Date) As String
-            Return ThaiMonthAbbr(d.Month) & "-" & ToThaiNumerals(((d.Year + 543) Mod 100).ToString())
+            Dim displayYear = d.Year
+            If displayYear < 2400 Then displayYear += 543
+            Return ThaiMonthAbbr(d.Month) & "-" & ToThaiNumerals((displayYear Mod 100).ToString())
         End Function
 
         Private Function ToBuddhistFull(ByVal d As Date) As String
-            Return ToThaiNumerals(d.Day.ToString()) & " " & ThaiMonthFull(d.Month) & " พ.ศ. " & ToThaiNumerals((d.Year + 543).ToString())
+            Dim displayYear = d.Year
+            If displayYear < 2400 Then displayYear += 543
+            Return ToThaiNumerals(d.Day.ToString()) & " " & ThaiMonthFull(d.Month) & " พ.ศ. " & ToThaiNumerals(displayYear.ToString())
         End Function
 
         Private Function ThaiMonthFull(ByVal m As Integer) As String
@@ -299,7 +303,8 @@ Namespace TempleAccounting
         End Function
 
         Private Function ToBuddhistYearThai(ByVal y As Integer) As String
-            Dim yB = y + 543
+            Dim yB = y
+            If yB < 2400 Then yB += 543
             Return ToThaiNumerals(yB.ToString())
         End Function
 
