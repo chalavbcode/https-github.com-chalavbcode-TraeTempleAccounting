@@ -37,10 +37,10 @@ Namespace TempleAccounting
     End Class
 
     ''' <summary>
-    ''' Template Information - stores temple and personnel settings for reports
+    ''' Temple Setting Information - stores temple and personnel settings for reports
     ''' Loaded once from database and shared across all reports
     ''' </summary>
-    Public Class TemplateInfo
+    Public Class TempleSettingInfo
         Public Property TempleName As String
         Public Property TempleAddress As String
         Public Property AbbotName As String
@@ -52,8 +52,8 @@ Namespace TempleAccounting
         ''' Default constructor with empty values
         ''' </summary>
         Public Sub New()
-            TempleName = ""
-            TempleAddress = ""
+            TempleName = "วัดแหลมยาง"
+            TempleAddress = "ต.ป่ามะคาบ อ.เมืองพิจิตร จ.พิจิตร"
             AbbotName = ""
             AccountantName = ""
             AbbotTitle = "เจ้าอาวาส"
@@ -65,14 +65,14 @@ Namespace TempleAccounting
         ''' </summary>
         Public Sub New(templeName As String, templeAddress As String, abbotName As String, accountantName As String)
             Me.New()
-            Me.TempleName = templeName
-            Me.TempleAddress = templeAddress
+            If Not String.IsNullOrWhiteSpace(templeName) Then Me.TempleName = templeName
+            If Not String.IsNullOrWhiteSpace(templeAddress) Then Me.TempleAddress = templeAddress
             Me.AbbotName = abbotName
             Me.AccountantName = accountantName
         End Sub
 
         ''' <summary>
-        ''' Returns true if template info has been loaded (has at least a temple name)
+        ''' Returns true if temple info has been loaded
         ''' </summary>
         Public Function IsLoaded() As Boolean
             Return Not String.IsNullOrWhiteSpace(TempleName)
@@ -319,27 +319,26 @@ Namespace TempleAccounting
     Public Module ReportEngine
 
         ' Cached TemplateInfo - loaded once and reused (module fields are implicitly shared)
-        Private _cachedTemplateInfo As TemplateInfo = Nothing
+        Private _cachedTemplateInfo As TempleSettingInfo = Nothing
 
         ''' <summary>
-        ''' Get the cached TemplateInfo instance, loading from database if not yet loaded
+        ''' Get the cached TempleSettingInfo instance, loading from database if not yet loaded
         ''' Reports should use this instead of querying database directly
         ''' </summary>
-        Public Function GetTemplateInfo() As TemplateInfo
+        Public Function GetTemplateInfo() As TempleSettingInfo
             If _cachedTemplateInfo Is Nothing Then
                 System.Diagnostics.Debug.WriteLine("[DEBUG GetTemplateInfo] Cache miss - loading from database")
                 _cachedTemplateInfo = LoadTemplateInfoFromDatabase()
             Else
                 System.Diagnostics.Debug.WriteLine("[DEBUG GetTemplateInfo] Cache HIT - returning cached templeName: '" & _cachedTemplateInfo.TempleName & "'")
             End If
-            System.Diagnostics.Debug.WriteLine("[DEBUG GetTemplateInfo] Returning templeName: '" & _cachedTemplateInfo.TempleName & "'")
             Return _cachedTemplateInfo
         End Function
 
         ''' <summary>
-        ''' Load TemplateInfo from database (called once, result cached)
+        ''' Load TempleSettingInfo from database (called once, result cached)
         ''' </summary>
-        Private Function LoadTemplateInfoFromDatabase() As TemplateInfo
+        Private Function LoadTemplateInfoFromDatabase() As TempleSettingInfo
             ' Default values
             Dim templeName As String = "วัดแหลมยาง"
             Dim templeAddress As String = "ต.ป่ามะคาบ อ.เมืองพิจิตร จ.พิจิตร"
@@ -351,59 +350,34 @@ Namespace TempleAccounting
                     ' Load TempleSetting - using explicit column names
                     Dim dt = Db.GetTable(conn, "SELECT TempleName, TempleAddress, Tambon, Amphoe, Province, PostCode FROM TempleSetting ORDER BY ID DESC")
                     
-                    ' DEBUG: Log what we found
-                    System.Diagnostics.Debug.WriteLine("[DEBUG LoadTemplateInfo] Rows found: " & dt.Rows.Count)
-                    
                     If dt.Rows.Count > 0 Then
                         Dim r = dt.Rows(0)
                         
-                        ' DEBUG: Log raw column values
-                        System.Diagnostics.Debug.WriteLine("[DEBUG LoadTemplateInfo] TempleName DBNull?: " & IsDBNull(r!TempleName) & ", Value: '" & CStr(r!TempleName) & "'")
-
-                        ' Temple basic info - with column existence check
+                        ' Temple basic info
                         If dt.Columns.Contains("TempleName") AndAlso Not IsDBNull(r!TempleName) AndAlso Not String.IsNullOrWhiteSpace(CStr(r!TempleName)) Then
                             templeName = CStr(r!TempleName).Trim()
                         End If
-                        
-                        ' DEBUG: Log after processing
-                        System.Diagnostics.Debug.WriteLine("[DEBUG LoadTemplateInfo] templeName after processing: '" & templeName & "'")
 
-                        ' Build address - with column existence checks
+                        ' Build address
                         Dim addressParts As New List(Of String)()
-                        System.Diagnostics.Debug.WriteLine("[DEBUG LoadTemplateInfo] Building address parts...")
                         If dt.Columns.Contains("TempleAddress") AndAlso Not IsDBNull(r!TempleAddress) AndAlso Not String.IsNullOrWhiteSpace(CStr(r!TempleAddress)) Then
-                            Dim addr = CStr(r!TempleAddress).Trim()
-                            addressParts.Add(addr)
-                            System.Diagnostics.Debug.WriteLine("[DEBUG LoadTemplateInfo] Added TempleAddress: '" & addr & "'")
+                            addressParts.Add(CStr(r!TempleAddress).Trim())
                         End If
                         If dt.Columns.Contains("Tambon") AndAlso Not IsDBNull(r!Tambon) AndAlso Not String.IsNullOrWhiteSpace(CStr(r!Tambon)) Then
-                            Dim tambon = "ต." & CStr(r!Tambon).Trim()
-                            addressParts.Add(tambon)
-                            System.Diagnostics.Debug.WriteLine("[DEBUG LoadTemplateInfo] Added Tambon: '" & tambon & "'")
+                            addressParts.Add("ต." & CStr(r!Tambon).Trim())
                         End If
                         If dt.Columns.Contains("Amphoe") AndAlso Not IsDBNull(r!Amphoe) AndAlso Not String.IsNullOrWhiteSpace(CStr(r!Amphoe)) Then
-                            Dim amphoe = "อ." & CStr(r!Amphoe).Trim()
-                            addressParts.Add(amphoe)
-                            System.Diagnostics.Debug.WriteLine("[DEBUG LoadTemplateInfo] Added Amphoe: '" & amphoe & "'")
+                            addressParts.Add("อ." & CStr(r!Amphoe).Trim())
                         End If
                         If dt.Columns.Contains("Province") AndAlso Not IsDBNull(r!Province) AndAlso Not String.IsNullOrWhiteSpace(CStr(r!Province)) Then
-                            Dim province = "จ." & CStr(r!Province).Trim()
-                            addressParts.Add(province)
-                            System.Diagnostics.Debug.WriteLine("[DEBUG LoadTemplateInfo] Added Province: '" & province & "'")
+                            addressParts.Add("จ." & CStr(r!Province).Trim())
                         End If
                         If dt.Columns.Contains("PostCode") AndAlso Not IsDBNull(r!PostCode) AndAlso Not String.IsNullOrWhiteSpace(CStr(r!PostCode)) Then
-                            Dim postcode = CStr(r!PostCode).Trim()
-                            addressParts.Add(postcode)
-                            System.Diagnostics.Debug.WriteLine("[DEBUG LoadTemplateInfo] Added PostCode: '" & postcode & "'")
+                            addressParts.Add(CStr(r!PostCode).Trim())
                         End If
-                        
-                        System.Diagnostics.Debug.WriteLine("[DEBUG LoadTemplateInfo] Total address parts: " & addressParts.Count)
 
                         If addressParts.Count > 0 Then
                             templeAddress = String.Join(" ", addressParts).Trim()
-                            System.Diagnostics.Debug.WriteLine("[DEBUG LoadTemplateInfo] Final templeAddress: '" & templeAddress & "'")
-                        Else
-                            System.Diagnostics.Debug.WriteLine("[DEBUG LoadTemplateInfo] No address parts found - using default")
                         End If
 
                         ' Load Abbot and Accountant names via JOIN
@@ -411,16 +385,11 @@ Namespace TempleAccounting
                                   "FROM (TempleSetting AS TS " &
                                   "LEFT JOIN Personnel AS PA ON TS.AbbotPersonnelID = PA.PersonnelID) " &
                                   "LEFT JOIN Personnel AS PW ON TS.WaiyawatPersonnelID = PW.PersonnelID"
-                        System.Diagnostics.Debug.WriteLine("[DEBUG LoadTemplateInfo] Executing SQL: " & sql)
                         Dim dtPersonnel = Db.GetTable(conn, sql)
-                        System.Diagnostics.Debug.WriteLine("[DEBUG LoadTemplateInfo] Personnel rows found: " & dtPersonnel.Rows.Count)
                         If dtPersonnel.Rows.Count > 0 Then
                             Dim pr = dtPersonnel.Rows(0)
-                            System.Diagnostics.Debug.WriteLine("[DEBUG LoadTemplateInfo] AbbotName DBNull?: " & IsDBNull(pr!AbbotName) & ", Raw: '" & CStr(pr!AbbotName) & "'")
-                            System.Diagnostics.Debug.WriteLine("[DEBUG LoadTemplateInfo] AccountantName DBNull?: " & IsDBNull(pr!AccountantName) & ", Raw: '" & CStr(pr!AccountantName) & "'")
                             abbotName = If(IsDBNull(pr!AbbotName), "", CStr(pr!AbbotName).Trim())
                             accountantName = If(IsDBNull(pr!AccountantName), "", CStr(pr!AccountantName).Trim())
-                            System.Diagnostics.Debug.WriteLine("[DEBUG LoadTemplateInfo] After processing - AbbotName: '" & abbotName & "', AccountantName: '" & accountantName & "'")
                         End If
                     End If
                 End Using
@@ -428,13 +397,7 @@ Namespace TempleAccounting
                 System.Diagnostics.Debug.WriteLine("[ERROR] Failed to load TemplateInfo: " & ex.ToString())
             End Try
 
-            ' Ensure no Nothing values are passed - use empty string fallback
-            Return New TemplateInfo(
-                If(templeName, ""),
-                If(templeAddress, ""),
-                If(abbotName, ""),
-                If(accountantName, "")
-            )
+            Return New TempleSettingInfo(templeName, templeAddress, abbotName, accountantName)
         End Function
 
         ''' <summary>
@@ -554,10 +517,23 @@ Namespace TempleAccounting
             ' Date range - validate dates to prevent Buddhist year showing 544 (= DateTime.MinValue.Year + 543)
             ' Note: fromDate is stored as Gregorian (e.g., 2026-07-01), so we check if year is reasonable
             ' A valid date should have year between 1900 and 2100 in Gregorian, or we fallback to DateTime.Now
-            System.Diagnostics.Debug.WriteLine("[DEBUG DrawHeader] fromDate.Year: " & fromDate.Year & ", toDate.Year: " & toDate.Year)
-            Dim safeFromDate As Date = If(fromDate.Year >= 1900 AndAlso fromDate.Year <= 2100, fromDate, DateTime.Now)
-            Dim safeToDate As Date = If(toDate.Year >= 1900 AndAlso toDate.Year <= 2100, toDate, DateTime.Now)
-            System.Diagnostics.Debug.WriteLine("[DEBUG DrawHeader] safeFromDate: " & safeFromDate & ", safeToDate: " & safeToDate)
+            System.Diagnostics.Debug.WriteLine("[DEBUG DrawHeader] Received fromDate: " & fromDate.ToString("yyyy-MM-dd") & ", toDate: " & toDate.ToString("yyyy-MM-dd"))
+            
+            Dim safeFromDate As Date = fromDate
+            Dim safeToDate As Date = toDate
+            
+            If fromDate.Year < 1900 OrElse fromDate.Year > 2100 Then
+                System.Diagnostics.Debug.WriteLine("[DEBUG DrawHeader] fromDate.Year " & fromDate.Year & " is out of range, using DateTime.Now")
+                safeFromDate = DateTime.Now
+            End If
+            
+            If toDate.Year < 1900 OrElse toDate.Year > 2100 Then
+                System.Diagnostics.Debug.WriteLine("[DEBUG DrawHeader] toDate.Year " & toDate.Year & " is out of range, using DateTime.Now")
+                safeToDate = DateTime.Now
+            End If
+            
+            System.Diagnostics.Debug.WriteLine("[DEBUG DrawHeader] Final safeFromDate: " & safeFromDate.ToString("yyyy-MM-dd") & ", safeToDate: " & safeToDate.ToString("yyyy-MM-dd"))
+            
             Dim yearB = (safeFromDate.Year + 543)
             Dim dateLabel = "ประจำปี พ.ศ. " & ThaiNumerals(yearB.ToString()) &
                            "    ตั้งแต่วันที่ ( " & ToBuddhistFull(safeFromDate) & " – " & ToBuddhistFull(safeToDate) & " )"
