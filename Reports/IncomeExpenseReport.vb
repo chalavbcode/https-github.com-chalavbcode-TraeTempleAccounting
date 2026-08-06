@@ -603,7 +603,7 @@ Namespace TempleAccounting
             g.DrawRectangle(_theme.BlackPen, _leftX + c1 + c2 + c3, y, c4, rowH)
             g.DrawString("รวมทั้งสิ้น", _theme.BigBoldFont, Brushes.Black,
                          New RectangleF(_leftX + c1 + c2, y, c3, rowH), fmtC)
-            g.DrawString(FormatThaiAmount(_reportGrandTotal), _theme.BigBoldFont, Brushes.Black,
+            g.DrawString(FormatThaiAmount(_balance), _theme.BigBoldFont, Brushes.Black,
                          New RectangleF(_leftX + c1 + c2 + c3, y, c4 - 4, rowH), fmtR)
             ' RIGHT - Draw only the amount box and text label (No grid for empty columns)
             g.DrawRectangle(_theme.BlackPen, _rightX + c1 + c2 + c3, y, c4, rowH)
