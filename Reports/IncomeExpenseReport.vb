@@ -581,8 +581,15 @@ Namespace TempleAccounting
             
             y += rowH
 
-            ' --- ROW 2: Adjustments (รวมทั้งสิ้น / ยอดคงเหลือยกไป) ---
-            ' LEFT (Grid removed to strictly show only 2 rows on Income side: รวมรายรับ and รวมทั้งสิ้น)
+            ' --- ROW 2: Adjustments (Income รวมทั้งสิ้น / Expense ยอดคงเหลือยกไป) ---
+            Dim netBalance = _totalIncome - _totalExpense
+
+            ' LEFT (Income รวมทั้งสิ้น - Aligned with Expense carry forward)
+            g.DrawRectangle(_theme.BlackPen, _leftX + c1 + c2 + c3, y, c4, rowH)
+            g.DrawString("รวมทั้งสิ้น", _theme.BigBoldFont, Brushes.Black,
+                         New RectangleF(_leftX + c1 + c2, y, c3, rowH), fmtC)
+            g.DrawString(FormatThaiAmount(netBalance), _theme.BigBoldFont, Brushes.Black,
+                         New RectangleF(_leftX + c1 + c2 + c3, y, c4 - 4, rowH), fmtR)
 
             ' RIGHT (ยอดคงเหลือยกไป)
             g.DrawRectangle(_theme.BlackPen, _rightX, y, usableW, rowH)
@@ -593,23 +600,19 @@ Namespace TempleAccounting
                 g.DrawString(balanceLabel, fittedCarryFont, Brushes.Red,
                              New RectangleF(carryLabelX, y, carryLabelWidth, rowH), fmtL)
             End Using
-            g.DrawString(FormatThaiAmount(_balance), _theme.BigBoldFont, Brushes.Red,
+            g.DrawString(FormatThaiAmount(netBalance), _theme.BigBoldFont, Brushes.Red,
                          New RectangleF(_rightX + c1 + c2 + c3, y, c4 - 4, rowH), fmtR)
             
             y += rowH
 
-            ' --- ROW 3: Final Grand Totals (รวมทั้งสิ้น: ต้องเท่ากันทั้งสองฝั่ง) ---
-            ' LEFT - Draw only the amount box and text label (No grid for empty columns)
-            g.DrawRectangle(_theme.BlackPen, _leftX + c1 + c2 + c3, y, c4, rowH)
-            g.DrawString("รวมทั้งสิ้น", _theme.BigBoldFont, Brushes.Black,
-                         New RectangleF(_leftX + c1 + c2, y, c3, rowH), fmtC)
-            g.DrawString(FormatThaiAmount(_balance), _theme.BigBoldFont, Brushes.Black,
-                         New RectangleF(_leftX + c1 + c2 + c3, y, c4 - 4, rowH), fmtR)
-            ' RIGHT - Draw only the amount box and text label (No grid for empty columns)
+            ' --- ROW 3: Final Grand Totals (Expense side only) ---
+            ' LEFT - Blank (No drawing)
+
+            ' RIGHT - รวมทั้งสิ้น
             g.DrawRectangle(_theme.BlackPen, _rightX + c1 + c2 + c3, y, c4, rowH)
             g.DrawString("รวมทั้งสิ้น", _theme.BigBoldFont, Brushes.Black,
                          New RectangleF(_rightX + c1 + c2, y, c3, rowH), fmtC)
-            g.DrawString(FormatThaiAmount(_reportGrandTotal), _theme.BigBoldFont, Brushes.Black,
+            g.DrawString(FormatThaiAmount(_totalIncome), _theme.BigBoldFont, Brushes.Black,
                          New RectangleF(_rightX + c1 + c2 + c3, y, c4 - 4, rowH), fmtR)
 
             _pageY = y + rowH
