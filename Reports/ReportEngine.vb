@@ -10,6 +10,30 @@ Imports System.Globalization
 
 Namespace TempleAccounting
     ''' <summary>
+    ''' Report Information - stores all header data needed for report rendering
+    ''' </summary>
+    Public Class ReportInfo
+        Public Property ReportTitle As String
+        Public Property TempleName As String
+        Public Property TempleAddress As String
+        Public Property FromDate As Date
+        Public Property ToDate As Date
+        Public Property FiscalYear As Integer
+
+        Public Sub New()
+        End Sub
+
+        Public Sub New(title As String, templeName As String, templeAddress As String, fromDate As Date, toDate As Date)
+            ReportTitle = title
+            TempleName = templeName
+            TempleAddress = templeAddress
+            FromDate = fromDate
+            ToDate = toDate
+            FiscalYear = fromDate.Year + 543
+        End Sub
+    End Class
+
+    ''' <summary>
     ''' Report Layout Configuration - stores all layout parameters for a report page
     ''' Replaces hardcoded coordinates with a reusable configuration object
     ''' </summary>
@@ -42,6 +66,20 @@ Namespace TempleAccounting
         Public Property Col2Percent As Single    ' Day column
         Public Property Col3Percent As Single    ' Description column
         Public Property Col4Percent As Single    ' Amount column
+
+        ' Header layout constants
+        Public Property TitleHeight As Integer = 36
+        Public Property SubtitleHeight As Integer = 30
+        Public Property DateRangeHeight As Integer = 30
+        Public Property HeaderTotalHeight As Integer = 96  ' Title(36) + Subtitle(30) + DateRange(30)
+
+        ' Page number layout
+        Public Property PageNumberX As Integer = 0  ' Upper-right, calculated
+        Public Property PageNumberY As Integer = 8
+        Public Property PageNumberWidth As Integer = 100
+
+        ' Table header
+        Public Property TableHeaderHeightMultiplier As Integer = 2
 
         ' Start positions
         Public Property StartX As Integer        ' Left edge of content
@@ -276,13 +314,15 @@ Namespace TempleAccounting
         End Sub
 
         ''' <summary>
-        ''' Draw standard report header with title, temple info, and date range
+        ''' Draw standard report header with title, temple info, date range, and page number
         ''' Returns the Y position after the header (for continuing layout)
+        ''' Page number is drawn in upper-right corner using Thai numerals
         ''' </summary>
         Public Function DrawHeader(g As Graphics, title As String, templeName As String, templeAddress As String,
                                   fromDate As Date, toDate As Date,
                                   titleFont As Font, subtitleFont As Font,
-                                  startX As Integer, startY As Integer, pageWidth As Integer) As Integer
+                                  startX As Integer, startY As Integer, pageWidth As Integer,
+                                  Optional pageNumber As Integer = 0, Optional totalPages As Integer = 0) As Integer
             Dim fmtC As New StringFormat() With {
                 .Alignment = StringAlignment.Center,
                 .LineAlignment = StringAlignment.Center
@@ -311,8 +351,38 @@ Namespace TempleAccounting
                          New RectangleF(startX, y, pageWidth - 2 * startX, 30), fmtC)
             y += 36
 
+            ' Draw page number in upper-right corner
+            If pageNumber > 0 Then
+                DrawPageNumberCorner(g, pageNumber, totalPages, startX, pageWidth, startY, titleFont)
+            End If
+
             Return y
         End Function
+
+        ''' <summary>
+        ''' Draw page number in upper-right corner using Thai numerals
+        ''' Format: หน้า ๑ / ๓
+        ''' </summary>
+        Private Sub DrawPageNumberCorner(g As Graphics, pageNumber As Integer, totalPages As Integer,
+                                        startX As Integer, pageWidth As Integer, headerTop As Integer, font As Font)
+            Dim pageNumText As String
+            If totalPages > 0 Then
+                pageNumText = "หน้า " & ToThaiNumber(pageNumber) & " / " & ToThaiNumber(totalPages)
+            Else
+                pageNumText = "หน้า " & ToThaiNumber(pageNumber)
+            End If
+
+            Dim fmtR As New StringFormat() With {
+                .Alignment = StringAlignment.Far,
+                .LineAlignment = StringAlignment.Near
+            }
+
+            Dim textWidth = g.MeasureString(pageNumText, font).Width
+            Dim x = pageWidth - startX - CInt(textWidth) - 8
+            Dim y = headerTop + 4
+
+            g.DrawString(pageNumText, font, Brushes.Black, New RectangleF(x, y, textWidth + 20, 30), fmtR)
+        End Sub
 
         ''' <summary>
         ''' Convert Arabic digits to Thai numerals
@@ -327,6 +397,14 @@ Namespace TempleAccounting
                 End If
             Next
             Return result
+        End Function
+
+        ''' <summary>
+        ''' Convert integer to Thai numerals
+        ''' Example: 123 -> "๑๒๓"
+        ''' </summary>
+        Public Function ToThaiNumber(value As Integer) As String
+            Return ThaiNumerals(value.ToString())
         End Function
 
         ''' <summary>
