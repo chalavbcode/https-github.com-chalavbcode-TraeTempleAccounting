@@ -33,13 +33,7 @@ Namespace TempleAccounting
         Private _manualOpeningBalance As Decimal? = Nothing
         Private _reportGrandTotal As Decimal
         Private _balance As Decimal
-        Private _templeName As String = ""
-        Private _templeAddress As String = ""
-        Private _abbotPersonnelID As Integer? = Nothing
-        Private _abbotName As String = ""
-        Private _waiyawatPersonnelID As Integer? = Nothing
-        Private _waiyawatName As String = ""
-        Private _inspectorName As String = ""
+        Private _templateInfo As TemplateInfo
 
         Private _layout As LayoutConfig
         Private _theme As ReportTheme
@@ -77,16 +71,16 @@ Namespace TempleAccounting
         ''' </summary>
         Public ReadOnly Property AbbotName As String
             Get
-                Return _abbotName
+                Return If(_templateInfo IsNot Nothing, _templateInfo.AbbotName, "")
             End Get
         End Property
 
         ''' <summary>
-        ''' ชื่อไวยาวัจกร (สำหรับแสดงในรายงาน)
+        ''' ชื่อผู้จัดทำบัญชี (สำหรับแสดงในรายงาน)
         ''' </summary>
-        Public ReadOnly Property WaiyawatName As String
+        Public ReadOnly Property AccountantName As String
             Get
-                Return _waiyawatName
+                Return If(_templateInfo IsNot Nothing, _templateInfo.AccountantName, "")
             End Get
         End Property
 
@@ -136,8 +130,11 @@ Namespace TempleAccounting
         Private Sub LoadData()
             Try
                 Db.EnsureSchema()
+
+                ' Get shared TemplateInfo (loaded once from database)
+                _templateInfo = ReportEngine.GetTemplateInfo()
+
                 Using conn = Db.OpenConn()
-                    LoadTempleInfo(conn)
                     _incomeRows.Clear()
                     _expenseRows.Clear()
                     _totalIncome = 0
@@ -156,11 +153,11 @@ Namespace TempleAccounting
                     _reportGrandTotal = _openingBalance + _totalIncome
                     _balance = _reportGrandTotal - _totalExpense
 
-                    ' Initialize ReportInfo for header rendering
+                    ' Initialize ReportInfo for header rendering using shared TemplateInfo
                     Dim reportTitle = If(_mode = ReportModes.Summary, "สรุปบัญชีรายรับ - รายจ่าย (แบบย่อ)", "สรุปบัญชีรายรับ - รายจ่าย (แบบละเอียด)")
-                    If String.IsNullOrEmpty(_templeName) Then _templeName = "วัดแหลมยาง"
-                    If String.IsNullOrEmpty(_templeAddress) Then _templeAddress = "ต.ป่ามะคาบ อ.เมืองพิจิตร จ.พิจิตร"
-                    _reportInfo = New ReportInfo(reportTitle, _templeName, _templeAddress, _fromDate, _toDate)
+                    Dim templeName = If(String.IsNullOrWhiteSpace(_templateInfo.TempleName), "วัดแหลมยาง", _templateInfo.TempleName)
+                    Dim templeAddress = If(String.IsNullOrWhiteSpace(_templateInfo.TempleAddress), "ต.ป่ามะคาบ อ.เมืองพิจิตร จ.พิจิตร", _templateInfo.TempleAddress)
+                    _reportInfo = New ReportInfo(reportTitle, templeName, templeAddress, _fromDate, _toDate)
                 End Using
             Catch ex As Exception
                 Throw
@@ -258,109 +255,6 @@ Namespace TempleAccounting
             Next
         End Sub
 
-        Private Sub LoadTempleInfo(conn As OleDbConnection)
-            ' STEP 1: Load TempleSetting from database
-            Try
-                System.Diagnostics.Debug.WriteLine("[TRACE] Step 1: Loading TempleSetting...")
-                Dim dt = Db.GetTable(conn, "SELECT TOP 1 * FROM TempleSetting ORDER BY ID DESC")
-                If dt.Rows.Count > 0 Then
-                    Dim r = dt.Rows(0)
-                    ' Print all TempleSetting columns
-                    For Each col As DataColumn In dt.Columns
-                        System.Diagnostics.Debug.WriteLine("[TRACE]   TS Column: " & col.ColumnName & " = " & r(col).ToString())
-                    Next
-
-                    ' Temple basic info
-                    If Not IsDBNull(r!TempleName) Then _templeName = CStr(r!TempleName)
-                    System.Diagnostics.Debug.WriteLine("[TRACE] Step 1a: TempleCode = " & If(dt.Columns.Contains("TempleCode") AndAlso Not IsDBNull(r!TempleCode), r!TempleCode.ToString(), "N/A"))
-                    System.Diagnostics.Debug.WriteLine("[TRACE] Step 1b: TempleName = " & _templeName)
-
-                    ' STEP 1c: Check AbbotPersonnelID and WaiyawatPersonnelID
-                    Dim abbotID As Object = Nothing
-                    Dim waiyawatID As Object = Nothing
-                    If dt.Columns.Contains("AbbotPersonnelID") Then abbotID = r!AbbotPersonnelID
-                    If dt.Columns.Contains("WaiyawatPersonnelID") Then waiyawatID = r!WaiyawatPersonnelID
-                    System.Diagnostics.Debug.WriteLine("[TRACE] Step 1c: AbbotPersonnelID = " & If(abbotID Is Nothing OrElse abbotID Is DBNull.Value, "NULL", abbotID.ToString()))
-                    System.Diagnostics.Debug.WriteLine("[TRACE] Step 1c: WaiyawatPersonnelID = " & If(waiyawatID Is Nothing OrElse waiyawatID Is DBNull.Value, "NULL", waiyawatID.ToString()))
-
-                    ' Store PersonnelIDs in private fields
-                    If abbotID IsNot Nothing AndAlso Not IsDBNull(abbotID) Then
-                        _abbotPersonnelID = Convert.ToInt32(abbotID)
-                    End If
-                    If waiyawatID IsNot Nothing AndAlso Not IsDBNull(waiyawatID) Then
-                        _waiyawatPersonnelID = Convert.ToInt32(waiyawatID)
-                    End If
-
-                    ' STEP 1d: Try to read AbbotName (legacy column - might be dropped)
-                    System.Diagnostics.Debug.WriteLine("[TRACE] Step 1d: Checking for AbbotName column in TempleSetting...")
-                    If dt.Columns.Contains("AbbotName") Then
-                        System.Diagnostics.Debug.WriteLine("[TRACE] Step 1d: AbbotName EXISTS in TempleSetting = " & If(IsDBNull(r!AbbotName), "NULL", r!AbbotName.ToString()))
-                    Else
-                        System.Diagnostics.Debug.WriteLine("[TRACE] Step 1d: AbbotName column DOES NOT EXIST in TempleSetting (may have been dropped)")
-                    End If
-
-                    ' Address building
-                    Dim templeAddressLine = ""
-                    If Not IsDBNull(r!TempleAddress) Then templeAddressLine = CStr(r!TempleAddress).Trim()
-                    If Not IsDBNull(r!AbbotName) Then _inspectorName = CStr(r!AbbotName)
-                    Dim tambon = "", amphoe = "", prov = "", post = ""
-                    If Not IsDBNull(r!Tambon) Then tambon = CStr(r!Tambon)
-                    If Not IsDBNull(r!Amphoe) Then amphoe = CStr(r!Amphoe)
-                    If Not IsDBNull(r!Province) Then prov = CStr(r!Province)
-                    If Not IsDBNull(r!PostCode) Then post = CStr(r!PostCode)
-                    Dim addressParts As New List(Of String)()
-                    If Not String.IsNullOrWhiteSpace(templeAddressLine) Then addressParts.Add(templeAddressLine)
-                    If Not String.IsNullOrWhiteSpace(tambon) Then addressParts.Add("ต." & tambon.Trim())
-                    If Not String.IsNullOrWhiteSpace(amphoe) Then addressParts.Add("อ." & amphoe.Trim())
-                    If Not String.IsNullOrWhiteSpace(prov) Then addressParts.Add("จ." & prov.Trim())
-                    If Not String.IsNullOrWhiteSpace(post) Then addressParts.Add(post.Trim())
-                    _templeAddress = String.Join(" ", addressParts).Trim()
-                    System.Diagnostics.Debug.WriteLine("[TRACE] Step 1e: TempleAddress = " & _templeAddress)
-                Else
-                    System.Diagnostics.Debug.WriteLine("[TRACE] Step 1: NO TempleSetting ROWS FOUND")
-                End If
-            Catch ex As Exception
-                System.Diagnostics.Debug.WriteLine("[TRACE] Step 1 ERROR: " & ex.ToString())
-            End Try
-
-            ' STEP 2: Load AbbotName and WaiyawatName via JOIN
-            System.Diagnostics.Debug.WriteLine("[TRACE] Step 2: Loading Abbot/Waiyawat via JOIN...")
-            Try
-                ' ใช้ Personnel.FullName โดยตรงเพื่อหลีกเลี่ยงปัญหา NULL จาก Title/FirstName/LastName
-                Dim sql = "SELECT PA.FullName AS AbbotName, PW.FullName AS WaiyawatName " &
-                          "FROM (TempleSetting AS TS " &
-                          "LEFT JOIN Personnel AS PA ON TS.AbbotPersonnelID = PA.PersonnelID) " &
-                          "LEFT JOIN Personnel AS PW ON TS.WaiyawatPersonnelID = PW.PersonnelID"
-                System.Diagnostics.Debug.WriteLine("[TRACE] Step 2 SQL: " & sql)
-                Dim dt = Db.GetTable(conn, sql)
-                System.Diagnostics.Debug.WriteLine("[TRACE] Step 2: JOIN returned " & dt.Rows.Count & " rows")
-                If dt.Rows.Count > 0 Then
-                    Dim r = dt.Rows(0)
-                    For Each col As DataColumn In dt.Columns
-                        System.Diagnostics.Debug.WriteLine("[TRACE]   JOIN Column: " & col.ColumnName & " = " & If(IsDBNull(r(col)), "NULL", r(col).ToString()))
-                    Next
-
-                    ' STEP 3: Assign to _abbotName and _waiyawatName
-                    System.Diagnostics.Debug.WriteLine("[TRACE] Step 3: Before assignment...")
-                    System.Diagnostics.Debug.WriteLine("[TRACE]   r!AbbotName = " & If(IsDBNull(r!AbbotName), "NULL", r!AbbotName.ToString()))
-                    System.Diagnostics.Debug.WriteLine("[TRACE]   r!WaiyawatName = " & If(IsDBNull(r!WaiyawatName), "NULL", r!WaiyawatName.ToString()))
-
-                    _abbotName = If(IsDBNull(r!AbbotName), "", r!AbbotName.ToString())
-                    _waiyawatName = If(IsDBNull(r!WaiyawatName), "", r!WaiyawatName.ToString())
-
-                    ' STEP 4: After assignment - verify fields
-                    System.Diagnostics.Debug.WriteLine("[TRACE] Step 4: After assignment to _fields...")
-                    System.Diagnostics.Debug.WriteLine("[TRACE]   _abbotName = '" & _abbotName & "'")
-                    System.Diagnostics.Debug.WriteLine("[TRACE]   _waiyawatName = '" & _waiyawatName & "'")
-                Else
-                    System.Diagnostics.Debug.WriteLine("[TRACE] Step 2: NO ROWS returned from JOIN - TempleSetting may be empty")
-                End If
-            Catch ex As Exception
-                System.Diagnostics.Debug.WriteLine("[TRACE] Step 2 ERROR: " & ex.ToString())
-            End Try
-            System.Diagnostics.Debug.WriteLine("[TRACE] LoadTempleInfo COMPLETE. _abbotName='" & _abbotName & "', _waiyawatName='" & _waiyawatName & "'")
-        End Sub
-
         Private Function ToThaiNumerals(s As String) As String
             Dim result As String = ""
             For Each ch In s
@@ -434,10 +328,8 @@ Namespace TempleAccounting
             ' [REPORT DEBUG] - Pagination accuracy testing
             System.Diagnostics.Debug.WriteLine("")
             System.Diagnostics.Debug.WriteLine("[REPORT DEBUG] ====================================")
-            System.Diagnostics.Debug.WriteLine("[REPORT DEBUG] AbbotPersonnelID = " & If(_abbotPersonnelID.HasValue, _abbotPersonnelID.Value.ToString(), "NULL"))
-            System.Diagnostics.Debug.WriteLine("[REPORT DEBUG] AbbotName = " & _abbotName)
-            System.Diagnostics.Debug.WriteLine("[REPORT DEBUG] WaiyawatPersonnelID = " & If(_waiyawatPersonnelID.HasValue, _waiyawatPersonnelID.Value.ToString(), "NULL"))
-            System.Diagnostics.Debug.WriteLine("[REPORT DEBUG] WaiyawatName = " & _waiyawatName)
+            System.Diagnostics.Debug.WriteLine("[REPORT DEBUG] AbbotName = " & _templateInfo.AbbotName)
+            System.Diagnostics.Debug.WriteLine("[REPORT DEBUG] AccountantName = " & _templateInfo.AccountantName)
             System.Diagnostics.Debug.WriteLine("[REPORT DEBUG] Page Number = " & (_pageIndex + 1))
             System.Diagnostics.Debug.WriteLine("[REPORT DEBUG] Current Y Position = " & _pageY)
             System.Diagnostics.Debug.WriteLine("[REPORT DEBUG] Remaining Height = " & (_pageBottom - _pageY))
@@ -726,8 +618,8 @@ Namespace TempleAccounting
         Private Sub DrawSignatures(g As Graphics, rowH As Integer, c1 As Integer, c2 As Integer, c3 As Integer, c4 As Integer, usableW As Integer)
             ' Delegate to shared ReportEngine.DrawSignatureBlock for consistent rendering
             _pageY = ReportEngine.DrawSignatureBlock(g,
-                "ตรวจถูกต้องแล้ว", _abbotName, "เจ้าอาวาส",
-                "ผู้จัดทำบัญชี", _waiyawatName, "ไวยาวัจกร",
+                "ตรวจถูกต้องแล้ว", _templateInfo.AbbotName, "เจ้าอาวาส",
+                "ผู้จัดทำบัญชี", _templateInfo.AccountantName, "ไวยาวัจกร",
                 _leftX, _rightX, _leftSectionWidth, _pageBottom, _pageY,
                 _theme.BoldFont, _theme.RowFont)
         End Sub
@@ -804,11 +696,12 @@ Namespace TempleAccounting
             ' Delegate to shared ReportEngine.DrawHeader for consistent rendering
             ' Uses _reportInfo which is initialized in LoadData
             If _reportInfo Is Nothing Then
-                ' Fallback if _reportInfo not initialized
+                ' Fallback if _reportInfo not initialized - use shared TemplateInfo
                 Dim reportTitle = If(_mode = ReportModes.Summary, "สรุปบัญชีรายรับ - รายจ่าย (แบบย่อ)", "สรุปบัญชีรายรับ - รายจ่าย (แบบละเอียด)")
-                If String.IsNullOrEmpty(_templeName) Then _templeName = "วัดแหลมยาง"
-                If String.IsNullOrEmpty(_templeAddress) Then _templeAddress = "ต.ป่ามะคาบ อ.เมืองพิจิตร จ.พิจิตร"
-                _reportInfo = New ReportInfo(reportTitle, _templeName, _templeAddress, _fromDate, _toDate)
+                Dim template = ReportEngine.GetTemplateInfo()
+                Dim templeName = If(String.IsNullOrWhiteSpace(template.TempleName), "วัดแหลมยาง", template.TempleName)
+                Dim templeAddress = If(String.IsNullOrWhiteSpace(template.TempleAddress), "ต.ป่ามะคาบ อ.เมืองพิจิตร จ.พิจิตร", template.TempleAddress)
+                _reportInfo = New ReportInfo(reportTitle, templeName, templeAddress, _fromDate, _toDate)
             End If
             _pageY = ReportEngine.DrawHeader(g, _reportInfo.ReportTitle, _reportInfo.TempleName, _reportInfo.TempleAddress,
                                             _reportInfo.FromDate, _reportInfo.ToDate,
