@@ -43,6 +43,8 @@ Namespace TempleAccounting
 
         Private _layout As LayoutConfig
         Private _theme As ReportTheme
+        Private _reportInfo As ReportInfo
+        Private _totalPages As Integer = 0
 
         Private _leftSectionWidth As Integer
         Private _rightSectionWidth As Integer
@@ -153,6 +155,12 @@ Namespace TempleAccounting
                     _incomeRows.Insert(0, BuildOpeningBalanceRow())
                     _reportGrandTotal = _openingBalance + _totalIncome
                     _balance = _reportGrandTotal - _totalExpense
+
+                    ' Initialize ReportInfo for header rendering
+                    Dim reportTitle = If(_mode = ReportModes.Summary, "สรุปบัญชีรายรับ - รายจ่าย (แบบย่อ)", "สรุปบัญชีรายรับ - รายจ่าย (แบบละเอียด)")
+                    If String.IsNullOrEmpty(_templeName) Then _templeName = "วัดแหลมยาง"
+                    If String.IsNullOrEmpty(_templeAddress) Then _templeAddress = "ต.ป่ามะคาบ อ.เมืองพิจิตร จ.พิจิตร"
+                    _reportInfo = New ReportInfo(reportTitle, _templeName, _templeAddress, _fromDate, _toDate)
                 End Using
             Catch ex As Exception
                 Throw
@@ -443,10 +451,9 @@ Namespace TempleAccounting
 
             Dim totalRows = Math.Max(_incomeRows.Count, _expenseRows.Count)
 
-            ' Only draw header if we still have transactions to print
-            If _rowIndex < totalRows Then
-                DrawHeader(g, pageW)
-            End If
+            ' Draw header on EVERY page with page number in upper-right corner
+            ' Page number uses Thai numerals: หน้า ๑ / ๓
+            DrawHeader(g, pageW, _pageIndex + 1, _totalPages)
 
             Dim colW1 = CInt(usableW * 0.16)
             Dim colW2 = CInt(usableW * 0.1)
@@ -793,13 +800,20 @@ Namespace TempleAccounting
             _pageY += rowH * 2
         End Sub
 
-        Private Sub DrawHeader(g As Graphics, pageW As Integer)
+        Private Sub DrawHeader(g As Graphics, pageW As Integer, pageNumber As Integer, totalPages As Integer)
             ' Delegate to shared ReportEngine.DrawHeader for consistent rendering
-            If String.IsNullOrEmpty(_templeName) Then _templeName = "วัดแหลมยาง"
-            If String.IsNullOrEmpty(_templeAddress) Then _templeAddress = "ต.ป่ามะคาบ อ.เมืองพิจิตร จ.พิจิตร"
-            Dim reportTitle = If(_mode = ReportModes.Summary, "สรุปบัญชีรายรับ - รายจ่าย (แบบย่อ)", "สรุปบัญชีรายรับ - รายจ่าย (แบบละเอียด)")
-            _pageY = ReportEngine.DrawHeader(g, reportTitle, _templeName, _templeAddress, _fromDate, _toDate,
-                                            _theme.TitleFont, _theme.SubTitleFont, _startX, _pageY, pageW)
+            ' Uses _reportInfo which is initialized in LoadData
+            If _reportInfo Is Nothing Then
+                ' Fallback if _reportInfo not initialized
+                Dim reportTitle = If(_mode = ReportModes.Summary, "สรุปบัญชีรายรับ - รายจ่าย (แบบย่อ)", "สรุปบัญชีรายรับ - รายจ่าย (แบบละเอียด)")
+                If String.IsNullOrEmpty(_templeName) Then _templeName = "วัดแหลมยาง"
+                If String.IsNullOrEmpty(_templeAddress) Then _templeAddress = "ต.ป่ามะคาบ อ.เมืองพิจิตร จ.พิจิตร"
+                _reportInfo = New ReportInfo(reportTitle, _templeName, _templeAddress, _fromDate, _toDate)
+            End If
+            _pageY = ReportEngine.DrawHeader(g, _reportInfo.ReportTitle, _reportInfo.TempleName, _reportInfo.TempleAddress,
+                                            _reportInfo.FromDate, _reportInfo.ToDate,
+                                            _theme.TitleFont, _theme.SubTitleFont, _startX, _pageY, pageW,
+                                            pageNumber, totalPages)
         End Sub
 
         Public Shared Sub ShowPreview(fromDate As Date, toDate As Date, Optional owner As IWin32Window = Nothing, Optional mode As ReportModes = ReportModes.Detailed, Optional manualOpeningBalance As Decimal? = Nothing, Optional fundID As Integer? = Nothing, Optional bankID As Integer? = Nothing)
