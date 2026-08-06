@@ -86,8 +86,14 @@ Namespace TempleAccounting
 
         Public Sub New(fromDate As Date, toDate As Date, Optional mode As ReportModes = ReportModes.Detailed, Optional manualOpeningBalance As Decimal? = Nothing, Optional fundID As Integer? = Nothing, Optional bankID As Integer? = Nothing)
             MyBase.New()
+            ' Normalize dates to Gregorian for consistent internal use
             _fromDate = Db.NormalizeGregorianDate(fromDate)
             _toDate = Db.NormalizeGregorianDate(toDate)
+            
+            ' DEBUG: Verify received dates
+            System.Diagnostics.Debug.WriteLine("[DEBUG IncomeExpenseReport.New] Received fromDate: " & fromDate & " (Normalized: " & _fromDate & ")")
+            System.Diagnostics.Debug.WriteLine("[DEBUG IncomeExpenseReport.New] Received toDate: " & toDate & " (Normalized: " & _toDate & ")")
+            
             _mode = mode
             _manualOpeningBalance = manualOpeningBalance
             _fundID = fundID
