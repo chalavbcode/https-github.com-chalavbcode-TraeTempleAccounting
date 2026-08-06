@@ -348,8 +348,8 @@ Namespace TempleAccounting
 
             Try
                 Using conn = Db.OpenConn()
-                    ' Load TempleSetting
-                    Dim dt = Db.GetTable(conn, "SELECT TOP 1 * FROM TempleSetting ORDER BY ID DESC")
+                    ' Load TempleSetting - using explicit column names
+                    Dim dt = Db.GetTable(conn, "SELECT TempleName, TempleAddress, Tambon, Amphoe, Province, PostCode FROM TempleSetting ORDER BY ID DESC")
                     
                     ' DEBUG: Log what we found
                     System.Diagnostics.Debug.WriteLine("[DEBUG LoadTemplateInfo] Rows found: " & dt.Rows.Count)
