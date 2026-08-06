@@ -370,14 +370,40 @@ Namespace TempleAccounting
 
                         ' Build address - with column existence checks
                         Dim addressParts As New List(Of String)()
-                        If dt.Columns.Contains("TempleAddress") AndAlso Not IsDBNull(r!TempleAddress) AndAlso Not String.IsNullOrWhiteSpace(CStr(r!TempleAddress)) Then addressParts.Add(CStr(r!TempleAddress).Trim())
-                        If dt.Columns.Contains("Tambon") AndAlso Not IsDBNull(r!Tambon) AndAlso Not String.IsNullOrWhiteSpace(CStr(r!Tambon)) Then addressParts.Add("ต." & CStr(r!Tambon).Trim())
-                        If dt.Columns.Contains("Amphoe") AndAlso Not IsDBNull(r!Amphoe) AndAlso Not String.IsNullOrWhiteSpace(CStr(r!Amphoe)) Then addressParts.Add("อ." & CStr(r!Amphoe).Trim())
-                        If dt.Columns.Contains("Province") AndAlso Not IsDBNull(r!Province) AndAlso Not String.IsNullOrWhiteSpace(CStr(r!Province)) Then addressParts.Add("จ." & CStr(r!Province).Trim())
-                        If dt.Columns.Contains("PostCode") AndAlso Not IsDBNull(r!PostCode) AndAlso Not String.IsNullOrWhiteSpace(CStr(r!PostCode)) Then addressParts.Add(CStr(r!PostCode).Trim())
+                        System.Diagnostics.Debug.WriteLine("[DEBUG LoadTemplateInfo] Building address parts...")
+                        If dt.Columns.Contains("TempleAddress") AndAlso Not IsDBNull(r!TempleAddress) AndAlso Not String.IsNullOrWhiteSpace(CStr(r!TempleAddress)) Then
+                            Dim addr = CStr(r!TempleAddress).Trim()
+                            addressParts.Add(addr)
+                            System.Diagnostics.Debug.WriteLine("[DEBUG LoadTemplateInfo] Added TempleAddress: '" & addr & "'")
+                        End If
+                        If dt.Columns.Contains("Tambon") AndAlso Not IsDBNull(r!Tambon) AndAlso Not String.IsNullOrWhiteSpace(CStr(r!Tambon)) Then
+                            Dim tambon = "ต." & CStr(r!Tambon).Trim()
+                            addressParts.Add(tambon)
+                            System.Diagnostics.Debug.WriteLine("[DEBUG LoadTemplateInfo] Added Tambon: '" & tambon & "'")
+                        End If
+                        If dt.Columns.Contains("Amphoe") AndAlso Not IsDBNull(r!Amphoe) AndAlso Not String.IsNullOrWhiteSpace(CStr(r!Amphoe)) Then
+                            Dim amphoe = "อ." & CStr(r!Amphoe).Trim()
+                            addressParts.Add(amphoe)
+                            System.Diagnostics.Debug.WriteLine("[DEBUG LoadTemplateInfo] Added Amphoe: '" & amphoe & "'")
+                        End If
+                        If dt.Columns.Contains("Province") AndAlso Not IsDBNull(r!Province) AndAlso Not String.IsNullOrWhiteSpace(CStr(r!Province)) Then
+                            Dim province = "จ." & CStr(r!Province).Trim()
+                            addressParts.Add(province)
+                            System.Diagnostics.Debug.WriteLine("[DEBUG LoadTemplateInfo] Added Province: '" & province & "'")
+                        End If
+                        If dt.Columns.Contains("PostCode") AndAlso Not IsDBNull(r!PostCode) AndAlso Not String.IsNullOrWhiteSpace(CStr(r!PostCode)) Then
+                            Dim postcode = CStr(r!PostCode).Trim()
+                            addressParts.Add(postcode)
+                            System.Diagnostics.Debug.WriteLine("[DEBUG LoadTemplateInfo] Added PostCode: '" & postcode & "'")
+                        End If
+                        
+                        System.Diagnostics.Debug.WriteLine("[DEBUG LoadTemplateInfo] Total address parts: " & addressParts.Count)
 
                         If addressParts.Count > 0 Then
                             templeAddress = String.Join(" ", addressParts).Trim()
+                            System.Diagnostics.Debug.WriteLine("[DEBUG LoadTemplateInfo] Final templeAddress: '" & templeAddress & "'")
+                        Else
+                            System.Diagnostics.Debug.WriteLine("[DEBUG LoadTemplateInfo] No address parts found - using default")
                         End If
 
                         ' Load Abbot and Accountant names via JOIN
@@ -525,10 +551,13 @@ Namespace TempleAccounting
                 y += 30
             End If
 
-            ' Date range
-            Dim yearB = (fromDate.Year + 543)
+            ' Date range - validate dates to prevent Buddhist year showing 544 (= DateTime.MinValue.Year + 543)
+            ' If year is less than 2500, it's likely not properly initialized, so use current date as fallback
+            Dim safeFromDate As Date = If(fromDate.Year > 2500, fromDate, DateTime.Now)
+            Dim safeToDate As Date = If(toDate.Year > 2500, toDate, DateTime.Now)
+            Dim yearB = (safeFromDate.Year + 543)
             Dim dateLabel = "ประจำปี พ.ศ. " & ThaiNumerals(yearB.ToString()) &
-                           "    ตั้งแต่วันที่ ( " & ToBuddhistFull(fromDate) & " – " & ToBuddhistFull(toDate) & " )"
+                           "    ตั้งแต่วันที่ ( " & ToBuddhistFull(safeFromDate) & " – " & ToBuddhistFull(safeToDate) & " )"
             g.DrawString(dateLabel, safeSubtitleFont, Brushes.Black,
                          New RectangleF(startX, y, pageWidth - 2 * startX, 30), fmtC)
             y += 36
