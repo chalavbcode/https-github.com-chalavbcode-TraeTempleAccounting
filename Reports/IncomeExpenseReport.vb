@@ -704,6 +704,9 @@ Namespace TempleAccounting
             End If
 
             ' Safety check for _reportInfo properties before sending to DrawHeader
+            System.Diagnostics.Debug.WriteLine("[DEBUG IncomeExpenseReport.DrawHeader] _reportInfo.TempleName: '" & _reportInfo.TempleName & "'")
+            System.Diagnostics.Debug.WriteLine("[DEBUG IncomeExpenseReport.DrawHeader] _reportInfo.TempleAddress: '" & _reportInfo.TempleAddress & "'")
+            System.Diagnostics.Debug.WriteLine("[DEBUG IncomeExpenseReport.DrawHeader] _reportInfo.FromDate: '" & _reportInfo.FromDate & "'")
             Dim title = If(String.IsNullOrWhiteSpace(_reportInfo.ReportTitle), "รายงานรายรับ-รายจ่าย", _reportInfo.ReportTitle)
             Dim templeName = If(String.IsNullOrWhiteSpace(_reportInfo.TempleName), "วัด (ไม่ได้ระบุชื่อ)", _reportInfo.TempleName)
             Dim templeAddress = If(String.IsNullOrWhiteSpace(_reportInfo.TempleAddress), "-", _reportInfo.TempleAddress)

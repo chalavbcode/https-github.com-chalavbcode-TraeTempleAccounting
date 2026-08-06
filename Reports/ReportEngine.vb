@@ -329,10 +329,10 @@ Namespace TempleAccounting
             If _cachedTemplateInfo Is Nothing Then
                 System.Diagnostics.Debug.WriteLine("[DEBUG GetTemplateInfo] Cache miss - loading from database")
                 _cachedTemplateInfo = LoadTemplateInfoFromDatabase()
-                System.Diagnostics.Debug.WriteLine("[DEBUG GetTemplateInfo] Loaded templeName: '" & _cachedTemplateInfo.TempleName & "'")
             Else
-                System.Diagnostics.Debug.WriteLine("[DEBUG GetTemplateInfo] Cache hit - templeName: '" & _cachedTemplateInfo.TempleName & "'")
+                System.Diagnostics.Debug.WriteLine("[DEBUG GetTemplateInfo] Cache HIT - returning cached templeName: '" & _cachedTemplateInfo.TempleName & "'")
             End If
+            System.Diagnostics.Debug.WriteLine("[DEBUG GetTemplateInfo] Returning templeName: '" & _cachedTemplateInfo.TempleName & "'")
             Return _cachedTemplateInfo
         End Function
 
