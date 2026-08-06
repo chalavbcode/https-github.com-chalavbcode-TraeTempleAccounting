@@ -166,10 +166,14 @@ Namespace TempleAccounting
         End Sub
 
         Private Function GetBalanceBeforeDate(conn As OleDbConnection, beforeDate As Date, fundID As Integer?, bankID As Integer?) As Decimal
+            ' Ensure beforeDate is at the start of day (already includes transactions from that day)
+            Dim safeDate As Date = beforeDate.Date
+            System.Diagnostics.Debug.WriteLine("[DEBUG GetBalanceBeforeDate] beforeDate: " & beforeDate & ", safeDate: " & safeDate)
+            
             Dim sql = "SELECT SUM(IIF(t.TranType='Income', t.Amount, -t.Amount)) " &
                       "FROM Transactions t " &
                       "WHERE DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate), Day(t.TranDate)) < " &
-                      Db.AccessDateLiteral(beforeDate)
+                      Db.AccessDateLiteral(safeDate)
             
             Dim params As New List(Of Tuple(Of String, Object))()
             If fundID.HasValue AndAlso fundID.Value <> 0 Then
@@ -203,8 +207,12 @@ Namespace TempleAccounting
             Dim sql As String
             Dim params As New List(Of Tuple(Of String, Object))()
 
+            ' Ensure toDate includes the full day (up to 23:59:59)
+            Dim toDateEnd As Date = _toDate.Date.AddDays(1).AddSeconds(-1)
+            System.Diagnostics.Debug.WriteLine("[DEBUG LoadRowsByMode] _fromDate: " & _fromDate & ", _toDate: " & _toDate & ", toDateEnd: " & toDateEnd)
+
             Dim whereClause = "WHERE t.TranType='" & tranType & "' AND DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate), Day(t.TranDate)) " &
-                              "BETWEEN " & Db.AccessDateLiteral(_fromDate) & " AND " & Db.AccessDateLiteral(_toDate)
+                              "BETWEEN " & Db.AccessDateLiteral(_fromDate) & " AND " & Db.AccessDateLiteral(toDateEnd)
             
             If fundID.HasValue AndAlso fundID.Value <> 0 Then
                 whereClause &= " AND t.FundID = @f"
