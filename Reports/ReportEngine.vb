@@ -788,6 +788,20 @@ Namespace TempleAccounting
         End Function
 
         ''' <summary>
+        ''' Measures the height of a string when wrapped to a specific width
+        ''' </summary>
+        Public Function MeasureTextHeight(g As Graphics, text As String, font As Font, width As Integer) As Integer
+            If g Is Nothing OrElse String.IsNullOrWhiteSpace(text) Then Return 0
+            Dim safeFont = GetSafeFont(font, 10.0!)
+            Dim size = g.MeasureString(text, safeFont, width)
+            
+            ' Dispose safeFont if it was created as a fallback
+            If font Is Nothing AndAlso safeFont IsNot Nothing Then safeFont.Dispose()
+            
+            Return CInt(Math.Ceiling(size.Height))
+        End Function
+
+        ''' <summary>
         ''' Create standard report fonts (Tahoma family)
         ''' </summary>
         Public Function CreateReportFonts(Optional baseSize As Single = 10.0!) As FontFamily

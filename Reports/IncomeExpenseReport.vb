@@ -392,65 +392,77 @@ Namespace TempleAccounting
                 DrawTableHeader(g, rowH, colW1, colW2, colW3, colW4)
             End If
 
-            ' Fixed standard for rows per page
-            Dim maxRowsPerPage = 15
-            
-            ' Draw rows (exactly maxRowsPerPage) only if we haven't finished all data
-            ' OR if we are on a page that should have a grid
-            If _rowIndex < totalRows Then
-                For i As Integer = 0 To maxRowsPerPage - 1
-                    Dim y = _pageY
-                    
-                    ' Render Income side: Render row data if available, else render empty grid
-                    g.DrawRectangle(_theme.BlackPen, _leftX, y, usableW, rowH)
-                    g.DrawRectangle(_theme.BlackPen, _leftX, y, colW1, rowH)
-                    g.DrawRectangle(_theme.BlackPen, _leftX + colW1, y, colW2, rowH)
-                    g.DrawRectangle(_theme.BlackPen, _leftX + colW1 + colW2, y, colW3, rowH)
-                    g.DrawRectangle(_theme.BlackPen, _leftX + colW1 + colW2 + colW3, y, colW4, rowH)
-                    g.DrawLine(_theme.BlackPen, _leftX + colW1 + colW2 + colW3, y, _leftX + colW1 + colW2 + colW3, y + rowH)
+            ' Draw rows until we run out of space or data
+            While _rowIndex < totalRows
+                Dim y = _pageY
+                Dim hasLeft = (_rowIndex < _incomeRows.Count)
+                Dim hasRight = (_rowIndex < _expenseRows.Count)
 
-                    If _rowIndex < _incomeRows.Count Then
-                        Dim row = _incomeRows(_rowIndex)
-                        Dim fmt As New StringFormat() With {.Alignment = StringAlignment.Center, .LineAlignment = StringAlignment.Center}
-                        Dim fmtL As New StringFormat() With {.Alignment = StringAlignment.Near, .LineAlignment = StringAlignment.Center}
-                        Dim fmtR As New StringFormat() With {.Alignment = StringAlignment.Far, .LineAlignment = StringAlignment.Center}
+                ' Calculate required height for this row (based on description wrapping)
+                Dim leftDesc = If(hasLeft, _incomeRows(_rowIndex).Description, "")
+                Dim rightDesc = If(hasRight, _expenseRows(_rowIndex).Description, "")
+                
+                Dim leftH = ReportEngine.MeasureTextHeight(g, leftDesc, _theme.RowFont, colW3 - 6)
+                Dim rightH = ReportEngine.MeasureTextHeight(g, rightDesc, _theme.RowFont, colW3 - 6)
+                
+                ' Use standard row height as minimum, and max of both sides for dynamic height
+                Dim currentRowH = Math.Max(rowH, Math.Max(leftH, rightH))
+                
+                ' Check if this row fits in the current page
+                If _pageY + currentRowH > _pageBottom Then
+                    ' No space for this row - trigger new page
+                    e.HasMorePages = True
+                    _pageIndex += 1
+                    Return
+                End If
 
-                        g.DrawString(ToBuddhistDateShort(row.TranDate), _theme.RowFont, Brushes.Black, New RectangleF(_leftX, y, colW1, rowH), fmt)
-                        g.DrawString(ToThaiNumerals(row.DayCode.ToString()), _theme.RowFont, Brushes.Black, New RectangleF(_leftX + colW1, y, colW2, rowH), fmt)
-                        g.DrawString(Truncate(g, row.Description, _theme.RowFont, colW3 - 6), _theme.RowFont, Brushes.Black,
-                                     New RectangleF(_leftX + colW1 + colW2 + 3, y, colW3 - 6, rowH), fmtL)
-                        g.DrawString(FormatThaiAmount(row.Amount), _theme.RowFont, If(row.IsCarryForward, Brushes.Red, Brushes.Black),
-                                     New RectangleF(_leftX + colW1 + colW2 + colW3, y, colW4 - 4, rowH), fmtR)
-                    End If
+                ' Render Income side: Render row data if available, else render empty grid
+                g.DrawRectangle(_theme.BlackPen, _leftX, y, usableW, currentRowH)
+                g.DrawRectangle(_theme.BlackPen, _leftX, y, colW1, currentRowH)
+                g.DrawRectangle(_theme.BlackPen, _leftX + colW1, y, colW2, currentRowH)
+                g.DrawRectangle(_theme.BlackPen, _leftX + colW1 + colW2, y, colW3, currentRowH)
+                g.DrawRectangle(_theme.BlackPen, _leftX + colW1 + colW2 + colW3, y, colW4, currentRowH)
+                g.DrawLine(_theme.BlackPen, _leftX + colW1 + colW2 + colW3, y, _leftX + colW1 + colW2 + colW3, y + currentRowH)
 
-                    ' Render Expense side: Render row data if available, else render empty grid
-                    g.DrawRectangle(_theme.BlackPen, _rightX, y, usableW, rowH)
-                    g.DrawRectangle(_theme.BlackPen, _rightX, y, colW1, rowH)
-                    g.DrawRectangle(_theme.BlackPen, _rightX + colW1, y, colW2, rowH)
-                    g.DrawRectangle(_theme.BlackPen, _rightX + colW1 + colW2, y, colW3, rowH)
-                    g.DrawRectangle(_theme.BlackPen, _rightX + colW1 + colW2 + colW3, y, colW4, rowH)
-                    g.DrawLine(_theme.BlackPen, _rightX + colW1 + colW2 + colW3, y, _rightX + colW1 + colW2 + colW3, y + rowH)
+                If hasLeft Then
+                    Dim row = _incomeRows(_rowIndex)
+                    Dim fmt As New StringFormat() With {.Alignment = StringAlignment.Center, .LineAlignment = StringAlignment.Center}
+                    Dim fmtL As New StringFormat() With {.Alignment = StringAlignment.Near, .LineAlignment = StringAlignment.Center}
+                    Dim fmtR As New StringFormat() With {.Alignment = StringAlignment.Far, .LineAlignment = StringAlignment.Center}
 
-                    If _rowIndex < _expenseRows.Count Then
-                        Dim row = _expenseRows(_rowIndex)
-                        Dim fmt As New StringFormat() With {.Alignment = StringAlignment.Center, .LineAlignment = StringAlignment.Center}
-                        Dim fmtL As New StringFormat() With {.Alignment = StringAlignment.Near, .LineAlignment = StringAlignment.Center}
-                        Dim fmtR As New StringFormat() With {.Alignment = StringAlignment.Far, .LineAlignment = StringAlignment.Center}
+                    g.DrawString(ToBuddhistDateShort(row.TranDate), _theme.RowFont, Brushes.Black, New RectangleF(_leftX, y, colW1, currentRowH), fmt)
+                    g.DrawString(ToThaiNumerals(row.DayCode.ToString()), _theme.RowFont, Brushes.Black, New RectangleF(_leftX + colW1, y, colW2, currentRowH), fmt)
+                    g.DrawString(row.Description, _theme.RowFont, Brushes.Black,
+                                 New RectangleF(_leftX + colW1 + colW2 + 3, y, colW3 - 6, currentRowH), fmtL)
+                    g.DrawString(FormatThaiAmount(row.Amount), _theme.RowFont, If(row.IsCarryForward, Brushes.Red, Brushes.Black),
+                                 New RectangleF(_leftX + colW1 + colW2 + colW3, y, colW4 - 4, currentRowH), fmtR)
+                End If
 
-                        g.DrawString(ToBuddhistDateShort(row.TranDate), _theme.RowFont, Brushes.Black, New RectangleF(_rightX, y, colW1, rowH), fmt)
-                        g.DrawString(ToThaiNumerals(row.DayCode.ToString()), _theme.RowFont, Brushes.Black, New RectangleF(_rightX + colW1, y, colW2, rowH), fmt)
-                        g.DrawString(Truncate(g, row.Description, _theme.RowFont, colW3 - 6), _theme.RowFont, Brushes.Black,
-                                     New RectangleF(_rightX + colW1 + colW2 + 3, y, colW3 - 6, rowH), fmtL)
-                        g.DrawString(FormatThaiAmount(row.Amount), _theme.RowFont, Brushes.Black,
-                                     New RectangleF(_rightX + colW1 + colW2 + colW3, y, colW4 - 4, rowH), fmtR)
-                    End If
+                ' Render Expense side: Render row data if available, else render empty grid
+                g.DrawRectangle(_theme.BlackPen, _rightX, y, usableW, currentRowH)
+                g.DrawRectangle(_theme.BlackPen, _rightX, y, colW1, currentRowH)
+                g.DrawRectangle(_theme.BlackPen, _rightX + colW1, y, colW2, currentRowH)
+                g.DrawRectangle(_theme.BlackPen, _rightX + colW1 + colW2, y, colW3, currentRowH)
+                g.DrawRectangle(_theme.BlackPen, _rightX + colW1 + colW2 + colW3, y, colW4, currentRowH)
+                g.DrawLine(_theme.BlackPen, _rightX + colW1 + colW2 + colW3, y, _rightX + colW1 + colW2 + colW3, y + currentRowH)
 
-                    ' Draw outer horizontal grid lines across full width (implied by rectangles above)
-                    
-                    _rowIndex += 1
-                    _pageY += rowH
-                Next
-            End If
+                If hasRight Then
+                    Dim row = _expenseRows(_rowIndex)
+                    Dim fmt As New StringFormat() With {.Alignment = StringAlignment.Center, .LineAlignment = StringAlignment.Center}
+                    Dim fmtL As New StringFormat() With {.Alignment = StringAlignment.Near, .LineAlignment = StringAlignment.Center}
+                    Dim fmtR As New StringFormat() With {.Alignment = StringAlignment.Far, .LineAlignment = StringAlignment.Center}
+
+                    g.DrawString(ToBuddhistDateShort(row.TranDate), _theme.RowFont, Brushes.Black, New RectangleF(_rightX, y, colW1, currentRowH), fmt)
+                    g.DrawString(ToThaiNumerals(row.DayCode.ToString()), _theme.RowFont, Brushes.Black, New RectangleF(_rightX + colW1, y, colW2, currentRowH), fmt)
+                    g.DrawString(row.Description, _theme.RowFont, Brushes.Black,
+                                 New RectangleF(_rightX + colW1 + colW2 + 3, y, colW3 - 6, currentRowH), fmtL)
+                    g.DrawString(FormatThaiAmount(row.Amount), _theme.RowFont, Brushes.Black,
+                                 New RectangleF(_rightX + colW1 + colW2 + colW3, y, colW4 - 4, currentRowH), fmtR)
+                End If
+
+                _rowIndex += 1
+                _pageY += currentRowH
+            End While
 
             ' After drawing rows, check if we've reached the end of the data
             Dim isLastPage = (_rowIndex >= totalRows)
