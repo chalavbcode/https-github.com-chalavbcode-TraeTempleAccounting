@@ -514,25 +514,24 @@ Namespace TempleAccounting
                 y += 30
             End If
 
-            ' Date range - validate dates
-            ' We only fallback to DateTime.Now if the year is extremely small (e.g. 1), which indicates uninitialized date
-            ' Otherwise we trust the date passed from the form (which could be Gregorian 2026 or Buddhist 2569)
-            System.Diagnostics.Debug.WriteLine("[DEBUG DrawHeader] Received fromDate: " & fromDate.ToString("yyyy-MM-dd") & ", toDate: " & toDate.ToString("yyyy-MM-dd"))
-            
+            ' Use provided dates directly. We trust the caller (like IncomeExpenseReport) 
+            ' to pass the user-selected dates from the form.
+            ' Fallback to DateTime.Now ONLY if the year is truly invalid (e.g. 1) to prevent crash,
+            ' but log it clearly so we can fix the caller.
             Dim safeFromDate As Date = fromDate
             Dim safeToDate As Date = toDate
             
             If fromDate.Year < 100 Then
-                System.Diagnostics.Debug.WriteLine("[DEBUG DrawHeader] fromDate.Year " & fromDate.Year & " is too small, using DateTime.Now")
+                System.Diagnostics.Debug.WriteLine("[WARNING DrawHeader] fromDate.Year " & fromDate.Year & " is invalid. Falling back to Now.")
                 safeFromDate = DateTime.Now
             End If
             
             If toDate.Year < 100 Then
-                System.Diagnostics.Debug.WriteLine("[DEBUG DrawHeader] toDate.Year " & toDate.Year & " is too small, using DateTime.Now")
+                System.Diagnostics.Debug.WriteLine("[WARNING DrawHeader] toDate.Year " & toDate.Year & " is invalid. Falling back to Now.")
                 safeToDate = DateTime.Now
             End If
             
-            System.Diagnostics.Debug.WriteLine("[DEBUG DrawHeader] Final safeFromDate: " & safeFromDate.ToString("yyyy-MM-dd") & ", safeToDate: " & safeToDate.ToString("yyyy-MM-dd"))
+            System.Diagnostics.Debug.WriteLine("[DEBUG DrawHeader] Final dates used in header: " & safeFromDate.ToString("yyyy-MM-dd") & " to " & safeToDate.ToString("yyyy-MM-dd"))
             
             ' Determine if we need to add 543 (if the date is in Gregorian)
             Dim displayYear As Integer = safeFromDate.Year

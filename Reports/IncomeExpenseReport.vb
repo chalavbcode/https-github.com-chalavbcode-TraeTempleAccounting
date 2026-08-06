@@ -374,7 +374,8 @@ Namespace TempleAccounting
 
             ' Draw header on EVERY page with page number in upper-right corner
             ' Page number uses Thai numerals: หน้า ๑ / ๓
-            DrawHeader(g, pageW, _pageIndex + 1, _totalPages)
+            ' We pass _fromDate and _toDate explicitly to ensure the header matches the selected range.
+            DrawHeader(g, pageW, _pageIndex + 1, _totalPages, _fromDate, _toDate)
 
             Dim colW1 = CInt(usableW * 0.16)
             Dim colW2 = CInt(usableW * 0.1)
@@ -721,14 +722,15 @@ Namespace TempleAccounting
             _pageY += rowH * 2
         End Sub
 
-        Private Sub DrawHeader(g As Graphics, pageW As Integer, pageNumber As Integer, totalPages As Integer)
+        Private Sub DrawHeader(g As Graphics, pageW As Integer, pageNumber As Integer, totalPages As Integer, fromDate As Date, toDate As Date)
             ' Delegate to shared ReportEngine.DrawHeader for consistent rendering
-            ' Uses _reportInfo which is initialized in LoadData
+            ' Uses _reportInfo which is initialized in LoadData, but we pass dates explicitly
+            ' to guarantee they match what was passed to the constructor.
             If _reportInfo Is Nothing Then
                 ' Fallback if _reportInfo not initialized - use shared TemplateInfo (already has defaults)
                 Dim reportTitle = If(_mode = ReportModes.Summary, "สรุปบัญชีรายรับ - รายจ่าย (แบบย่อ)", "สรุปบัญชีรายรับ - รายจ่าย (แบบละเอียด)")
                 _templateInfo = ReportEngine.GetTemplateInfo()
-                _reportInfo = New ReportInfo(reportTitle, _templateInfo.TempleName, _templateInfo.TempleAddress, _fromDate, _toDate)
+                _reportInfo = New ReportInfo(reportTitle, _templateInfo.TempleName, _templateInfo.TempleAddress, fromDate, toDate)
             End If
 
             ' Ensure we have valid values before calling engine
@@ -741,7 +743,7 @@ Namespace TempleAccounting
             Dim subtitleFont = If(_theme?.SubTitleFont, New Font("Tahoma", 12, FontStyle.Bold))
 
             _pageY = ReportEngine.DrawHeader(g, title, templeName, templeAddress,
-                                            _reportInfo.FromDate, _reportInfo.ToDate,
+                                            fromDate, toDate,
                                             titleFont, subtitleFont, _startX, _pageY, pageW,
                                             pageNumber, totalPages)
         End Sub
