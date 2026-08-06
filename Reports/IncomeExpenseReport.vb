@@ -61,9 +61,11 @@ Namespace TempleAccounting
         Private _maxRowsPerPage As Integer
         Private _pageIndex As Integer = 0
         Private _rowIndex As Integer = 0
+        Private _layout As LayoutConfig
         Private Const FinalSummaryRows As Integer = 3
         Private Const FinalSignatureBlockHeight As Integer = 135  ' Reduced from 145
         Private Const FinalFooterGapHeight As Integer = 8        ' Reduced from 12
+        Private Const SectionGap As Integer = 12               ' Gap between left/right sections
 
         Private Structure ReportRow
             Public TranDate As Date
@@ -377,21 +379,7 @@ Namespace TempleAccounting
         End Function
 
         Private Function ThaiMonthAbbr(ByVal m As Integer) As String
-            Select Case m
-                Case 1 : Return "ม.ค."
-                Case 2 : Return "ก.พ."
-                Case 3 : Return "มี.ค."
-                Case 4 : Return "เม.ย."
-                Case 5 : Return "พ.ค."
-                Case 6 : Return "มิ.ย."
-                Case 7 : Return "ก.ค."
-                Case 8 : Return "ส.ค."
-                Case 9 : Return "ก.ย."
-                Case 10 : Return "ต.ค."
-                Case 11 : Return "พ.ย."
-                Case 12 : Return "ธ.ค."
-                Case Else : Return ""
-            End Select
+            Return ReportEngine.ThaiMonthAbbr(m)
         End Function
 
         Private Function ToBuddhistDateShort(ByVal d As Date) As String
@@ -403,21 +391,7 @@ Namespace TempleAccounting
         End Function
 
         Private Function ThaiMonthFull(ByVal m As Integer) As String
-            Select Case m
-                Case 1 : Return "มกราคม"
-                Case 2 : Return "กุมภาพันธ์"
-                Case 3 : Return "มีนาคม"
-                Case 4 : Return "เมษายน"
-                Case 5 : Return "พฤษภาคม"
-                Case 6 : Return "มิถุนายน"
-                Case 7 : Return "กรกฎาคม"
-                Case 8 : Return "สิงหาคม"
-                Case 9 : Return "กันยายน"
-                Case 10 : Return "ตุลาคม"
-                Case 11 : Return "พฤศจิกายน"
-                Case 12 : Return "ธันวาคม"
-                Case Else : Return ""
-            End Select
+            Return ReportEngine.ThaiMonthFull(m)
         End Function
 
         Private Function ToBuddhistYearThai(ByVal y As Integer) As String
@@ -426,7 +400,7 @@ Namespace TempleAccounting
         End Function
 
         Private Function FormatThaiAmount(value As Decimal) As String
-            Return ToThaiNumerals(value.ToString("#,##0"))
+            Return ReportEngine.FormatThaiAmount(value)
         End Function
 
         Protected Overrides Sub OnBeginPrint(e As PrintEventArgs)
@@ -449,6 +423,9 @@ Namespace TempleAccounting
             g.SmoothingMode = Drawing2D.SmoothingMode.AntiAlias
             g.TextRenderingHint = Drawing.Text.TextRenderingHint.AntiAliasGridFit
 
+            ' Use LayoutConfig for consistent layout calculations
+            _layout = ReportEngine.LayoutConfig.CreateA4Landscape(32, 32, 28, 28)
+
             Dim pageW = e.PageBounds.Width
             _startX = e.MarginBounds.Left
             _pageY = e.MarginBounds.Top
@@ -456,7 +433,7 @@ Namespace TempleAccounting
             _leftX = _startX
             _rightSectionWidth = CInt((e.MarginBounds.Width) / 2) - 6
             _leftSectionWidth = _rightSectionWidth
-            _rightX = _startX + _leftSectionWidth + 12
+            _rightX = _startX + _leftSectionWidth + SectionGap
             Dim usableW = _leftSectionWidth
 
             ' [REPORT DEBUG] - Pagination accuracy testing
@@ -748,23 +725,8 @@ Namespace TempleAccounting
         End Function
 
         Private Function CreateFittedBoldFont(g As Graphics, text As String, baseFont As Font, maxWidth As Integer, minSize As Single) As Font
-            Dim size = baseFont.Size
-            Dim bestFit As Font = baseFont
-
-            While size >= minSize
-                Dim trial As New Font(baseFont.FontFamily, size, FontStyle.Bold)
-                Dim textSize = g.MeasureString(text, trial, Integer.MaxValue, New StringFormat(StringFormatFlags.NoWrap))
-                If textSize.Width <= maxWidth Then
-                    If Not Object.ReferenceEquals(bestFit, baseFont) Then bestFit.Dispose()
-                    Return trial
-                End If
-
-                If Not Object.ReferenceEquals(bestFit, baseFont) Then bestFit.Dispose()
-                bestFit = trial
-                size -= 0.5F
-            End While
-
-            Return bestFit
+            ' Delegate to ReportEngine with Bold style
+            Return ReportEngine.CreateFittedFont(g, text, baseFont, maxWidth, minSize, FontStyle.Bold)
         End Function
 
         Private Sub DrawSignatures(g As Graphics, rowH As Integer, c1 As Integer, c2 As Integer, c3 As Integer, c4 As Integer, usableW As Integer)
@@ -864,18 +826,8 @@ Namespace TempleAccounting
         ''' Draws a dotted signature line (not a solid line)
         ''' </summary>
         Private Sub DrawDottedSignatureLine(g As Graphics, x As Integer, y As Integer, width As Integer)
-            Const dotSpacing As Integer = 8     ' Space between dots (clearly separated)
-            Const dotRadius As Integer = 1.5F   ' Visible dot size (3px diameter)
-            Dim dotCount As Integer = CInt(width / dotSpacing)
-            Dim totalDotsWidth As Integer = dotCount * dotSpacing
-            Dim startX As Integer = x + CInt((width - totalDotsWidth) / 2) + CInt(dotSpacing / 2)
-
-            Using dotBrush As New SolidBrush(Color.Black)
-                For i As Integer = 0 To dotCount - 1
-                    Dim dotX As Integer = startX + (i * dotSpacing)
-                    g.FillEllipse(dotBrush, dotX - dotRadius, y - dotRadius, dotRadius * 2, dotRadius * 2)
-                Next
-            End Using
+            ' Delegate to ReportEngine with default dotSpacing=8 and dotRadius=1.5
+            ReportEngine.DrawDottedLine(g, x, y, width, 8, 1.5!)
         End Sub
 
         Private Function Truncate(g As Graphics, s As String, f As Font, maxW As Integer) As String
@@ -939,24 +891,12 @@ Namespace TempleAccounting
         End Sub
 
         Private Sub DrawHeader(g As Graphics, pageW As Integer)
-            Dim fmtC As New StringFormat() With {.Alignment = StringAlignment.Center, .LineAlignment = StringAlignment.Center}
-            Dim y = _pageY
-            Dim reportTitle = If(_mode = ReportModes.Summary, "สรุปบัญชีรายรับ - รายจ่าย (แบบย่อ)", "สรุปบัญชีรายรับ - รายจ่าย (แบบละเอียด)")
-            g.DrawString(reportTitle, _titleFont, Brushes.Black,
-                         New RectangleF(_startX, y, pageW - 2 * _startX, 36), fmtC)
-            y += 36
+            ' Delegate to shared ReportEngine.DrawHeader for consistent rendering
             If String.IsNullOrEmpty(_templeName) Then _templeName = "วัดแหลมยาง"
             If String.IsNullOrEmpty(_templeAddress) Then _templeAddress = "ต.ป่ามะคาบ อ.เมืองพิจิตร จ.พิจิตร"
-            g.DrawString(ToThaiNumerals(_templeName & "  " & _templeAddress), _subTitleFont, Brushes.Black,
-                         New RectangleF(_startX, y, pageW - 2 * _startX, 30), fmtC)
-            y += 30
-            Dim yearB = (_fromDate.Year + 543)
-            Dim label = "ประจำปี พ.ศ. " & ToThaiNumerals(yearB.ToString()) &
-                        "    ตั้งแต่วันที่ ( " & ToBuddhistFull(_fromDate) & " – " & ToBuddhistFull(_toDate) & " )"
-            g.DrawString(label, _subTitleFont, Brushes.Black,
-                         New RectangleF(_startX, y, pageW - 2 * _startX, 30), fmtC)
-            y += 36
-            _pageY = y
+            Dim reportTitle = If(_mode = ReportModes.Summary, "สรุปบัญชีรายรับ - รายจ่าย (แบบย่อ)", "สรุปบัญชีรายรับ - รายจ่าย (แบบละเอียด)")
+            _pageY = ReportEngine.DrawHeader(g, reportTitle, _templeName, _templeAddress, _fromDate, _toDate,
+                                            _titleFont, _subTitleFont, _startX, _pageY, pageW)
         End Sub
 
         Public Shared Sub ShowPreview(fromDate As Date, toDate As Date, Optional owner As IWin32Window = Nothing, Optional mode As ReportModes = ReportModes.Detailed, Optional manualOpeningBalance As Decimal? = Nothing, Optional fundID As Integer? = Nothing, Optional bankID As Integer? = Nothing)
