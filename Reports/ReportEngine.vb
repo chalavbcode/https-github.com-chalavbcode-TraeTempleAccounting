@@ -327,7 +327,11 @@ Namespace TempleAccounting
         ''' </summary>
         Public Function GetTemplateInfo() As TemplateInfo
             If _cachedTemplateInfo Is Nothing Then
+                System.Diagnostics.Debug.WriteLine("[DEBUG GetTemplateInfo] Cache miss - loading from database")
                 _cachedTemplateInfo = LoadTemplateInfoFromDatabase()
+                System.Diagnostics.Debug.WriteLine("[DEBUG GetTemplateInfo] Loaded templeName: '" & _cachedTemplateInfo.TempleName & "'")
+            Else
+                System.Diagnostics.Debug.WriteLine("[DEBUG GetTemplateInfo] Cache hit - templeName: '" & _cachedTemplateInfo.TempleName & "'")
             End If
             Return _cachedTemplateInfo
         End Function
@@ -346,21 +350,31 @@ Namespace TempleAccounting
                 Using conn = Db.OpenConn()
                     ' Load TempleSetting
                     Dim dt = Db.GetTable(conn, "SELECT TOP 1 * FROM TempleSetting ORDER BY ID DESC")
+                    
+                    ' DEBUG: Log what we found
+                    System.Diagnostics.Debug.WriteLine("[DEBUG LoadTemplateInfo] Rows found: " & dt.Rows.Count)
+                    
                     If dt.Rows.Count > 0 Then
                         Dim r = dt.Rows(0)
+                        
+                        ' DEBUG: Log raw column values
+                        System.Diagnostics.Debug.WriteLine("[DEBUG LoadTemplateInfo] TempleName DBNull?: " & IsDBNull(r!TempleName) & ", Value: '" & CStr(r!TempleName) & "'")
 
-                        ' Temple basic info
-                        If Not IsDBNull(r!TempleName) AndAlso Not String.IsNullOrWhiteSpace(CStr(r!TempleName)) Then
+                        ' Temple basic info - with column existence check
+                        If dt.Columns.Contains("TempleName") AndAlso Not IsDBNull(r!TempleName) AndAlso Not String.IsNullOrWhiteSpace(CStr(r!TempleName)) Then
                             templeName = CStr(r!TempleName).Trim()
                         End If
+                        
+                        ' DEBUG: Log after processing
+                        System.Diagnostics.Debug.WriteLine("[DEBUG LoadTemplateInfo] templeName after processing: '" & templeName & "'")
 
-                        ' Build address
+                        ' Build address - with column existence checks
                         Dim addressParts As New List(Of String)()
-                        If Not IsDBNull(r!TempleAddress) AndAlso Not String.IsNullOrWhiteSpace(CStr(r!TempleAddress)) Then addressParts.Add(CStr(r!TempleAddress).Trim())
-                        If Not IsDBNull(r!Tambon) AndAlso Not String.IsNullOrWhiteSpace(CStr(r!Tambon)) Then addressParts.Add("ต." & CStr(r!Tambon).Trim())
-                        If Not IsDBNull(r!Amphoe) AndAlso Not String.IsNullOrWhiteSpace(CStr(r!Amphoe)) Then addressParts.Add("อ." & CStr(r!Amphoe).Trim())
-                        If Not IsDBNull(r!Province) AndAlso Not String.IsNullOrWhiteSpace(CStr(r!Province)) Then addressParts.Add("จ." & CStr(r!Province).Trim())
-                        If Not IsDBNull(r!PostCode) AndAlso Not String.IsNullOrWhiteSpace(CStr(r!PostCode)) Then addressParts.Add(CStr(r!PostCode).Trim())
+                        If dt.Columns.Contains("TempleAddress") AndAlso Not IsDBNull(r!TempleAddress) AndAlso Not String.IsNullOrWhiteSpace(CStr(r!TempleAddress)) Then addressParts.Add(CStr(r!TempleAddress).Trim())
+                        If dt.Columns.Contains("Tambon") AndAlso Not IsDBNull(r!Tambon) AndAlso Not String.IsNullOrWhiteSpace(CStr(r!Tambon)) Then addressParts.Add("ต." & CStr(r!Tambon).Trim())
+                        If dt.Columns.Contains("Amphoe") AndAlso Not IsDBNull(r!Amphoe) AndAlso Not String.IsNullOrWhiteSpace(CStr(r!Amphoe)) Then addressParts.Add("อ." & CStr(r!Amphoe).Trim())
+                        If dt.Columns.Contains("Province") AndAlso Not IsDBNull(r!Province) AndAlso Not String.IsNullOrWhiteSpace(CStr(r!Province)) Then addressParts.Add("จ." & CStr(r!Province).Trim())
+                        If dt.Columns.Contains("PostCode") AndAlso Not IsDBNull(r!PostCode) AndAlso Not String.IsNullOrWhiteSpace(CStr(r!PostCode)) Then addressParts.Add(CStr(r!PostCode).Trim())
 
                         If addressParts.Count > 0 Then
                             templeAddress = String.Join(" ", addressParts).Trim()
@@ -371,11 +385,16 @@ Namespace TempleAccounting
                                   "FROM (TempleSetting AS TS " &
                                   "LEFT JOIN Personnel AS PA ON TS.AbbotPersonnelID = PA.PersonnelID) " &
                                   "LEFT JOIN Personnel AS PW ON TS.WaiyawatPersonnelID = PW.PersonnelID"
+                        System.Diagnostics.Debug.WriteLine("[DEBUG LoadTemplateInfo] Executing SQL: " & sql)
                         Dim dtPersonnel = Db.GetTable(conn, sql)
+                        System.Diagnostics.Debug.WriteLine("[DEBUG LoadTemplateInfo] Personnel rows found: " & dtPersonnel.Rows.Count)
                         If dtPersonnel.Rows.Count > 0 Then
                             Dim pr = dtPersonnel.Rows(0)
+                            System.Diagnostics.Debug.WriteLine("[DEBUG LoadTemplateInfo] AbbotName DBNull?: " & IsDBNull(pr!AbbotName) & ", Raw: '" & CStr(pr!AbbotName) & "'")
+                            System.Diagnostics.Debug.WriteLine("[DEBUG LoadTemplateInfo] AccountantName DBNull?: " & IsDBNull(pr!AccountantName) & ", Raw: '" & CStr(pr!AccountantName) & "'")
                             abbotName = If(IsDBNull(pr!AbbotName), "", CStr(pr!AbbotName).Trim())
                             accountantName = If(IsDBNull(pr!AccountantName), "", CStr(pr!AccountantName).Trim())
+                            System.Diagnostics.Debug.WriteLine("[DEBUG LoadTemplateInfo] After processing - AbbotName: '" & abbotName & "', AccountantName: '" & accountantName & "'")
                         End If
                     End If
                 End Using
@@ -383,7 +402,13 @@ Namespace TempleAccounting
                 System.Diagnostics.Debug.WriteLine("[ERROR] Failed to load TemplateInfo: " & ex.ToString())
             End Try
 
-            Return New TemplateInfo(templeName, templeAddress, abbotName, accountantName)
+            ' Ensure no Nothing values are passed - use empty string fallback
+            Return New TemplateInfo(
+                If(templeName, ""),
+                If(templeAddress, ""),
+                If(abbotName, ""),
+                If(accountantName, "")
+            )
         End Function
 
         ''' <summary>
@@ -469,6 +494,9 @@ Namespace TempleAccounting
             title = If(String.IsNullOrWhiteSpace(title), "รายงาน", title.Trim())
             templeName = If(String.IsNullOrWhiteSpace(templeName), "วัด (ไม่ได้ระบุชื่อ)", templeName.Trim())
             templeAddress = If(String.IsNullOrWhiteSpace(templeAddress), "-", templeAddress.Trim())
+            
+            ' DEBUG: Log templeName received
+            System.Diagnostics.Debug.WriteLine("[DEBUG DrawHeader] Received templeName: '" & templeName & "'")
 
             ' Safety Check: Font fallback to prevent crash if font is Nothing
             Dim safeTitleFont As Font = GetSafeFont(titleFont, 16.0!, FontStyle.Bold)
