@@ -164,7 +164,8 @@ Namespace TempleAccounting
                     _balance = _reportGrandTotal - _totalExpense
 
                     ' Initialize ReportInfo for header rendering using shared TemplateInfo
-                    Dim reportTitle = If(_mode = ReportModes.Summary, "สรุปบัญชีรายรับ - รายจ่าย (แบบย่อ)", "สรุปบัญชีรายรับ - รายจ่าย (แบบละเอียด)")
+                    ' Title is now simplified; the type indicator is moved to the date range line
+                    Dim reportTitle = "สรุปบัญชีรายรับ - รายจ่าย"
                     _reportInfo = New ReportInfo(reportTitle, _templateInfo.TempleName, _templateInfo.TempleAddress, _fromDate, _toDate)
                 End Using
             Catch ex As Exception
@@ -731,7 +732,7 @@ Namespace TempleAccounting
             ' to guarantee they match what was passed to the constructor.
             If _reportInfo Is Nothing Then
                 ' Fallback if _reportInfo not initialized - use shared TemplateInfo (already has defaults)
-                Dim reportTitle = If(_mode = ReportModes.Summary, "สรุปบัญชีรายรับ - รายจ่าย (แบบย่อ)", "สรุปบัญชีรายรับ - รายจ่าย (แบบละเอียด)")
+                Dim reportTitle = "สรุปบัญชีรายรับ - รายจ่าย"
                 _templateInfo = ReportEngine.GetTemplateInfo()
                 _reportInfo = New ReportInfo(reportTitle, _templateInfo.TempleName, _templateInfo.TempleAddress, fromDate, toDate)
             End If
@@ -745,10 +746,12 @@ Namespace TempleAccounting
             Dim titleFont = If(_theme?.TitleFont, New Font("Tahoma", 16, FontStyle.Bold))
             Dim subtitleFont = If(_theme?.SubTitleFont, New Font("Tahoma", 12, FontStyle.Bold))
 
+            Dim reportType = If(_mode = ReportModes.Summary, "(แบบย่อ)", "(แบบละเอียด)")
+
             _pageY = ReportEngine.DrawHeader(g, title, templeName, templeAddress,
                                             fromDate, toDate,
                                             titleFont, subtitleFont, _startX, _pageY, pageW,
-                                            pageNumber, totalPages)
+                                            pageNumber, totalPages, reportType)
         End Sub
 
         Public Shared Sub ShowPreview(fromDate As Date, toDate As Date, Optional owner As IWin32Window = Nothing, Optional mode As ReportModes = ReportModes.Detailed, Optional manualOpeningBalance As Decimal? = Nothing, Optional fundID As Integer? = Nothing, Optional bankID As Integer? = Nothing)

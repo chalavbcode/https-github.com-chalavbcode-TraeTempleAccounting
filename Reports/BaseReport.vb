@@ -159,10 +159,10 @@ Namespace TempleAccounting
         ''' <summary>
         ''' Draw report header with title, temple info, and date range
         ''' </summary>
-        Protected Sub DrawReportHeader(g As Graphics, pageW As Integer)
+        Protected Sub DrawReportHeader(g As Graphics, pageW As Integer, Optional reportType As String = "")
             _pageY = ReportEngine.DrawHeader(g, _reportTitle, _templeName, _templeAddress,
                                            _fromDate, _toDate, _theme.TitleFont, _theme.SubTitleFont,
-                                           _startX, _pageY, pageW)
+                                           _startX, _pageY, pageW, _pageIndex + 1, 0, reportType)
         End Sub
 
         ''' <summary>
