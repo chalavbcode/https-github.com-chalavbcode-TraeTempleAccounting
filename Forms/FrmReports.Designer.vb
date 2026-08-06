@@ -363,7 +363,7 @@ Namespace TempleAccounting
             ' 
             btnPrintDetail.BackColor = Color.FromArgb(CByte(185), CByte(28), CByte(28))
             btnPrintDetail.Dock = DockStyle.Left
-            btnPrintDetail.FlatStyle = FlatStyle.Flat
+            btnPrintDetail.FlatStyle = FlatStyle.System
             btnPrintDetail.Font = New Font("Tahoma", 9F, FontStyle.Bold)
             btnPrintDetail.ForeColor = Color.White
             btnPrintDetail.Location = New Point(8, 6)
