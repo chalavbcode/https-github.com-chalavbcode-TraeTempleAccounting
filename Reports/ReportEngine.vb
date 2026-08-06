@@ -539,7 +539,7 @@ Namespace TempleAccounting
             If displayYear < 2400 Then displayYear += 543
             
             Dim dateLabel = "ประจำปี พ.ศ. " & ThaiNumerals(displayYear.ToString()) &
-                           "    ตั้งแต่วันที่ " & ToBuddhistFull(safeFromDate) & " – " & ToBuddhistFull(safeToDate)
+                           " ตั้งแต่วันที่ (" & ToBuddhistFull(safeFromDate) & " – " & ToBuddhistFull(safeToDate) & ")"
             
             If String.IsNullOrEmpty(reportType) Then
                 ' No report type, just draw centered as usual
