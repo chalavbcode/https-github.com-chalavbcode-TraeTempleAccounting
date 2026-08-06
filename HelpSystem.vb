@@ -14,15 +14,7 @@ Namespace TempleAccounting
             ' 1. ตั้งค่า KeyPreview เพื่อให้ Form รับค่าการกดปุ่มก่อน Control อื่นๆ
             frm.KeyPreview = True
 
-            ' 2. เพิ่ม Event Handler สำหรับการกดปุ่ม F1
-            AddHandler frm.KeyDown, Sub(sender, e)
-                                        If e.KeyCode = Keys.F1 Then
-                                            ShowManual(sectionName)
-                                            e.Handled = True
-                                        End If
-                                    End Sub
-
-            ' 3. เพิ่ม Status Bar Hint
+            ' 2. เพิ่ม Status Bar Hint
             AddStatusBarHint(frm)
         End Sub
 

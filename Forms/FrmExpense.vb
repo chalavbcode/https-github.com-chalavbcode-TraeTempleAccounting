@@ -75,12 +75,22 @@ Namespace TempleAccounting
         End Sub
 
         Private Sub FrmExpense_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+            Me.KeyPreview = True
+            HelpSystem.SetupHelp(Me, "FrmExpense")
             Db.EnsureSchema()
             LoadMasters()
             SetupToolTips()
             SetupEnterNavigation()
             ResetEntry(True)
             FocusStartField()
+        End Sub
+
+        Private Sub FrmExpense_KeyDown(sender As Object, e As KeyEventArgs) Handles Me.KeyDown
+            If e.KeyCode = Keys.F1 Then
+                e.Handled = True
+                e.SuppressKeyPress = True
+                HelpSystem.ShowManual("FrmExpense")
+            End If
         End Sub
 
         Private Sub SetupToolTips()

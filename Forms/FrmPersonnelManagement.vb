@@ -8,12 +8,21 @@ Namespace TempleAccounting
         Private _selectedPositionID As Integer = -1
 
         Private Sub FrmPersonnelManagement_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+            Me.KeyPreview = True
             HelpSystem.SetupHelp(Me, "FrmPersonnelManagement")
             LoadPositionCombo()
             LoadPersonnelData()
             LoadPositionData()
             ClearPersonnelEditor()
             ClearPositionEditor()
+        End Sub
+
+        Private Sub FrmPersonnelManagement_KeyDown(sender As Object, e As KeyEventArgs) Handles Me.KeyDown
+            If e.KeyCode = Keys.F1 Then
+                e.Handled = True
+                e.SuppressKeyPress = True
+                HelpSystem.ShowManual("FrmPersonnelManagement")
+            End If
         End Sub
 
         Private Sub LoadPositionCombo()

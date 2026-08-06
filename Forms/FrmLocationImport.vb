@@ -41,11 +41,21 @@ Namespace TempleAccounting
         End Sub
 
         Private Sub FrmLocationImport_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+            Me.KeyPreview = True
+            HelpSystem.SetupHelp(Me, "FrmLocationImport")
             Db.EnsureSchema()
             CheckFiles()
             LoadLastImport()
             SetupToolTips()
             btnCheck_Click(Nothing, EventArgs.Empty)
+        End Sub
+
+        Private Sub FrmLocationImport_KeyDown(sender As Object, e As KeyEventArgs) Handles Me.KeyDown
+            If e.KeyCode = Keys.F1 Then
+                e.Handled = True
+                e.SuppressKeyPress = True
+                HelpSystem.ShowManual("FrmLocationImport")
+            End If
         End Sub
 
         Private Sub SetupToolTips()

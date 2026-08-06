@@ -24,10 +24,20 @@ Namespace TempleAccounting
         End Sub
 
         Private Sub FrmMasterData_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+            Me.KeyPreview = True
+            HelpSystem.SetupHelp(Me, "FrmMasterData")
             Db.EnsureSchema()
             SetupToolTips()
             LoadAll()
             SetupEnterNavigation()
+        End Sub
+
+        Private Sub FrmMasterData_KeyDown(sender As Object, e As KeyEventArgs) Handles Me.KeyDown
+            If e.KeyCode = Keys.F1 Then
+                e.Handled = True
+                e.SuppressKeyPress = True
+                HelpSystem.ShowManual("FrmMasterData")
+            End If
         End Sub
 
         Private Sub SetupToolTips()

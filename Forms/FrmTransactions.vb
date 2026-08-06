@@ -92,7 +92,7 @@ Namespace TempleAccounting
         End Sub
 
         Private Sub FrmTransactions_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-            ' SetupRuntimeLayout() ' ลบออกเพื่อให้ใช้ค่าจาก Designer
+            Me.KeyPreview = True
             SetupToolTips()
             HelpSystem.SetupHelp(Me, "FrmTransactions")
 #Region "debug-point A:form-load"
@@ -112,6 +112,14 @@ Namespace TempleAccounting
             LoadFilters()
             SetupSearchEnterNavigation()
             LoadData()
+        End Sub
+
+        Private Sub FrmTransactions_KeyDown(sender As Object, e As KeyEventArgs) Handles Me.KeyDown
+            If e.KeyCode = Keys.F1 Then
+                e.Handled = True
+                e.SuppressKeyPress = True
+                HelpSystem.ShowManual("FrmTransactions")
+            End If
         End Sub
 
         Private Sub SetupToolTips()

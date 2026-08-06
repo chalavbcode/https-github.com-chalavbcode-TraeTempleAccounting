@@ -27,6 +27,7 @@ Namespace TempleAccounting
         End Function
 
         Private Sub FrmTransfer_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+            Me.KeyPreview = True
             HelpSystem.SetupHelp(Me, "FrmTransfer")
             Db.EnsureSchema()
             SetupToolTips()
@@ -44,6 +45,14 @@ Namespace TempleAccounting
             SetupEnterNavigation()
             ResetEntry(True)
             FocusStartField()
+        End Sub
+
+        Private Sub FrmTransfer_KeyDown(sender As Object, e As KeyEventArgs) Handles Me.KeyDown
+            If e.KeyCode = Keys.F1 Then
+                e.Handled = True
+                e.SuppressKeyPress = True
+                HelpSystem.ShowManual("FrmTransfer")
+            End If
         End Sub
 
         Private Sub SetupToolTips()
