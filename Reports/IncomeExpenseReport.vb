@@ -704,9 +704,9 @@ Namespace TempleAccounting
             End If
 
             ' Safety check for _reportInfo properties before sending to DrawHeader
-            Dim title = If(_reportInfo.ReportTitle, "รายงานรายรับ-รายจ่าย")
-            Dim templeName = If(_reportInfo.TempleName, "วัด (ไม่ได้ระบุชื่อ)")
-            Dim templeAddress = If(_reportInfo.TempleAddress, "-")
+            Dim title = If(String.IsNullOrWhiteSpace(_reportInfo.ReportTitle), "รายงานรายรับ-รายจ่าย", _reportInfo.ReportTitle)
+            Dim templeName = If(String.IsNullOrWhiteSpace(_reportInfo.TempleName), "วัด (ไม่ได้ระบุชื่อ)", _reportInfo.TempleName)
+            Dim templeAddress = If(String.IsNullOrWhiteSpace(_reportInfo.TempleAddress), "-", _reportInfo.TempleAddress)
 
             ' Safety check for fonts
             Dim titleFont = If(_theme?.TitleFont, New Font("Tahoma", 16, FontStyle.Bold))
