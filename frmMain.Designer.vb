@@ -15,16 +15,16 @@ Namespace TempleAccounting
         Private lblSubtitle As Label
         Private pnlLogo As Panel
         Private pnlSidebar As Panel
-        Private btnDashboard As Button
-        Private btnDonation As Button
-        Private btnExpense As Button
-        Private btnReport As Button
-        Private btnMember As Button
-        Private btnSetting As Button
-        Private btnBackup As Button
-        Private btnRestore As Button
-        Private btnVip As Button
-        Private btnActivity As Button
+        Friend btnDashboard As Button
+        Friend btnDonation As Button
+        Friend btnExpense As Button
+        Friend btnReport As Button
+        Friend btnMember As Button
+        Friend btnSetting As Button
+        Friend btnBackup As Button
+        Friend btnRestore As Button
+        Friend btnVip As Button
+        Friend btnActivity As Button
         Private pnlSidebarSpacer As Panel
         Private pnlContent As Panel
         Private pnlOverview As Panel
