@@ -173,18 +173,19 @@ Namespace TempleAccounting
         End Sub
 
         Private Function GetBalanceBeforeDate(conn As OleDbConnection, beforeDate As Date, fundID As Integer?, bankID As Integer?) As Decimal
-            ' Ensure beforeDate is at the start of day (already includes transactions from that day)
-            Dim safeDate As Date = beforeDate.Date
-            System.Diagnostics.Debug.WriteLine("[DEBUG GetBalanceBeforeDate] beforeDate: " & beforeDate & ", safeDate: " & safeDate)
+            ' Normalize dates using system helpers for Access DB compatibility
+            Dim normBeforeDate As Date = Db.NormalizeGregorianDate(beforeDate.Date)
+            Dim dateLiteral As String = Db.AccessDateLiteral(normBeforeDate)
             
-            ' Use Parameterized Query for safety and clarity
-            ' The DateSerial part handles potential Buddhist year records in the database
+            System.Diagnostics.Debug.WriteLine("[DEBUG GetBalanceBeforeDate] beforeDate: " & beforeDate & ", normalized: " & normBeforeDate & ", literal: " & dateLiteral)
+            
+            ' Use Literal for Date to avoid culture/format issues in Access OLEDB
+            ' We keep the DateSerial logic to handle mixed Gregorian/Buddhist years in the database
             Dim sql = "SELECT SUM(IIF(t.TranType='Income', t.Amount, -t.Amount)) " &
                       "FROM Transactions t " &
-                      "WHERE DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate), Day(t.TranDate)) < @beforeDate"
+                      "WHERE DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate), Day(t.TranDate)) < " & dateLiteral
             
             Dim params As New List(Of Tuple(Of String, Object))()
-            params.Add(New Tuple(Of String, Object)("@beforeDate", safeDate))
 
             If fundID.HasValue AndAlso fundID.Value <> 0 Then
                 sql &= " AND t.FundID = @f"
@@ -217,17 +218,19 @@ Namespace TempleAccounting
             Dim sql As String
             Dim params As New List(Of Tuple(Of String, Object))()
 
-            ' Ensure toDate includes the full day (up to 23:59:59)
-            Dim toDateEnd As Date = _toDate.Date.AddDays(1).AddSeconds(-1)
-            System.Diagnostics.Debug.WriteLine("[DEBUG LoadRowsByMode] _fromDate: " & _fromDate & ", _toDate: " & _toDate & ", toDateEnd: " & toDateEnd)
-
-            ' Use Parameterized Query for safety and clarity
-            ' The DateSerial part handles potential Buddhist year records in the database
-            Dim whereClause = "WHERE t.TranType='" & tranType & "' AND DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate), Day(t.TranDate)) " &
-                              "BETWEEN @fromDate AND @toDate"
+            ' Normalize dates using system helpers for Access DB compatibility
+            Dim normFromDate As Date = Db.NormalizeGregorianDate(_fromDate.Date)
+            Dim normToDate As Date = Db.NormalizeGregorianDate(_toDate.Date.AddDays(1).AddSeconds(-1))
             
-            params.Add(New Tuple(Of String, Object)("@fromDate", _fromDate))
-            params.Add(New Tuple(Of String, Object)("@toDate", toDateEnd))
+            Dim fromLiteral As String = Db.AccessDateLiteral(normFromDate)
+            Dim toLiteral As String = Db.AccessDateLiteral(normToDate)
+
+            System.Diagnostics.Debug.WriteLine("[DEBUG LoadRowsByMode] fromDate: " & _fromDate & " (lit: " & fromLiteral & "), toDate: " & _toDate & " (lit: " & toLiteral & ")")
+
+            ' Use Literals for Dates to avoid culture/format issues in Access OLEDB
+            ' We keep the DateSerial logic to handle mixed Gregorian/Buddhist years in the database
+            Dim whereClause = "WHERE t.TranType='" & tranType & "' AND DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate), Day(t.TranDate)) " &
+                              "BETWEEN " & fromLiteral & " AND " & toLiteral
             
             If fundID.HasValue AndAlso fundID.Value <> 0 Then
                 whereClause &= " AND t.FundID = @f"
