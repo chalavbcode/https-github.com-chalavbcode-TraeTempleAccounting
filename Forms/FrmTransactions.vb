@@ -545,25 +545,39 @@ Namespace TempleAccounting
         End Sub
 
         Private Sub btnEdit_Click(sender As Object, e As EventArgs) Handles btnEdit.Click
-            If _isEditing Then
-                SaveSelectedRowEdits()
-                Return
-            End If
-
             If dgvTransactions.CurrentRow Is Nothing Then
                 MessageBox.Show("กรุณาเลือกรายการที่ต้องการแก้ไขก่อน", "แจ้งเตือน", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                 Return
             End If
 
-            _editingTransactionId = GetSelectedTransactionId()
-            If _editingTransactionId <= 0 Then
+            Dim id = GetSelectedTransactionId()
+            If id <= 0 Then
                 MessageBox.Show("ไม่พบรหัสรายการที่จะแก้ไข", "แจ้งเตือน", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                 Return
             End If
 
-            _isEditing = True
-            ApplyEditModeToGrid()
-            MessageBox.Show("แก้ไขข้อมูลในแถวที่เลือกได้เลย แล้วกดปุ่ม 'บันทึกแก้ไข' เพื่อบันทึก", "โหมดแก้ไข", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            Dim tranType = Convert.ToString(dgvTransactions.CurrentRow.Cells("TranType").Value)
+            Dim fMain = TryCast(Me.ParentForm, frmMain)
+            If fMain Is Nothing Then Return
+
+            Select Case tranType
+                Case "Income"
+                    Dim frm As New FrmIncome()
+                    fMain.ShowFormInPanel(frm, "📝 แก้ไขรายการรายรับ")
+                    frm.EditID = id
+                Case "Expense"
+                    Dim frm As New FrmExpense()
+                    fMain.ShowFormInPanel(frm, "📝 แก้ไขรายการรายจ่าย")
+                    frm.EditID = id
+                Case "Transfer"
+                    ' สำหรับรายการโอน ยังใช้โหมดแก้ไขในตารางเดิม (หรือจะเพิ่ม FrmTransfer Edit ในอนาคต)
+                    _editingTransactionId = id
+                    _isEditing = True
+                    ApplyEditModeToGrid()
+                    MessageBox.Show("แก้ไขข้อมูลในแถวที่เลือกได้เลย แล้วกดปุ่ม 'บันทึกแก้ไข' เพื่อบันทึก", "โหมดแก้ไข", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                Case Else
+                    MessageBox.Show("ไม่รองรับการแก้ไขรายการชนิดนี้ผ่านหน้าจอเฉพาะทาง", "แจ้งเตือน")
+            End Select
         End Sub
 
         Private Sub btnClose_Click(sender As Object, e As EventArgs) Handles btnClose.Click

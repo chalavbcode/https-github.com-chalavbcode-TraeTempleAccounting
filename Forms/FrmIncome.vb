@@ -17,11 +17,52 @@ Namespace TempleAccounting
         Private selectedSourceReceiptPath As String = ""
         Private isImageFromClipboard As Boolean = False
         Private clipboardImage As Image = Nothing
+        Private _editId As Integer = 0
 
         Private ReadOnly _enterFlow As New List(Of Control)()
 
         Public Sub New()
             InitializeComponent()
+        End Sub
+
+        ''' <summary>
+        ''' รหัสรายการที่ต้องการแก้ไข (ถ้าเป็น 0 หมายถึงเพิ่มใหม่)
+        ''' </summary>
+        Public Property EditID As Integer
+            Get
+                Return _editId
+            End Get
+            Set(value As Integer)
+                _editId = value
+                If _editId > 0 Then
+                    LoadTransactionData(_editId)
+                End If
+            End Set
+        End Property
+
+        Public Sub LoadTransactionData(id As Integer)
+            Try
+                Using conn = Db.OpenConn()
+                    Dim dt = Db.GetTable(conn, "SELECT * FROM Transactions WHERE ID = " & id)
+                    If dt.Rows.Count > 0 Then
+                        Dim dr = dt.Rows(0)
+                        dtpDate.Value = Db.NormalizeGregorianDate(Convert.ToDateTime(dr("TranDate")))
+                        cboCategory.SelectedValue = dr("CategoryID")
+                        cboFund.SelectedValue = dr("FundID")
+                        cboBank.SelectedValue = If(dr("BankID") Is DBNull.Value, DBNull.Value, dr("BankID"))
+                        txtDescription.Text = Convert.ToString(dr("Detail"))
+                        txtAmount.Text = Convert.ToDecimal(dr("Amount")).ToString("N2")
+                        txtRemark.Text = Convert.ToString(dr("Note"))
+                        txtReceipt.Text = Convert.ToString(dr("ReceiptPath"))
+                        
+                        lblHeader.Text = "📝 แก้ไขรายการรายรับ (ID: " & id & ")"
+                        btnSave.Text = "💾 บันทึกการแก้ไข"
+                        btnImportExcel.Visible = False
+                    End If
+                End Using
+            Catch ex As Exception
+                MessageBox.Show("ไม่สามารถโหลดข้อมูลรายการได้: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            End Try
         End Sub
 
         Private Sub FrmIncome_Load(sender As Object, e As EventArgs) Handles MyBase.Load
@@ -161,36 +202,66 @@ Namespace TempleAccounting
             Dim bankValue = GetSelectedBankValue()
             Try
                 Using conn = Db.OpenConn()
-                    ' 1. บันทึกรายการลงตาราง Transactions ( TranType = 'Income' ) และรับ newID กลับมา
-                    Dim newID As Integer = Db.InsertAndGetId(conn, "INSERT INTO Transactions (TranDate, TranType, CategoryID, FundID, BankID, [Detail], Amount, [Note]) VALUES (" & Db.AccessDateLiteral(dtpDate.Value.Date) & ",'Income',@c,@f,@b,@de,@a,@n)", New Tuple(Of String, Object)("@c", CInt(cboCategory.SelectedValue)), New Tuple(Of String, Object)("@f", CInt(cboFund.SelectedValue)), New Tuple(Of String, Object)("@b", bankValue), New Tuple(Of String, Object)("@de", txtDescription.Text.Trim), New Tuple(Of String, Object)("@a", amt), New Tuple(Of String, Object)("@n", txtRemark.Text.Trim))
+                    Dim targetID As Integer = _editId
 
-                    ' 2. หากมีการเลือกรูปภาพ ให้จัดการก๊อบปี้ไฟล์และอัปเดตชื่อไฟล์ลงคอลัมน์ ReceiptPath
-                    Dim savedFileName As String = SaveReceiptFile(newID)
-                    If Not String.IsNullOrEmpty(savedFileName) Then
-                        Using cmd = conn.CreateCommand()
-                            cmd.CommandText = "UPDATE Transactions SET ReceiptPath = @rp WHERE ID = @id"
-                            cmd.Parameters.AddWithValue("@rp", savedFileName)
-                            cmd.Parameters.AddWithValue("@id", newID)
-                            cmd.ExecuteNonQuery()
-                        End Using
+                    If _editId > 0 Then
+                        ' โหมดแก้ไข: UPDATE
+                        Db.ExecuteNonQuery(conn, "UPDATE Transactions SET TranDate=" & Db.AccessDateLiteral(dtpDate.Value.Date) & ", CategoryID=@c, FundID=@f, BankID=@b, [Detail]=@de, Amount=@a, [Note]=@n WHERE ID=@id",
+                            New Tuple(Of String, Object)("@c", CInt(cboCategory.SelectedValue)),
+                            New Tuple(Of String, Object)("@f", CInt(cboFund.SelectedValue)),
+                            New Tuple(Of String, Object)("@b", bankValue),
+                            New Tuple(Of String, Object)("@de", txtDescription.Text.Trim),
+                            New Tuple(Of String, Object)("@a", amt),
+                            New Tuple(Of String, Object)("@n", txtRemark.Text.Trim),
+                            New Tuple(Of String, Object)("@id", _editId))
+                    Else
+                        ' โหมดเพิ่มใหม่: INSERT
+                        targetID = Db.InsertAndGetId(conn, "INSERT INTO Transactions (TranDate, TranType, CategoryID, FundID, BankID, [Detail], Amount, [Note]) VALUES (" & Db.AccessDateLiteral(dtpDate.Value.Date) & ",'Income',@c,@f,@b,@de,@a,@n)",
+                            New Tuple(Of String, Object)("@c", CInt(cboCategory.SelectedValue)),
+                            New Tuple(Of String, Object)("@f", CInt(cboFund.SelectedValue)),
+                            New Tuple(Of String, Object)("@b", bankValue),
+                            New Tuple(Of String, Object)("@de", txtDescription.Text.Trim),
+                            New Tuple(Of String, Object)("@a", amt),
+                            New Tuple(Of String, Object)("@n", txtRemark.Text.Trim))
                     End If
 
-                    MessageBox.Show("✅ บันทึกรายรับสำเร็จ!", "สำเร็จ", MessageBoxButtons.OK, MessageBoxIcon.Information)
-                    ResetEntry(False)
+                    ' 2. จัดการรูปภาพใบเสร็จ (ถ้ามีการเลือกใหม่ หรือวางจากคลิปบอร์ด)
+                    If Not String.IsNullOrEmpty(selectedSourceReceiptPath) Then
+                        Dim savedFileName As String = SaveReceiptFile(targetID)
+                        If Not String.IsNullOrEmpty(savedFileName) Then
+                            Using cmd = conn.CreateCommand()
+                                cmd.CommandText = "UPDATE Transactions SET ReceiptPath = @rp WHERE ID = @id"
+                                cmd.Parameters.AddWithValue("@rp", savedFileName)
+                                cmd.Parameters.AddWithValue("@id", targetID)
+                                cmd.ExecuteNonQuery()
+                            End Using
+                        End If
+                    End If
 
-                    ' ล้างค่าตัวแปรเก็บ Path รูปภาพที่เคยเลือกไว้
-                    selectedSourceReceiptPath = ""
-                    If txtReceipt IsNot Nothing Then txtReceipt.Clear()
+                    MessageBox.Show("✅ บันทึกข้อมูลเรียบร้อยแล้ว!", "สำเร็จ", MessageBoxButtons.OK, MessageBoxIcon.Information)
 
-                    ' ล้าง Clipboard หลังบันทึกรูปสำเร็จ เพื่อป้องกันการวางรูปเดิมซ้ำ
-                    Try
-                        Clipboard.Clear()
-                    Catch ex As Exception
-                        AppPaths.LogCrash(ex, "FrmIncome.ClearClipboard")
-                    End Try
+                    If _editId > 0 Then
+                        ' ถ้าเป็นการแก้ไข ให้ปิดหน้าจอนี้และกลับไปหน้า Transactions
+                        Dim f = TryCast(Me.ParentForm, frmMain)
+                        If f IsNot Nothing Then
+                            f.btnMember.PerformClick()
+                        End If
+                    Else
+                        ResetEntry(False)
+                        ' ล้างค่าตัวแปรเก็บ Path รูปภาพที่เคยเลือกไว้
+                        selectedSourceReceiptPath = ""
+                        If txtReceipt IsNot Nothing Then txtReceipt.Clear()
 
-                    dtpDate.Value = keepDate
-                    dtpDate.Focus()
+                        ' ล้าง Clipboard หลังบันทึกรูปสำเร็จ
+                        Try
+                            Clipboard.Clear()
+                        Catch ex As Exception
+                            AppPaths.LogCrash(ex, "FrmIncome.ClearClipboard")
+                        End Try
+
+                        dtpDate.Value = keepDate
+                        dtpDate.Focus()
+                    End If
                 End Using
             Catch ex As Exception
                 MessageBox.Show("บันทึกไม่สำเร็จ: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
