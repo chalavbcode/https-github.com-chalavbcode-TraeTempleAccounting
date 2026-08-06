@@ -394,26 +394,23 @@ Namespace TempleAccounting
 
             ' Fixed standard for rows per page
             Dim maxRowsPerPage = 15
-            Dim rowsProcessedThisPage = 0
             
-            ' Draw rows (up to maxRowsPerPage) only if we haven't finished all data
+            ' Draw rows (exactly maxRowsPerPage) only if we haven't finished all data
             ' OR if we are on a page that should have a grid
             If _rowIndex < totalRows Then
                 For i As Integer = 0 To maxRowsPerPage - 1
                     Dim y = _pageY
-                    Dim hasLeft = (_rowIndex < _incomeRows.Count)
-                    Dim hasRight = (_rowIndex < _expenseRows.Count)
                     
-                    ' Render Income row data if available, else render empty Income cell grid
-                    If hasLeft Then
-                        Dim row = _incomeRows(_rowIndex)
-                        g.DrawRectangle(_theme.BlackPen, _leftX, y, usableW, rowH)
-                        g.DrawRectangle(_theme.BlackPen, _leftX, y, colW1, rowH)
-                        g.DrawRectangle(_theme.BlackPen, _leftX + colW1, y, colW2, rowH)
-                        g.DrawRectangle(_theme.BlackPen, _leftX + colW1 + colW2, y, colW3, rowH)
-                        g.DrawRectangle(_theme.BlackPen, _leftX + colW1 + colW2 + colW3, y, colW4, rowH)
-                        g.DrawLine(_theme.BlackPen, _leftX + colW1 + colW2 + colW3, y, _leftX + colW1 + colW2 + colW3, y + rowH)
+                    ' Render Income side: Render row data if available, else render empty grid
+                    g.DrawRectangle(_theme.BlackPen, _leftX, y, usableW, rowH)
+                    g.DrawRectangle(_theme.BlackPen, _leftX, y, colW1, rowH)
+                    g.DrawRectangle(_theme.BlackPen, _leftX + colW1, y, colW2, rowH)
+                    g.DrawRectangle(_theme.BlackPen, _leftX + colW1 + colW2, y, colW3, rowH)
+                    g.DrawRectangle(_theme.BlackPen, _leftX + colW1 + colW2 + colW3, y, colW4, rowH)
+                    g.DrawLine(_theme.BlackPen, _leftX + colW1 + colW2 + colW3, y, _leftX + colW1 + colW2 + colW3, y + rowH)
 
+                    If _rowIndex < _incomeRows.Count Then
+                        Dim row = _incomeRows(_rowIndex)
                         Dim fmt As New StringFormat() With {.Alignment = StringAlignment.Center, .LineAlignment = StringAlignment.Center}
                         Dim fmtL As New StringFormat() With {.Alignment = StringAlignment.Near, .LineAlignment = StringAlignment.Center}
                         Dim fmtR As New StringFormat() With {.Alignment = StringAlignment.Far, .LineAlignment = StringAlignment.Center}
@@ -424,26 +421,18 @@ Namespace TempleAccounting
                                      New RectangleF(_leftX + colW1 + colW2 + 3, y, colW3 - 6, rowH), fmtL)
                         g.DrawString(FormatThaiAmount(row.Amount), _theme.RowFont, If(row.IsCarryForward, Brushes.Red, Brushes.Black),
                                      New RectangleF(_leftX + colW1 + colW2 + colW3, y, colW4 - 4, rowH), fmtR)
-                    Else
-                        ' Render empty Income cell grid
-                        g.DrawRectangle(_theme.BlackPen, _leftX, y, usableW, rowH)
-                        g.DrawRectangle(_theme.BlackPen, _leftX, y, colW1, rowH)
-                        g.DrawRectangle(_theme.BlackPen, _leftX + colW1, y, colW2, rowH)
-                        g.DrawRectangle(_theme.BlackPen, _leftX + colW1 + colW2, y, colW3, rowH)
-                        g.DrawRectangle(_theme.BlackPen, _leftX + colW1 + colW2 + colW3, y, colW4, rowH)
-                        g.DrawLine(_theme.BlackPen, _leftX + colW1 + colW2 + colW3, y, _leftX + colW1 + colW2 + colW3, y + rowH)
                     End If
 
-                    ' Render Expense row data if available, else render empty Expense cell grid
-                    If hasRight Then
-                        Dim row = _expenseRows(_rowIndex)
-                        g.DrawRectangle(_theme.BlackPen, _rightX, y, usableW, rowH)
-                        g.DrawRectangle(_theme.BlackPen, _rightX, y, colW1, rowH)
-                        g.DrawRectangle(_theme.BlackPen, _rightX + colW1, y, colW2, rowH)
-                        g.DrawRectangle(_theme.BlackPen, _rightX + colW1 + colW2, y, colW3, rowH)
-                        g.DrawRectangle(_theme.BlackPen, _rightX + colW1 + colW2 + colW3, y, colW4, rowH)
-                        g.DrawLine(_theme.BlackPen, _rightX + colW1 + colW2 + colW3, y, _rightX + colW1 + colW2 + colW3, y + rowH)
+                    ' Render Expense side: Render row data if available, else render empty grid
+                    g.DrawRectangle(_theme.BlackPen, _rightX, y, usableW, rowH)
+                    g.DrawRectangle(_theme.BlackPen, _rightX, y, colW1, rowH)
+                    g.DrawRectangle(_theme.BlackPen, _rightX + colW1, y, colW2, rowH)
+                    g.DrawRectangle(_theme.BlackPen, _rightX + colW1 + colW2, y, colW3, rowH)
+                    g.DrawRectangle(_theme.BlackPen, _rightX + colW1 + colW2 + colW3, y, colW4, rowH)
+                    g.DrawLine(_theme.BlackPen, _rightX + colW1 + colW2 + colW3, y, _rightX + colW1 + colW2 + colW3, y + rowH)
 
+                    If _rowIndex < _expenseRows.Count Then
+                        Dim row = _expenseRows(_rowIndex)
                         Dim fmt As New StringFormat() With {.Alignment = StringAlignment.Center, .LineAlignment = StringAlignment.Center}
                         Dim fmtL As New StringFormat() With {.Alignment = StringAlignment.Near, .LineAlignment = StringAlignment.Center}
                         Dim fmtR As New StringFormat() With {.Alignment = StringAlignment.Far, .LineAlignment = StringAlignment.Center}
@@ -454,19 +443,12 @@ Namespace TempleAccounting
                                      New RectangleF(_rightX + colW1 + colW2 + 3, y, colW3 - 6, rowH), fmtL)
                         g.DrawString(FormatThaiAmount(row.Amount), _theme.RowFont, Brushes.Black,
                                      New RectangleF(_rightX + colW1 + colW2 + colW3, y, colW4 - 4, rowH), fmtR)
-                    Else
-                        ' Render empty Expense cell grid
-                        g.DrawRectangle(_theme.BlackPen, _rightX, y, usableW, rowH)
-                        g.DrawRectangle(_theme.BlackPen, _rightX, y, colW1, rowH)
-                        g.DrawRectangle(_theme.BlackPen, _rightX + colW1, y, colW2, rowH)
-                        g.DrawRectangle(_theme.BlackPen, _rightX + colW1 + colW2, y, colW3, rowH)
-                        g.DrawRectangle(_theme.BlackPen, _rightX + colW1 + colW2 + colW3, y, colW4, rowH)
-                        g.DrawLine(_theme.BlackPen, _rightX + colW1 + colW2 + colW3, y, _rightX + colW1 + colW2 + colW3, y + rowH)
                     End If
 
+                    ' Draw outer horizontal grid lines across full width (implied by rectangles above)
+                    
                     _rowIndex += 1
                     _pageY += rowH
-                    rowsProcessedThisPage += 1
                 Next
             End If
 
@@ -520,24 +502,6 @@ Namespace TempleAccounting
             Return summaryHeight + signatureHeight + footerGap + topGap
         End Function
 
-        Private Sub DrawEmptyRows(g As Graphics, printed As Integer, max As Integer, rowH As Integer,
-                                  c1 As Integer, c2 As Integer, c3 As Integer, c4 As Integer, usableW As Integer)
-            For i = printed To max - 1
-                g.DrawRectangle(_theme.BlackPen, _leftX, _pageY, usableW, rowH)
-                g.DrawRectangle(_theme.BlackPen, _leftX, _pageY, c1, rowH)
-                g.DrawRectangle(_theme.BlackPen, _leftX + c1, _pageY, c2, rowH)
-                g.DrawRectangle(_theme.BlackPen, _leftX + c1 + c2, _pageY, c3, rowH)
-                g.DrawRectangle(_theme.BlackPen, _leftX + c1 + c2 + c3, _pageY, c4, rowH)
-                g.DrawLine(_theme.BlackPen, _leftX + c1 + c2 + c3, _pageY, _leftX + c1 + c2 + c3, _pageY + rowH)
-                g.DrawRectangle(_theme.BlackPen, _rightX, _pageY, usableW, rowH)
-                g.DrawRectangle(_theme.BlackPen, _rightX, _pageY, c1, rowH)
-                g.DrawRectangle(_theme.BlackPen, _rightX + c1, _pageY, c2, rowH)
-                g.DrawRectangle(_theme.BlackPen, _rightX + c1 + c2, _pageY, c3, rowH)
-                g.DrawRectangle(_theme.BlackPen, _rightX + c1 + c2 + c3, _pageY, c4, rowH)
-                g.DrawLine(_theme.BlackPen, _rightX + c1 + c2 + c3, _pageY, _rightX + c1 + c2 + c3, _pageY + rowH)
-                _pageY += rowH
-            Next
-        End Sub
 
         Private Sub DrawMidSummary(g As Graphics, rowH As Integer, c1 As Integer, c2 As Integer, c3 As Integer, c4 As Integer, usableW As Integer)
             Dim y = _pageY
