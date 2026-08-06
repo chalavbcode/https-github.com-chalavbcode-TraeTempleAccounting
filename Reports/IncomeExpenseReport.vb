@@ -62,8 +62,8 @@ Namespace TempleAccounting
         Private _pageIndex As Integer = 0
         Private _rowIndex As Integer = 0
         Private Const FinalSummaryRows As Integer = 3
-        Private Const FinalSignatureBlockHeight As Integer = 155  ' Actual height: label(26) + gap(65) + name(26) + gap(12) + position(26)
-        Private Const FinalFooterGapHeight As Integer = 24
+        Private Const FinalSignatureBlockHeight As Integer = 145  ' Reduced slightly for better fit
+        Private Const FinalFooterGapHeight As Integer = 12       ' Reduced from 24
 
         Private Structure ReportRow
             Public TranDate As Date
@@ -618,16 +618,16 @@ Namespace TempleAccounting
         ''' H_sig = H_summary + H_signature + H_footerGap + H_topGap
         ''' </summary>
         Private Function CalculateFinalContentHeight(rowH As Integer) As Integer
-            ' Summary rows (3 rows * 28px = 84px) + gap(12px) = 96px
-            Dim summaryHeight = (FinalSummaryRows * rowH) + 12
-            ' Signature block height = 155px (label + gap + name + gap + position)
+            ' Summary rows (3 rows * 28px = 84px) + gap(8px) = 92px
+            Dim summaryHeight = (FinalSummaryRows * rowH) + 8
+            ' Signature block height = 145px
             Dim signatureHeight = FinalSignatureBlockHeight
-            ' Gap before footer = 24px
+            ' Gap before footer = 12px
             Dim footerGap = FinalFooterGapHeight
-            ' Minimum top gap = 12px
-            Dim topGap = 12
+            ' Minimum top gap = 8px
+            Dim topGap = 8
 
-            ' Total: 96 + 155 + 24 + 12 = 287px
+            ' Total: 92 + 145 + 12 + 8 = 257px
             Return summaryHeight + signatureHeight + footerGap + topGap
         End Function
 
@@ -783,19 +783,19 @@ Namespace TempleAccounting
 
             ' === SHARED SPACING CONSTANTS ===
             Const labelHeight As Integer = 26          ' Height for label text
-            Const labelToSignLine As Integer = 65     ' 65px gap above dotted line (more signing space)
+            Const labelToSignLine As Integer = 55     ' Reduced from 65 to save space
             Const signLineToName As Integer = 0       ' 0px gap - name directly below line
             Const nameHeight As Integer = 26           ' Height for name text
-            Const nameToPosition As Integer = 12      ' Comfortable gap between name and position
+            Const nameToPosition As Integer = 10      ' Reduced from 12
             Const positionHeight As Integer = 26       ' Height for position text
 
             ' Calculate total height for signature section
-            ' Section: label(26) + gap(65) + signLineToName(0) + name(26) + gap(12) + position(26)
+            ' Section: label(26) + gap(55) + signLineToName(0) + name(26) + gap(10) + position(26) = 143px
             Dim totalSignatureHeight = labelHeight + labelToSignLine + signLineToName + nameHeight + nameToPosition + positionHeight
 
             ' Position the signature area - both blocks share same bottom Y
             ' Use smaller bottom margin to move signature block upward
-            Dim blockBottom = _pageBottom - 4
+            Dim blockBottom = _pageBottom - 2
             If blockBottom - totalSignatureHeight < minimumTop Then
                 blockBottom = minimumTop + totalSignatureHeight + 8
             End If
