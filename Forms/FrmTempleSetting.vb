@@ -23,6 +23,7 @@ Namespace TempleAccounting
 
         Private Sub FrmTempleSetting_Load(sender As Object, e As EventArgs) Handles MyBase.Load
             Try
+                HelpSystem.SetupHelp(Me, "FrmTempleSetting")
                 ' ตรวจสอบและสร้าง Schema หากยังไม่มี
                 Db.EnsureSchema()
 

@@ -31,6 +31,7 @@
     <Compile Include="Database.vb" />
     <Compile Include="DatabaseBackupHelper.vb" />
     <Compile Include="AppPaths.vb" />
+    <Compile Include="HelpSystem.vb" />
     <Compile Include="Program.vb" />
     <Compile Include="ReceiptImageHelper.vb" />
     <Compile Include="MessageBoxHelper.vb" />
@@ -40,6 +41,13 @@
     <Compile Include="Reports\ReportEngine.vb" />
 
     <!-- ===== frmMain ===== -->
+    <Compile Include="Forms\FrmHelpDialog.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FrmHelpDialog.Designer.vb">
+      <DependentUpon>FrmHelpDialog.vb</DependentUpon>
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="frmMain.vb">
       <SubType>Form</SubType>
     </Compile>

@@ -61,9 +61,11 @@ Namespace TempleAccounting
                 If hintLabel Is Nothing Then
                     hintLabel = New ToolStripStatusLabel()
                     hintLabel.Name = helpHintLabelName
-                    hintLabel.Text = "💡 กด F1 เพื่อดูวิธีใช้งานหน้าจอนี้"
+                    hintLabel.Text = "💡 คำแนะนำ: กดปุ่ม [F1] เพื่อดูวิธีใช้งานหน้าจอนี้"
                     hintLabel.Alignment = ToolStripItemAlignment.Right
                     statusStrip.Items.Add(hintLabel)
+                Else
+                    hintLabel.Text = "💡 คำแนะนำ: กดปุ่ม [F1] เพื่อดูวิธีใช้งานหน้าจอนี้"
                 End If
             Catch ex As Exception
                 ' พยายามทำต่อเงียบๆ เพื่อไม่ให้กระทบการทำงานหลัก
@@ -72,18 +74,26 @@ Namespace TempleAccounting
         End Sub
 
         ''' <summary>
-        ''' เปิดไฟล์คู่มือการใช้งาน
+        ''' เปิดหน้าต่างคู่มือการใช้งาน
         ''' </summary>
-        ''' <param name="sectionName">ชื่อหัวข้อ (ไม่ได้ใช้งานในเวอร์ชันเปิดไฟล์ตรงๆ แต่เก็บไว้รองรับอนาคต)</param>
-        Public Sub ShowManual(Optional sectionName As String = "")
+        ''' <param name="formName">ชื่อฟอร์มเพื่อแสดงเนื้อหาที่เกี่ยวข้อง</param>
+        Public Sub ShowManual(Optional formName As String = "")
             Try
-                Dim manualPath = AppPaths.ManualFile
-                If File.Exists(manualPath) Then
-                    ' เปิดไฟล์ด้วยโปรแกรมเริ่มต้นของระบบ (เช่น Notepad, Browser, หรือ Markdown Viewer)
-                    Process.Start(New ProcessStartInfo(manualPath) With {.UseShellExecute = True})
-                Else
-                    MessageBox.Show("ไม่พบไฟล์คู่มือการใช้งาน (USER_MANUAL_TH.md) กรุณาตรวจสอบว่าไฟล์อยู่ในโฟลเดอร์ของโปรแกรม", "ไม่พบข้อมูล", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                ' ถ้าไม่ได้ระบุชื่อฟอร์ม ให้เปิดไฟล์โดยตรงเหมือนเดิม
+                If String.IsNullOrEmpty(formName) Then
+                    Dim manualPath = AppPaths.ManualFile
+                    If File.Exists(manualPath) Then
+                        Process.Start(New ProcessStartInfo(manualPath) With {.UseShellExecute = True})
+                    Else
+                        MessageBox.Show("ไม่พบไฟล์คู่มือการใช้งาน (USER_MANUAL_TH.md)", "ไม่พบข้อมูล", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                    End If
+                    Return
                 End If
+
+                ' แสดง Modal Dialog สำหรับ Help
+                Using dlg As New FrmHelpDialog(formName)
+                    dlg.ShowDialog()
+                End Using
             Catch ex As Exception
                 MessageBox.Show("ไม่สามารถเปิดคู่มือได้: " & ex.Message, "เกิดข้อผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
             End Try
