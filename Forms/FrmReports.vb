@@ -85,8 +85,13 @@ Namespace TempleAccounting
 
         Private Function BaseSql(ByRef params As List(Of Tuple(Of String, Object))) As String
             params = New List(Of Tuple(Of String, Object))()
-            Dim fromDate = Db.NormalizeGregorianDate(dtpFrom.Value.Date)
-            Dim toDate = Db.NormalizeGregorianDate(dtpTo.Value.Date)
+            ' Ensure we read the date only, and then add full day for toDate
+            Dim fDate = dtpFrom.Value.Date
+            Dim tDate = dtpTo.Value.Date.AddDays(1).AddSeconds(-1)
+            
+            Dim fromDate = Db.NormalizeGregorianDate(fDate)
+            Dim toDate = Db.NormalizeGregorianDate(tDate)
+            
             Dim sql = "FROM ((Transactions t LEFT JOIN Categories c ON t.CategoryID=c.ID) LEFT JOIN Funds f ON t.FundID=f.ID) LEFT JOIN BankAccounts b ON t.BankID=b.ID " &
                       "WHERE DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate), Day(t.TranDate)) " &
                       "BETWEEN " & Db.AccessDateLiteral(fromDate) & " AND " & Db.AccessDateLiteral(toDate)
@@ -284,10 +289,21 @@ Namespace TempleAccounting
 
         Private Sub btnPrintDetail_Click(sender As Object, e As EventArgs) Handles btnPrintDetail.Click
             Try
+                ' 1. Read dates directly from UI controls at the exact moment of click
+                ' Ensure toDate includes the full day up to 23:59:59
+                Dim fDate As DateTime = dtpFrom.Value.Date
+                Dim tDate As DateTime = dtpTo.Value.Date.AddDays(1).AddSeconds(-1)
+
+                ' 2. Normalize dates to Gregorian for database querying if needed
+                Dim fromDate = Db.NormalizeGregorianDate(fDate)
+                Dim toDate = Db.NormalizeGregorianDate(tDate)
+
                 Dim fundID = If(cboFund.SelectedValue IsNot Nothing, CInt(cboFund.SelectedValue), 0)
                 Dim bankID = If(cboBank.SelectedValue IsNot Nothing, CInt(cboBank.SelectedValue), 0)
-                System.Diagnostics.Debug.WriteLine("[DEBUG FrmReports] btnPrintDetail_Click - dtpFrom: " & dtpFrom.Value & ", dtpTo: " & dtpTo.Value)
-                IncomeExpenseReport.ShowPreview(Db.NormalizeGregorianDate(dtpFrom.Value.Date), Db.NormalizeGregorianDate(dtpTo.Value.Date), Me, IncomeExpenseReport.ReportModes.Detailed, GetManualBalance(), If(fundID = 0, Nothing, fundID), If(bankID = 0, Nothing, bankID))
+                
+                System.Diagnostics.Debug.WriteLine("[DEBUG FrmReports] btnPrintDetail_Click - dtpFrom: " & fDate & ", dtpTo: " & tDate)
+                
+                IncomeExpenseReport.ShowPreview(fromDate, toDate, Me, IncomeExpenseReport.ReportModes.Detailed, GetManualBalance(), If(fundID = 0, Nothing, fundID), If(bankID = 0, Nothing, bankID))
             Catch ex As Exception
                 MessageBox.Show("เกิดข้อผิดพลาด: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
             End Try
@@ -295,10 +311,21 @@ Namespace TempleAccounting
 
         Private Sub btnPrintSummary_Click(sender As Object, e As EventArgs) Handles btnPrintSummary.Click
             Try
+                ' 1. Read dates directly from UI controls at the exact moment of click
+                ' Ensure toDate includes the full day up to 23:59:59
+                Dim fDate As DateTime = dtpFrom.Value.Date
+                Dim tDate As DateTime = dtpTo.Value.Date.AddDays(1).AddSeconds(-1)
+
+                ' 2. Normalize dates to Gregorian for database querying if needed
+                Dim fromDate = Db.NormalizeGregorianDate(fDate)
+                Dim toDate = Db.NormalizeGregorianDate(tDate)
+
                 Dim fundID = If(cboFund.SelectedValue IsNot Nothing, CInt(cboFund.SelectedValue), 0)
                 Dim bankID = If(cboBank.SelectedValue IsNot Nothing, CInt(cboBank.SelectedValue), 0)
-                System.Diagnostics.Debug.WriteLine("[DEBUG FrmReports] btnPrintSummary_Click - dtpFrom: " & dtpFrom.Value & ", dtpTo: " & dtpTo.Value)
-                IncomeExpenseReport.ShowPreview(Db.NormalizeGregorianDate(dtpFrom.Value.Date), Db.NormalizeGregorianDate(dtpTo.Value.Date), Me, IncomeExpenseReport.ReportModes.Summary, GetManualBalance(), If(fundID = 0, Nothing, fundID), If(bankID = 0, Nothing, bankID))
+                
+                System.Diagnostics.Debug.WriteLine("[DEBUG FrmReports] btnPrintSummary_Click - dtpFrom: " & fDate & ", dtpTo: " & tDate)
+                
+                IncomeExpenseReport.ShowPreview(fromDate, toDate, Me, IncomeExpenseReport.ReportModes.Summary, GetManualBalance(), If(fundID = 0, Nothing, fundID), If(bankID = 0, Nothing, bankID))
             Catch ex As Exception
                 MessageBox.Show("เกิดข้อผิดพลาด: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
             End Try
