@@ -388,6 +388,7 @@ Namespace TempleAccounting
         ''' Convert Arabic digits to Thai numerals
         ''' </summary>
         Public Function ThaiNumerals(s As String) As String
+            If s Is Nothing Then Return ""
             Dim result As String = ""
             For Each ch In s
                 If Char.IsDigit(ch) Then
