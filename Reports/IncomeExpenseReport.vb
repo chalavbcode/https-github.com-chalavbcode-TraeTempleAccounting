@@ -582,14 +582,11 @@ Namespace TempleAccounting
             y += rowH
 
             ' --- ROW 2: Adjustments (รวมทั้งสิ้น / ยอดคงเหลือยกไป) ---
-            ' LEFT (รวมทั้งสิ้น: ยอดยกมา + รายรับ)
+            ' LEFT (Blank row to maintain grid alignment with Expense side)
             g.DrawRectangle(_theme.BlackPen, _leftX, y, usableW, rowH)
             g.DrawLine(_theme.BlackPen, _leftX + c1 + c2, y, _leftX + c1 + c2, y + rowH)
             g.DrawLine(_theme.BlackPen, _leftX + c1 + c2 + c3, y, _leftX + c1 + c2 + c3, y + rowH)
-            g.DrawString("รวมทั้งสิ้น", _theme.BigBoldFont, Brushes.Black,
-                         New RectangleF(_leftX + c1 + c2, y, c3, rowH), fmtC)
-            g.DrawString(FormatThaiAmount(_reportGrandTotal), _theme.BigBoldFont, Brushes.Black,
-                         New RectangleF(_leftX + c1 + c2 + c3, y, c4 - 4, rowH), fmtR)
+            ' Text "รวมทั้งสิ้น" removed from here to match official format (only 2 rows on Income side)
             ' RIGHT (ยอดคงเหลือยกไป)
             g.DrawRectangle(_theme.BlackPen, _rightX, y, usableW, rowH)
             g.DrawLine(_theme.BlackPen, _rightX + c1 + c2 + c3, y, _rightX + c1 + c2 + c3, y + rowH)
