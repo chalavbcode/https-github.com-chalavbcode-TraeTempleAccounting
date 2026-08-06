@@ -34,6 +34,17 @@ Namespace TempleAccounting
                 _editId = value
                 If _editId > 0 Then
                     LoadTransactionData(_editId)
+                    ' ปรับเปลี่ยน UI สำหรับโหมดแก้ไข
+                    btnCancel.Text = "🔙 ย้อนกลับ"
+                    btnCancel.BackColor = Color.FromArgb(75, 85, 99) ' สีเทาเข้ม
+                    btnImportExcel.Visible = False
+                    ttMain.SetToolTip(btnCancel, "ยกเลิกการแก้ไขและย้อนกลับไปหน้าก่อนหน้า")
+                Else
+                    ' โหมดเพิ่มใหม่
+                    btnCancel.Text = "❌ ล้างข้อมูล"
+                    btnCancel.BackColor = Color.FromArgb(180, 83, 9) ' สีส้มอิฐเดิม
+                    btnImportExcel.Visible = True
+                    ttMain.SetToolTip(btnCancel, "ล้างข้อมูลที่กรอกไว้ทั้งหมดเพื่อเริ่มกรอกใหม่")
                 End If
             End Set
         End Property
@@ -185,8 +196,17 @@ Namespace TempleAccounting
         End Sub
 
         Private Sub btnCancel_Click(sender As Object, e As EventArgs) Handles btnCancel.Click
-            ResetEntry(False)
-            dtpDate.Focus()
+            If _editId > 0 Then
+                ' ถ้าเป็นโหมดแก้ไข ให้ย้อนกลับไปหน้า Transactions
+                Dim f = TryCast(Me.ParentForm, frmMain)
+                If f IsNot Nothing Then
+                    f.btnMember.PerformClick()
+                End If
+            Else
+                ' ถ้าเป็นโหมดเพิ่มใหม่ ให้ล้างข้อมูล
+                ResetEntry(True)
+                dtpDate.Focus()
+            End If
         End Sub
 
         Private Sub btnSave_Click(sender As Object, e As EventArgs) Handles btnSave.Click
