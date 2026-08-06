@@ -33,7 +33,7 @@ Namespace TempleAccounting
         Private _manualOpeningBalance As Decimal? = Nothing
         Private _reportGrandTotal As Decimal
         Private _balance As Decimal
-        Private _templateInfo As TemplateInfo
+        Private _templateInfo As TempleSettingInfo
 
         Private _layout As LayoutConfig
         Private _theme As ReportTheme
@@ -707,17 +707,14 @@ Namespace TempleAccounting
             If _reportInfo Is Nothing Then
                 ' Fallback if _reportInfo not initialized - use shared TemplateInfo (already has defaults)
                 Dim reportTitle = If(_mode = ReportModes.Summary, "สรุปบัญชีรายรับ - รายจ่าย (แบบย่อ)", "สรุปบัญชีรายรับ - รายจ่าย (แบบละเอียด)")
-                Dim template = ReportEngine.GetTemplateInfo()
-                _reportInfo = New ReportInfo(reportTitle, template.TempleName, template.TempleAddress, _fromDate, _toDate)
+                _templateInfo = ReportEngine.GetTemplateInfo()
+                _reportInfo = New ReportInfo(reportTitle, _templateInfo.TempleName, _templateInfo.TempleAddress, _fromDate, _toDate)
             End If
 
-            ' Safety check for _reportInfo properties before sending to DrawHeader
-            System.Diagnostics.Debug.WriteLine("[DEBUG IncomeExpenseReport.DrawHeader] _reportInfo.TempleName: '" & _reportInfo.TempleName & "'")
-            System.Diagnostics.Debug.WriteLine("[DEBUG IncomeExpenseReport.DrawHeader] _reportInfo.TempleAddress: '" & _reportInfo.TempleAddress & "'")
-            System.Diagnostics.Debug.WriteLine("[DEBUG IncomeExpenseReport.DrawHeader] _reportInfo.FromDate: '" & _reportInfo.FromDate & "'")
+            ' Ensure we have valid values before calling engine
             Dim title = If(String.IsNullOrWhiteSpace(_reportInfo.ReportTitle), "รายงานรายรับ-รายจ่าย", _reportInfo.ReportTitle)
-            Dim templeName = If(String.IsNullOrWhiteSpace(_reportInfo.TempleName), "วัด (ไม่ได้ระบุชื่อ)", _reportInfo.TempleName)
-            Dim templeAddress = If(String.IsNullOrWhiteSpace(_reportInfo.TempleAddress), "-", _reportInfo.TempleAddress)
+            Dim templeName = If(String.IsNullOrWhiteSpace(_reportInfo.TempleName), "วัดแหลมยาง", _reportInfo.TempleName)
+            Dim templeAddress = If(String.IsNullOrWhiteSpace(_reportInfo.TempleAddress), "ต.ป่ามะคาบ อ.เมืองพิจิตร จ.พิจิตร", _reportInfo.TempleAddress)
 
             ' Safety check for fonts
             Dim titleFont = If(_theme?.TitleFont, New Font("Tahoma", 16, FontStyle.Bold))
