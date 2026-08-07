@@ -12,6 +12,7 @@ Namespace TempleAccounting
         Private _currentActiveButton As Button
         Private _currentChildForm As Form
         Private _compactOverviewMode As Boolean = False
+        Private picHomeLogo As PictureBox
 
         Public Sub New()
             Try
@@ -42,6 +43,7 @@ Namespace TempleAccounting
                 HelpSystem.SetupHelp(Me, "FrmMain")
                 Dim tt As New ToolTip()
                 tt.SetToolTip(lblStatusCenter, "ดับเบิ้ลคลิก: เปิดโฟลเดอร์ฐานข้อมูล" & vbCrLf & "คลิกขวา: คัดลอกที่อยู่ไฟล์ฐานข้อมูล" & vbCrLf & "ไฟล์: " & AppPaths.DatabaseFile)
+                ShowHomeLogo()
             Catch
             End Try
             ShowDashboard()
@@ -76,6 +78,21 @@ Namespace TempleAccounting
                     MessageBox.Show("ไม่สามารถคัดลอกได้: " & ex.Message, "ข้อผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                 End Try
             End If
+        End Sub
+
+        Private Sub ShowHomeLogo()
+            If picHomeLogo Is Nothing Then
+                picHomeLogo = New PictureBox()
+                picHomeLogo.Image = Image.FromFile(Path.Combine(Application.StartupPath, "Resources\logo_baanchee_wat.png"))
+                picHomeLogo.SizeMode = PictureBoxSizeMode.Zoom
+                picHomeLogo.Size = New Size(220, 220)
+                picHomeLogo.BackColor = Color.Transparent
+            End If
+            picHomeLogo.Location = New Point(
+                (pnlFormHostBody.ClientSize.Width - picHomeLogo.Width) \ 2,
+                (pnlFormHostBody.ClientSize.Height - picHomeLogo.Height) \ 2)
+            picHomeLogo.Anchor = AnchorStyles.None
+            pnlFormHostBody.Controls.Add(picHomeLogo)
         End Sub
 
         Public Sub ShowDashboard()
