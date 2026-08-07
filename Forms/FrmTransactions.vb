@@ -5,7 +5,7 @@ Imports System
 Imports System.Collections.Generic
 Imports System.Drawing
 Imports System.IO
-Imports System.Net
+Imports System.Net.Http
 Imports System.Text
 Imports System.Text.Json
 Imports System.Globalization
@@ -72,15 +72,11 @@ Namespace TempleAccounting
                 }
 
                 Dim json = JsonSerializer.Serialize(payload)
-                Dim bytes = Encoding.UTF8.GetBytes(json)
-                Dim req = CType(WebRequest.Create(url), HttpWebRequest)
-                req.Method = "POST"
-                req.ContentType = "application/json"
-                req.Timeout = 500
-                Using s = req.GetRequestStream()
-                    s.Write(bytes, 0, bytes.Length)
-                End Using
-                Using resp = CType(req.GetResponse(), HttpWebResponse)
+                Using client As New HttpClient()
+                    client.Timeout = TimeSpan.FromMilliseconds(500)
+                    Using content As New StringContent(json, Encoding.UTF8, "application/json")
+                        client.PostAsync(url, content).GetAwaiter().GetResult()
+                    End Using
                 End Using
             Catch
             End Try

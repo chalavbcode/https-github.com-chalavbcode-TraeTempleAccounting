@@ -30,6 +30,7 @@ Namespace TempleAccounting
         Friend WithEvents btnSummaryIncome As Button
         Friend WithEvents btnSummaryExpense As Button
         Friend WithEvents btnMonthly As Button
+        Friend WithEvents btnShowChart As Button
         Friend WithEvents btnLedger As Button
         Friend WithEvents btnPrint As Button
         Friend WithEvents btnRefresh As Button
@@ -76,6 +77,7 @@ Namespace TempleAccounting
             pa = New Panel()
             btnPrint = New Button()
             btnLedger = New Button()
+            btnShowChart = New Button()
             btnMonthly = New Button()
             btnSummaryExpense = New Button()
             btnSummaryIncome = New Button()
@@ -170,7 +172,7 @@ Namespace TempleAccounting
             cboType.DropDownStyle = ComboBoxStyle.DropDownList
             cboType.Font = New Font("Tahoma", 9F)
             cboType.Items.AddRange(New Object() {"ทั้งหมด", "รายรับ", "รายจ่าย", "โอนภายใน"})
-            cboType.Location = New Point(775, -3)
+            cboType.Location = New Point(775, 3)
             cboType.Name = "cboType"
             cboType.Size = New Size(120, 30)
             cboType.TabIndex = 5
@@ -229,7 +231,7 @@ Namespace TempleAccounting
             ' txtBalance
             ' 
             txtBalance.Font = New Font("Tahoma", 9F)
-            txtBalance.Location = New Point(648, 44)
+            txtBalance.Location = New Point(648, 45)
             txtBalance.Name = "txtBalance"
             txtBalance.Size = New Size(80, 29)
             txtBalance.TabIndex = 11
@@ -268,6 +270,7 @@ Namespace TempleAccounting
             pa.Controls.Add(btnPrint)
             pa.Controls.Add(btnLedger)
             pa.Controls.Add(btnMonthly)
+            pa.Controls.Add(btnShowChart)
             pa.Controls.Add(btnSummaryExpense)
             pa.Controls.Add(btnSummaryIncome)
             pa.Controls.Add(btnPrintSummary)
@@ -282,13 +285,15 @@ Namespace TempleAccounting
             ' btnPrint
             ' 
             btnPrint.BackColor = Color.FromArgb(CByte(30), CByte(64), CByte(175))
+            btnPrint.Cursor = Cursors.Hand
             btnPrint.Dock = DockStyle.Right
+            btnPrint.FlatAppearance.BorderSize = 0
             btnPrint.FlatStyle = FlatStyle.Flat
             btnPrint.Font = New Font("Tahoma", 9F, FontStyle.Bold)
             btnPrint.ForeColor = Color.White
-            btnPrint.Location = New Point(1060, 6)
+            btnPrint.Location = New Point(1087, 6)
             btnPrint.Name = "btnPrint"
-            btnPrint.Size = New Size(132, 38)
+            btnPrint.Size = New Size(105, 38)
             btnPrint.TabIndex = 0
             btnPrint.Text = "📊 Excel"
             btnPrint.UseVisualStyleBackColor = False
@@ -296,13 +301,15 @@ Namespace TempleAccounting
             ' btnLedger
             ' 
             btnLedger.BackColor = Color.FromArgb(CByte(180), CByte(83), CByte(9))
+            btnLedger.Cursor = Cursors.Hand
             btnLedger.Dock = DockStyle.Left
+            btnLedger.FlatAppearance.BorderSize = 0
             btnLedger.FlatStyle = FlatStyle.Flat
             btnLedger.Font = New Font("Tahoma", 9F, FontStyle.Bold)
             btnLedger.ForeColor = Color.White
-            btnLedger.Location = New Point(766, 6)
+            btnLedger.Location = New Point(791, 6)
             btnLedger.Name = "btnLedger"
-            btnLedger.Size = New Size(151, 38)
+            btnLedger.Size = New Size(130, 38)
             btnLedger.TabIndex = 1
             btnLedger.Text = "📒 สมุดรายวัน"
             btnLedger.UseVisualStyleBackColor = False
@@ -310,21 +317,41 @@ Namespace TempleAccounting
             ' btnMonthly
             ' 
             btnMonthly.BackColor = Color.FromArgb(CByte(126), CByte(34), CByte(206))
+            btnMonthly.Cursor = Cursors.Hand
             btnMonthly.Dock = DockStyle.Left
+            btnMonthly.FlatAppearance.BorderSize = 0
             btnMonthly.FlatStyle = FlatStyle.Flat
             btnMonthly.Font = New Font("Tahoma", 9F, FontStyle.Bold)
             btnMonthly.ForeColor = Color.White
-            btnMonthly.Location = New Point(642, 6)
+            btnMonthly.Location = New Point(646, 6)
             btnMonthly.Name = "btnMonthly"
-            btnMonthly.Size = New Size(124, 38)
+            btnMonthly.Size = New Size(120, 38)
             btnMonthly.TabIndex = 2
             btnMonthly.Text = "📈 รายเดือน"
             btnMonthly.UseVisualStyleBackColor = False
             ' 
+            ' btnShowChart
+            ' 
+            btnShowChart.BackColor = Color.FromArgb(CByte(15), CByte(118), CByte(110))
+            btnShowChart.Cursor = Cursors.Hand
+            btnShowChart.Dock = DockStyle.Left
+            btnShowChart.FlatAppearance.BorderSize = 0
+            btnShowChart.FlatStyle = FlatStyle.Flat
+            btnShowChart.Font = New Font("Tahoma", 9F, FontStyle.Bold)
+            btnShowChart.ForeColor = Color.White
+            btnShowChart.Location = New Point(481, 6)
+            btnShowChart.Name = "btnShowChart"
+            btnShowChart.Size = New Size(165, 38)
+            btnShowChart.TabIndex = 7
+            btnShowChart.Text = "📊 กราฟสรุปรายเดือน"
+            btnShowChart.UseVisualStyleBackColor = False
+            ' 
             ' btnSummaryExpense
             ' 
             btnSummaryExpense.BackColor = Color.FromArgb(CByte(190), CByte(18), CByte(60))
+            btnSummaryExpense.Cursor = Cursors.Hand
             btnSummaryExpense.Dock = DockStyle.Left
+            btnSummaryExpense.FlatAppearance.BorderSize = 0
             btnSummaryExpense.FlatStyle = FlatStyle.Flat
             btnSummaryExpense.Font = New Font("Tahoma", 9F, FontStyle.Bold)
             btnSummaryExpense.ForeColor = Color.White
@@ -338,7 +365,9 @@ Namespace TempleAccounting
             ' btnSummaryIncome
             ' 
             btnSummaryIncome.BackColor = Color.FromArgb(CByte(22), CByte(163), CByte(74))
+            btnSummaryIncome.Cursor = Cursors.Hand
             btnSummaryIncome.Dock = DockStyle.Left
+            btnSummaryIncome.FlatAppearance.BorderSize = 0
             btnSummaryIncome.FlatStyle = FlatStyle.Flat
             btnSummaryIncome.Font = New Font("Tahoma", 9F, FontStyle.Bold)
             btnSummaryIncome.ForeColor = Color.White
@@ -352,7 +381,9 @@ Namespace TempleAccounting
             ' btnPrintSummary
             ' 
             btnPrintSummary.BackColor = Color.FromArgb(CByte(146), CByte(64), CByte(14))
+            btnPrintSummary.Cursor = Cursors.Hand
             btnPrintSummary.Dock = DockStyle.Left
+            btnPrintSummary.FlatAppearance.BorderSize = 0
             btnPrintSummary.FlatStyle = FlatStyle.Flat
             btnPrintSummary.Font = New Font("Tahoma", 9F, FontStyle.Bold)
             btnPrintSummary.ForeColor = Color.White
@@ -366,8 +397,10 @@ Namespace TempleAccounting
             ' btnPrintDetail
             ' 
             btnPrintDetail.BackColor = Color.FromArgb(CByte(185), CByte(28), CByte(28))
+            btnPrintDetail.Cursor = Cursors.Hand
             btnPrintDetail.Dock = DockStyle.Left
-            btnPrintDetail.FlatStyle = FlatStyle.System
+            btnPrintDetail.FlatAppearance.BorderSize = 0
+            btnPrintDetail.FlatStyle = FlatStyle.Flat
             btnPrintDetail.Font = New Font("Tahoma", 9F, FontStyle.Bold)
             btnPrintDetail.ForeColor = Color.White
             btnPrintDetail.Location = New Point(8, 6)
