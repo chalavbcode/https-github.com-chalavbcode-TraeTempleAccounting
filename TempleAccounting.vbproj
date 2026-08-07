@@ -162,6 +162,10 @@
     <None Include="Import\**\*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <!-- คู่มือการใช้งานภาษาไทย: ต้องถูกคัดลอกไปยังโฟลเดอร์ output เพื่อให้ FrmHelpDialog อ่านได้ -->
+    <None Include="USER_MANUAL_TH.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
