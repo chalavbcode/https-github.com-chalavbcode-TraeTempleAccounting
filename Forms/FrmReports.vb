@@ -251,6 +251,10 @@ Namespace TempleAccounting
                 Dim thaiCulture As New CultureInfo("th-TH")
                 Dim anyPlotted As Boolean = False
 
+                ' Running totals สำหรับแท่ง "รวม" ท้ายกราฟ (เคารพ filter อัตโนมัติจาก loop)
+                Dim totalIncome As Decimal = 0D
+                Dim totalExpense As Decimal = 0D
+
                 ' แกน X ใช้ numeric index (กันป้ายซ้ำ/แท่งทับกัน) — ป้ายไทยตั้งผ่าน AxisLabel แยก
                 Dim monthIndex As Double = 0
 
@@ -273,6 +277,10 @@ Namespace TempleAccounting
                         Dim SumIncome As Decimal = Db.ToDecimalOrZero(row("SumIncome"))
                         Dim SumExpense As Decimal = Db.ToDecimalOrZero(row("SumExpense"))
                         Dim NetBalance As Decimal = SumIncome - SumExpense
+
+                        ' สะสมยอดรวมสำหรับแท่ง "รวม"
+                        totalIncome += SumIncome
+                        totalExpense += SumExpense
 
                         ' ===== Step 4: plot 1 จุดต่อ Series ต่อเดือน =====
                         ' X = numeric index เพื่อแยกแท่งทุกเดือนเสมอ (เป็นไปไม่ได้ที่เดือนชนกัน)
@@ -305,6 +313,37 @@ Namespace TempleAccounting
                     MessageBox.Show("ไม่มีข้อมูลในช่วงวันที่ที่เลือก", "ไม่มีข้อมูล", MessageBoxButtons.OK, MessageBoxIcon.Information)
                     Return
                 End If
+
+                ' ===== Step 5: เพิ่มแท่งกลุ่ม "รวม" ต่อจากเดือนสุดท้าย =====
+                ' ค่า = ผลรวมทั้งช่วง (สะสมใน loop ตาม filter ที่เลือกอยู่แล้ว ไม่ query ซ้ำ)
+                Dim totalNet As Decimal = totalIncome - totalExpense
+
+                System.Diagnostics.Debug.WriteLine(
+                    String.Format("TOTAL | Label={0} | Income={1:N2} | Expense={2:N2} | Net={3:N2}",
+                                  "รวม", totalIncome, totalExpense, totalNet))
+
+                ' แท่งเขียวเข้ม = รวมรายรับ
+                Dim idxTotalIncome = chartMonthly.Series("รายรับ").Points.AddXY(monthIndex, totalIncome)
+                chartMonthly.Series("รายรับ").Points(idxTotalIncome).AxisLabel = "รวม"
+                chartMonthly.Series("รายรับ").Points(idxTotalIncome).Color = Color.ForestGreen
+
+                ' แท่งแดงเข้ม = รวมรายจ่าย
+                Dim idxTotalExpense = chartMonthly.Series("รายจ่าย").Points.AddXY(monthIndex, totalExpense)
+                chartMonthly.Series("รายจ่าย").Points(idxTotalExpense).AxisLabel = "รวม"
+                chartMonthly.Series("รายจ่าย").Points(idxTotalExpense).Color = Color.Firebrick
+
+                ' แท่งน้ำเงินเข้ม = รวมคงเหลือสุทธิ
+                Dim idxTotalNet = chartMonthly.Series("เงินคงเหลือสุทธิ").Points.AddXY(monthIndex, totalNet)
+                chartMonthly.Series("เงินคงเหลือสุทธิ").Points(idxTotalNet).AxisLabel = "รวม"
+                chartMonthly.Series("เงินคงเหลือสุทธิ").Points(idxTotalNet).Color = Color.RoyalBlue
+
+                ' Bold ป้าย "รวม" ให้เห็นชัดว่าเป็นสรุปยอด
+                chartMonthly.Series("รายรับ").Points(idxTotalIncome).Font =
+                    New Font("Tahoma", 8.5F, FontStyle.Bold)
+                chartMonthly.Series("รายจ่าย").Points(idxTotalExpense).Font =
+                    New Font("Tahoma", 8.5F, FontStyle.Bold)
+                chartMonthly.Series("เงินคงเหลือสุทธิ").Points(idxTotalNet).Font =
+                    New Font("Tahoma", 8.5F, FontStyle.Bold)
 
                 ' Render ใหม่ แล้วสลับไปมุมมองกราฟ
                 chartMonthly.Refresh()
