@@ -85,7 +85,7 @@ Namespace TempleAccounting
                 picHomeLogo = New PictureBox()
                 picHomeLogo.Image = Image.FromFile(Path.Combine(Application.StartupPath, "Resources\logo_baanchee_wat.png"))
                 picHomeLogo.SizeMode = PictureBoxSizeMode.Zoom
-                picHomeLogo.Size = New Size(220, 220)
+                picHomeLogo.Size = New Size(400, 400)
                 picHomeLogo.BackColor = Color.Transparent
             End If
             picHomeLogo.Location = New Point(
