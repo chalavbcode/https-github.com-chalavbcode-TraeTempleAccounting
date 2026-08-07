@@ -6,6 +6,7 @@ Imports System.Collections.Generic
 Imports System.ComponentModel
 Imports System.Drawing
 Imports System.Windows.Forms
+Imports System.Windows.Forms.DataVisualization.Charting
 
 Namespace TempleAccounting
     <Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
@@ -39,6 +40,7 @@ Namespace TempleAccounting
         Friend WithEvents p As Panel
         Friend WithEvents pa As Panel
         Friend WithEvents ttMain As ToolTip
+        Friend WithEvents chartMonthly As Chart
 
         <DebuggerNonUserCode()>
         Protected Overrides Sub Dispose(disposing As Boolean)
@@ -81,9 +83,11 @@ Namespace TempleAccounting
             btnPrintDetail = New Button()
             lblSummary = New Label()
             dgvReport = New DataGridView()
+            chartMonthly = New Chart()
             p.SuspendLayout()
             pa.SuspendLayout()
             CType(dgvReport, ISupportInitialize).BeginInit()
+            CType(chartMonthly, ISupportInitialize).BeginInit()
             SuspendLayout()
             ' 
             ' p
@@ -405,12 +409,24 @@ Namespace TempleAccounting
             dgvReport.Size = New Size(1200, 615)
             dgvReport.TabIndex = 0
             ' 
+            ' chartMonthly
+            ' 
+            chartMonthly.BackColor = Color.FromArgb(CByte(254), CByte(249), CByte(235))
+            chartMonthly.BorderSkin.SkinStyle = BorderSkinStyle.None
+            chartMonthly.Dock = DockStyle.Fill
+            chartMonthly.Location = New Point(0, 185)
+            chartMonthly.Name = "chartMonthly"
+            chartMonthly.Size = New Size(1200, 615)
+            chartMonthly.TabIndex = 2
+            chartMonthly.Visible = False
+            ' 
             ' FrmReports
             ' 
             AutoScaleDimensions = New SizeF(10F, 22F)
             AutoScaleMode = AutoScaleMode.Font
             BackColor = Color.FromArgb(CByte(254), CByte(249), CByte(235))
             ClientSize = New Size(1200, 800)
+            Controls.Add(chartMonthly)
             Controls.Add(dgvReport)
             Controls.Add(lblSummary)
             Controls.Add(pa)
@@ -425,6 +441,7 @@ Namespace TempleAccounting
             p.PerformLayout()
             pa.ResumeLayout(False)
             CType(dgvReport, ISupportInitialize).EndInit()
+            CType(chartMonthly, ISupportInitialize).EndInit()
             ResumeLayout(False)
         End Sub
     End Class

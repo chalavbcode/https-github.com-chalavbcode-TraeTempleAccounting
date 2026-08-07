@@ -6,8 +6,10 @@ Imports System.Collections.Generic
 Imports System.ComponentModel
 Imports System.Drawing
 Imports System.Windows.Forms
+Imports System.Windows.Forms.DataVisualization.Charting
 Imports System.Data
 Imports System.Data.OleDb
+Imports System.Globalization
 Imports System.IO
 
 Namespace TempleAccounting
@@ -121,8 +123,19 @@ Namespace TempleAccounting
             Return sql
         End Function
 
+        Private Sub ShowGridView()
+            dgvReport.Visible = True
+            chartMonthly.Visible = False
+        End Sub
+
+        Private Sub ShowChartView()
+            dgvReport.Visible = False
+            chartMonthly.Visible = True
+        End Sub
+
         Private Sub btnLedger_Click(sender As Object, e As EventArgs) Handles btnLedger.Click, btnRefresh.Click
             Try
+                ShowGridView()
                 Dim ps As List(Of Tuple(Of String, Object)) = Nothing
                 Dim fromWhere = BaseSql(ps)
                 Dim sel = "SELECT DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate), Day(t.TranDate)) AS วันที่, IIF(t.TranType='Income','💰 รับ',IIF(t.TranType='Expense','💸 จ่าย','🔁 โอน')) AS ชนิด, " &
@@ -142,6 +155,7 @@ Namespace TempleAccounting
         End Sub
 
         Private Sub btnSummaryIncome_Click(sender As Object, e As EventArgs) Handles btnSummaryIncome.Click
+            ShowGridView()
             Dim ps As List(Of Tuple(Of String, Object)) = Nothing
             Dim fromWhere = BaseSql(ps)
             fromWhere = fromWhere.Replace("WHERE", "WHERE t.TranType='Income' AND ")
@@ -153,6 +167,7 @@ Namespace TempleAccounting
             End Using
         End Sub
         Private Sub btnSummaryExpense_Click(sender As Object, e As EventArgs) Handles btnSummaryExpense.Click
+            ShowGridView()
             Dim ps As List(Of Tuple(Of String, Object)) = Nothing
             Dim fromWhere = BaseSql(ps)
             fromWhere = fromWhere.Replace("WHERE", "WHERE t.TranType='Expense' AND ")
@@ -165,21 +180,128 @@ Namespace TempleAccounting
         End Sub
         Private Sub btnMonthly_Click(sender As Object, e As EventArgs) Handles btnMonthly.Click
             Try
+                ' 1. ตั้งค่าโครงสร้าง Chart (ChartArea + 3 Series) ครั้งแรก
+                SetupMonthlyChart()
+
+                ' 2. Query ยอดรวมรายรับ-รายจ่าย จัดกลุ่มตามปี/เดือน
                 Dim ps As List(Of Tuple(Of String, Object)) = Nothing
                 Dim fromWhere = BaseSql(ps)
+                Dim sql = "SELECT IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)) AS [ปี], " &
+                          "Month(t.TranDate) AS [เดือน], " &
+                          "SUM(IIF(t.TranType='Income', t.Amount, 0)) AS [รายรับ], " &
+                          "SUM(IIF(t.TranType='Expense', t.Amount, 0)) AS [รายจ่าย] " &
+                          fromWhere &
+                          " GROUP BY Year(t.TranDate), Month(t.TranDate) " &
+                          "ORDER BY Year(t.TranDate), Month(t.TranDate)"
+
                 Using conn = Db.OpenConn()
-                    Dim dt = Db.GetTable(conn, "SELECT Format(DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate), Day(t.TranDate)), 'yyyy-MM') AS เดือน, " &
-                               "SUM(IIF(t.TranType='Income',t.Amount,0)) AS รายรับ, " &
-                               "SUM(IIF(t.TranType='Expense',t.Amount,0)) AS รายจ่าย, " &
-                               "SUM(IIF(t.TranType='Income',t.Amount,0)) - SUM(IIF(t.TranType='Expense',t.Amount,0)) AS ส่วนเกิน " &
-                               fromWhere & " GROUP BY Format(DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate), Day(t.TranDate)), 'yyyy-MM') " &
-                               "ORDER BY Format(DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate), Day(t.TranDate)), 'yyyy-MM')", ps.ToArray())
-                    dgvReport.DataSource = dt
-                    lblSummary.Text = "รายงานสรุปรายเดือน (ช่วงเวลาที่เลือก)"
+                    Dim dt = Db.GetTable(conn, sql, ps.ToArray())
+
+                    ' 3. ล้างข้อมูลเก่าแล้ววาดข้อมูลใหม่ลง Chart
+                    chartMonthly.Series("รายรับ").Points.Clear()
+                    chartMonthly.Series("รายจ่าย").Points.Clear()
+                    chartMonthly.Series("เงินคงเหลือสุทธิ").Points.Clear()
+
+                    Dim thaiCulture As New CultureInfo("th-TH")
+                    For Each row As DataRow In dt.Rows
+                        Dim gregYear = Convert.ToInt32(row("ปี"))
+                        Dim month = Convert.ToInt32(row("เดือน"))
+                        Dim income = Db.ToDecimalOrZero(row("รายรับ"))
+                        Dim expense = Db.ToDecimalOrZero(row("รายจ่าย"))
+                        Dim net = income - expense
+
+                        ' ป้ายกำกับแกน X แบบไทย เช่น ก.ค. ๒๕๖๙
+                        Dim label = MonthLabelThai(gregYear, month, thaiCulture)
+
+                        chartMonthly.Series("รายรับ").Points.AddXY(label, income)
+                        chartMonthly.Series("รายจ่าย").Points.AddXY(label, expense)
+                        chartMonthly.Series("เงินคงเหลือสุทธิ").Points.AddXY(label, net)
+                    Next
+
+                    ' 4. สลับมุมมองไปที่ Chart
+                    ShowChartView()
+                    lblSummary.Text = "รายงานกราฟสรุปรายรับ-รายจ่ายรายเดือน (ช่วงเวลาที่เลือก)"
                 End Using
             Catch ex As Exception
-                Throw
+                MessageBox.Show("แสดงกราฟรายเดือนไม่ได้: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
             End Try
+        End Sub
+
+        ''' <summary>
+        ''' สร้างป้ายกำกับเดือนแบบไทย เช่น ก.ค. ๒๕๖๙ (ปี พ.ศ.)
+        ''' </summary>
+        Private Function MonthLabelThai(gregorianYear As Integer, month As Integer, thaiCulture As CultureInfo) As String
+            Try
+                Dim d As New DateTime(gregorianYear, month, 1)
+                ' th-TH culture แปลงปี ค.ศ. เป็น พ.ศ. อัตโนมัติ (2569 = 2026+543)
+                Dim label = d.ToString("MMM yyyy", thaiCulture)
+                ' แปลงตัวเลขอารบิกเป็นเลขไทย
+                Return ConvertToThaiDigits(label)
+            Catch
+                Return String.Format("{0:D2}-{1}", month, gregorianYear + 543)
+            End Try
+        End Function
+
+        ''' <summary>
+        ''' แปลงตัวเลข 0-9 ในสตริงเป็นเลขไทย ๐-๙
+        ''' </summary>
+        Private Function ConvertToThaiDigits(text As String) As String
+            If String.IsNullOrEmpty(text) Then Return text
+            Dim thaiDigits As String = "๐๑๒๓๔๕๖๗๘๙"
+            Dim sb As New System.Text.StringBuilder(text.Length)
+            For Each c As Char In text
+                If c >= "0"c AndAlso c <= "9"c Then
+                    sb.Append(thaiDigits(Asc(c) - Asc("0"c)))
+                Else
+                    sb.Append(c)
+                End If
+            Next
+            Return sb.ToString()
+        End Function
+
+        ''' <summary>
+        ''' ตั้งค่า ChartArea และ 3 Column Series ครั้งเดียว
+        ''' </summary>
+        Private Sub SetupMonthlyChart()
+            ' สร้าง ChartArea ถ้ายังไม่มี
+            If chartMonthly.ChartAreas.Count = 0 Then
+                Dim area As New ChartArea("MonthlyArea")
+                ' แกน Y: ฟอร์แมตเป็นสกุลเงินบาท
+                area.AxisY.LabelStyle.Format = "฿ #,##0"
+                area.AxisY.Title = "จำนวนเงิน (บาท)"
+                area.AxisX.Title = "เดือน / ปี (พ.ศ.)"
+                ' เปิดเส้นกริดทั้งสองแกน
+                area.AxisX.MajorGrid.Enabled = True
+                area.AxisX.MajorGrid.LineColor = Color.LightGray
+                area.AxisY.MajorGrid.Enabled = True
+                area.AxisY.MajorGrid.LineColor = Color.LightGray
+                area.AxisX.IntervalAutoMode = IntervalAutoMode.VariableCount
+                chartMonthly.ChartAreas.Add(area)
+            End If
+
+            ' สร้าง Series ถ้ายังไม่มี
+            AddSeriesIfMissing("รายรับ", Color.MediumSeaGreen)
+            AddSeriesIfMissing("รายจ่าย", Color.IndianRed)
+            AddSeriesIfMissing("เงินคงเหลือสุทธิ", Color.SteelBlue)
+
+            chartMonthly.Legends.Clear()
+            Dim legend As New Legend("Legend1")
+            legend.Docking = Docking.Top
+            chartMonthly.Legends.Add(legend)
+        End Sub
+
+        Private Sub AddSeriesIfMissing(name As String, color As Color)
+            If chartMonthly.Series.FindByName(name) Is Nothing Then
+                Dim s As New Series(name)
+                s.ChartType = SeriesChartType.Column
+                s.ChartArea = "MonthlyArea"
+                s.Color = color
+                s.BorderWidth = 1
+                s.IsValueShownAsLabel = True
+                s.LabelFormat = "฿ #,##0"
+                s.Font = New Font("Tahoma", 8.5F)
+                chartMonthly.Series.Add(s)
+            End If
         End Sub
 
         Private Sub dtpFrom_ValueChanged(sender As Object, e As EventArgs) Handles dtpFrom.ValueChanged

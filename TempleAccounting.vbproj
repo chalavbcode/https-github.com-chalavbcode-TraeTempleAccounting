@@ -153,6 +153,7 @@
 
   <ItemGroup>
     <PackageReference Include="System.Data.OleDb" Version="10.0.10" />
+    <PackageReference Include="WinForms.DataVisualization" Version="1.10.2" />
   </ItemGroup>
 
   <ItemGroup>
