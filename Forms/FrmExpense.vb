@@ -89,7 +89,7 @@ Namespace TempleAccounting
             If e.KeyCode = Keys.F1 Then
                 e.Handled = True
                 e.SuppressKeyPress = True
-                HelpSystem.ShowManual("FrmExpense")
+                HelpSystem.ShowManual("FrmExpense", Me)
             End If
         End Sub
 

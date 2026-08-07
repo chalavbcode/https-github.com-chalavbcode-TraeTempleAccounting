@@ -69,7 +69,8 @@ Namespace TempleAccounting
         ''' เปิดหน้าต่างคู่มือการใช้งาน
         ''' </summary>
         ''' <param name="formName">ชื่อฟอร์มเพื่อแสดงเนื้อหาที่เกี่ยวข้อง</param>
-        Public Sub ShowManual(Optional formName As String = "")
+        ''' <param name="owner">หน้าจอเจ้าของเพื่อจัดตำแหน่งกึ่งกลาง</param>
+        Public Sub ShowManual(Optional formName As String = "", Optional owner As IWin32Window = Nothing)
             Try
                 ' ถ้าไม่ได้ระบุชื่อฟอร์ม ให้เปิดไฟล์โดยตรงเหมือนเดิม
                 If String.IsNullOrEmpty(formName) Then
@@ -84,7 +85,11 @@ Namespace TempleAccounting
 
                 ' แสดง Modal Dialog สำหรับ Help
                 Using dlg As New FrmHelpDialog(formName)
-                    dlg.ShowDialog()
+                    If owner IsNot Nothing Then
+                        dlg.ShowDialog(owner)
+                    Else
+                        dlg.ShowDialog()
+                    End If
                 End Using
             Catch ex As Exception
                 MessageBox.Show("ไม่สามารถเปิดคู่มือได้: " & ex.Message, "เกิดข้อผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)

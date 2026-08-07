@@ -21,7 +21,7 @@ Namespace TempleAccounting
             If e.KeyCode = Keys.F1 Then
                 e.Handled = True
                 e.SuppressKeyPress = True
-                HelpSystem.ShowManual("FrmPersonnelManagement")
+                HelpSystem.ShowManual("FrmPersonnelManagement", Me)
             End If
         End Sub
 
