@@ -184,46 +184,31 @@ Namespace TempleAccounting
                 ' 1. แสดงตารางตัวเลข (มุมมองแบบตัวเลข) เสมอ
                 ShowGridView()
 
-                ' 2. Query ยอดรวมรายรับ-รายจ่าย-คงเหลือ จัดกลุ่มตามปี/เดือน (FORMAT 'yyyy-mm')
-                Dim ps As List(Of Tuple(Of String, Object)) = Nothing
-                Dim fromWhere = BaseSql(ps)
-                Dim monthKey = "FORMAT(t.TranDate, 'yyyy-mm')"
-                Dim sql = "SELECT " & monthKey & " AS [คีย์เดือน], " &
-                          "SUM(IIF(t.TranType='Income', t.Amount, 0)) AS [รายรับ], " &
-                          "SUM(IIF(t.TranType='Expense', t.Amount, 0)) AS [รายจ่าย], " &
-                          "SUM(IIF(t.TranType='Income', t.Amount, 0)) - SUM(IIF(t.TranType='Expense', t.Amount, 0)) AS [คงเหลือ] " &
-                          fromWhere &
-                          " GROUP BY " & monthKey &
-                          " ORDER BY " & monthKey
+                ' 2. Reuse ตารางสรุปรายเดือนกลาง (1 แถว/เดือน) — คอลัมน์ MonthName/TotalIncome/TotalExpense/NetBalance
+                Dim dtMonthlySummary = GetMonthlySummary()
+                If dtMonthlySummary.Rows.Count = 0 Then
+                    MessageBox.Show("ไม่มีข้อมูลในช่วงวันที่ที่เลือก", "ไม่มีข้อมูล", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                    Return
+                End If
 
-                Using conn = Db.OpenConn()
-                    Dim dt = Db.GetTable(conn, sql, ps.ToArray())
+                dgvReport.DataSource = dtMonthlySummary
 
-                    ' 3. เติมคอลัมน์ "เดือน/ปี" แบบไทย เช่น ก.ค. ๒๕๖๙ แล้วย้ายมาเป็นคอลัมน์แรก
-                    dt.Columns.Add("เดือน/ปี", GetType(String))
-                    Dim thaiCulture As New CultureInfo("th-TH")
-                    For Each row As DataRow In dt.Rows
-                        Dim key = Convert.ToString(row("คีย์เดือน"))
-                        row("เดือน/ปี") = FormatThaiMonthKey(key, thaiCulture)
-                    Next
-                    dt.Columns("เดือน/ปี").SetOrdinal(0)
-                    dt.Columns.Remove("คีย์เดือน")
+                ' 3. ฟอร์แมตคอลัมน์ตัวเลขให้อ่านง่าย
+                For Each col As DataGridViewColumn In dgvReport.Columns
+                    If col.Name = "TotalIncome" OrElse col.Name = "TotalExpense" OrElse col.Name = "NetBalance" Then
+                        col.DefaultCellStyle.Format = "#,##0.00"
+                        col.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight
+                    End If
+                Next
 
-                    dgvReport.DataSource = dt
-
-                    ' 4. ฟอร์แมตคอลัมน์ตัวเลขให้อ่านง่าย
-                    For Each col As DataGridViewColumn In dgvReport.Columns
-                        If col.Name = "รายรับ" OrElse col.Name = "รายจ่าย" OrElse col.Name = "คงเหลือ" Then
-                            col.DefaultCellStyle.Format = "#,##0.00"
-                            col.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight
-                        End If
-                    Next
-
-                    ' 5. สรุปยอดรวมช่วงเวลา
-                    Dim totI = Db.ToDecimalOrZero(Db.DbScalar(conn, "SELECT SUM(IIF(t.TranType='Income',t.Amount,0)) " & fromWhere, ps.ToArray()))
-                    Dim totE = Db.ToDecimalOrZero(Db.DbScalar(conn, "SELECT SUM(IIF(t.TranType='Expense',t.Amount,0)) " & fromWhere, ps.ToArray()))
-                    lblSummary.Text = $"สรุปรายเดือน: รายรับรวม {totI:n2} บาท  |  รายจ่ายรวม {totE:n2} บาท  |  คงเหลือ {totI - totE:n2} บาท"
-                End Using
+                ' 4. สรุปยอดรวมช่วงเวลา — คำนวณจาก DataTable ที่ reuse อยู่แล้ว (ไม่ query ซ้ำ)
+                Dim totI As Decimal = 0D
+                Dim totE As Decimal = 0D
+                For Each row As DataRow In dtMonthlySummary.Rows
+                    totI += Convert.ToDecimal(row("TotalIncome"))
+                    totE += Convert.ToDecimal(row("TotalExpense"))
+                Next
+                lblSummary.Text = $"สรุปรายเดือน: รายรับรวม {totI:n2} บาท  |  รายจ่ายรวม {totE:n2} บาท  |  คงเหลือ {totI - totE:n2} บาท"
             Catch ex As Exception
                 MessageBox.Show("แสดงสรุปรายเดือนไม่ได้: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
             End Try
@@ -231,54 +216,81 @@ Namespace TempleAccounting
 
         Private Sub btnShowChart_Click(sender As Object, e As EventArgs) Handles btnShowChart.Click
             Try
-                ' === Step 1: รีเซ็ต Chart ให้สะอาด — สร้าง ChartArea + 3 Clustered Column Series + Legend ใหม่
-                '     (ไม่ใช้ DataSource binding กับ chart เด็ดขาด)
+                ' === Step 1: Reuse ตารางสรุปรายเดือนกลางเดียวกันกับตาราง dgvReport
+                '     (1 แถว/เดือน: MonthName, TotalIncome, TotalExpense, NetBalance)
+                '     ห้าม query raw transactions หรือ loop ข้อมูลดิบเด็ดขาด
+                Dim dtMonthlySummary = GetMonthlySummary()
+                If dtMonthlySummary.Rows.Count = 0 Then
+                    MessageBox.Show("ไม่มีข้อมูลในช่วงวันที่ที่เลือก", "ไม่มีข้อมูล", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                    Return
+                End If
+
+                ' === Step 2: รีเซ็ต Chart ให้สะอาด — สร้าง ChartArea + 3 Clustered Column Series + Legend ใหม่
                 ResetMonthlyChart()
 
-                ' === Step 2: SQL SUM รายรับ/รายจ่าย จัดกลุ่มตามปี/เดือน (GROUP BY FORMAT 'yyyy-mm')
-                '     ได้ 1 แถวต่อเดือน — ห้ามพล็อต raw transactions รายตัว
-                Dim ps As List(Of Tuple(Of String, Object)) = Nothing
-                Dim fromWhere = BaseSql(ps)
-                Dim monthKey = "FORMAT(t.TranDate, 'yyyy-mm')"
-                Dim sql = "SELECT " & monthKey & " AS [คีย์เดือน], " &
-                          "SUM(IIF(t.TranType='Income', t.Amount, 0)) AS [รายรับ], " &
-                          "SUM(IIF(t.TranType='Expense', t.Amount, 0)) AS [รายจ่าย] " &
-                          fromWhere &
-                          " GROUP BY " & monthKey &
-                          " ORDER BY " & monthKey
+                ' === Step 3: Clear points เดิมทั้งหมดก่อนเติมข้อมูลใหม่
+                chartMonthly.Series("รายรับ").Points.Clear()
+                chartMonthly.Series("รายจ่าย").Points.Clear()
+                chartMonthly.Series("เงินคงเหลือสุทธิ").Points.Clear()
 
-                Using conn = Db.OpenConn()
-                    Dim dt = Db.GetTable(conn, sql, ps.ToArray())
-                    If dt.Rows.Count = 0 Then
-                        MessageBox.Show("ไม่มีข้อมูลในช่วงวันที่ที่เลือก", "ไม่มีข้อมูล", MessageBoxButtons.OK, MessageBoxIcon.Information)
-                        Return
-                    End If
+                ' === Step 4: Loop เฉพาะแถวที่รวมกลุ่มแล้ว (1 จุดต่อ Series ต่อเดือน)
+                For Each row As DataRow In dtMonthlySummary.Rows
+                    Dim monthLabel As String = Convert.ToString(row("MonthName"))   ' เช่น "ม.ค. ๒๕๖๙"
+                    Dim income As Decimal = Convert.ToDecimal(row("TotalIncome"))
+                    Dim expense As Decimal = Convert.ToDecimal(row("TotalExpense"))
+                    Dim balance As Decimal = Convert.ToDecimal(row("NetBalance"))
 
-                    ' === Step 3: Explicit math ต่อเดือน — TotalIncome, TotalExpense, NetBalance
-                    '     แล้ว AddXY 1 จุดต่อ Series ต่อเดือน (รวม 3 จุด/เดือน)
-                    Dim thaiCulture As New CultureInfo("th-TH")
-                    For Each row As DataRow In dt.Rows
-                        Dim TotalIncome As Decimal = Db.ToDecimalOrZero(row("รายรับ"))
-                        Dim TotalExpense As Decimal = Db.ToDecimalOrZero(row("รายจ่าย"))
-                        Dim NetBalance As Decimal = TotalIncome - TotalExpense
+                    ' เพิ่ม 1 จุดต่อ Series ต่อเดือน: เขียว=รายรับ, แดง=รายจ่าย, น้ำเงิน=คงเหลือ
+                    chartMonthly.Series("รายรับ").Points.AddXY(monthLabel, income)
+                    chartMonthly.Series("รายจ่าย").Points.AddXY(monthLabel, expense)
+                    chartMonthly.Series("เงินคงเหลือสุทธิ").Points.AddXY(monthLabel, balance)
+                Next
 
-                        Dim label = FormatThaiMonthKey(Convert.ToString(row("คีย์เดือน")), thaiCulture)
-
-                        ' 1 จุดต่อเดือน: แท่งเขียว = รายรับ, แท่งแดง = รายจ่าย, แท่งน้ำเงิน = คงเหลือสุทธิ
-                        chartMonthly.Series("รายรับ").Points.AddXY(label, TotalIncome)
-                        chartMonthly.Series("รายจ่าย").Points.AddXY(label, TotalExpense)
-                        chartMonthly.Series("เงินคงเหลือสุทธิ").Points.AddXY(label, NetBalance)
-                    Next
-
-                    ' === Step 4: บังคับ render ใหม่ แล้วสลับไปมุมมองกราฟ ===
-                    chartMonthly.Refresh()
-                    ShowChartView()
-                    lblSummary.Text = "รายงานกราฟสรุปรายรับ-รายจ่ายรายเดือน (ช่วงเวลาที่เลือก)"
-                End Using
+                ' === Step 5: บังคับ render ใหม่ แล้วสลับไปมุมมองกราฟ ===
+                chartMonthly.Refresh()
+                ShowChartView()
+                lblSummary.Text = "รายงานกราฟสรุปรายรับ-รายจ่ายรายเดือน (ช่วงเวลาที่เลือก)"
             Catch ex As Exception
                 MessageBox.Show("แสดงกราฟรายเดือนไม่ได้: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
             End Try
         End Sub
+
+        ''' <summary>
+        ''' สร้างตารางสรุปรายเดือนรวม (1 แถวต่อเดือน) จาก SQL GROUP BY FORMAT 'yyyy-mm'
+        ''' คอลัมน์: MonthName (ป้ายไทย), TotalIncome, TotalExpense, NetBalance
+        ''' เป็นแหล่งข้อมูลกลางเดียวที่ทั้งตาราง dgvReport และกราฟ chartMonthly ใช้ร่วมกัน
+        ''' </summary>
+        Private Function GetMonthlySummary() As DataTable
+            Dim ps As List(Of Tuple(Of String, Object)) = Nothing
+            Dim fromWhere = BaseSql(ps)
+            Dim monthKey = "FORMAT(t.TranDate, 'yyyy-mm')"
+            Dim sql = "SELECT " & monthKey & " AS [MonthKey], " &
+                      "SUM(IIF(t.TranType='Income', t.Amount, 0)) AS [TotalIncome], " &
+                      "SUM(IIF(t.TranType='Expense', t.Amount, 0)) AS [TotalExpense] " &
+                      fromWhere &
+                      " GROUP BY " & monthKey &
+                      " ORDER BY " & monthKey
+
+            Using conn = Db.OpenConn()
+                Dim raw = Db.GetTable(conn, sql, ps.ToArray())
+
+                ' สร้าง DataTable ที่มีคอลัมน์ตามที่ตาราง/กราฟต้องการ
+                Dim result As New DataTable()
+                result.Columns.Add("MonthName", GetType(String))
+                result.Columns.Add("TotalIncome", GetType(Decimal))
+                result.Columns.Add("TotalExpense", GetType(Decimal))
+                result.Columns.Add("NetBalance", GetType(Decimal))
+
+                Dim thaiCulture As New CultureInfo("th-TH")
+                For Each r As DataRow In raw.Rows
+                    Dim income As Decimal = Db.ToDecimalOrZero(r("TotalIncome"))
+                    Dim expense As Decimal = Db.ToDecimalOrZero(r("TotalExpense"))
+                    Dim net As Decimal = income - expense
+                    result.Rows.Add(FormatThaiMonthKey(Convert.ToString(r("MonthKey")), thaiCulture), income, expense, net)
+                Next
+                Return result
+            End Using
+        End Function
 
         ''' <summary>
         ''' แปลงคีย์ 'yyyy-mm' (ปีอาจเป็น พ.ศ. หรือ ค.ศ.) เป็นป้ายไทย เช่น ก.ค. ๒๕๖๙
