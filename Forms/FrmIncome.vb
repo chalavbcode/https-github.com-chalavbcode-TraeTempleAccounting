@@ -84,6 +84,7 @@ Namespace TempleAccounting
             SetupToolTips()
             SetupEnterNavigation()
             UiFitter.AutoFitFormButtons(Me)
+            UiFitter.DisableComboBoxWheel(Me)
             ResetEntry(True)
             FocusStartField()
         End Sub

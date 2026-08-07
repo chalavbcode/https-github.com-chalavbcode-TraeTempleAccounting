@@ -31,6 +31,7 @@ Namespace TempleAccounting
             LoadAll()
             SetupEnterNavigation()
             UiFitter.AutoFitFormButtons(Me)
+            UiFitter.DisableComboBoxWheel(Me)
         End Sub
 
         Private Sub FrmMasterData_KeyDown(sender As Object, e As KeyEventArgs) Handles Me.KeyDown
