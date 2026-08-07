@@ -30,6 +30,7 @@ Namespace TempleAccounting
             SetupToolTips()
             LoadAll()
             SetupEnterNavigation()
+            UiFitter.AutoFitFormButtons(Me)
         End Sub
 
         Private Sub FrmMasterData_KeyDown(sender As Object, e As KeyEventArgs) Handles Me.KeyDown

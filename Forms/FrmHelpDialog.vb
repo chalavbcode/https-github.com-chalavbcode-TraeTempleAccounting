@@ -9,6 +9,7 @@ Namespace TempleAccounting
     Public Class FrmHelpDialog
         Public Sub New(formName As String)
             InitializeComponent()
+            UiFitter.AutoFitFormButtons(Me)
             LoadHelpContent(formName)
         End Sub
 

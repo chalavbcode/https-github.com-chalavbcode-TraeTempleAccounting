@@ -31,6 +31,7 @@ Namespace TempleAccounting
             HelpSystem.SetupHelp(Me, "FrmTransfer")
             Db.EnsureSchema()
             SetupToolTips()
+            UiFitter.AutoFitFormButtons(Me)
             Using conn = Db.OpenConn()
                 Dim funds = Db.GetTable(conn, "SELECT ID, FundName FROM Funds ORDER BY FundName")
                 AddBlankOption(funds, "FundName")

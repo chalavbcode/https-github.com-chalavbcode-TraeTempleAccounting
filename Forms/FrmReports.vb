@@ -40,6 +40,9 @@ Namespace TempleAccounting
                 End Using
                 SetupFilterEnterNavigation()
                 SetupToolTips()
+                ' ปรับขนาดปุ่ม toolbar ให้เท่ากันทั้งแถว + ปรับฟอนต์ข้อความไทยให้เต็มปุ่ม
+                UiFitter.UniformButtonGroup(btnPrintDetail, btnPrintSummary, btnSummaryIncome, btnSummaryExpense, btnShowChart, btnMonthly, btnLedger, btnPrint)
+                UiFitter.AutoFitFormButtons(Me)
                 btnLedger_Click(Nothing, EventArgs.Empty)
             Catch ex As Exception
                 Throw

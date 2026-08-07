@@ -45,6 +45,7 @@ Namespace TempleAccounting
 
                 ' ทำให้แถบปุ่มด้านล่างอยู่ด้านหน้าเสมอเมื่อ ContentPanel เลื่อน
                 pBottom.BringToFront()
+                UiFitter.AutoFitFormButtons(Me)
 
                 ' โฟกัสที่ช่องรหัสวัด
                 If txtTempleCode.CanFocus Then txtTempleCode.Focus()

@@ -293,7 +293,7 @@ Namespace TempleAccounting
             btnPrint.ForeColor = Color.White
             btnPrint.Location = New Point(1087, 6)
             btnPrint.Name = "btnPrint"
-            btnPrint.Size = New Size(105, 38)
+            btnPrint.Size = New Size(145, 38)
             btnPrint.TabIndex = 0
             btnPrint.Text = "📊 Excel"
             btnPrint.UseVisualStyleBackColor = False
@@ -309,7 +309,7 @@ Namespace TempleAccounting
             btnLedger.ForeColor = Color.White
             btnLedger.Location = New Point(791, 6)
             btnLedger.Name = "btnLedger"
-            btnLedger.Size = New Size(130, 38)
+            btnLedger.Size = New Size(145, 38)
             btnLedger.TabIndex = 1
             btnLedger.Text = "📒 สมุดรายวัน"
             btnLedger.UseVisualStyleBackColor = False
@@ -325,7 +325,7 @@ Namespace TempleAccounting
             btnMonthly.ForeColor = Color.White
             btnMonthly.Location = New Point(646, 6)
             btnMonthly.Name = "btnMonthly"
-            btnMonthly.Size = New Size(120, 38)
+            btnMonthly.Size = New Size(145, 38)
             btnMonthly.TabIndex = 2
             btnMonthly.Text = "📈 รายเดือน"
             btnMonthly.UseVisualStyleBackColor = False
@@ -341,7 +341,7 @@ Namespace TempleAccounting
             btnShowChart.ForeColor = Color.White
             btnShowChart.Location = New Point(481, 6)
             btnShowChart.Name = "btnShowChart"
-            btnShowChart.Size = New Size(165, 38)
+            btnShowChart.Size = New Size(145, 38)
             btnShowChart.TabIndex = 7
             btnShowChart.Text = "📊 กราฟสรุปรายเดือน"
             btnShowChart.UseVisualStyleBackColor = False
@@ -357,7 +357,7 @@ Namespace TempleAccounting
             btnSummaryExpense.ForeColor = Color.White
             btnSummaryExpense.Location = New Point(484, 6)
             btnSummaryExpense.Name = "btnSummaryExpense"
-            btnSummaryExpense.Size = New Size(158, 38)
+            btnSummaryExpense.Size = New Size(145, 38)
             btnSummaryExpense.TabIndex = 3
             btnSummaryExpense.Text = "💸 สรุปรายจ่าย"
             btnSummaryExpense.UseVisualStyleBackColor = False
@@ -373,7 +373,7 @@ Namespace TempleAccounting
             btnSummaryIncome.ForeColor = Color.White
             btnSummaryIncome.Location = New Point(335, 6)
             btnSummaryIncome.Name = "btnSummaryIncome"
-            btnSummaryIncome.Size = New Size(149, 38)
+            btnSummaryIncome.Size = New Size(145, 38)
             btnSummaryIncome.TabIndex = 4
             btnSummaryIncome.Text = "💵 สรุปรายรับ"
             btnSummaryIncome.UseVisualStyleBackColor = False
@@ -389,7 +389,7 @@ Namespace TempleAccounting
             btnPrintSummary.ForeColor = Color.White
             btnPrintSummary.Location = New Point(192, 6)
             btnPrintSummary.Name = "btnPrintSummary"
-            btnPrintSummary.Size = New Size(143, 38)
+            btnPrintSummary.Size = New Size(145, 38)
             btnPrintSummary.TabIndex = 5
             btnPrintSummary.Text = ChrW(55358) & ChrW(56830) & " รายงานย่อ"
             btnPrintSummary.UseVisualStyleBackColor = False
@@ -405,7 +405,7 @@ Namespace TempleAccounting
             btnPrintDetail.ForeColor = Color.White
             btnPrintDetail.Location = New Point(8, 6)
             btnPrintDetail.Name = "btnPrintDetail"
-            btnPrintDetail.Size = New Size(184, 38)
+            btnPrintDetail.Size = New Size(145, 38)
             btnPrintDetail.TabIndex = 6
             btnPrintDetail.Text = "📜 รายงานละเอียด"
             btnPrintDetail.UseVisualStyleBackColor = False

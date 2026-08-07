@@ -32,6 +32,7 @@
     <Compile Include="DatabaseBackupHelper.vb" />
     <Compile Include="AppPaths.vb" />
     <Compile Include="HelpSystem.vb" />
+    <Compile Include="UiFitter.vb" />
     <Compile Include="Program.vb" />
     <Compile Include="ReceiptImageHelper.vb" />
     <Compile Include="MessageBoxHelper.vb" />
