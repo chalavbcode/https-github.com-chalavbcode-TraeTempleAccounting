@@ -36,7 +36,7 @@ Namespace TempleAccounting
             If e.KeyCode = Keys.F1 Then
                 e.Handled = True
                 e.SuppressKeyPress = True
-                HelpSystem.ShowManual("FrmMasterData")
+                HelpSystem.ShowManual("FrmMasterData", Me)
             End If
         End Sub
 
