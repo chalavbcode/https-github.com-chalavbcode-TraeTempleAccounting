@@ -15,6 +15,7 @@ Namespace TempleAccounting
             LoadPositionData()
             ClearPersonnelEditor()
             ClearPositionEditor()
+            UiFitter.AutoFitFormButtons(Me)
         End Sub
 
         Private Sub FrmPersonnelManagement_KeyDown(sender As Object, e As KeyEventArgs) Handles Me.KeyDown

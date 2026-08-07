@@ -44,6 +44,7 @@ Namespace TempleAccounting
                 Dim tt As New ToolTip()
                 tt.SetToolTip(lblStatusCenter, "ดับเบิ้ลคลิก: เปิดโฟลเดอร์ฐานข้อมูล" & vbCrLf & "คลิกขวา: คัดลอกที่อยู่ไฟล์ฐานข้อมูล" & vbCrLf & "ไฟล์: " & AppPaths.DatabaseFile)
                 ShowHomeLogo()
+                UiFitter.AutoFitFormButtons(Me)
             Catch
             End Try
             ShowDashboard()

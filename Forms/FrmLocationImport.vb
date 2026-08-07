@@ -47,6 +47,7 @@ Namespace TempleAccounting
             CheckFiles()
             LoadLastImport()
             SetupToolTips()
+            UiFitter.AutoFitFormButtons(Me)
             btnCheck_Click(Nothing, EventArgs.Empty)
         End Sub
 

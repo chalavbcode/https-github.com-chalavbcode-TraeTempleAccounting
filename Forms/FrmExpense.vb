@@ -81,6 +81,7 @@ Namespace TempleAccounting
             LoadMasters()
             SetupToolTips()
             SetupEnterNavigation()
+            UiFitter.AutoFitFormButtons(Me)
             ResetEntry(True)
             FocusStartField()
         End Sub

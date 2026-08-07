@@ -773,7 +773,7 @@ Namespace TempleAccounting
             ' 
             btnManagePersonnel.BackColor = Color.FromArgb(CByte(147), CByte(51), CByte(234))
             btnManagePersonnel.FlatStyle = FlatStyle.Flat
-            btnManagePersonnel.Font = New Font("Tahoma", 10F, FontStyle.Bold)
+            btnManagePersonnel.Font = New Font("Tahoma", 9F, FontStyle.Bold)
             btnManagePersonnel.ForeColor = Color.White
             btnManagePersonnel.Location = New Point(896, 8)
             btnManagePersonnel.Margin = New Padding(6, 0, 0, 0)

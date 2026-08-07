@@ -91,6 +91,7 @@ Namespace TempleAccounting
             Me.KeyPreview = True
             SetupToolTips()
             HelpSystem.SetupHelp(Me, "FrmTransactions")
+            UiFitter.AutoFitFormButtons(Me)
 #Region "debug-point A:form-load"
             DebugReport("A", "FrmTransactions_Load", "load-start", New Dictionary(Of String, Object) From {
                 {"baseDir", AppDomain.CurrentDomain.BaseDirectory},
