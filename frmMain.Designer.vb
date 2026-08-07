@@ -328,7 +328,7 @@ Namespace TempleAccounting
             btnSetting.Font = New Font("Tahoma", 11.25F, FontStyle.Regular, GraphicsUnit.Point, CByte(222))
             btnSetting.ForeColor = Color.White
             btnSetting.ImageAlign = ContentAlignment.MiddleLeft
-            btnSetting.Location = New Point(12, 477)
+            btnSetting.Location = New Point(12, 601)
             btnSetting.Name = "btnSetting"
             btnSetting.Padding = New Padding(14, 0, 8, 0)
             btnSetting.Size = New Size(227, 62)
@@ -368,7 +368,7 @@ Namespace TempleAccounting
             btnRestore.Font = New Font("Tahoma", 11.25F, FontStyle.Regular, GraphicsUnit.Point, CByte(222))
             btnRestore.ForeColor = Color.White
             btnRestore.ImageAlign = ContentAlignment.MiddleLeft
-            btnRestore.Location = New Point(12, 601)
+            btnRestore.Location = New Point(12, 477)
             btnRestore.Name = "btnRestore"
             btnRestore.Padding = New Padding(14, 0, 8, 0)
             btnRestore.Size = New Size(227, 62)

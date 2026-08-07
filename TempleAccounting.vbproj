@@ -166,6 +166,10 @@
     <None Include="USER_MANUAL_TH.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <!-- โลโก้หน้าหลัก: ต้องถูกคัดลอกไปยังโฟลเดอร์ output\\Resources เพื่อให้ frmMain แสดงผล -->
+    <None Include="Resources\logo_baanchee_wat.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
