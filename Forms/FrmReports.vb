@@ -341,10 +341,9 @@ Namespace TempleAccounting
                 area.AxisY.Title = "จำนวนเงิน (บาท)"
                 area.AxisY.MajorGrid.Enabled = True
                 area.AxisY.MajorGrid.LineColor = Color.LightGray
-                ' แกน X: แสดงป้ายทุกเดือน แบบเอียงเพื่อไม่ให้ทับกัน และไม่ต้องมีเส้นกริดแนวตั้ง
+                ' แกน X: แสดงป้ายทุกเดือน (Interval=1) แบบเอียงเพื่อไม่ให้ทับกัน และไม่ต้องมีเส้นกริดแนวตั้ง
                 area.AxisX.Title = "เดือน / ปี (พ.ศ.)"
                 area.AxisX.Interval = 1
-                area.AxisX.IntervalAutoMode = IntervalAutoMode.FixedCount
                 area.AxisX.LabelStyle.Font = New Font("Tahoma", 8.5F)
                 area.AxisX.LabelStyle.Angle = -45
                 area.AxisX.MajorGrid.Enabled = False
