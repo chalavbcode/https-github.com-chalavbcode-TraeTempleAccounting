@@ -41,9 +41,7 @@
     <Compile Include="Reports\ReportEngine.vb" />
 
     <!-- ===== frmMain ===== -->
-    <Compile Include="Forms\FrmHelpDialog.vb">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="Forms\FrmHelpDialog.vb" />
     <Compile Include="Forms\FrmHelpDialog.Designer.vb">
       <DependentUpon>FrmHelpDialog.vb</DependentUpon>
       <SubType>Form</SubType>

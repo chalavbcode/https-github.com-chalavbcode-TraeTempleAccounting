@@ -21,31 +21,43 @@ Namespace TempleAccounting
                 End If
 
                 Dim content = File.ReadAllText(manualPath, Encoding.UTF8)
-                Dim section = ExtractSection(content, formName)
+                Dim helpData = ExtractSection(content, formName)
 
-                If String.IsNullOrEmpty(section) Then
+                If String.IsNullOrEmpty(helpData.Content) Then
+                    lblTitle.Text = "คู่มือการใช้งาน: " & formName
                     rtbContent.Text = "ขออภัย ไม่พบข้อมูลคำแนะนำสำหรับหน้าจอนี้ในคู่มือ"
                 Else
-                    RenderMarkdownAsRichText(section)
+                    lblTitle.Text = "คู่มือการใช้งาน: " & helpData.Title
+                    RenderMarkdownAsRichText(helpData.Content)
                 End If
             Catch ex As Exception
                 rtbContent.Text = "เกิดข้อผิดพลาดในการโหลดข้อมูล: " & ex.Message
             End Try
         End Sub
 
+        Private Structure HelpSection
+            Public Title As String
+            Public Content As String
+        End Structure
+
         ''' <summary>
         ''' ดึงส่วนของเนื้อหาจาก Markdown ตามชื่อฟอร์ม
         ''' </summary>
-        Private Function ExtractSection(content As String, formName As String) As String
+        Private Function ExtractSection(content As String, formName As String) As HelpSection
+            Dim result As New HelpSection With {.Title = "", .Content = ""}
+            
             ' ค้นหาหัวข้อที่มีชื่อฟอร์มในวงเล็บ เช่น ## 1. หน้าจอ... (FrmTransactions)
-            ' และดึงเนื้อหาจนถึงขีดคั่น --- หรือหัวข้อถัดไป ##
-            Dim pattern = "## .*?\(" & Regex.Escape(formName) & "\)([\s\S]*?)(?=---|\n##|$)"
-            Dim match = Regex.Match(content, pattern)
+            ' ดึงชื่อหัวข้อ (Title) และเนื้อหา (Content)
+            Dim pattern = "## (.*?)\(" & Regex.Escape(formName) & "\)([\s\S]*?)(?=---|\n##|$)"
+            Dim match = Regex.Match(content, pattern, RegexOptions.IgnoreCase)
             
             If match.Success Then
-                Return match.Groups(1).Value.Trim()
+                result.Title = match.Groups(1).Value.Trim()
+                ' ลบตัวเลขลำดับข้างหน้าออก (เช่น "1. ")
+                result.Title = Regex.Replace(result.Title, "^\d+\.\s*", "")
+                result.Content = match.Groups(2).Value.Trim()
             End If
-            Return ""
+            Return result
         End Function
 
         ''' <summary>
