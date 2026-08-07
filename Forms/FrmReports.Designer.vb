@@ -439,7 +439,7 @@ Namespace TempleAccounting
             dgvReport.RowHeadersWidth = 50
             dgvReport.RowTemplate.Height = 28
             dgvReport.SelectionMode = DataGridViewSelectionMode.FullRowSelect
-            dgvReport.Size = New Size(1200, 615)
+            dgvReport.Size = New Size(1200, 815)
             dgvReport.TabIndex = 0
             ' 
             ' chartMonthly
@@ -449,8 +449,9 @@ Namespace TempleAccounting
             chartMonthly.Dock = DockStyle.Fill
             chartMonthly.Location = New Point(0, 185)
             chartMonthly.Name = "chartMonthly"
-            chartMonthly.Size = New Size(1200, 615)
+            chartMonthly.Size = New Size(1200, 815)
             chartMonthly.TabIndex = 2
+            chartMonthly.TabStop = True
             chartMonthly.Visible = False
             ' 
             ' FrmReports
@@ -458,14 +459,14 @@ Namespace TempleAccounting
             AutoScaleDimensions = New SizeF(10F, 22F)
             AutoScaleMode = AutoScaleMode.Font
             BackColor = Color.FromArgb(CByte(254), CByte(249), CByte(235))
-            ClientSize = New Size(1200, 800)
+            ClientSize = New Size(1200, 1000)
             Controls.Add(chartMonthly)
             Controls.Add(dgvReport)
             Controls.Add(lblSummary)
             Controls.Add(pa)
             Controls.Add(p)
             Font = New Font("Tahoma", 9F)
-            MinimumSize = New Size(1000, 600)
+            MinimumSize = New Size(1000, 800)
             Name = "FrmReports"
             StartPosition = FormStartPosition.CenterScreen
             Text = "รายงาน"

@@ -474,6 +474,13 @@ Namespace TempleAccounting
             area.AxisY.MajorGrid.Enabled = True
             area.AxisY.MajorGrid.LineColor = Color.LightGray
 
+            ' === Zoom/Scroll แกน Y (แนวตั้ง): เปิด ScrollBar + mouse wheel zoom ===
+            area.AxisY.ScaleView.Zoomable = True
+            area.AxisY.ScrollBar.Enabled = True
+            area.AxisY.ScrollBar.BackColor = Color.Gainsboro
+            area.CursorY.IsUserSelectionEnabled = True
+            area.CursorY.IsUserEnabled = True
+
             chartMonthly.ChartAreas.Add(area)
 
             ' 5. สร้าง 3 Clustered Column Series สี เขียว-แดง-น้ำเงิน
@@ -508,6 +515,87 @@ Namespace TempleAccounting
             s.SmartLabelStyle.Enabled = True
             s.SmartLabelStyle.CalloutLineColor = color
             chartMonthly.Series.Add(s)
+        End Sub
+
+        ''' <summary>
+        ''' เลื่อนล้อเมาส์บนกราฟ = ซูมเข้า/ออก แกน Y (แนวตั้ง)
+        ''' ล้อขึ้น (Delta>0) = ซูมเข้า, ล้อลง = ซูมออก — ค่าถูก clamp ในช่วงข้อมูลจริง
+        ''' </summary>
+        Private Sub chartMonthly_MouseWheel(sender As Object, e As MouseEventArgs) Handles chartMonthly.MouseWheel
+            Try
+                If chartMonthly.ChartAreas.Count = 0 Then Return
+                Dim axisY = chartMonthly.ChartAreas(0).AxisY
+
+                ' ช่วงข้อมูลจริง = ค่า Y ทั้งหมดใน series (min..max พร้อม margin)
+                Dim fullMin As Double = Double.MaxValue
+                Dim fullMax As Double = Double.MinValue
+                For Each s As Series In chartMonthly.Series
+                    For Each p As DataPoint In s.Points
+                        If p.YValues IsNot Nothing AndAlso p.YValues.Length > 0 Then
+                            Dim v = p.YValues(0)
+                            If v < fullMin Then fullMin = v
+                            If v > fullMax Then fullMax = v
+                        End If
+                    Next
+                Next
+                If fullMin >= fullMax Then Return
+                Dim margin = (fullMax - fullMin) * 0.05
+                fullMin -= margin
+                fullMax += margin
+                Dim fullRange As Double = fullMax - fullMin
+                If fullRange <= 0 Then Return
+
+                ' ช่วงที่กำลังแสดงอยู่ (ก่อน zoom ค่า View เป็น NaN → ใช้ full range)
+                Dim viewMin As Double = axisY.ScaleView.ViewMinimum
+                Dim viewMax As Double = axisY.ScaleView.ViewMaximum
+                If Double.IsNaN(viewMin) OrElse Double.IsNaN(viewMax) Then
+                    viewMin = fullMin
+                    viewMax = fullMax
+                End If
+
+                Dim zoomFactor As Double = If(e.Delta > 0, 0.9, 1.1)
+                Dim range = viewMax - viewMin
+                Dim newRange = range * zoomFactor
+
+                ' ซูมออกเกินช่วงจริง → reset กลับเต็ม view
+                If newRange >= fullRange Then
+                    axisY.ScaleView.ZoomReset()
+                Else
+                    ' ซูมโดยคงกึ่งกลางปัจจุบันไว้ แล้ว clamp ไม่เกินช่วงข้อมูล
+                    Dim center = viewMin + range / 2
+                    Dim newMin = center - newRange / 2
+                    Dim newMax = center + newRange / 2
+                    If newMin < fullMin Then newMin = fullMin
+                    If newMax > fullMax Then newMax = fullMax
+                    If newMax - newMin < 0.001 Then Return
+                    axisY.ScaleView.Zoom(newMin, newMax)
+                End If
+                chartMonthly.Invalidate()
+            Catch
+                ' ไม่ควรขัดจังหวะการใช้งาน — ละเว้น error ที่ไม่คาดคิด
+            End Try
+        End Sub
+
+        ''' <summary>
+        ''' เมื่อเมาส์เข้าสู่กราฟ ให้ focus ไปที่ chart เพื่อให้ MouseWheel ทำงานได้จริง
+        ''' (WinForms ต้องให้ control ที่รับ wheel มี focus)
+        ''' </summary>
+        Private Sub chartMonthly_MouseEnter(sender As Object, e As EventArgs) Handles chartMonthly.MouseEnter
+            chartMonthly.Focus()
+        End Sub
+
+        ''' <summary>
+        ''' ดับเบิลคลิกบนกราฟ = reset zoom กลับเป็นมุมมองเต็มช่วง
+        ''' </summary>
+        Private Sub chartMonthly_MouseDoubleClick(sender As Object, e As MouseEventArgs) Handles chartMonthly.MouseDoubleClick
+            Try
+                If chartMonthly.ChartAreas.Count > 0 Then
+                    chartMonthly.ChartAreas(0).AxisY.ScaleView.ZoomReset()
+                    chartMonthly.ChartAreas(0).AxisX.ScaleView.ZoomReset()
+                    chartMonthly.Invalidate()
+                End If
+            Catch
+            End Try
         End Sub
 
         Private Sub dtpFrom_ValueChanged(sender As Object, e As EventArgs) Handles dtpFrom.ValueChanged
