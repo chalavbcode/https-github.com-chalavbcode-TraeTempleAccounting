@@ -251,6 +251,9 @@ Namespace TempleAccounting
                 Dim thaiCulture As New CultureInfo("th-TH")
                 Dim anyPlotted As Boolean = False
 
+                ' แกน X ใช้ numeric index (กันป้ายซ้ำ/แท่งทับกัน) — ป้ายไทยตั้งผ่าน AxisLabel แยก
+                Dim monthIndex As Double = 0
+
                 Using conn = Db.OpenConn()
                     For Each m As DateTime In months
                         ' ขอบเขตวันที่ของเดือนนี้ (วันแรก 00:00:00 .. วันสุดท้าย 23:59:59)
@@ -272,10 +275,28 @@ Namespace TempleAccounting
                         Dim NetBalance As Decimal = SumIncome - SumExpense
 
                         ' ===== Step 4: plot 1 จุดต่อ Series ต่อเดือน =====
+                        ' X = numeric index เพื่อแยกแท่งทุกเดือนเสมอ (เป็นไปไม่ได้ที่เดือนชนกัน)
+                        ' ป้ายไทย ("ม.ค. ๒๕๖๙") ตั้งผ่าน AxisLabel
                         Dim monthLabel As String = MonthLabelThai(m.Year, m.Month, thaiCulture)
-                        chartMonthly.Series("รายรับ").Points.AddXY(monthLabel, SumIncome)          ' แท่งเขียว
-                        chartMonthly.Series("รายจ่าย").Points.AddXY(monthLabel, SumExpense)        ' แท่งแดง
-                        chartMonthly.Series("เงินคงเหลือสุทธิ").Points.AddXY(monthLabel, NetBalance) ' แท่งน้ำเงิน
+
+                        ' Log ตรวจสอบก่อน plot — ดูผลใน Immediate Window
+                        System.Diagnostics.Debug.WriteLine(
+                            String.Format("MONTH={0:yyyy-MM} | Label={1} | Income={2:N2} | Expense={3:N2} | Net={4:N2}",
+                                          m, monthLabel, SumIncome, SumExpense, NetBalance))
+
+                        ' แท่งเขียว = รายรับ
+                        Dim idxIncome = chartMonthly.Series("รายรับ").Points.AddXY(monthIndex, SumIncome)
+                        chartMonthly.Series("รายรับ").Points(idxIncome).AxisLabel = monthLabel
+
+                        ' แท่งแดง = รายจ่าย
+                        Dim idxExpense = chartMonthly.Series("รายจ่าย").Points.AddXY(monthIndex, SumExpense)
+                        chartMonthly.Series("รายจ่าย").Points(idxExpense).AxisLabel = monthLabel
+
+                        ' แท่งน้ำเงิน = คงเหลือสุทธิ
+                        Dim idxNet = chartMonthly.Series("เงินคงเหลือสุทธิ").Points.AddXY(monthIndex, NetBalance)
+                        chartMonthly.Series("เงินคงเหลือสุทธิ").Points(idxNet).AxisLabel = monthLabel
+
+                        monthIndex += 1
                         anyPlotted = True
                     Next
                 End Using
@@ -396,10 +417,11 @@ Namespace TempleAccounting
             ' 3. ปิด default palette เพื่อให้สี Series ควบคุมเองได้
             chartMonthly.Palette = ChartColorPalette.None
 
-            ' 4. สร้าง ChartArea ใหม่ — แกน Y เริ่มที่ 0, แกน X Categorical (ป้ายสตริง)
+            ' 4. สร้าง ChartArea ใหม่ — แกน X เป็น numeric index (0,1,2,..) ต่อเดือน ป้ายไทยตั้งผ่าน AxisLabel
             Dim area As New ChartArea("MonthlyArea") With {
                 .BackColor = Color.White
             }
+            ' Interval=1 → 1 จุดข้อมูลต่อ index ต่อเดือน (บังคับให้ทุกเดือนแสดง label ครบ)
             area.AxisX.Interval = 1
             area.AxisX.LabelStyle.Font = New Font("Tahoma", 8.5F)
             area.AxisX.LabelStyle.Angle = -45
