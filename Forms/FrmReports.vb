@@ -231,55 +231,47 @@ Namespace TempleAccounting
 
         Private Sub btnShowChart_Click(sender As Object, e As EventArgs) Handles btnShowChart.Click
             Try
-                ' === Step 1: รัน SQL GROUP BY แยกเดือน — ได้ 1 แถวต่อเดือน (Never iterate raw transactions) ===
+                ' === Step 1: รีเซ็ต Chart ให้สะอาด — สร้าง ChartArea + 3 Clustered Column Series + Legend ใหม่
+                '     (ไม่ใช้ DataSource binding กับ chart เด็ดขาด)
+                ResetMonthlyChart()
+
+                ' === Step 2: SQL SUM รายรับ/รายจ่าย จัดกลุ่มตามปี/เดือน (GROUP BY FORMAT 'yyyy-mm')
+                '     ได้ 1 แถวต่อเดือน — ห้ามพล็อต raw transactions รายตัว
                 Dim ps As List(Of Tuple(Of String, Object)) = Nothing
                 Dim fromWhere = BaseSql(ps)
                 Dim monthKey = "FORMAT(t.TranDate, 'yyyy-mm')"
                 Dim sql = "SELECT " & monthKey & " AS [คีย์เดือน], " &
                           "SUM(IIF(t.TranType='Income', t.Amount, 0)) AS [รายรับ], " &
-                          "SUM(IIF(t.TranType='Expense', t.Amount, 0)) AS [รายจ่าย], " &
-                          "SUM(IIF(t.TranType='Income', t.Amount, 0)) - SUM(IIF(t.TranType='Expense', t.Amount, 0)) AS [คงเหลือ] " &
+                          "SUM(IIF(t.TranType='Expense', t.Amount, 0)) AS [รายจ่าย] " &
                           fromWhere &
                           " GROUP BY " & monthKey &
                           " ORDER BY " & monthKey
 
                 Using conn = Db.OpenConn()
                     Dim dt = Db.GetTable(conn, sql, ps.ToArray())
-
-                    ' === Step 2: สร้าง arrays เก็บ label + ค่า 3 ชุด (1 จุดต่อเดือนต่อ Series) ===
-                    Dim rowCount As Integer = dt.Rows.Count
-                    If rowCount = 0 Then
+                    If dt.Rows.Count = 0 Then
                         MessageBox.Show("ไม่มีข้อมูลในช่วงวันที่ที่เลือก", "ไม่มีข้อมูล", MessageBoxButtons.OK, MessageBoxIcon.Information)
                         Return
                     End If
 
-                    Dim labels(rowCount - 1) As String
-                    Dim incomes(rowCount - 1) As Decimal
-                    Dim expenses(rowCount - 1) As Decimal
-                    Dim nets(rowCount - 1) As Decimal
-
+                    ' === Step 3: Explicit math ต่อเดือน — TotalIncome, TotalExpense, NetBalance
+                    '     แล้ว AddXY 1 จุดต่อ Series ต่อเดือน (รวม 3 จุด/เดือน)
                     Dim thaiCulture As New CultureInfo("th-TH")
-                    For i As Integer = 0 To rowCount - 1
-                        Dim row As DataRow = dt.Rows(i)
-                        labels(i) = FormatThaiMonthKey(Convert.ToString(row("คีย์เดือน")), thaiCulture)
-                        incomes(i) = Db.ToDecimalOrZero(row("รายรับ"))
-                        expenses(i) = Db.ToDecimalOrZero(row("รายจ่าย"))
-                        nets(i) = Db.ToDecimalOrZero(row("คงเหลือ"))
+                    For Each row As DataRow In dt.Rows
+                        Dim TotalIncome As Decimal = Db.ToDecimalOrZero(row("รายรับ"))
+                        Dim TotalExpense As Decimal = Db.ToDecimalOrZero(row("รายจ่าย"))
+                        Dim NetBalance As Decimal = TotalIncome - TotalExpense
+
+                        Dim label = FormatThaiMonthKey(Convert.ToString(row("คีย์เดือน")), thaiCulture)
+
+                        ' 1 จุดต่อเดือน: แท่งเขียว = รายรับ, แท่งแดง = รายจ่าย, แท่งน้ำเงิน = คงเหลือสุทธิ
+                        chartMonthly.Series("รายรับ").Points.AddXY(label, TotalIncome)
+                        chartMonthly.Series("รายจ่าย").Points.AddXY(label, TotalExpense)
+                        chartMonthly.Series("เงินคงเหลือสุทธิ").Points.AddXY(label, NetBalance)
                     Next
 
-                    ' === Step 3: รีเซ็ต Chart สะอาด แล้ว bind ข้อมูลด้วย DataBindXY (ไม่ใช้ AddXY loop) ===
-                    ResetMonthlyChart()
-
-                    ' ใช้ DataBindXY แทน AddXY — บังคับให้ chart รู้จักแต่ละ label เป็น category แยก
-                    chartMonthly.Series("รายรับ").Points.DataBindXY(labels, incomes)
-                    chartMonthly.Series("รายจ่าย").Points.DataBindXY(labels, expenses)
-                    chartMonthly.Series("เงินคงเหลือสุทธิ").Points.DataBindXY(labels, nets)
-
-                    ' === Step 4: บังคับ refresh chart เพื่อให้แสดงผลถูกต้อง ===
-                    chartMonthly.DataBind()
+                    ' === Step 4: บังคับ render ใหม่ แล้วสลับไปมุมมองกราฟ ===
                     chartMonthly.Refresh()
-
-                    ' === Step 5: สลับมุมมอง ===
                     ShowChartView()
                     lblSummary.Text = "รายงานกราฟสรุปรายรับ-รายจ่ายรายเดือน (ช่วงเวลาที่เลือก)"
                 End Using
