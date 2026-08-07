@@ -231,11 +231,11 @@ Namespace TempleAccounting
 
         Private Sub btnShowChart_Click(sender As Object, e As EventArgs) Handles btnShowChart.Click
             Try
-                ' 1. ตั้งค่าโครงสร้าง Chart (ChartArea + 3 Series) ครั้งแรก
-                SetupMonthlyChart()
+                ' 1. รีเซ็ต Chart ทั้งหมดใหม่ (destroy → recreate) ทุกครั้ง
+                ResetMonthlyChart()
 
                 ' 2. Query ยอดรวมรายรับ-รายจ่าย จัดกลุ่มตามปี/เดือน ด้วย FORMAT(TranDate,'yyyy-mm')
-                '    ได้ค่า 3 ค่าต่อเดือน: รายรับ / รายจ่าย / คงเหลือสุทธิ
+                '    SUM ต่อเดือน ได้ค่า 3 scalar ต่อเดือน: รายรับ / รายจ่าย / คงเหลือสุทธิ
                 Dim ps As List(Of Tuple(Of String, Object)) = Nothing
                 Dim fromWhere = BaseSql(ps)
                 Dim monthKey = "FORMAT(t.TranDate, 'yyyy-mm')"
@@ -250,18 +250,15 @@ Namespace TempleAccounting
                 Using conn = Db.OpenConn()
                     Dim dt = Db.GetTable(conn, sql, ps.ToArray())
 
-                    ' 3. ล้างข้อมูลเก่าแล้ววาดข้อมูลใหม่ลง Chart
-                    chartMonthly.Series("รายรับ").Points.Clear()
-                    chartMonthly.Series("รายจ่าย").Points.Clear()
-                    chartMonthly.Series("เงินคงเหลือสุทธิ").Points.Clear()
-
+                    ' 3. วน loop เพิ่ม 1 จุดข้อมูลต่อเดือน ต่อ Series (3 แท่งคลัสเตอร์/เดือน)
+                    '    ห้ามพล็อต transaction รายตัวเด็ดขาด — ใช้ SUM จาก GROUP BY แล้วเท่านั้น
                     Dim thaiCulture As New CultureInfo("th-TH")
                     For Each row As DataRow In dt.Rows
                         Dim income = Db.ToDecimalOrZero(row("รายรับ"))
                         Dim expense = Db.ToDecimalOrZero(row("รายจ่าย"))
                         Dim net = Db.ToDecimalOrZero(row("คงเหลือ"))
 
-                        ' ป้ายกำกับแกน X แบบไทย เช่น ก.ค. ๒๕๖๙
+                        ' ป้ายกำกับแกน X แบบไทย เช่น ม.ค. ๒๕๖๙
                         Dim label = FormatThaiMonthKey(Convert.ToString(row("คีย์เดือน")), thaiCulture)
 
                         chartMonthly.Series("รายรับ").Points.AddXY(label, income)
@@ -328,54 +325,67 @@ Namespace TempleAccounting
         End Function
 
         ''' <summary>
-        ''' ตั้งค่า ChartArea และ 3 Column Series ครั้งเดียว
+        ''' รีเซ็ต ChartArea และ Series ทั้งหมดใหม่ทุกครั้งที่วาดกราฟ (destroy → recreate)
+        ''' ป้องกัน property/Series ตกค้างจาก runtime ก่อนหน้า
         ''' </summary>
-        Private Sub SetupMonthlyChart()
-            ' สร้าง ChartArea ถ้ายังไม่มี
-            If chartMonthly.ChartAreas.Count = 0 Then
-                Dim area As New ChartArea("MonthlyArea")
-                area.BackColor = Color.White
-                ' แกน Y: ฟอร์แมตเป็นสกุลเงินบาท
-                area.AxisY.LabelStyle.Format = "฿#,##0"
-                area.AxisY.LabelStyle.Font = New Font("Tahoma", 9F)
-                area.AxisY.Title = "จำนวนเงิน (บาท)"
-                area.AxisY.MajorGrid.Enabled = True
-                area.AxisY.MajorGrid.LineColor = Color.LightGray
-                ' แกน X: แสดงป้ายทุกเดือน (Interval=1) แบบเอียงเพื่อไม่ให้ทับกัน และไม่ต้องมีเส้นกริดแนวตั้ง
-                area.AxisX.Title = "เดือน / ปี (พ.ศ.)"
-                area.AxisX.Interval = 1
-                area.AxisX.LabelStyle.Font = New Font("Tahoma", 8.5F)
-                area.AxisX.LabelStyle.Angle = -45
-                area.AxisX.MajorGrid.Enabled = False
-                chartMonthly.ChartAreas.Add(area)
-            End If
-
-            ' สร้าง Series ถ้ายังไม่มี
-            AddSeriesIfMissing("รายรับ", Color.MediumSeaGreen)
-            AddSeriesIfMissing("รายจ่าย", Color.IndianRed)
-            AddSeriesIfMissing("เงินคงเหลือสุทธิ", Color.SteelBlue)
-
+        Private Sub ResetMonthlyChart()
+            ' 1. ลบ Series เก่าทั้งหมด (กัน series ตกค้างจาก session ก่อน)
+            chartMonthly.Series.Clear()
+            ' 2. ลบ ChartArea เก่าทั้งหมด (กัน area property ตกค้าง)
+            chartMonthly.ChartAreas.Clear()
+            ' 3. ลบ Legends เก่า
             chartMonthly.Legends.Clear()
-            Dim legend As New Legend("Legend1")
-            legend.Docking = Docking.Top
+            ' 4. ปิด default palette เพื่อให้สี Series ควบคุมเองได้
+            chartMonthly.Palette = ChartColorPalette.None
+
+            ' 5. สร้าง ChartArea ใหม่ — แกน Y เริ่มที่ 0, แกน X Categorical (ป้ายสตริง)
+            Dim area As New ChartArea("MonthlyArea") With {
+                .BackColor = Color.White
+            }
+            area.AxisX.Interval = 1
+            area.AxisX.LabelStyle.Font = New Font("Tahoma", 8.5F)
+            area.AxisX.LabelStyle.Angle = -45
+            area.AxisX.MajorGrid.Enabled = False
+            area.AxisX.Title = "เดือน / ปี (พ.ศ.)"
+
+            area.AxisY.IsStartedFromZero = False
+            area.AxisY.LabelStyle.Format = "฿#,##0"
+            area.AxisY.LabelStyle.Font = New Font("Tahoma", 9F)
+            area.AxisY.Title = "จำนวนเงิน (บาท)"
+            area.AxisY.MajorGrid.Enabled = True
+            area.AxisY.MajorGrid.LineColor = Color.LightGray
+
+            chartMonthly.ChartAreas.Add(area)
+
+            ' 6. สร้าง 3 Clustered Column Series สี เขียว-แดง-น้ำเงิน
+            CreateColumnSeries("รายรับ", Color.MediumSeaGreen)
+            CreateColumnSeries("รายจ่าย", Color.IndianRed)
+            CreateColumnSeries("เงินคงเหลือสุทธิ", Color.SteelBlue)
+
+            ' 7. Legend ด้านบน
+            Dim legend As New Legend("Legend1") With {
+                .Docking = Docking.Top
+            }
             chartMonthly.Legends.Add(legend)
         End Sub
 
-        Private Sub AddSeriesIfMissing(name As String, color As Color)
-            If chartMonthly.Series.FindByName(name) Is Nothing Then
-                Dim s As New Series(name)
-                s.ChartType = SeriesChartType.Column
-                s.ChartArea = "MonthlyArea"
-                s.Color = color
-                s.BorderWidth = 1
-                s.IsValueShownAsLabel = True
-                s.LabelFormat = "฿#,##0"
-                s.Font = New Font("Tahoma", 8.5F)
-                ' ป้องกันป้ายตัวเลขทับกัน: ให้ SmartLabel จัดตำแหน่งป้ายอัตโนมัติ
-                s.SmartLabelStyle.Enabled = True
-                s.SmartLabelStyle.CalloutLineColor = color
-                chartMonthly.Series.Add(s)
-            End If
+        ''' <summary>
+        ''' สร้าง Series แบบ Clustered Column (Side-by-Side) — baseline = Y=0 เสมอ
+        ''' </summary>
+        Private Sub CreateColumnSeries(name As String, color As Color)
+            Dim s As New Series(name) With {
+                .ChartType = SeriesChartType.Column,
+                .ChartArea = "MonthlyArea",
+                .Color = color,
+                .BorderWidth = 1,
+                .IsValueShownAsLabel = True,
+                .LabelFormat = "฿#,##0",
+                .Font = New Font("Tahoma", 8.5F)
+            }
+            ' SmartLabel จัดตำแหน่งป้ายอัตโนมัติ — 1 ป้ายต่อแท่ง
+            s.SmartLabelStyle.Enabled = True
+            s.SmartLabelStyle.CalloutLineColor = color
+            chartMonthly.Series.Add(s)
         End Sub
 
         Private Sub dtpFrom_ValueChanged(sender As Object, e As EventArgs) Handles dtpFrom.ValueChanged
