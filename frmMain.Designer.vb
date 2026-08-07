@@ -433,7 +433,7 @@ Namespace TempleAccounting
             btnReport.Padding = New Padding(14, 0, 8, 0)
             btnReport.Size = New Size(227, 64)
             btnReport.TabIndex = 4
-            btnReport.Text = "� พิมพ์รายงาน"
+            btnReport.Text = "🖨️ พิมพ์รายงาน"
             btnReport.TextAlign = ContentAlignment.MiddleLeft
             btnReport.UseVisualStyleBackColor = False
             ' 
@@ -453,7 +453,7 @@ Namespace TempleAccounting
             btnMember.Padding = New Padding(14, 0, 8, 0)
             btnMember.Size = New Size(227, 63)
             btnMember.TabIndex = 5
-            btnMember.Text = "� รายการทางบัญชี"
+            btnMember.Text = "📖 รายการทางบัญชี"
             btnMember.TextAlign = ContentAlignment.MiddleLeft
             btnMember.UseVisualStyleBackColor = False
             ' 
