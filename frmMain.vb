@@ -93,11 +93,15 @@ Namespace TempleAccounting
                 (pnlFormHostBody.ClientSize.Width - picHomeLogo.Width) \ 2,
                 (pnlFormHostBody.ClientSize.Height - picHomeLogo.Height) \ 2)
             picHomeLogo.Anchor = AnchorStyles.None
+            ' โลโก้เป็นองค์ประกอบของหน้าหลักเท่านั้น: แสดงเฉพาะเมื่ออยู่หน้า Dashboard
+            picHomeLogo.Visible = True
             pnlFormHostBody.Controls.Add(picHomeLogo)
         End Sub
 
         Public Sub ShowDashboard()
             CloseActiveForm()
+            ' กลับสู่หน้าหลัก: แสดงโลโก้ประจำหน้าหลักอีกครั้ง
+            If picHomeLogo IsNot Nothing Then picHomeLogo.Visible = True
             SetActiveButton(btnDashboard)
             lblFormHostTitle.Text = "🪟 หน้าหลัก - ภาพรวมงานประจำวัน"
             lblFormHostHint.Visible = True
@@ -290,6 +294,8 @@ Namespace TempleAccounting
         Public Sub ShowFormInPanel(childForm As Form, Optional titleOverride As String = Nothing)
             If childForm Is Nothing Then Return
             CloseActiveForm()
+            ' ซ่อนโลโก้หน้าหลักทุกครั้งที่เปิดฟอร์มลูก เพื่อไม่ให้โลโก้ทับซ้อนกับฟอร์มงาน
+            If picHomeLogo IsNot Nothing Then picHomeLogo.Visible = False
             _currentChildForm = childForm
             Dim hostContainer = If(pnlFormHostBody, pnlFormHost)
 
@@ -372,6 +378,7 @@ Namespace TempleAccounting
             ph.Controls.Add(lblHow)
 
             CloseActiveForm()
+            If picHomeLogo IsNot Nothing Then picHomeLogo.Visible = False
             hostContainer.Controls.Add(ph)
         End Sub
 
