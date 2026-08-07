@@ -97,16 +97,22 @@ Namespace TempleAccounting
         End Sub
 
         Private Function BaseSql(ByRef params As List(Of Tuple(Of String, Object))) As String
-            params = New List(Of Tuple(Of String, Object))()
             ' Ensure we read the date only, and then add full day for toDate
             Dim fDate = dtpFrom.Value.Date
             Dim tDate = dtpTo.Value.Date.AddDays(1).AddSeconds(-1)
-            
-            Dim fromDate = Db.NormalizeGregorianDate(fDate)
-            Dim toDate = Db.NormalizeGregorianDate(tDate)
-            
-            Dim sql = "FROM ((Transactions t LEFT JOIN Categories c ON t.CategoryID=c.ID) LEFT JOIN Funds f ON t.FundID=f.ID) LEFT JOIN BankAccounts b ON t.BankID=b.ID " &
-                      "WHERE DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate), Day(t.TranDate)) " &
+            Return "FROM ((Transactions t LEFT JOIN Categories c ON t.CategoryID=c.ID) LEFT JOIN Funds f ON t.FundID=f.ID) LEFT JOIN BankAccounts b ON t.BankID=b.ID " &
+                   BuildMonthlyFilter(fDate, tDate, params)
+        End Function
+
+        ''' <summary>
+        ''' สร้าง WHERE clause สำหรับช่วงวันที่ที่ระบุ + filter กองทุน/ธนาคาร/ประเภท
+        ''' (เหมือนเงื่อนไขของ BaseSql แต่ยอมรับช่วงวันที่เอง เพื่อใช้ต่อเดือนในกราฟ)
+        ''' </summary>
+        Private Function BuildMonthlyFilter(monthStart As Date, monthEnd As Date, ByRef params As List(Of Tuple(Of String, Object))) As String
+            params = New List(Of Tuple(Of String, Object))()
+            Dim fromDate = Db.NormalizeGregorianDate(monthStart)
+            Dim toDate = Db.NormalizeGregorianDate(monthEnd)
+            Dim sql = "WHERE DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate), Day(t.TranDate)) " &
                       "BETWEEN " & Db.AccessDateLiteral(fromDate) & " AND " & Db.AccessDateLiteral(toDate)
             If cboFund.SelectedValue IsNot Nothing AndAlso CInt(cboFund.SelectedValue) <> 0 Then
                 sql &= " AND t.FundID=@f"
@@ -216,37 +222,70 @@ Namespace TempleAccounting
 
         Private Sub btnShowChart_Click(sender As Object, e As EventArgs) Handles btnShowChart.Click
             Try
-                ' === Step 1: Reuse ตารางสรุปรายเดือนกลางเดียวกันกับตาราง dgvReport
-                '     (1 แถว/เดือน: MonthName, TotalIncome, TotalExpense, NetBalance)
-                '     ห้าม query raw transactions หรือ loop ข้อมูลดิบเด็ดขาด
-                Dim dtMonthlySummary = GetMonthlySummary()
-                If dtMonthlySummary.Rows.Count = 0 Then
+                ' ===== Step 5: Chart Properties — รีเซ็ต chart สะอาด =====
+                ' Series ทั้ง 3 = SeriesChartType.Column (Clustered side-by-side)
+                ' chartMonthly.DataSource = Nothing (ห้าม bind DataTable ตรง ๆ)
+                ' IsValueShownAsLabel = True → 1 ตัวเลขสรุปต่อแท่ง (ตั้งใน CreateColumnSeries)
+                ResetMonthlyChart()
+
+                ' ===== Step 1: อ่านช่วงวันที่จากตัวกรอง =====
+                Dim fromDate As DateTime = dtpFrom.Value.Date
+                Dim toDate As DateTime = dtpTo.Value.Date
+
+                ' ===== Step 2: สร้างรายการเดือนที่อยู่ในช่วง (loop ทีละเดือน) =====
+                ' เช่น ม.ค. 2569 .. ก.ค. 2569 = 7 เดือน
+                Dim months As New List(Of DateTime)()
+                Dim cursor As DateTime = New DateTime(fromDate.Year, fromDate.Month, 1)
+                Dim lastMonth As DateTime = New DateTime(toDate.Year, toDate.Month, 1)
+                While cursor <= lastMonth
+                    months.Add(cursor)
+                    cursor = cursor.AddMonths(1)
+                End While
+
+                If months.Count = 0 Then
+                    MessageBox.Show("ไม่มีช่วงเดือนให้แสดง", "ไม่มีข้อมูล", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                    Return
+                End If
+
+                ' ===== Step 3+4: ต่อเดือน — คำนวณยอดรวมรายเดือน แล้ว plot 1 จุดต่อ Series =====
+                Dim thaiCulture As New CultureInfo("th-TH")
+                Dim anyPlotted As Boolean = False
+
+                Using conn = Db.OpenConn()
+                    For Each m As DateTime In months
+                        ' ขอบเขตวันที่ของเดือนนี้ (วันแรก 00:00:00 .. วันสุดท้าย 23:59:59)
+                        Dim monthStart As DateTime = m
+                        Dim monthEnd As DateTime = m.AddMonths(1).AddSeconds(-1)
+
+                        ' SUM รายรับ/รายจ่าย เฉพาะเดือนนี้ (พร้อม filter กองทุน/ธนาคาร/ประเภท)
+                        Dim ps As List(Of Tuple(Of String, Object)) = Nothing
+                        Dim whereClause = BuildMonthlyFilter(monthStart, monthEnd, ps)
+                        Dim sql = "SELECT SUM(IIF(t.TranType='Income', t.Amount, 0)) AS SumIncome, " &
+                                  "SUM(IIF(t.TranType='Expense', t.Amount, 0)) AS SumExpense " &
+                                  "FROM ((Transactions t LEFT JOIN Categories c ON t.CategoryID=c.ID) LEFT JOIN Funds f ON t.FundID=f.ID) LEFT JOIN BankAccounts b ON t.BankID=b.ID " &
+                                  whereClause
+                        Dim row As DataRow = Db.GetTable(conn, sql, ps.ToArray()).Rows(0)
+
+                        ' ===== Step 3: รวมรายเดือน =====
+                        Dim SumIncome As Decimal = Db.ToDecimalOrZero(row("SumIncome"))
+                        Dim SumExpense As Decimal = Db.ToDecimalOrZero(row("SumExpense"))
+                        Dim NetBalance As Decimal = SumIncome - SumExpense
+
+                        ' ===== Step 4: plot 1 จุดต่อ Series ต่อเดือน =====
+                        Dim monthLabel As String = MonthLabelThai(m.Year, m.Month, thaiCulture)
+                        chartMonthly.Series("รายรับ").Points.AddXY(monthLabel, SumIncome)          ' แท่งเขียว
+                        chartMonthly.Series("รายจ่าย").Points.AddXY(monthLabel, SumExpense)        ' แท่งแดง
+                        chartMonthly.Series("เงินคงเหลือสุทธิ").Points.AddXY(monthLabel, NetBalance) ' แท่งน้ำเงิน
+                        anyPlotted = True
+                    Next
+                End Using
+
+                If Not anyPlotted Then
                     MessageBox.Show("ไม่มีข้อมูลในช่วงวันที่ที่เลือก", "ไม่มีข้อมูล", MessageBoxButtons.OK, MessageBoxIcon.Information)
                     Return
                 End If
 
-                ' === Step 2: รีเซ็ต Chart ให้สะอาด — สร้าง ChartArea + 3 Clustered Column Series + Legend ใหม่
-                ResetMonthlyChart()
-
-                ' === Step 3: Clear points เดิมทั้งหมดก่อนเติมข้อมูลใหม่
-                chartMonthly.Series("รายรับ").Points.Clear()
-                chartMonthly.Series("รายจ่าย").Points.Clear()
-                chartMonthly.Series("เงินคงเหลือสุทธิ").Points.Clear()
-
-                ' === Step 4: Loop เฉพาะแถวที่รวมกลุ่มแล้ว (1 จุดต่อ Series ต่อเดือน)
-                For Each row As DataRow In dtMonthlySummary.Rows
-                    Dim monthLabel As String = Convert.ToString(row("MonthName"))   ' เช่น "ม.ค. ๒๕๖๙"
-                    Dim income As Decimal = Convert.ToDecimal(row("TotalIncome"))
-                    Dim expense As Decimal = Convert.ToDecimal(row("TotalExpense"))
-                    Dim balance As Decimal = Convert.ToDecimal(row("NetBalance"))
-
-                    ' เพิ่ม 1 จุดต่อ Series ต่อเดือน: เขียว=รายรับ, แดง=รายจ่าย, น้ำเงิน=คงเหลือ
-                    chartMonthly.Series("รายรับ").Points.AddXY(monthLabel, income)
-                    chartMonthly.Series("รายจ่าย").Points.AddXY(monthLabel, expense)
-                    chartMonthly.Series("เงินคงเหลือสุทธิ").Points.AddXY(monthLabel, balance)
-                Next
-
-                ' === Step 5: บังคับ render ใหม่ แล้วสลับไปมุมมองกราฟ ===
+                ' Render ใหม่ แล้วสลับไปมุมมองกราฟ
                 chartMonthly.Refresh()
                 ShowChartView()
                 lblSummary.Text = "รายงานกราฟสรุปรายรับ-รายจ่ายรายเดือน (ช่วงเวลาที่เลือก)"
