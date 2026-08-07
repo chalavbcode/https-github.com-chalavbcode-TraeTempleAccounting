@@ -64,7 +64,8 @@ Namespace TempleAccounting
             ttMain.SetToolTip(btnLedger, "แสดงรายงานสมุดบัญชีรายวัน (เรียงตามวันที่)")
             ttMain.SetToolTip(btnSummaryIncome, "แสดงสรุปรายรับแยกตามประเภทรายการ")
             ttMain.SetToolTip(btnSummaryExpense, "แสดงสรุปรายจ่ายแยกตามประเภทรายการ")
-            ttMain.SetToolTip(btnMonthly, "แสดงสรุปรายรับ-รายจ่าย แยกเป็นรายเดือน")
+            ttMain.SetToolTip(btnMonthly, "แสดงสรุปรายรับ-รายจ่าย แยกเป็นรายเดือน (ตารางตัวเลข)")
+            ttMain.SetToolTip(btnShowChart, "แสดงกราฟแท่งสรุปรายรับ-รายจ่ายรายเดือน (รายรับ / รายจ่าย / คงเหลือสุทธิ)")
         End Sub
 
         Private Sub SetupFilterEnterNavigation()
@@ -180,19 +181,71 @@ Namespace TempleAccounting
         End Sub
         Private Sub btnMonthly_Click(sender As Object, e As EventArgs) Handles btnMonthly.Click
             Try
+                ' 1. แสดงตารางตัวเลข (มุมมองแบบตัวเลข) เสมอ
+                ShowGridView()
+
+                ' 2. Query ยอดรวมรายรับ-รายจ่าย-คงเหลือ จัดกลุ่มตามปี/เดือน (FORMAT 'yyyy-mm')
+                Dim ps As List(Of Tuple(Of String, Object)) = Nothing
+                Dim fromWhere = BaseSql(ps)
+                Dim monthKey = "FORMAT(t.TranDate, 'yyyy-mm')"
+                Dim sql = "SELECT " & monthKey & " AS [คีย์เดือน], " &
+                          "SUM(IIF(t.TranType='Income', t.Amount, 0)) AS [รายรับ], " &
+                          "SUM(IIF(t.TranType='Expense', t.Amount, 0)) AS [รายจ่าย], " &
+                          "SUM(IIF(t.TranType='Income', t.Amount, 0)) - SUM(IIF(t.TranType='Expense', t.Amount, 0)) AS [คงเหลือ] " &
+                          fromWhere &
+                          " GROUP BY " & monthKey &
+                          " ORDER BY " & monthKey
+
+                Using conn = Db.OpenConn()
+                    Dim dt = Db.GetTable(conn, sql, ps.ToArray())
+
+                    ' 3. เติมคอลัมน์ "เดือน/ปี" แบบไทย เช่น ก.ค. ๒๕๖๙ แล้วย้ายมาเป็นคอลัมน์แรก
+                    dt.Columns.Add("เดือน/ปี", GetType(String))
+                    Dim thaiCulture As New CultureInfo("th-TH")
+                    For Each row As DataRow In dt.Rows
+                        Dim key = Convert.ToString(row("คีย์เดือน"))
+                        row("เดือน/ปี") = FormatThaiMonthKey(key, thaiCulture)
+                    Next
+                    dt.Columns("เดือน/ปี").SetOrdinal(0)
+                    dt.Columns.Remove("คีย์เดือน")
+
+                    dgvReport.DataSource = dt
+
+                    ' 4. ฟอร์แมตคอลัมน์ตัวเลขให้อ่านง่าย
+                    For Each col As DataGridViewColumn In dgvReport.Columns
+                        If col.Name = "รายรับ" OrElse col.Name = "รายจ่าย" OrElse col.Name = "คงเหลือ" Then
+                            col.DefaultCellStyle.Format = "#,##0.00"
+                            col.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight
+                        End If
+                    Next
+
+                    ' 5. สรุปยอดรวมช่วงเวลา
+                    Dim totI = Db.ToDecimalOrZero(Db.DbScalar(conn, "SELECT SUM(IIF(t.TranType='Income',t.Amount,0)) " & fromWhere, ps.ToArray()))
+                    Dim totE = Db.ToDecimalOrZero(Db.DbScalar(conn, "SELECT SUM(IIF(t.TranType='Expense',t.Amount,0)) " & fromWhere, ps.ToArray()))
+                    lblSummary.Text = $"สรุปรายเดือน: รายรับรวม {totI:n2} บาท  |  รายจ่ายรวม {totE:n2} บาท  |  คงเหลือ {totI - totE:n2} บาท"
+                End Using
+            Catch ex As Exception
+                MessageBox.Show("แสดงสรุปรายเดือนไม่ได้: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            End Try
+        End Sub
+
+        Private Sub btnShowChart_Click(sender As Object, e As EventArgs) Handles btnShowChart.Click
+            Try
                 ' 1. ตั้งค่าโครงสร้าง Chart (ChartArea + 3 Series) ครั้งแรก
                 SetupMonthlyChart()
 
-                ' 2. Query ยอดรวมรายรับ-รายจ่าย จัดกลุ่มตามปี/เดือน
+                ' 2. Query ยอดรวมรายรับ-รายจ่าย จัดกลุ่มตามปี/เดือน ด้วย FORMAT(TranDate,'yyyy-mm')
+                '    ได้ค่า 3 ค่าต่อเดือน: รายรับ / รายจ่าย / คงเหลือสุทธิ
                 Dim ps As List(Of Tuple(Of String, Object)) = Nothing
                 Dim fromWhere = BaseSql(ps)
-                Dim sql = "SELECT IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)) AS [ปี], " &
-                          "Month(t.TranDate) AS [เดือน], " &
+                Dim monthKey = "FORMAT(t.TranDate, 'yyyy-mm')"
+                Dim sql = "SELECT " & monthKey & " AS [คีย์เดือน], " &
                           "SUM(IIF(t.TranType='Income', t.Amount, 0)) AS [รายรับ], " &
-                          "SUM(IIF(t.TranType='Expense', t.Amount, 0)) AS [รายจ่าย] " &
+                          "SUM(IIF(t.TranType='Expense', t.Amount, 0)) AS [รายจ่าย], " &
+                          "SUM(IIF(t.TranType='Income', t.Amount, 0)) - SUM(IIF(t.TranType='Expense', t.Amount, 0)) AS [คงเหลือ] " &
                           fromWhere &
-                          " GROUP BY Year(t.TranDate), Month(t.TranDate) " &
-                          "ORDER BY Year(t.TranDate), Month(t.TranDate)"
+                          " GROUP BY " & monthKey &
+                          " ORDER BY " & monthKey
 
                 Using conn = Db.OpenConn()
                     Dim dt = Db.GetTable(conn, sql, ps.ToArray())
@@ -204,14 +257,12 @@ Namespace TempleAccounting
 
                     Dim thaiCulture As New CultureInfo("th-TH")
                     For Each row As DataRow In dt.Rows
-                        Dim gregYear = Convert.ToInt32(row("ปี"))
-                        Dim month = Convert.ToInt32(row("เดือน"))
                         Dim income = Db.ToDecimalOrZero(row("รายรับ"))
                         Dim expense = Db.ToDecimalOrZero(row("รายจ่าย"))
-                        Dim net = income - expense
+                        Dim net = Db.ToDecimalOrZero(row("คงเหลือ"))
 
                         ' ป้ายกำกับแกน X แบบไทย เช่น ก.ค. ๒๕๖๙
-                        Dim label = MonthLabelThai(gregYear, month, thaiCulture)
+                        Dim label = FormatThaiMonthKey(Convert.ToString(row("คีย์เดือน")), thaiCulture)
 
                         chartMonthly.Series("รายรับ").Points.AddXY(label, income)
                         chartMonthly.Series("รายจ่าย").Points.AddXY(label, expense)
@@ -226,6 +277,23 @@ Namespace TempleAccounting
                 MessageBox.Show("แสดงกราฟรายเดือนไม่ได้: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
             End Try
         End Sub
+
+        ''' <summary>
+        ''' แปลงคีย์ 'yyyy-mm' (ปีอาจเป็น พ.ศ. หรือ ค.ศ.) เป็นป้ายไทย เช่น ก.ค. ๒๕๖๙
+        ''' </summary>
+        Private Function FormatThaiMonthKey(key As String, thaiCulture As CultureInfo) As String
+            If String.IsNullOrWhiteSpace(key) Then Return key
+            Try
+                Dim parts = key.Split("-"c)
+                Dim year = Convert.ToInt32(parts(0))
+                Dim month = Convert.ToInt32(parts(1))
+                ' หากปีเกิน 2400 แปลว่าเป็นปี พ.ศ. ให้แปลงกลับเป็น ค.ศ. ก่อน (th-TH จะบวก 543 ให้อัตโนมัติ)
+                If year > 2400 Then year -= 543
+                Return MonthLabelThai(year, month, thaiCulture)
+            Catch
+                Return key
+            End Try
+        End Function
 
         ''' <summary>
         ''' สร้างป้ายกำกับเดือนแบบไทย เช่น ก.ค. ๒๕๖๙ (ปี พ.ศ.)
@@ -266,16 +334,20 @@ Namespace TempleAccounting
             ' สร้าง ChartArea ถ้ายังไม่มี
             If chartMonthly.ChartAreas.Count = 0 Then
                 Dim area As New ChartArea("MonthlyArea")
+                area.BackColor = Color.White
                 ' แกน Y: ฟอร์แมตเป็นสกุลเงินบาท
-                area.AxisY.LabelStyle.Format = "฿ #,##0"
+                area.AxisY.LabelStyle.Format = "฿#,##0"
+                area.AxisY.LabelStyle.Font = New Font("Tahoma", 9F)
                 area.AxisY.Title = "จำนวนเงิน (บาท)"
-                area.AxisX.Title = "เดือน / ปี (พ.ศ.)"
-                ' เปิดเส้นกริดทั้งสองแกน
-                area.AxisX.MajorGrid.Enabled = True
-                area.AxisX.MajorGrid.LineColor = Color.LightGray
                 area.AxisY.MajorGrid.Enabled = True
                 area.AxisY.MajorGrid.LineColor = Color.LightGray
-                area.AxisX.IntervalAutoMode = IntervalAutoMode.VariableCount
+                ' แกน X: แสดงป้ายทุกเดือน แบบเอียงเพื่อไม่ให้ทับกัน และไม่ต้องมีเส้นกริดแนวตั้ง
+                area.AxisX.Title = "เดือน / ปี (พ.ศ.)"
+                area.AxisX.Interval = 1
+                area.AxisX.IntervalAutoMode = IntervalAutoMode.FixedCount
+                area.AxisX.LabelStyle.Font = New Font("Tahoma", 8.5F)
+                area.AxisX.LabelStyle.Angle = -45
+                area.AxisX.MajorGrid.Enabled = False
                 chartMonthly.ChartAreas.Add(area)
             End If
 
@@ -298,8 +370,11 @@ Namespace TempleAccounting
                 s.Color = color
                 s.BorderWidth = 1
                 s.IsValueShownAsLabel = True
-                s.LabelFormat = "฿ #,##0"
+                s.LabelFormat = "฿#,##0"
                 s.Font = New Font("Tahoma", 8.5F)
+                ' ป้องกันป้ายตัวเลขทับกัน: ให้ SmartLabel จัดตำแหน่งป้ายอัตโนมัติ
+                s.SmartLabelStyle.Enabled = True
+                s.SmartLabelStyle.CalloutLineColor = color
                 chartMonthly.Series.Add(s)
             End If
         End Sub
