@@ -44,7 +44,7 @@ Namespace TempleAccounting
             Me.rtbContent.Dock = System.Windows.Forms.DockStyle.Fill
             Me.rtbContent.Font = New System.Drawing.Font("Tahoma", 10.5!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
             Me.rtbContent.Location = New System.Drawing.Point(0, 50)
-            Me.rtbContent.Margin = New System.Windows.Forms.Padding(15)
+            Me.rtbContent.Padding = New System.Windows.Forms.Padding(15, 10, 15, 10)
             Me.rtbContent.Name = "rtbContent"
             Me.rtbContent.ReadOnly = True
             Me.rtbContent.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical
