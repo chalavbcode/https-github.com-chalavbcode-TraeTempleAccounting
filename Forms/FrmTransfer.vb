@@ -32,6 +32,7 @@ Namespace TempleAccounting
             Db.EnsureSchema()
             SetupToolTips()
             UiFitter.AutoFitFormButtons(Me)
+            UiFitter.DisableComboBoxWheel(Me)
             Using conn = Db.OpenConn()
                 Dim funds = Db.GetTable(conn, "SELECT ID, FundName FROM Funds ORDER BY FundName")
                 AddBlankOption(funds, "FundName")

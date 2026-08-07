@@ -205,5 +205,55 @@ Namespace TempleAccounting
             End While
         End Sub
 
+        ' ==================================================================
+        ' ComboBox: ป้องกันการเลื่อน Mouse Wheel เปลี่ยนค่าโดยไม่ตั้งใจ
+        ' ผู้ใช้ต้องคลิกเปิด dropdown หรือใช้คีย์บอร์ด (ลูกศร) เท่านั้นจึงจะเปลี่ยนค่า
+        ' ==================================================================
+
+        ''' <summary>
+        ''' ไล่ติดตั้งตัวกัน Mouse Wheel เปลี่ยนค่าให้ ComboBox ทุกตัวในฟอร์ม
+        ''' (รวมที่ซ้อนอยู่ใน GroupBox/TableLayoutPanel/Panel) แบบวนซ้ำอัตโนมัติ
+        ''' เรียกครั้งเดียวใน Load event ของฟอร์ม เช่น: UiFitter.DisableComboBoxWheel(Me)
+        ''' </summary>
+        Public Sub DisableComboBoxWheel(parent As Control)
+            If parent Is Nothing Then Return
+            For Each ctrl As Control In parent.Controls
+                If TypeOf ctrl Is ComboBox Then
+                    AddHandler ctrl.MouseWheel, AddressOf ComboBox_PreventWheelChange
+                End If
+                If ctrl.HasChildren Then
+                    DisableComboBoxWheel(ctrl)
+                End If
+            Next
+        End Sub
+
+        ''' <summary>
+        ''' ตัวจัดการเหตุการณ์ MouseWheel ของ ComboBox:
+        ''' 1) ระงับไม่ให้ค่าเปลี่ยนเมื่อล้อเมาส์เลื่อนพาดผ่าน (แม้ dropdown ปิดอยู่)
+        ''' 2) ส่งต่อการเลื่อนไปยังคอนเทนเนอร์แม่ที่ AutoScroll เพื่อให้หน้าจอเลื่อนตามปกติ
+        ''' </summary>
+        Private Sub ComboBox_PreventWheelChange(sender As Object, e As MouseEventArgs)
+            Dim he = TryCast(e, HandledMouseEventArgs)
+            If he Is Nothing Then Return
+
+            ' ระงับการเปลี่ยนค่า (Handled=True ทำให้ Wheel ไม่ถูกส่งต่อให้ native control)
+            he.Handled = True
+
+            ' ส่งต่อการเลื่อนให้ panel แม่ที่เลื่อนได้ (AutoScroll) เพื่อให้หน้าจอยังเลื่อนปกติ
+            Dim combo = TryCast(sender, Control)
+            If combo Is Nothing Then Return
+            Dim p As Control = combo.Parent
+            While p IsNot Nothing
+                If TypeOf p Is ScrollableControl Then
+                    Dim sc = DirectCast(p, ScrollableControl)
+                    If sc.AutoScroll Then
+                        sc.AutoScrollPosition = New Point(sc.AutoScrollPosition.X, sc.AutoScrollPosition.Y + e.Delta)
+                        Exit While
+                    End If
+                End If
+                p = p.Parent
+            End While
+        End Sub
+
     End Module
 End Namespace
