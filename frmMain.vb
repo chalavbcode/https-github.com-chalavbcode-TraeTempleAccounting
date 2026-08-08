@@ -157,6 +157,10 @@ Namespace TempleAccounting
                     Catch
                     End Try
 
+                Case "btnMultiImport"
+                    SetOverviewCompactMode(False)
+                    ShowFormInPanel(New FrmMultiMachineImport(), "🖥️ นำเข้าข้อมูลหลายเครื่อง (หลาย Flash Drive)")
+
                 Case "btnVip"
                     SetOverviewCompactMode(False)
                     ShowFormInPanel(New FrmTempleSetting(), "🥇 ข้อมูลวัด - พระ/อาวาส/ผู้ทำบัญชี/พร้อมเพย์")
