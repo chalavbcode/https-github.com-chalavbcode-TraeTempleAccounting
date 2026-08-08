@@ -238,6 +238,9 @@ Namespace TempleAccounting
             ' 
             dgvTransactions.AllowUserToAddRows = False
             dgvTransactions.AllowUserToDeleteRows = False
+            dgvTransactions.AllowUserToResizeColumns = True
+            dgvTransactions.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells
+            dgvTransactions.DefaultCellStyle.WrapMode = DataGridViewTriState.True
             DataGridViewCellStyle1.BackColor = Color.FromArgb(CByte(255), CByte(251), CByte(235))
             dgvTransactions.AlternatingRowsDefaultCellStyle = DataGridViewCellStyle1
             dgvTransactions.BackgroundColor = Color.White
