@@ -43,8 +43,7 @@ Namespace TempleAccounting
                 End Using
                 SetupFilterEnterNavigation()
                 SetupToolTips()
-                ' ปรับขนาดปุ่ม toolbar ให้เท่ากันทั้งแถว + ปรับฟอนต์ข้อความไทยให้เต็มปุ่ม
-                UiFitter.UniformButtonGroup(btnPrintDetail, btnPrintSummary, btnSummaryIncome, btnSummaryExpense, btnShowChart, btnMonthly, btnLedger, btnPrint, btnPrintReport)
+                ' ปุ่มใน FlowLayoutPanel (pa) ใช้ AutoSize ขนาดตามข้อความ — ปุ่มอื่นให้ UiFitter ปรับฟอนต์ให้เต็มปุ่ม
                 UiFitter.AutoFitFormButtons(Me)
                 UiFitter.DisableComboBoxWheel(Me)
                 btnLedger_Click(Nothing, EventArgs.Empty)

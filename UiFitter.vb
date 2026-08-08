@@ -26,6 +26,10 @@ Namespace TempleAccounting
         Public Sub AutoFitButtonText(btn As Button, Optional minFontSize As Single = 9, Optional maxFontSize As Single = 11)
             If btn Is Nothing OrElse String.IsNullOrEmpty(btn.Text) Then Return
 
+            ' ปุ่มที่ตั้ง AutoSize=True ไว้ (เช่น ปุ่มใน FlowLayoutPanel) ให้ปล่อยระบบจัดการขนาดเอง
+            ' เพราะ AutoFit จะบังคับ AutoSize=False แล้วขยายปุ่มทีละปุ่ม ซึ่งจะหักล้างการไหลของ FlowLayoutPanel
+            If btn.AutoSize Then Return
+
             btn.AutoSize = False
             btn.AutoEllipsis = False
 
