@@ -388,7 +388,10 @@ Namespace TempleAccounting
                 {"ReceiptPath", "เอกสารแนบ"}
             }
 
-            dgvTransactions.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None
+            dgvTransactions.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells
+            dgvTransactions.AllowUserToResizeColumns = True
+            dgvTransactions.DefaultCellStyle.WrapMode = DataGridViewTriState.True
+            dgvTransactions.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells
             dgvTransactions.ScrollBars = ScrollBars.Both
 
             ' Hide technical columns but keep them for logic
@@ -448,46 +451,39 @@ Namespace TempleAccounting
                 End If
             Next
 
-            Dim widths As New Dictionary(Of String, Integer) From {
-                {"HasReceiptDisplay", 90},
-                {"ID", 70},
-                {"TranDate", 95},
-                {"TranType", 90},
-                {"CategoryID", 90},
-                {"CategoryName", 160},
-                {"FundID", 90},
-                {"FundName", 150},
-                {"BankID", 90},
-                {"BankName", 180},
-                {"Detail", 240},
-                {"Amount", 120},
-                {"Note", 220},
-                {"CreateDate", 150},
-                {"ToFundID", 90},
-                {"ToFundName", 150},
-                {"ToBankID", 90},
-                {"ToBankName", 180}
+            ' ความกว้างขั้นต่ำของแต่ละคอลัมน์ — คอลัมน์ปรับความกว้างอัตโนมัติตามเนื้อหา (AllCells)
+            ' แต่คอลัมน์ที่ควรคงความกระชับ (ใบเสร็จ / วันที่ / จำนวนเงิน) ถูกจำกัดด้วยค่าต่ำสุดนี้
+            Dim minWidths As New Dictionary(Of String, Integer) From {
+                {"HasReceiptDisplay", 80},
+                {"ID", 60},
+                {"TranDate", 85},
+                {"TranTypeDisplay", 80},
+                {"CategoryName", 100},
+                {"FundName", 120},
+                {"BankName", 130},
+                {"Amount", 100},
+                {"CreateDate", 130},
+                {"ToFundName", 110},
+                {"ToBankName", 110}
             }
 
-            For Each kv In widths
+            For Each kv In minWidths
                 If dgvTransactions.Columns.Contains(kv.Key) Then
-                    Dim col = dgvTransactions.Columns(kv.Key)
-                    col.AutoSizeMode = DataGridViewAutoSizeColumnMode.None
-                    col.Width = kv.Value
-                    col.MinimumWidth = Math.Min(90, kv.Value)
+                    dgvTransactions.Columns(kv.Key).MinimumWidth = kv.Value
                 End If
             Next
 
-            ' คอลัมน์ข้อความยาว (รายละเอียด / หมายเหตุ) ยืดหยุ่นตามความกว้างกริด
-            ' เพื่อให้คอลัมน์ทั้งหมดพอดีกับพื้นที่ที่มองเห็น (คอลัมน์อื่นคงความกว้างคงที่)
-            Dim fillWeights As New Dictionary(Of String, Integer) From {
-                {"Detail", 110},
-                {"Note", 100}
+            ' คอลัมน์ข้อความยาว (รายละเอียด / หมายเหตุ) ยืดหยุ่นตามพื้นที่ว่างของกริด (Fill)
+            ' พร้อมความกว้างขั้นต่ำ 150-200px — ข้อความยาวจะตัดบรรทัด (WrapMode) ให้แถวสูงขึ้นอัตโนมัติ
+            Dim fillColumns As New Dictionary(Of String, Integer) From {
+                {"Detail", 200},
+                {"Note", 160}
             }
-            For Each kv In fillWeights
+            For Each kv In fillColumns
                 If dgvTransactions.Columns.Contains(kv.Key) Then
                     Dim col = dgvTransactions.Columns(kv.Key)
-                    col.FillWeight = kv.Value
+                    col.MinimumWidth = kv.Value
+                    col.FillWeight = 100
                     col.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
                 End If
             Next
