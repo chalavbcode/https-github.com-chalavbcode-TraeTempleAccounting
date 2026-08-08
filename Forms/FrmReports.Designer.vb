@@ -77,16 +77,16 @@ Namespace TempleAccounting
             btnCalcBalance = New Button()
             btnRefresh = New Button()
             pa = New FlowLayoutPanel()
+            btnPrintDetail = New Button()
+            btnPrintSummary = New Button()
+            btnSummaryIncome = New Button()
+            btnSummaryExpense = New Button()
+            btnShowChart = New Button()
+            btnMonthly = New Button()
+            btnLedger = New Button()
             btnSavePdf = New Button()
             btnPrintReport = New Button()
             btnPrint = New Button()
-            btnLedger = New Button()
-            btnMonthly = New Button()
-            btnShowChart = New Button()
-            btnSummaryExpense = New Button()
-            btnSummaryIncome = New Button()
-            btnPrintSummary = New Button()
-            btnPrintDetail = New Button()
             lblSummary = New Label()
             dgvReport = New DataGridView()
             chartMonthly = New Chart()
@@ -268,7 +268,7 @@ Namespace TempleAccounting
             btnRefresh.Text = "🔍 ดูรายงาน"
             btnRefresh.UseVisualStyleBackColor = False
             ' 
-            ' pa (FlowLayoutPanel: ปุ่ม AutoSize เรียงซ้าย→ขวา + ขึ้นบรรทัดใหม่เมื่อแน่น ไม่เบียด/ไม่โดนตัด)
+            ' pa
             ' 
             pa.AutoSize = True
             pa.AutoSizeMode = AutoSizeMode.GrowAndShrink
@@ -284,12 +284,144 @@ Namespace TempleAccounting
             pa.Controls.Add(btnPrintReport)
             pa.Controls.Add(btnPrint)
             pa.Dock = DockStyle.Top
-            pa.FlowDirection = FlowDirection.LeftToRight
             pa.Location = New Point(0, 90)
             pa.Name = "pa"
             pa.Padding = New Padding(8, 6, 8, 6)
+            pa.Size = New Size(1478, 100)
             pa.TabIndex = 2
-            pa.WrapContents = True
+            ' 
+            ' btnPrintDetail
+            ' 
+            btnPrintDetail.AutoSize = True
+            btnPrintDetail.AutoSizeMode = AutoSizeMode.GrowAndShrink
+            btnPrintDetail.BackColor = Color.FromArgb(CByte(185), CByte(28), CByte(28))
+            btnPrintDetail.Cursor = Cursors.Hand
+            btnPrintDetail.FlatAppearance.BorderSize = 0
+            btnPrintDetail.FlatStyle = FlatStyle.Flat
+            btnPrintDetail.Font = New Font("Tahoma", 9F, FontStyle.Bold)
+            btnPrintDetail.ForeColor = Color.White
+            btnPrintDetail.Location = New Point(11, 8)
+            btnPrintDetail.Margin = New Padding(3, 2, 3, 2)
+            btnPrintDetail.Name = "btnPrintDetail"
+            btnPrintDetail.Padding = New Padding(12, 4, 12, 4)
+            btnPrintDetail.Size = New Size(197, 40)
+            btnPrintDetail.TabIndex = 6
+            btnPrintDetail.Text = "📜 รายงานละเอียด"
+            btnPrintDetail.UseVisualStyleBackColor = False
+            ' 
+            ' btnPrintSummary
+            ' 
+            btnPrintSummary.AutoSize = True
+            btnPrintSummary.AutoSizeMode = AutoSizeMode.GrowAndShrink
+            btnPrintSummary.BackColor = Color.FromArgb(CByte(146), CByte(64), CByte(14))
+            btnPrintSummary.Cursor = Cursors.Hand
+            btnPrintSummary.FlatAppearance.BorderSize = 0
+            btnPrintSummary.FlatStyle = FlatStyle.Flat
+            btnPrintSummary.Font = New Font("Tahoma", 9F, FontStyle.Bold)
+            btnPrintSummary.ForeColor = Color.White
+            btnPrintSummary.Location = New Point(214, 8)
+            btnPrintSummary.Margin = New Padding(3, 2, 3, 2)
+            btnPrintSummary.Name = "btnPrintSummary"
+            btnPrintSummary.Padding = New Padding(12, 4, 12, 4)
+            btnPrintSummary.Size = New Size(156, 40)
+            btnPrintSummary.TabIndex = 5
+            btnPrintSummary.Text = ChrW(55358) & ChrW(56830) & " รายงานย่อ"
+            btnPrintSummary.UseVisualStyleBackColor = False
+            ' 
+            ' btnSummaryIncome
+            ' 
+            btnSummaryIncome.AutoSize = True
+            btnSummaryIncome.AutoSizeMode = AutoSizeMode.GrowAndShrink
+            btnSummaryIncome.BackColor = Color.FromArgb(CByte(22), CByte(163), CByte(74))
+            btnSummaryIncome.Cursor = Cursors.Hand
+            btnSummaryIncome.FlatAppearance.BorderSize = 0
+            btnSummaryIncome.FlatStyle = FlatStyle.Flat
+            btnSummaryIncome.Font = New Font("Tahoma", 9F, FontStyle.Bold)
+            btnSummaryIncome.ForeColor = Color.White
+            btnSummaryIncome.Location = New Point(376, 8)
+            btnSummaryIncome.Margin = New Padding(3, 2, 3, 2)
+            btnSummaryIncome.Name = "btnSummaryIncome"
+            btnSummaryIncome.Padding = New Padding(12, 4, 12, 4)
+            btnSummaryIncome.Size = New Size(157, 40)
+            btnSummaryIncome.TabIndex = 4
+            btnSummaryIncome.Text = "💵 สรุปรายรับ"
+            btnSummaryIncome.UseVisualStyleBackColor = False
+            ' 
+            ' btnSummaryExpense
+            ' 
+            btnSummaryExpense.AutoSize = True
+            btnSummaryExpense.AutoSizeMode = AutoSizeMode.GrowAndShrink
+            btnSummaryExpense.BackColor = Color.FromArgb(CByte(190), CByte(18), CByte(60))
+            btnSummaryExpense.Cursor = Cursors.Hand
+            btnSummaryExpense.FlatAppearance.BorderSize = 0
+            btnSummaryExpense.FlatStyle = FlatStyle.Flat
+            btnSummaryExpense.Font = New Font("Tahoma", 9F, FontStyle.Bold)
+            btnSummaryExpense.ForeColor = Color.White
+            btnSummaryExpense.Location = New Point(539, 8)
+            btnSummaryExpense.Margin = New Padding(3, 2, 3, 2)
+            btnSummaryExpense.Name = "btnSummaryExpense"
+            btnSummaryExpense.Padding = New Padding(12, 4, 12, 4)
+            btnSummaryExpense.Size = New Size(167, 40)
+            btnSummaryExpense.TabIndex = 3
+            btnSummaryExpense.Text = "💸 สรุปรายจ่าย"
+            btnSummaryExpense.UseVisualStyleBackColor = False
+            ' 
+            ' btnShowChart
+            ' 
+            btnShowChart.AutoSize = True
+            btnShowChart.AutoSizeMode = AutoSizeMode.GrowAndShrink
+            btnShowChart.BackColor = Color.FromArgb(CByte(15), CByte(118), CByte(110))
+            btnShowChart.Cursor = Cursors.Hand
+            btnShowChart.FlatAppearance.BorderSize = 0
+            btnShowChart.FlatStyle = FlatStyle.Flat
+            btnShowChart.Font = New Font("Tahoma", 9F, FontStyle.Bold)
+            btnShowChart.ForeColor = Color.White
+            btnShowChart.Location = New Point(712, 8)
+            btnShowChart.Margin = New Padding(3, 2, 3, 2)
+            btnShowChart.Name = "btnShowChart"
+            btnShowChart.Padding = New Padding(12, 4, 12, 4)
+            btnShowChart.Size = New Size(221, 40)
+            btnShowChart.TabIndex = 7
+            btnShowChart.Text = "📊 กราฟสรุปรายเดือน"
+            btnShowChart.UseVisualStyleBackColor = False
+            ' 
+            ' btnMonthly
+            ' 
+            btnMonthly.AutoSize = True
+            btnMonthly.AutoSizeMode = AutoSizeMode.GrowAndShrink
+            btnMonthly.BackColor = Color.FromArgb(CByte(126), CByte(34), CByte(206))
+            btnMonthly.Cursor = Cursors.Hand
+            btnMonthly.FlatAppearance.BorderSize = 0
+            btnMonthly.FlatStyle = FlatStyle.Flat
+            btnMonthly.Font = New Font("Tahoma", 9F, FontStyle.Bold)
+            btnMonthly.ForeColor = Color.White
+            btnMonthly.Location = New Point(939, 8)
+            btnMonthly.Margin = New Padding(3, 2, 3, 2)
+            btnMonthly.Name = "btnMonthly"
+            btnMonthly.Padding = New Padding(12, 4, 12, 4)
+            btnMonthly.Size = New Size(143, 40)
+            btnMonthly.TabIndex = 2
+            btnMonthly.Text = "📈 รายเดือน"
+            btnMonthly.UseVisualStyleBackColor = False
+            ' 
+            ' btnLedger
+            ' 
+            btnLedger.AutoSize = True
+            btnLedger.AutoSizeMode = AutoSizeMode.GrowAndShrink
+            btnLedger.BackColor = Color.FromArgb(CByte(180), CByte(83), CByte(9))
+            btnLedger.Cursor = Cursors.Hand
+            btnLedger.FlatAppearance.BorderSize = 0
+            btnLedger.FlatStyle = FlatStyle.Flat
+            btnLedger.Font = New Font("Tahoma", 9F, FontStyle.Bold)
+            btnLedger.ForeColor = Color.White
+            btnLedger.Location = New Point(1088, 8)
+            btnLedger.Margin = New Padding(3, 2, 3, 2)
+            btnLedger.Name = "btnLedger"
+            btnLedger.Padding = New Padding(12, 4, 12, 4)
+            btnLedger.Size = New Size(158, 40)
+            btnLedger.TabIndex = 1
+            btnLedger.Text = "📒 สมุดรายวัน"
+            btnLedger.UseVisualStyleBackColor = False
             ' 
             ' btnSavePdf
             ' 
@@ -301,9 +433,11 @@ Namespace TempleAccounting
             btnSavePdf.FlatStyle = FlatStyle.Flat
             btnSavePdf.Font = New Font("Tahoma", 9F, FontStyle.Bold)
             btnSavePdf.ForeColor = Color.White
+            btnSavePdf.Location = New Point(1252, 8)
             btnSavePdf.Margin = New Padding(3, 2, 3, 2)
             btnSavePdf.Name = "btnSavePdf"
             btnSavePdf.Padding = New Padding(12, 4, 12, 4)
+            btnSavePdf.Size = New Size(159, 40)
             btnSavePdf.TabIndex = 8
             btnSavePdf.Text = "📄 บันทึก PDF"
             btnSavePdf.UseVisualStyleBackColor = False
@@ -318,11 +452,13 @@ Namespace TempleAccounting
             btnPrintReport.FlatStyle = FlatStyle.Flat
             btnPrintReport.Font = New Font("Tahoma", 9F, FontStyle.Bold)
             btnPrintReport.ForeColor = Color.White
+            btnPrintReport.Location = New Point(11, 52)
             btnPrintReport.Margin = New Padding(3, 2, 3, 2)
             btnPrintReport.Name = "btnPrintReport"
             btnPrintReport.Padding = New Padding(12, 4, 12, 4)
+            btnPrintReport.Size = New Size(160, 40)
             btnPrintReport.TabIndex = 9
-            btnPrintReport.Text = "🖨️ พิมพ์"
+            btnPrintReport.Text = "🖨️ เครื่องพิมพ์"
             btnPrintReport.UseVisualStyleBackColor = False
             ' 
             ' btnPrint
@@ -335,131 +471,14 @@ Namespace TempleAccounting
             btnPrint.FlatStyle = FlatStyle.Flat
             btnPrint.Font = New Font("Tahoma", 9F, FontStyle.Bold)
             btnPrint.ForeColor = Color.White
+            btnPrint.Location = New Point(177, 52)
             btnPrint.Margin = New Padding(3, 2, 3, 2)
             btnPrint.Name = "btnPrint"
             btnPrint.Padding = New Padding(12, 4, 12, 4)
+            btnPrint.Size = New Size(175, 40)
             btnPrint.TabIndex = 0
             btnPrint.Text = "📊 ส่งออกข้อมูล"
             btnPrint.UseVisualStyleBackColor = False
-            ' 
-            ' btnLedger
-            ' 
-            btnLedger.AutoSize = True
-            btnLedger.AutoSizeMode = AutoSizeMode.GrowAndShrink
-            btnLedger.BackColor = Color.FromArgb(CByte(180), CByte(83), CByte(9))
-            btnLedger.Cursor = Cursors.Hand
-            btnLedger.FlatAppearance.BorderSize = 0
-            btnLedger.FlatStyle = FlatStyle.Flat
-            btnLedger.Font = New Font("Tahoma", 9F, FontStyle.Bold)
-            btnLedger.ForeColor = Color.White
-            btnLedger.Margin = New Padding(3, 2, 3, 2)
-            btnLedger.Name = "btnLedger"
-            btnLedger.Padding = New Padding(12, 4, 12, 4)
-            btnLedger.TabIndex = 1
-            btnLedger.Text = "📒 สมุดรายวัน"
-            btnLedger.UseVisualStyleBackColor = False
-            ' 
-            ' btnMonthly
-            ' 
-            btnMonthly.AutoSize = True
-            btnMonthly.AutoSizeMode = AutoSizeMode.GrowAndShrink
-            btnMonthly.BackColor = Color.FromArgb(CByte(126), CByte(34), CByte(206))
-            btnMonthly.Cursor = Cursors.Hand
-            btnMonthly.FlatAppearance.BorderSize = 0
-            btnMonthly.FlatStyle = FlatStyle.Flat
-            btnMonthly.Font = New Font("Tahoma", 9F, FontStyle.Bold)
-            btnMonthly.ForeColor = Color.White
-            btnMonthly.Margin = New Padding(3, 2, 3, 2)
-            btnMonthly.Name = "btnMonthly"
-            btnMonthly.Padding = New Padding(12, 4, 12, 4)
-            btnMonthly.TabIndex = 2
-            btnMonthly.Text = "📈 รายเดือน"
-            btnMonthly.UseVisualStyleBackColor = False
-            ' 
-            ' btnShowChart
-            ' 
-            btnShowChart.AutoSize = True
-            btnShowChart.AutoSizeMode = AutoSizeMode.GrowAndShrink
-            btnShowChart.BackColor = Color.FromArgb(CByte(15), CByte(118), CByte(110))
-            btnShowChart.Cursor = Cursors.Hand
-            btnShowChart.FlatAppearance.BorderSize = 0
-            btnShowChart.FlatStyle = FlatStyle.Flat
-            btnShowChart.Font = New Font("Tahoma", 9F, FontStyle.Bold)
-            btnShowChart.ForeColor = Color.White
-            btnShowChart.Margin = New Padding(3, 2, 3, 2)
-            btnShowChart.Name = "btnShowChart"
-            btnShowChart.Padding = New Padding(12, 4, 12, 4)
-            btnShowChart.TabIndex = 7
-            btnShowChart.Text = "📊 กราฟสรุปรายเดือน"
-            btnShowChart.UseVisualStyleBackColor = False
-            ' 
-            ' btnSummaryExpense
-            ' 
-            btnSummaryExpense.AutoSize = True
-            btnSummaryExpense.AutoSizeMode = AutoSizeMode.GrowAndShrink
-            btnSummaryExpense.BackColor = Color.FromArgb(CByte(190), CByte(18), CByte(60))
-            btnSummaryExpense.Cursor = Cursors.Hand
-            btnSummaryExpense.FlatAppearance.BorderSize = 0
-            btnSummaryExpense.FlatStyle = FlatStyle.Flat
-            btnSummaryExpense.Font = New Font("Tahoma", 9F, FontStyle.Bold)
-            btnSummaryExpense.ForeColor = Color.White
-            btnSummaryExpense.Margin = New Padding(3, 2, 3, 2)
-            btnSummaryExpense.Name = "btnSummaryExpense"
-            btnSummaryExpense.Padding = New Padding(12, 4, 12, 4)
-            btnSummaryExpense.TabIndex = 3
-            btnSummaryExpense.Text = "💸 สรุปรายจ่าย"
-            btnSummaryExpense.UseVisualStyleBackColor = False
-            ' 
-            ' btnSummaryIncome
-            ' 
-            btnSummaryIncome.AutoSize = True
-            btnSummaryIncome.AutoSizeMode = AutoSizeMode.GrowAndShrink
-            btnSummaryIncome.BackColor = Color.FromArgb(CByte(22), CByte(163), CByte(74))
-            btnSummaryIncome.Cursor = Cursors.Hand
-            btnSummaryIncome.FlatAppearance.BorderSize = 0
-            btnSummaryIncome.FlatStyle = FlatStyle.Flat
-            btnSummaryIncome.Font = New Font("Tahoma", 9F, FontStyle.Bold)
-            btnSummaryIncome.ForeColor = Color.White
-            btnSummaryIncome.Margin = New Padding(3, 2, 3, 2)
-            btnSummaryIncome.Name = "btnSummaryIncome"
-            btnSummaryIncome.Padding = New Padding(12, 4, 12, 4)
-            btnSummaryIncome.TabIndex = 4
-            btnSummaryIncome.Text = "💵 สรุปรายรับ"
-            btnSummaryIncome.UseVisualStyleBackColor = False
-            ' 
-            ' btnPrintSummary
-            ' 
-            btnPrintSummary.AutoSize = True
-            btnPrintSummary.AutoSizeMode = AutoSizeMode.GrowAndShrink
-            btnPrintSummary.BackColor = Color.FromArgb(CByte(146), CByte(64), CByte(14))
-            btnPrintSummary.Cursor = Cursors.Hand
-            btnPrintSummary.FlatAppearance.BorderSize = 0
-            btnPrintSummary.FlatStyle = FlatStyle.Flat
-            btnPrintSummary.Font = New Font("Tahoma", 9F, FontStyle.Bold)
-            btnPrintSummary.ForeColor = Color.White
-            btnPrintSummary.Margin = New Padding(3, 2, 3, 2)
-            btnPrintSummary.Name = "btnPrintSummary"
-            btnPrintSummary.Padding = New Padding(12, 4, 12, 4)
-            btnPrintSummary.TabIndex = 5
-            btnPrintSummary.Text = ChrW(55358) & ChrW(56830) & " รายงานย่อ"
-            btnPrintSummary.UseVisualStyleBackColor = False
-            ' 
-            ' btnPrintDetail
-            ' 
-            btnPrintDetail.AutoSize = True
-            btnPrintDetail.AutoSizeMode = AutoSizeMode.GrowAndShrink
-            btnPrintDetail.BackColor = Color.FromArgb(CByte(185), CByte(28), CByte(28))
-            btnPrintDetail.Cursor = Cursors.Hand
-            btnPrintDetail.FlatAppearance.BorderSize = 0
-            btnPrintDetail.FlatStyle = FlatStyle.Flat
-            btnPrintDetail.Font = New Font("Tahoma", 9F, FontStyle.Bold)
-            btnPrintDetail.ForeColor = Color.White
-            btnPrintDetail.Margin = New Padding(3, 2, 3, 2)
-            btnPrintDetail.Name = "btnPrintDetail"
-            btnPrintDetail.Padding = New Padding(12, 4, 12, 4)
-            btnPrintDetail.TabIndex = 6
-            btnPrintDetail.Text = "📜 รายงานละเอียด"
-            btnPrintDetail.UseVisualStyleBackColor = False
             ' 
             ' lblSummary
             ' 
@@ -467,7 +486,7 @@ Namespace TempleAccounting
             lblSummary.Dock = DockStyle.Top
             lblSummary.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             lblSummary.ForeColor = Color.FromArgb(CByte(69), CByte(26), CByte(3))
-            lblSummary.Location = New Point(0, 140)
+            lblSummary.Location = New Point(0, 190)
             lblSummary.Name = "lblSummary"
             lblSummary.Size = New Size(1478, 45)
             lblSummary.TabIndex = 1
@@ -484,22 +503,22 @@ Namespace TempleAccounting
             dgvReport.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize
             dgvReport.Dock = DockStyle.Fill
             dgvReport.Font = New Font("Tahoma", 9F)
-            dgvReport.Location = New Point(0, 185)
+            dgvReport.Location = New Point(0, 235)
             dgvReport.Name = "dgvReport"
             dgvReport.ReadOnly = True
             dgvReport.RowHeadersWidth = 50
             dgvReport.RowTemplate.Height = 28
             dgvReport.SelectionMode = DataGridViewSelectionMode.FullRowSelect
-            dgvReport.Size = New Size(1478, 815)
+            dgvReport.Size = New Size(1478, 765)
             dgvReport.TabIndex = 0
             ' 
             ' chartMonthly
             ' 
             chartMonthly.BackColor = Color.FromArgb(CByte(254), CByte(249), CByte(235))
             chartMonthly.Dock = DockStyle.Fill
-            chartMonthly.Location = New Point(0, 185)
+            chartMonthly.Location = New Point(0, 235)
             chartMonthly.Name = "chartMonthly"
-            chartMonthly.Size = New Size(1478, 815)
+            chartMonthly.Size = New Size(1478, 765)
             chartMonthly.TabIndex = 2
             chartMonthly.Visible = False
             ' 
@@ -523,9 +542,11 @@ Namespace TempleAccounting
             p.ResumeLayout(False)
             p.PerformLayout()
             pa.ResumeLayout(False)
+            pa.PerformLayout()
             CType(dgvReport, ISupportInitialize).EndInit()
             CType(chartMonthly, ISupportInitialize).EndInit()
             ResumeLayout(False)
+            PerformLayout()
         End Sub
     End Class
 End Namespace
