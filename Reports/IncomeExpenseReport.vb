@@ -748,81 +748,19 @@ Namespace TempleAccounting
                                             pageNumber, totalPages, reportType)
         End Sub
 
+        ' จำเครื่องพิมพ์ที่ผู้ใช้เลือกไว้ (ระดับ session) — เมื่อตั้งค่าแล้ว งานพิมพ์/พรีวิวครั้งต่อไป
+        ' จะใช้เครื่องพิมพ์เดิมทันทีโดยไม่ต้องถามซ้ำ จนกว่าผู้ใช้จะเปลี่ยนที่ปุ่ม "🖨️ พิมพ์"
+        Private Shared _selectedPrinterName As String = ""
+
+        ''' <summary>
+        ''' เปิด Print Preview ตรง ๆ (ไม่ถามเครื่องพิมพ์ก่อน) — ผู้ใช้เลือกเครื่องพิมพ์ได้จาก
+        ''' ปุ่ม Print ในแถบเครื่องมือของ PrintPreviewDialog
+        ''' ถ้าเคยเลือกเครื่องพิมพ์ไว้ (_selectedPrinterName) ระบบจะตั้งเครื่องพิมพ์นั้นให้อัตโนมัติ
+        ''' </summary>
         Public Shared Sub ShowPreview(fromDate As Date, toDate As Date, Optional owner As IWin32Window = Nothing, Optional mode As ReportModes = ReportModes.Detailed, Optional manualOpeningBalance As Decimal? = Nothing, Optional fundID As Integer? = Nothing, Optional bankID As Integer? = Nothing)
-            ShowPreviewCore(fromDate, toDate, owner, mode, manualOpeningBalance, fundID, bankID, showPrintDialog:=False)
-        End Sub
-
-        ''' <summary>
-        ''' เปิด PrintDialog ให้เลือกเครื่องพิมพ์ก่อน แล้วจึงเปิด PrintPreviewDialog เพื่อตรวจสอบงานพิมพ์
-        ''' เมื่อผู้ใช้กดปุ่ม Print ในหน้าต่าง Preview ก็จะใช้เครื่องพิมพ์ที่เลือกไว้แล้ว
-        ''' </summary>
-        Public Shared Sub ShowPreviewWithPrinterSelection(fromDate As Date, toDate As Date, Optional owner As IWin32Window = Nothing, Optional mode As ReportModes = ReportModes.Detailed, Optional manualOpeningBalance As Decimal? = Nothing, Optional fundID As Integer? = Nothing, Optional bankID As Integer? = Nothing)
-            ShowPreviewCore(fromDate, toDate, owner, mode, manualOpeningBalance, fundID, bankID, showPrintDialog:=True)
-        End Sub
-
-        ''' <summary>
-        ''' เปิด PrintDialog เลือกเครื่องพิมพ์ แล้วพิมพ์โดยตรง (ไม่มี Print Preview)
-        ''' — เหมาะสำหรับผู้ใช้ที่ต้องการพิมพ์ทันทีแบบ Word/Excel
-        ''' </summary>
-        Public Shared Sub ShowPrint(fromDate As Date, toDate As Date, Optional owner As IWin32Window = Nothing, Optional mode As ReportModes = ReportModes.Detailed, Optional manualOpeningBalance As Decimal? = Nothing, Optional fundID As Integer? = Nothing, Optional bankID As Integer? = Nothing)
             Try
                 Dim doc As New IncomeExpenseReport(fromDate, toDate, mode, manualOpeningBalance, fundID, bankID)
-
-                Using pd As New PrintDialog()
-                    pd.Document = doc
-                    pd.AllowSomePages = True
-                    pd.UseEXDialog = True  ' ใช้กล่องโต้ตอบ Windows ดั้งเดิม — แสดงเครื่องพิมพ์ทั้งหมด (USB/Network/PDF/Thermal)
-                    pd.PrinterSettings.MinimumPage = 1
-                    pd.PrinterSettings.MaximumPage = 9999
-                    pd.PrinterSettings.FromPage = 1
-                    pd.PrinterSettings.ToPage = 9999
-
-                    If pd.ShowDialog(If(owner, Nothing)) <> DialogResult.OK Then Return
-
-                    ' Apply the user's printer settings to the document
-                    doc.PrinterSettings = pd.PrinterSettings
-                    doc.DefaultPageSettings = pd.PrinterSettings.DefaultPageSettings
-                    ' Re-configure page for the selected printer
-                    doc.ConfigurePageSettings()
-
-                    doc.Print()
-                End Using
-
-                MessageBox.Show("พิมพ์รายงานไปยังเครื่องพิมพ์ " & doc.PrinterSettings.PrinterName & " เรียบร้อยแล้ว",
-                                "พิมพ์สำเร็จ", MessageBoxButtons.OK, MessageBoxIcon.Information)
-            Catch ex As Exception
-                MessageBox.Show("ไม่สามารถพิมพ์รายงานได้: " & ex.Message,
-                                "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
-            End Try
-        End Sub
-
-        ''' <summary>
-        ''' Core preview logic — เมื่อ showPrintDialog=True จะเปิด PrintDialog ก่อนแสดงตัวอย่าง
-        ''' เพื่อให้ปุ่ม Print ในแถบเครื่องมือของ PrintPreviewDialog ใช้เครื่องพิมพ์ที่ผู้ใช้เลือกไว้
-        ''' </summary>
-        Private Shared Sub ShowPreviewCore(fromDate As Date, toDate As Date, owner As IWin32Window, mode As ReportModes, manualOpeningBalance As Decimal?, fundID As Integer?, bankID As Integer?, showPrintDialog As Boolean)
-            Try
-                Dim doc As New IncomeExpenseReport(fromDate, toDate, mode, manualOpeningBalance, fundID, bankID)
-
-                If showPrintDialog Then
-                    Using pd As New PrintDialog()
-                        pd.Document = doc
-                        pd.AllowSomePages = True
-                        pd.UseEXDialog = True
-                        pd.PrinterSettings.MinimumPage = 1
-                        pd.PrinterSettings.MaximumPage = 9999
-                        pd.PrinterSettings.FromPage = 1
-                        pd.PrinterSettings.ToPage = 9999
-
-                        If pd.ShowDialog(If(owner, Nothing)) = DialogResult.OK Then
-                            ' ใช้เครื่องพิมพ์ที่ผู้ใช้เลือก
-                            doc.PrinterSettings = pd.PrinterSettings
-                            doc.DefaultPageSettings = pd.PrinterSettings.DefaultPageSettings
-                            doc.ConfigurePageSettings()
-                        End If
-                        ' ถ้าผู้ใช้กด Cancel ยังคงแสดง preview โดยใช้ default printer
-                    End Using
-                End If
+                ApplySessionPrinter(doc)
 
                 Using ppd As New PrintPreviewDialog()
                     ppd.Document = doc
@@ -839,6 +777,59 @@ Namespace TempleAccounting
                 End Using
             Catch ex As Exception
                 MessageBox.Show("ไม่สามารถเปิดดูรายงานได้: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            End Try
+        End Sub
+
+        ''' <summary>
+        ''' เปิด PrintDialog ให้เลือกเครื่องพิมพ์ แล้วพิมพ์โดยตรง (ไม่มี Print Preview)
+        ''' เมื่อเลือกเครื่องพิมพ์แล้วจะถูกจำไว้ (_selectedPrinterName) สำหรับงานพิมพ์/พรีวิวครั้งต่อไป
+        ''' </summary>
+        Public Shared Sub ShowPrint(fromDate As Date, toDate As Date, Optional owner As IWin32Window = Nothing, Optional mode As ReportModes = ReportModes.Detailed, Optional manualOpeningBalance As Decimal? = Nothing, Optional fundID As Integer? = Nothing, Optional bankID As Integer? = Nothing)
+            Try
+                Dim doc As New IncomeExpenseReport(fromDate, toDate, mode, manualOpeningBalance, fundID, bankID)
+
+                Using pd As New PrintDialog()
+                    pd.Document = doc
+                    pd.AllowSomePages = True
+                    pd.UseEXDialog = True  ' ใช้กล่องโต้ตอบ Windows ดั้งเดิม — แสดงเครื่องพิมพ์ทั้งหมด (USB/Network/PDF/Thermal)
+                    pd.PrinterSettings.MinimumPage = 1
+                    pd.PrinterSettings.MaximumPage = 9999
+                    pd.PrinterSettings.FromPage = 1
+                    pd.PrinterSettings.ToPage = 9999
+
+                    If pd.ShowDialog(If(owner, Nothing)) <> DialogResult.OK Then Return
+
+                    ' จำเครื่องพิมพ์ที่ผู้ใช้เลือกไว้ (session-level) — ครั้งหน้าไม่ต้องถามซ้ำ
+                    _selectedPrinterName = pd.PrinterSettings.PrinterName
+
+                    ' ใช้การตั้งค่าเครื่องพิมพ์ที่ผู้ใช้เลือกกับเอกสาร
+                    doc.PrinterSettings = pd.PrinterSettings
+                    doc.DefaultPageSettings = pd.PrinterSettings.DefaultPageSettings
+                    doc.ConfigurePageSettings()
+
+                    doc.Print()
+                End Using
+
+                MessageBox.Show("พิมพ์รายงานไปยังเครื่องพิมพ์ " & doc.PrinterSettings.PrinterName & " เรียบร้อยแล้ว",
+                                "พิมพ์สำเร็จ", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            Catch ex As Exception
+                MessageBox.Show("ไม่สามารถพิมพ์รายงานได้: " & ex.Message,
+                                "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            End Try
+        End Sub
+
+        ''' <summary>
+        ''' ตั้งเครื่องพิมพ์ที่เคยเลือกไว้ (session) ให้กับเอกสารก่อนเปิดพรีวิว/พิมพ์
+        ''' เพื่อให้พรีวิวแสดงเครื่องพิมพ์ที่ผู้ใช้ต้องการได้ทันทีโดยไม่ต้องถามซ้ำ
+        ''' </summary>
+        Private Shared Sub ApplySessionPrinter(doc As IncomeExpenseReport)
+            If String.IsNullOrEmpty(_selectedPrinterName) Then Return
+            Try
+                doc.PrinterSettings.PrinterName = _selectedPrinterName
+                doc.ConfigurePageSettings()
+            Catch
+                ' เครื่องพิมพ์ที่เคยเลือกอาจถูกถอดออกจากระบบแล้ว — รีเซ็ตเป็นเครื่องพิมพ์เริ่มต้น
+                _selectedPrinterName = ""
             End Try
         End Sub
 

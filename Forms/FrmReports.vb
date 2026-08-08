@@ -739,10 +739,10 @@ Namespace TempleAccounting
                 
                 System.Diagnostics.Debug.WriteLine("[DEBUG FrmReports] btnPrintDetail_Click - startDate: " & startDate & ", endDate: " & endDate)
                 
-                ' 2. Pass explicit dates to the report — เปิด PrintDialog เลือกเครื่องพิมพ์ก่อนแสดงตัวอย่าง
-                '    เมื่อผู้ใช้กด Print ในหน้าต่าง Preview จะใช้เครื่องพิมพ์ที่เลือกไว้แล้ว
+                ' 2. Pass explicit dates to the report — เปิด Print Preview ตรง ๆ (ไม่ถามเครื่องพิมพ์ก่อน)
+                '    ผู้ใช้เลือกเครื่องพิมพ์ได้จากปุ่ม Print ในแถบเครื่องมือของหน้าต่าง Preview
                 _lastReportMode = IncomeExpenseReport.ReportModes.Detailed
-                IncomeExpenseReport.ShowPreviewWithPrinterSelection(startDate, endDate, Me, IncomeExpenseReport.ReportModes.Detailed, GetManualBalance(), If(fundID = 0, Nothing, fundID), If(bankID = 0, Nothing, bankID))
+                IncomeExpenseReport.ShowPreview(startDate, endDate, Me, IncomeExpenseReport.ReportModes.Detailed, GetManualBalance(), If(fundID = 0, Nothing, fundID), If(bankID = 0, Nothing, bankID))
             Catch ex As Exception
                 MessageBox.Show("เกิดข้อผิดพลาด: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
             End Try
@@ -759,9 +759,9 @@ Namespace TempleAccounting
                 
                 System.Diagnostics.Debug.WriteLine("[DEBUG FrmReports] btnPrintSummary_Click - startDate: " & startDate & ", endDate: " & endDate)
                 
-                ' 2. Pass explicit dates to the report — เปิด PrintDialog เลือกเครื่องพิมพ์ก่อนแสดงตัวอย่าง
+                ' 2. Pass explicit dates to the report — เปิด Print Preview ตรง ๆ (ไม่ถามเครื่องพิมพ์ก่อน)
                 _lastReportMode = IncomeExpenseReport.ReportModes.Summary
-                IncomeExpenseReport.ShowPreviewWithPrinterSelection(startDate, endDate, Me, IncomeExpenseReport.ReportModes.Summary, GetManualBalance(), If(fundID = 0, Nothing, fundID), If(bankID = 0, Nothing, bankID))
+                IncomeExpenseReport.ShowPreview(startDate, endDate, Me, IncomeExpenseReport.ReportModes.Summary, GetManualBalance(), If(fundID = 0, Nothing, fundID), If(bankID = 0, Nothing, bankID))
             Catch ex As Exception
                 MessageBox.Show("เกิดข้อผิดพลาด: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
             End Try
