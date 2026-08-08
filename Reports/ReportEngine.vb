@@ -80,6 +80,34 @@ Namespace TempleAccounting
     End Class
 
     ''' <summary>
+    ''' แถวข้อมูลรายงาน — Data model กลางของ ReportEngine
+    ''' ใช้ร่วมกันระหว่าง ReportEngine (เตรียมข้อมูล) และ IncomeExpenseReport (เรนเดอร์)
+    ''' </summary>
+    Public Class ReportRow
+        Public TranDate As Date
+        Public DayCode As Integer
+        Public Description As String
+        Public Amount As Decimal
+        Public IsCarryForward As Boolean
+        Public IsCategorySummary As Boolean
+    End Class
+
+    ''' <summary>
+    ''' ชุดข้อมูลรายงานรับ-จ่าย — เตรียมโดย ReportEngine.BuildReportDataset
+    ''' ประกอบด้วยแถวรายรับ/รายจ่าย ยอดรวม ยอดยกมา ยอดคงเหลือ และ TempleInfo
+    ''' </summary>
+    Public Class ReportDataset
+        Public IncomeRows As New List(Of ReportRow)()
+        Public ExpenseRows As New List(Of ReportRow)()
+        Public TotalIncome As Decimal
+        Public TotalExpense As Decimal
+        Public OpeningBalance As Decimal
+        Public GrandTotal As Decimal
+        Public Balance As Decimal
+        Public TemplateInfo As TempleSettingInfo
+    End Class
+
+    ''' <summary>
     ''' Report Layout Configuration - stores all layout parameters for a report page
     ''' Replaces hardcoded coordinates with a reusable configuration object
     ''' </summary>
@@ -320,6 +348,155 @@ Namespace TempleAccounting
 
         ' Cached TemplateInfo - loaded once and reused (module fields are implicitly shared)
         Private _cachedTemplateInfo As TempleSettingInfo = Nothing
+
+        ' ======================================================================
+        ' Data Service: เตรียมข้อมูลรายงานทั้งหมด (query + คำนวณ) ผ่าน ReportEngine
+        ' IncomeExpenseReport เรียกใช้ service นี้เท่านั้น — ไม่มี query ในเรนเดอร์
+        ' ======================================================================
+
+        ''' <summary>
+        ''' เตรียมข้อมูลรายงานรับ-จ่ายทั้งหมดจากฐานข้อมูล (Transactions + TempleSetting/Personnel)
+        ''' — ยอดยกมา, รายการรายรับ/รายจ่าย (ละเอียดหรือสรุป), ยอดรวม และยอดคงเหลือ
+        ''' </summary>
+        Public Function BuildReportDataset(fromDate As Date, toDate As Date, Optional summaryOnly As Boolean = False,
+                                           Optional manualOpeningBalance As Decimal? = Nothing,
+                                           Optional fundID As Integer? = Nothing,
+                                           Optional bankID As Integer? = Nothing) As ReportDataset
+            Dim ds As New ReportDataset()
+            Db.EnsureSchema()
+
+            ' Temple metadata (ชื่อวัด/เจ้าอาวาส/ไวยาวัจกร) โหลดผ่าน ReportEngine (มี cache)
+            ds.TemplateInfo = GetTemplateInfo()
+
+            Using conn = Db.OpenConn()
+                ' ยอดยกมา: ใช้ค่าที่กรอกเอง ถ้าไม่มีจึงคำนวณจากยอดเงินก่อนวันเริ่มต้น
+                If manualOpeningBalance.HasValue Then
+                    ds.OpeningBalance = manualOpeningBalance.Value
+                Else
+                    ds.OpeningBalance = GetBalanceBeforeDate(conn, fromDate, fundID, bankID)
+                End If
+
+                BuildRowList(conn, "Income", fromDate, toDate, fundID, bankID, summaryOnly, ds.IncomeRows, ds.TotalIncome)
+                BuildRowList(conn, "Expense", fromDate, toDate, fundID, bankID, summaryOnly, ds.ExpenseRows, ds.TotalExpense)
+
+                ' แทรกแถว "ยอดยกมา" เป็นแถวแรกของรายรับ (แสดงเป็นสีแดงเมื่อเรนเดอร์)
+                Dim openingRow As New ReportRow() With {
+                    .TranDate = fromDate,
+                    .DayCode = fromDate.Day,
+                    .Description = "ยอดยกมา" & If(manualOpeningBalance.HasValue, " (กรอกเอง)", ""),
+                    .Amount = ds.OpeningBalance,
+                    .IsCarryForward = True
+                }
+                ds.IncomeRows.Insert(0, openingRow)
+
+                ds.GrandTotal = ds.OpeningBalance + ds.TotalIncome
+                ds.Balance = ds.GrandTotal - ds.TotalExpense
+            End Using
+
+            Return ds
+        End Function
+
+        ''' <summary>
+        ''' คำนวณยอดเงินคงเหลือก่อนวันเริ่มต้น (เปิดบัญชี)
+        ''' </summary>
+        Private Function GetBalanceBeforeDate(conn As OleDbConnection, beforeDate As Date, fundID As Integer?, bankID As Integer?) As Decimal
+            ' Normalize dates using system helpers for Access DB compatibility
+            Dim normBeforeDate As Date = Db.NormalizeGregorianDate(beforeDate.Date)
+            Dim dateLiteral As String = Db.AccessDateLiteral(normBeforeDate)
+
+            ' Use Literal for Date to avoid culture/format issues in Access OLEDB
+            ' DateSerial logic handles mixed Gregorian/Buddhist years in the database
+            Dim sql = "SELECT SUM(IIF(t.TranType='Income', t.Amount, -t.Amount)) " &
+                      "FROM Transactions t " &
+                      "WHERE DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate), Day(t.TranDate)) < " & dateLiteral
+
+            Dim params As New List(Of Tuple(Of String, Object))()
+            If fundID.HasValue AndAlso fundID.Value <> 0 Then
+                sql &= " AND t.FundID = @f"
+                params.Add(New Tuple(Of String, Object)("@f", fundID.Value))
+            End If
+            If bankID.HasValue AndAlso bankID.Value <> 0 Then
+                sql &= " AND t.BankID = @b"
+                params.Add(New Tuple(Of String, Object)("@b", bankID.Value))
+            End If
+
+            Dim result = Db.DbScalar(conn, sql, params.ToArray())
+            If result Is Nothing OrElse IsDBNull(result) Then Return 0D
+            Return Convert.ToDecimal(result)
+        End Function
+
+        ''' <summary>
+        ''' โหลดแถวรายรับ/รายจ่าย (ละเอียด = กลุ่มตามหมวด, สรุป = กลุ่มตามเดือน)
+        ''' ด้วย DateSerial + การแปลงปี พ.ศ.→ค.ศ. ตามมาตรฐานของระบบ
+        ''' </summary>
+        Private Sub BuildRowList(conn As OleDbConnection, tranType As String, fromDate As Date, toDate As Date,
+                                 fundID As Integer?, bankID As Integer?, summaryOnly As Boolean,
+                                 targetRows As List(Of ReportRow), ByRef runningTotal As Decimal)
+            targetRows.Clear()
+            runningTotal = 0D
+
+            ' Normalize dates using system helpers for Access DB compatibility
+            Dim normFromDate As Date = Db.NormalizeGregorianDate(fromDate.Date)
+            Dim normToDate As Date = Db.NormalizeGregorianDate(toDate.Date.AddDays(1).AddSeconds(-1))
+            Dim fromLiteral As String = Db.AccessDateLiteral(normFromDate)
+            Dim toLiteral As String = Db.AccessDateLiteral(normToDate)
+
+            Dim whereClause = "WHERE t.TranType='" & tranType & "' AND DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate), Day(t.TranDate)) " &
+                              "BETWEEN " & fromLiteral & " AND " & toLiteral
+
+            Dim params As New List(Of Tuple(Of String, Object))()
+            If fundID.HasValue AndAlso fundID.Value <> 0 Then
+                whereClause &= " AND t.FundID = @f"
+                params.Add(New Tuple(Of String, Object)("@f", fundID.Value))
+            End If
+            If bankID.HasValue AndAlso bankID.Value <> 0 Then
+                whereClause &= " AND t.BankID = @b"
+                params.Add(New Tuple(Of String, Object)("@b", bankID.Value))
+            End If
+
+            Dim sql As String
+            If summaryOnly Then
+                ' สรุป: กลุ่มตามเดือน (วันที่ = วันสุดท้ายของเดือน) + ชื่อหมวด
+                sql = "SELECT DateSerial(Year(DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate) + 1, 0)), " &
+                      "Month(DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate) + 1, 0)), " &
+                      "Day(DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate) + 1, 0))) AS TranDate, " &
+                      "IIF(c.CategoryName IS NULL,'ไม่ระบุ',c.CategoryName) AS Cat, SUM(t.Amount) AS Amount " &
+                      "FROM Transactions t LEFT JOIN Categories c ON t.CategoryID=c.ID " &
+                      whereClause & " " &
+                      "GROUP BY DateSerial(Year(DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate) + 1, 0)), " &
+                      "Month(DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate) + 1, 0)), " &
+                      "Day(DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate) + 1, 0))), " &
+                      "IIF(c.CategoryName IS NULL,'ไม่ระบุ',c.CategoryName) " &
+                      "ORDER BY DateSerial(Year(DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate) + 1, 0)), " &
+                      "Month(DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate) + 1, 0)), " &
+                      "Day(DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate) + 1, 0))), " &
+                      "IIF(c.CategoryName IS NULL,'ไม่ระบุ',c.CategoryName)"
+            Else
+                ' ละเอียด: กลุ่มตามวันที่ + ชื่อหมวด
+                sql = "SELECT DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate), Day(t.TranDate)) AS TranDate, " &
+                      "IIF(c.CategoryName IS NULL,'ไม่ระบุ',c.CategoryName) AS Cat, SUM(t.Amount) AS Amount " &
+                      "FROM Transactions t LEFT JOIN Categories c ON t.CategoryID=c.ID " &
+                      whereClause & " " &
+                      "GROUP BY DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate), Day(t.TranDate)), " &
+                      "IIF(c.CategoryName IS NULL,'ไม่ระบุ',c.CategoryName) " &
+                      "ORDER BY DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate), Day(t.TranDate)), " &
+                      "IIF(c.CategoryName IS NULL,'ไม่ระบุ',c.CategoryName)"
+            End If
+
+            Dim dt = Db.GetTable(conn, sql, params.ToArray())
+            For Each r As DataRow In dt.Rows
+                Dim d = CDate(r!TranDate)
+                Dim amount = CDec(r!Amount)
+                targetRows.Add(New ReportRow With {
+                    .TranDate = d,
+                    .DayCode = d.Day,
+                    .Description = CStr(r!Cat),
+                    .Amount = amount,
+                    .IsCarryForward = False
+                })
+                runningTotal += amount
+            Next
+        End Sub
 
         ''' <summary>
         ''' Get the cached TempleSettingInfo instance, loading from database if not yet loaded

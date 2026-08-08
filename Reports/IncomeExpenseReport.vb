@@ -64,15 +64,6 @@ Namespace TempleAccounting
         Private Const FinalFooterGapHeight As Integer = 20       ' Increased from 8 to match the 20px shift-up in ReportEngine
         Private Const SectionGap As Integer = 12               ' Gap between left/right sections
 
-        Private Structure ReportRow
-            Public TranDate As Date
-            Public DayCode As Integer
-            Public Description As String
-            Public Amount As Decimal
-            Public IsCarryForward As Boolean
-            Public IsCategorySummary As Boolean
-        End Structure
-
         ''' <summary>
         ''' ชื่อเจ้าอาวาส (สำหรับแสดงในรายงาน)
         ''' </summary>
@@ -143,151 +134,33 @@ Namespace TempleAccounting
 
         Private Sub LoadData()
             Try
-                Db.EnsureSchema()
+                ' โหลดข้อมูลรายงานทั้งหมดผ่าน ReportEngine.BuildReportDataset
+                ' (query + การคำนวณยอดยกมา/ยอดรวม/ยอดคงเหลือ รวมศูนย์กลางที่ ReportEngine)
+                Dim ds = ReportEngine.BuildReportDataset(_fromDate, _toDate,
+                                                         (_mode = ReportModes.Summary),
+                                                         _manualOpeningBalance,
+                                                         _fundID,
+                                                         _bankID)
 
-                ' Get shared TemplateInfo (loaded once from database)
-                _templateInfo = ReportEngine.GetTemplateInfo()
-                
+                _templateInfo = ds.TemplateInfo
+                _incomeRows = ds.IncomeRows
+                _expenseRows = ds.ExpenseRows
+                _totalIncome = ds.TotalIncome
+                _totalExpense = ds.TotalExpense
+                _openingBalance = ds.OpeningBalance
+                _reportGrandTotal = ds.GrandTotal
+                _balance = ds.Balance
+
                 ' DEBUG: Log what we got
                 System.Diagnostics.Debug.WriteLine("[DEBUG IncomeExpenseReport.LoadData] _templateInfo.TempleName: '" & _templateInfo.TempleName & "'")
 
-                Using conn = Db.OpenConn()
-                    _incomeRows.Clear()
-                    _expenseRows.Clear()
-                    _totalIncome = 0
-                    _totalExpense = 0
-                    
-                    If _manualOpeningBalance.HasValue Then
-                        _openingBalance = _manualOpeningBalance.Value
-                    Else
-                        _openingBalance = GetBalanceBeforeDate(conn, _fromDate, _fundID, _bankID)
-                    End If
-
-                    LoadRowsByMode(conn, "Income", _incomeRows, _totalIncome, _fundID, _bankID)
-                    LoadRowsByMode(conn, "Expense", _expenseRows, _totalExpense, _fundID, _bankID)
-
-                    _incomeRows.Insert(0, BuildOpeningBalanceRow())
-                    _reportGrandTotal = _openingBalance + _totalIncome
-                    _balance = _reportGrandTotal - _totalExpense
-
-                    ' Initialize ReportInfo for header rendering using shared TemplateInfo
-                    ' Title is now simplified; the type indicator is moved to the date range line
-                    Dim reportTitle = "สรุปบัญชีรายรับ - รายจ่าย"
-                    _reportInfo = New ReportInfo(reportTitle, _templateInfo.TempleName, _templateInfo.TempleAddress, _fromDate, _toDate)
-                End Using
+                ' Initialize ReportInfo for header rendering using shared TemplateInfo
+                ' Title is now simplified; the type indicator is moved to the date range line
+                Dim reportTitle = "สรุปบัญชีรายรับ - รายจ่าย"
+                _reportInfo = New ReportInfo(reportTitle, _templateInfo.TempleName, _templateInfo.TempleAddress, _fromDate, _toDate)
             Catch ex As Exception
                 Throw
             End Try
-        End Sub
-
-        Private Function GetBalanceBeforeDate(conn As OleDbConnection, beforeDate As Date, fundID As Integer?, bankID As Integer?) As Decimal
-            ' Normalize dates using system helpers for Access DB compatibility
-            Dim normBeforeDate As Date = Db.NormalizeGregorianDate(beforeDate.Date)
-            Dim dateLiteral As String = Db.AccessDateLiteral(normBeforeDate)
-            
-            System.Diagnostics.Debug.WriteLine("[DEBUG GetBalanceBeforeDate] beforeDate: " & beforeDate & ", normalized: " & normBeforeDate & ", literal: " & dateLiteral)
-            
-            ' Use Literal for Date to avoid culture/format issues in Access OLEDB
-            ' We keep the DateSerial logic to handle mixed Gregorian/Buddhist years in the database
-            Dim sql = "SELECT SUM(IIF(t.TranType='Income', t.Amount, -t.Amount)) " &
-                      "FROM Transactions t " &
-                      "WHERE DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate), Day(t.TranDate)) < " & dateLiteral
-            
-            Dim params As New List(Of Tuple(Of String, Object))()
-
-            If fundID.HasValue AndAlso fundID.Value <> 0 Then
-                sql &= " AND t.FundID = @f"
-                params.Add(New Tuple(Of String, Object)("@f", fundID.Value))
-            End If
-            If bankID.HasValue AndAlso bankID.Value <> 0 Then
-                sql &= " AND t.BankID = @b"
-                params.Add(New Tuple(Of String, Object)("@b", bankID.Value))
-            End If
-
-            Dim result = Db.DbScalar(conn, sql, params.ToArray())
-            If result Is Nothing OrElse IsDBNull(result) Then Return 0D
-            Return Convert.ToDecimal(result)
-        End Function
-
-        Private Function BuildOpeningBalanceRow() As ReportRow
-            Return New ReportRow With {
-                .TranDate = _fromDate,
-                .DayCode = _fromDate.Day,
-                .Description = "ยอดยกมา" & If(_manualOpeningBalance.HasValue, " (กรอกเอง)", ""),
-                .Amount = _openingBalance,
-                .IsCarryForward = True
-            }
-        End Function
-
-        Private Sub LoadRowsByMode(conn As OleDbConnection, tranType As String, targetRows As List(Of ReportRow), ByRef runningTotal As Decimal, fundID As Integer?, bankID As Integer?)
-            targetRows.Clear()
-            runningTotal = 0D
-
-            Dim sql As String
-            Dim params As New List(Of Tuple(Of String, Object))()
-
-            ' Normalize dates using system helpers for Access DB compatibility
-            Dim normFromDate As Date = Db.NormalizeGregorianDate(_fromDate.Date)
-            Dim normToDate As Date = Db.NormalizeGregorianDate(_toDate.Date.AddDays(1).AddSeconds(-1))
-            
-            Dim fromLiteral As String = Db.AccessDateLiteral(normFromDate)
-            Dim toLiteral As String = Db.AccessDateLiteral(normToDate)
-
-            System.Diagnostics.Debug.WriteLine("[DEBUG LoadRowsByMode] fromDate: " & _fromDate & " (lit: " & fromLiteral & "), toDate: " & _toDate & " (lit: " & toLiteral & ")")
-
-            ' Use Literals for Dates to avoid culture/format issues in Access OLEDB
-            ' We keep the DateSerial logic to handle mixed Gregorian/Buddhist years in the database
-            Dim whereClause = "WHERE t.TranType='" & tranType & "' AND DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate), Day(t.TranDate)) " &
-                              "BETWEEN " & fromLiteral & " AND " & toLiteral
-            
-            If fundID.HasValue AndAlso fundID.Value <> 0 Then
-                whereClause &= " AND t.FundID = @f"
-                params.Add(New Tuple(Of String, Object)("@f", fundID.Value))
-            End If
-            If bankID.HasValue AndAlso bankID.Value <> 0 Then
-                whereClause &= " AND t.BankID = @b"
-                params.Add(New Tuple(Of String, Object)("@b", bankID.Value))
-            End If
-
-            If _mode = ReportModes.Summary Then
-                sql = "SELECT DateSerial(Year(DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate) + 1, 0)), " &
-                      "Month(DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate) + 1, 0)), " &
-                      "Day(DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate) + 1, 0))) AS TranDate, " &
-                      "IIF(c.CategoryName IS NULL,'ไม่ระบุ',c.CategoryName) AS Cat, SUM(t.Amount) AS Amount " &
-                      "FROM Transactions t LEFT JOIN Categories c ON t.CategoryID=c.ID " &
-                      whereClause & " " &
-                      "GROUP BY DateSerial(Year(DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate) + 1, 0)), " &
-                      "Month(DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate) + 1, 0)), " &
-                      "Day(DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate) + 1, 0))), " &
-                      "IIF(c.CategoryName IS NULL,'ไม่ระบุ',c.CategoryName) " &
-                      "ORDER BY DateSerial(Year(DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate) + 1, 0)), " &
-                      "Month(DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate) + 1, 0)), " &
-                      "Day(DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate) + 1, 0))), " &
-                      "IIF(c.CategoryName IS NULL,'ไม่ระบุ',c.CategoryName)"
-            Else
-                sql = "SELECT DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate), Day(t.TranDate)) AS TranDate, " &
-                      "IIF(c.CategoryName IS NULL,'ไม่ระบุ',c.CategoryName) AS Cat, SUM(t.Amount) AS Amount " &
-                      "FROM Transactions t LEFT JOIN Categories c ON t.CategoryID=c.ID " &
-                      whereClause & " " &
-                      "GROUP BY DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate), Day(t.TranDate)), " &
-                      "IIF(c.CategoryName IS NULL,'ไม่ระบุ',c.CategoryName) " &
-                      "ORDER BY DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate), Day(t.TranDate)), " &
-                      "IIF(c.CategoryName IS NULL,'ไม่ระบุ',c.CategoryName)"
-            End If
-
-            Dim dt = Db.GetTable(conn, sql, params.ToArray())
-            For Each r As DataRow In dt.Rows
-                Dim d = CDate(r!TranDate)
-                Dim amount = CDec(r!Amount)
-                targetRows.Add(New ReportRow With {
-                    .TranDate = d,
-                    .DayCode = d.Day,
-                    .Description = CStr(r!Cat),
-                    .Amount = amount,
-                    .IsCarryForward = False
-                })
-                runningTotal += amount
-            Next
         End Sub
 
         Private Function ToThaiNumerals(s As String) As String
