@@ -137,12 +137,14 @@ Namespace TempleAccounting
                     Dim hasToFundID As Boolean = False
                     Dim hasToBankID As Boolean = False
                     Dim hasReceiptPath As Boolean = False
+                    Dim hasTransactionGUID As Boolean = False
 
                     For Each row As DataRow In columns.Rows
                         Dim colName = Convert.ToString(row("COLUMN_NAME"))
                         If colName.Equals("ToFundID", StringComparison.OrdinalIgnoreCase) Then hasToFundID = True
                         If colName.Equals("ToBankID", StringComparison.OrdinalIgnoreCase) Then hasToBankID = True
                         If colName.Equals("ReceiptPath", StringComparison.OrdinalIgnoreCase) Then hasReceiptPath = True
+                        If colName.Equals("TransactionGUID", StringComparison.OrdinalIgnoreCase) Then hasTransactionGUID = True
                     Next
 
                     If Not hasToFundID Then
@@ -162,6 +164,15 @@ Namespace TempleAccounting
                     If Not hasReceiptPath Then
                         Using cmd = conn.CreateCommand()
                             cmd.CommandText = "ALTER TABLE Transactions ADD COLUMN ReceiptPath TEXT(255)"
+                            cmd.ExecuteNonQuery()
+                        End Using
+                    End If
+
+                    ' TransactionGUID: GUID ที่สร้างตอนบันทึกธุรกรรม (non-breaking, nullable)
+                    ' แถวเก่าที่ไม่มี GUID -> ฝั่ง import จะ fallback ไปใช้ composite key (ตามสเปค)
+                    If Not hasTransactionGUID Then
+                        Using cmd = conn.CreateCommand()
+                            cmd.CommandText = "ALTER TABLE Transactions ADD COLUMN TransactionGUID TEXT(36)"
                             cmd.ExecuteNonQuery()
                         End Using
                     End If

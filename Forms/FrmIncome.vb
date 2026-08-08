@@ -247,14 +247,15 @@ Namespace TempleAccounting
                             New Tuple(Of String, Object)("@n", txtRemark.Text.Trim),
                             New Tuple(Of String, Object)("@id", _editId))
                     Else
-                        ' โหมดเพิ่มใหม่: INSERT
-                        targetID = Db.InsertAndGetId(conn, "INSERT INTO Transactions (TranDate, TranType, CategoryID, FundID, BankID, [Detail], Amount, [Note]) VALUES (" & Db.AccessDateLiteral(dtpDate.Value.Date) & ",'Income',@c,@f,@b,@de,@a,@n)",
+                        ' โหมดเพิ่มใหม่: INSERT (สร้าง TransactionGUID ทันทีตอนบันทึก — ใช้ระบุตัวตน/กันซ้ำข้ามเครื่อง)
+                        targetID = Db.InsertAndGetId(conn, "INSERT INTO Transactions (TranDate, TranType, CategoryID, FundID, BankID, [Detail], Amount, [Note], TransactionGUID) VALUES (" & Db.AccessDateLiteral(dtpDate.Value.Date) & ",'Income',@c,@f,@b,@de,@a,@n,@g)",
                             New Tuple(Of String, Object)("@c", CInt(cboCategory.SelectedValue)),
                             New Tuple(Of String, Object)("@f", CInt(cboFund.SelectedValue)),
                             New Tuple(Of String, Object)("@b", bankValue),
                             New Tuple(Of String, Object)("@de", txtDescription.Text.Trim),
                             New Tuple(Of String, Object)("@a", amt),
-                            New Tuple(Of String, Object)("@n", txtRemark.Text.Trim))
+                            New Tuple(Of String, Object)("@n", txtRemark.Text.Trim),
+                            New Tuple(Of String, Object)("@g", Guid.NewGuid().ToString("D")))
                     End If
 
                     ' 2. จัดการรูปภาพใบเสร็จ (ถ้ามีการเลือกใหม่ หรือวางจากคลิปบอร์ด)

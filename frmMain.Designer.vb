@@ -26,6 +26,7 @@ Namespace TempleAccounting
         Friend btnVip As Button
         Friend btnActivity As Button
         Friend btnMultiImport As Button
+        Friend btnExportTransfer As Button
         Private pnlSidebarSpacer As Panel
         Private pnlContent As Panel
         Private pnlOverview As Panel
@@ -94,6 +95,7 @@ Namespace TempleAccounting
             btnVip = New Button()
             btnActivity = New Button()
             btnMultiImport = New Button()
+            btnExportTransfer = New Button()
             btnReport = New Button()
             btnMember = New Button()
             btnExpense = New Button()
@@ -280,6 +282,7 @@ Namespace TempleAccounting
             pnlSidebar.Controls.Add(btnVip)
             pnlSidebar.Controls.Add(btnActivity)
             pnlSidebar.Controls.Add(btnMultiImport)
+            pnlSidebar.Controls.Add(btnExportTransfer)
             pnlSidebar.Controls.Add(btnReport)
             pnlSidebar.Controls.Add(btnMember)
             pnlSidebar.Controls.Add(btnExpense)
@@ -459,6 +462,26 @@ Namespace TempleAccounting
             btnMultiImport.Text = "🖥️ นำเข้าหลายเครื่อง"
             btnMultiImport.TextAlign = ContentAlignment.MiddleLeft
             btnMultiImport.UseVisualStyleBackColor = False
+            ' 
+            ' btnExportTransfer
+            ' 
+            btnExportTransfer.BackColor = Color.Transparent
+            btnExportTransfer.Cursor = Cursors.Hand
+            btnExportTransfer.Dock = DockStyle.Top
+            btnExportTransfer.FlatAppearance.BorderSize = 0
+            btnExportTransfer.FlatAppearance.MouseOverBackColor = Color.FromArgb(CByte(146), CByte(64), CByte(14))
+            btnExportTransfer.FlatStyle = FlatStyle.Flat
+            btnExportTransfer.Font = New Font("Tahoma", 11.25F, FontStyle.Regular, GraphicsUnit.Point, CByte(222))
+            btnExportTransfer.ForeColor = Color.White
+            btnExportTransfer.ImageAlign = ContentAlignment.MiddleLeft
+            btnExportTransfer.Location = New Point(12, 371)
+            btnExportTransfer.Name = "btnExportTransfer"
+            btnExportTransfer.Padding = New Padding(14, 0, 8, 0)
+            btnExportTransfer.Size = New Size(227, 64)
+            btnExportTransfer.TabIndex = 21
+            btnExportTransfer.Text = "📤 ส่งออกไปเครื่องอื่น"
+            btnExportTransfer.TextAlign = ContentAlignment.MiddleLeft
+            btnExportTransfer.UseVisualStyleBackColor = False
             ' 
             ' btnMember
             ' 

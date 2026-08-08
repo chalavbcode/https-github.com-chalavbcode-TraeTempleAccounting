@@ -16,6 +16,7 @@ Namespace TempleAccounting
             AddHandler btnVip.Click, AddressOf NavMenu_Click
             AddHandler btnActivity.Click, AddressOf NavMenu_Click
             AddHandler btnMultiImport.Click, AddressOf NavMenu_Click
+            AddHandler btnExportTransfer.Click, AddressOf NavMenu_Click
             AddHandler btnSetting.Click, AddressOf NavMenu_Click
             AddHandler btnBackup.Click, AddressOf btnBackup_Click
             AddHandler btnRestore.Click, AddressOf btnRestore_Click
@@ -69,6 +70,7 @@ Namespace TempleAccounting
                 ilIcons.Images.Add("vip", MakeIconBitmap("🥇", Color.FromArgb(161, 98, 7)))
                 ilIcons.Images.Add("activity", MakeIconBitmap("🎎", Color.FromArgb(131, 24, 67)))
                 ilIcons.Images.Add("multiimport", MakeIconBitmap("🖥️", Color.FromArgb(16, 185, 129)))
+                ilIcons.Images.Add("exporttransfer", MakeIconBitmap("📤", Color.FromArgb(37, 99, 235)))
                 ilIcons.Images.Add("setting", MakeIconBitmap("⚙️", Color.FromArgb(75, 85, 99)))
                 ilIcons.Images.Add("backup", MakeIconBitmap("💾", Color.FromArgb(5, 150, 105)))
                 ilIcons.Images.Add("restore", MakeIconBitmap("🔄", Color.FromArgb(59, 130, 246)))
@@ -81,6 +83,7 @@ Namespace TempleAccounting
                 ApplyButtonImage(btnVip, "vip")
                 ApplyButtonImage(btnActivity, "activity")
                 ApplyButtonImage(btnMultiImport, "multiimport")
+                ApplyButtonImage(btnExportTransfer, "exporttransfer")
                 ApplyButtonImage(btnSetting, "setting")
                 ApplyButtonImage(btnBackup, "backup")
                 ApplyButtonImage(btnRestore, "restore")
@@ -168,6 +171,7 @@ Namespace TempleAccounting
             ttMain.SetToolTip(btnVip, "จัดการข้อมูลรายชื่อพระสงฆ์และไวยาวัจกร")
             ttMain.SetToolTip(btnActivity, "บันทึกข้อมูลกิจกรรมงานบุญและเทศกาล")
             ttMain.SetToolTip(btnMultiImport, "นำเข้าและรวมข้อมูลธุรกรรมจากหลายเครื่อง/หลาย Flash Drive เข้าสู่ฐานข้อมูลหลัก")
+            ttMain.SetToolTip(btnExportTransfer, "ส่งออกข้อมูลธุรกรรมของเครื่องนี้เป็นไฟล์ .xlsx สำหรับโอนไปเครื่องอื่น (Flash Drive)")
             ttMain.SetToolTip(btnSetting, "ตั้งค่าข้อมูลวัดและข้อมูลพื้นฐานของระบบ")
             ttMain.SetToolTip(btnBackup, "สำรองข้อมูลฐานข้อมูล (Backup Database)")
             ttMain.SetToolTip(btnRestore, "คืนค่าข้อมูลจากไฟล์สำรอง (Restore Database)")

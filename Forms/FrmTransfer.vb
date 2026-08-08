@@ -148,14 +148,15 @@ Namespace TempleAccounting
             Try
                 Using conn = Db.OpenConn()
                     Db.ExecuteNonQuery(conn,
-"INSERT INTO Transactions (TranDate, TranType, FundID, BankID, ToFundID, ToBankID, [Detail], Amount, [Note]) VALUES (" & Db.AccessDateLiteral(dtpDate.Value.Date) & ",'Transfer',@ff,@fb,@tf,@tb,@de,@a,@n)",
+"INSERT INTO Transactions (TranDate, TranType, FundID, BankID, ToFundID, ToBankID, [Detail], Amount, [Note], TransactionGUID) VALUES (" & Db.AccessDateLiteral(dtpDate.Value.Date) & ",'Transfer',@ff,@fb,@tf,@tb,@de,@a,@n,@g)",
 New Tuple(Of String, Object)("@ff", ToDbNullableId(fromFundId)),
 New Tuple(Of String, Object)("@fb", ToDbNullableId(fromBankId)),
 New Tuple(Of String, Object)("@tf", ToDbNullableId(toFundId)),
 New Tuple(Of String, Object)("@tb", ToDbNullableId(toBankId)),
 New Tuple(Of String, Object)("@de", BuildTransferDetail(fromFundId, fromBankId, toFundId, toBankId)),
 New Tuple(Of String, Object)("@a", amt),
-New Tuple(Of String, Object)("@n", txtRemark.Text.Trim))
+New Tuple(Of String, Object)("@n", txtRemark.Text.Trim),
+New Tuple(Of String, Object)("@g", Guid.NewGuid().ToString("D")))
                     MessageBox.Show("✅ โอนเงินภายในสำเร็จ!", "สำเร็จ", MessageBoxButtons.OK, MessageBoxIcon.Information)
                     ResetEntry(False)
                     dtpDate.Value = keepDate

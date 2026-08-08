@@ -162,6 +162,17 @@
     <EmbeddedResource Include="Forms\FrmMultiMachineImport.resx">
       <DependentUpon>FrmMultiMachineImport.vb</DependentUpon>
     </EmbeddedResource>
+    <Compile Include="Forms\FrmExportForTransfer.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FrmExportForTransfer.Designer.vb">
+      <DependentUpon>FrmExportForTransfer.vb</DependentUpon>
+      <SubType>Form</SubType>
+    </Compile>
+    <EmbeddedResource Include="Forms\FrmExportForTransfer.resx">
+      <DependentUpon>FrmExportForTransfer.vb</DependentUpon>
+    </EmbeddedResource>
+    <Compile Include="TransferFormat.vb" />
     <Compile Include="Forms\FrmReports.vb">
       <SubType>Form</SubType>
     </Compile>

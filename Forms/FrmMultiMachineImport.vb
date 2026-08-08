@@ -61,6 +61,8 @@ Namespace TempleAccounting
             Public Property SuspectedDuplicateCount As Integer
             Public Property DateWarningCount As Integer
             Public Property RowErrorCount As Integer
+            Public Property SchemaWarning As String         ' ไฟล์ export จากเวอร์ชันโปรแกรมไม่ตรง (อ่านต่อแบบระวัง)
+            Public Property DeclaredRowCount As Integer    ' RowCount ที่ประกาศใน Metadata (ตรวจไฟล์ถูกตัดทอน/เสียหาย)
         End Class
 
         ' ====================== State ======================
@@ -328,7 +330,14 @@ Namespace TempleAccounting
             If analysis.SchemaError.Length > 0 Then
                 Log("❌ ไฟล์ " & Path.GetFileName(filePath) & ": " & analysis.SchemaError)
             Else
-                Log("📄 " & Path.GetFileName(filePath) & ": " & analysis.Rows.Count & " แถว | เครื่อง=" & analysis.MachineID & " (" & analysis.MachineIDSource & ")")
+                Log("📄 " & Path.GetFileName(filePath) & ": " & analysis.Rows.Count & " แถว | เครื่อง=" & analysis.MachineID & " (" & analysis.MachineIDSource & ")" &
+                    If(analysis.SchemaWarning.Length > 0, " | ⚠️ " & analysis.SchemaWarning, ""))
+                ' เตือนชัดเจนเมื่อไฟล์ export มาจากเวอร์ชันโปรแกรมที่ต่างกัน (สเปคข้อ 3) — ไม่พังเงียบๆ
+                If analysis.SchemaWarning.Length > 0 Then
+                    MessageBox.Show(analysis.SchemaWarning & vbCrLf & "ไฟล์: " & Path.GetFileName(filePath) & vbCrLf & vbCrLf &
+                                    "ระบบจะพยายามอ่านต่อไปด้วยความระมัดระวัง แต่ผลลัพธ์อาจคลาดเคลื่อน — ควรอัปเดตโปรแกรมทุกเครื่องให้เป็นเวอร์ชันเดียวกัน",
+                                    "คำเตือน: เวอร์ชันไฟล์ไม่ตรง", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                End If
             End If
         End Sub
 
@@ -357,6 +366,42 @@ Namespace TempleAccounting
                     If sheetNames.Count = 0 Then
                         analysis.SchemaError = "ไม่พบชีตข้อมูลในไฟล์ Excel"
                         Return analysis
+                    End If
+
+                    ' [Metadata Block] ไฟล์ export ใหม่จาก FrmExportForTransfer จะมีชีต Metadata (FieldName/FieldValue)
+                    ' อ่าน Header ก่อน: SchemaVersion, MachineID (เป็นหลัก ไม่ใช้ชื่อไฟล์), ExportDateTime, RowCount
+                    Dim metadata As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
+                    For Each sheetName In sheetNames
+                        Dim dtMeta = LoadWorksheet(excelConn, sheetName)
+                        Dim metaNameCol = FindColumn(dtMeta, New String() {"fieldname"})
+                        Dim metaValueCol = FindColumn(dtMeta, New String() {"fieldvalue"})
+                        If metaNameCol = "" OrElse metaValueCol = "" Then Continue For
+                        For Each r As DataRow In dtMeta.Rows
+                            Dim k = SafeCellText(r, metaNameCol)
+                            If k.Length > 0 Then metadata(k) = SafeCellText(r, metaValueCol)
+                        Next
+                        Exit For
+                    Next
+
+                    If metadata.Count > 0 Then
+                        ' MachineID จาก Metadata = หลัก (authoritative) — ชนะค่าจากคอลัมน์ใน Data
+                        Dim metaMachine = If(metadata.ContainsKey(TransferFormat.FieldMachineID), metadata(TransferFormat.FieldMachineID), "")
+                        If metaMachine.Length > 0 Then
+                            analysis.MachineID = metaMachine
+                            analysis.MachineIDSource = "ฝังในไฟล์"
+                        End If
+
+                        ' SchemaVersion — ไฟล์จากโปรแกรมเวอร์ชันอื่น: เตือนชัดเจน ไม่พยายามอ่านแล้วพังเงียบๆ
+                        Dim ver = If(metadata.ContainsKey(TransferFormat.FieldSchemaVersion), metadata(TransferFormat.FieldSchemaVersion), "")
+                        If ver.Length > 0 AndAlso Not ver.Equals(TransferFormat.SchemaVersion, StringComparison.OrdinalIgnoreCase) Then
+                            analysis.SchemaWarning = "ไฟล์นี้ถูก export จากโปรแกรมเวอร์ชันอื่น (Schema v" & ver &
+                                ") — ระบบรองรับ v" & TransferFormat.SchemaVersion & " อาจอ่านข้อมูลผิดพลาด"
+                        End If
+
+                        ' RowCount — ใช้ตรวจว่าไฟล์ถูกตัดทอน/เสียหายหรือไม่ (ในตอนท้ายหลังอ่าน Data ครบ)
+                        Dim declared As Integer = 0
+                        If metadata.ContainsKey(TransferFormat.FieldRowCount) Then Integer.TryParse(metadata(TransferFormat.FieldRowCount), declared)
+                        analysis.DeclaredRowCount = declared
                     End If
 
                     For Each sheetName In sheetNames
@@ -433,7 +478,16 @@ Namespace TempleAccounting
                         Next
 
                         analysis.Rows = rows
-                        analysis.SchemaError = ""
+
+                        ' RowCount verification — RowCount ใน Metadata เป็นหลัก: ถ้าไม่ตรง แสดงว่าไฟล์ถูกตัดทอน/เสียหาย
+                        If analysis.DeclaredRowCount > 0 AndAlso rows.Count <> analysis.DeclaredRowCount Then
+                            analysis.SchemaError = "จำนวนแถวไม่ตรงกับที่ประกาศใน Metadata (RowCount=" &
+                                analysis.DeclaredRowCount.ToString("#,##0") & " แต่พบ " & rows.Count.ToString("#,##0") &
+                                ") — ไฟล์อาจถูกตัดทอนหรือเสียหาย กรุณา export ใหม่จากเครื่องต้นทาง"
+                            analysis.SchemaWarning = ""
+                        Else
+                            analysis.SchemaError = ""
+                        End If
                         Return analysis
                     Next
 
@@ -677,7 +731,13 @@ Namespace TempleAccounting
                 If f.SchemaError.Length > 0 Then
                     warnings = "❌ " & f.SchemaError
                 Else
-                    If f.DateWarningCount > 0 Then warnings &= "⚠️ วันที่ผิดปกติ " & f.DateWarningCount.ToString("#,##0") & " รายการ"
+                    If f.SchemaWarning.Length > 0 Then
+                        warnings = "⚠️ " & f.SchemaWarning
+                    End If
+                    If f.DateWarningCount > 0 Then
+                        If warnings.Length > 0 Then warnings &= " | "
+                        warnings &= "วันที่ผิดปกติ " & f.DateWarningCount.ToString("#,##0") & " รายการ"
+                    End If
                     If f.RowErrorCount > 0 Then
                         If warnings.Length > 0 Then warnings &= " | "
                         warnings &= "แถวผิดพลาด " & f.RowErrorCount.ToString("#,##0")

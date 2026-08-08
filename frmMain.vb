@@ -161,6 +161,10 @@ Namespace TempleAccounting
                     SetOverviewCompactMode(False)
                     ShowFormInPanel(New FrmMultiMachineImport(), "🖥️ นำเข้าข้อมูลหลายเครื่อง (หลาย Flash Drive)")
 
+                Case "btnExportTransfer"
+                    SetOverviewCompactMode(False)
+                    ShowFormInPanel(New FrmExportForTransfer(), "📤 ส่งออกข้อมูลไปเครื่องอื่น (Export to Another Machine)")
+
                 Case "btnVip"
                     SetOverviewCompactMode(False)
                     ShowFormInPanel(New FrmTempleSetting(), "🥇 ข้อมูลวัด - พระ/อาวาส/ผู้ทำบัญชี/พร้อมเพย์")
