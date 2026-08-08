@@ -69,7 +69,7 @@ Namespace TempleAccounting
             ttMain.SetToolTip(btnPrintSummary, "พิมพ์รายงานสรุปรายรับ-รายจ่าย แบบย่อ (แยกตามประเภทรายการ — เลือกเครื่องพิมพ์ได้)")
             ttMain.SetToolTip(btnPrintReport, "🖨️ เลือกเครื่องพิมพ์แล้วพิมพ์รายงานทันที (ตามรายงานที่เปิดล่าสุด: ละเอียดหรือย่อ)" & vbCrLf &
                               "แสดงรายชื่อเครื่องพิมพ์ทั้งหมดในระบบ — USB, Network, PDF, Thermal")
-            ttMain.SetToolTip(btnSavePdf, "บันทึกรายงานเป็นไฟล์ PDF (A4) — ใช้เครื่องพิมพ์เสมือน Microsoft Print to PDF" & vbCrLf & "บันทึกแบบเดียวกับรายงานที่เพิ่งดู/พิมพ์ล่าสุด (ละเอียดหรือย่อ)")
+            ttMain.SetToolTip(btnSavePdf, "บันทึกรายงานเป็นไฟล์ PDF (A4) — เปิด Print Preview ให้ตรวจดูก่อน แล้วกดปุ่ม 💾 บันทึกเป็น PDF บน Toolbar" & vbCrLf & "บันทึกแบบเดียวกับรายงานที่เพิ่งดู/พิมพ์ล่าสุด (ละเอียดหรือย่อ)")
             ttMain.SetToolTip(btnLedger, "แสดงรายงานสมุดบัญชีรายวัน (เรียงตามวันที่)")
             ttMain.SetToolTip(btnSummaryIncome, "แสดงสรุปรายรับแยกตามประเภทรายการ")
             ttMain.SetToolTip(btnSummaryExpense, "แสดงสรุปรายจ่ายแยกตามประเภทรายการ")
@@ -483,7 +483,7 @@ Namespace TempleAccounting
 
             area.AxisY.IsStartedFromZero = False
             area.AxisY.LabelStyle.Format = "฿#,##0"
-            area.AxisY.LabelStyle.Font = New Font("Tahoma", 9F)
+            area.AxisY.LabelStyle.Font = New Font("Tahoma", 9.0F)
             area.AxisY.Title = "จำนวนเงิน (บาท)"
             area.AxisY.MajorGrid.Enabled = True
             area.AxisY.MajorGrid.LineColor = Color.LightGray
@@ -614,35 +614,35 @@ Namespace TempleAccounting
 
         Private Sub dtpFrom_ValueChanged(sender As Object, e As EventArgs) Handles dtpFrom.ValueChanged
             If Not Me.IsHandleCreated Then Return
-            
+
             ' ป้องกันการถามซ้ำซ้อนตอน Load
             Static lastDate As Date = Date.MinValue
             If dtpFrom.Value.Date = lastDate Then Return
             lastDate = dtpFrom.Value.Date
 
             Dim result = MessageBox.Show($"คุณเปลี่ยนวันที่เริ่มต้นเป็น {dtpFrom.Value:dd/MM/yyyy} ต้องการกรอก 'ยอดยกมา' เองหรือไม่?{vbCrLf}{vbCrLf}(ถ้าเลือก 'ไม่ใช่' ระบบจะคำนวณจากฐานข้อมูลให้อัตโนมัติ)", "ยอดยกมา", MessageBoxButtons.YesNo, MessageBoxIcon.Question)
-            
+
             If result = DialogResult.Yes Then
                 txtBalance.Focus()
                 txtBalance.SelectAll()
-                
+
                 ' ทำให้ช่องกรอกยอดยกมาเด่นขึ้น (Blink effect แบบง่าย)
                 Dim originalColor = txtBalance.BackColor
                 Dim blinkTimer As New Timer() With {.Interval = 300}
                 Dim count = 0
                 AddHandler blinkTimer.Tick, Sub()
-                    count += 1
-                    If count Mod 2 = 1 Then
-                        txtBalance.BackColor = Color.Yellow
-                    Else
-                        txtBalance.BackColor = originalColor
-                    End If
-                    If count >= 6 Then
-                        blinkTimer.Stop()
-                        txtBalance.BackColor = originalColor
-                        blinkTimer.Dispose()
-                    End If
-                End Sub
+                                                count += 1
+                                                If count Mod 2 = 1 Then
+                                                    txtBalance.BackColor = Color.Yellow
+                                                Else
+                                                    txtBalance.BackColor = originalColor
+                                                End If
+                                                If count >= 6 Then
+                                                    blinkTimer.Stop()
+                                                    txtBalance.BackColor = originalColor
+                                                    blinkTimer.Dispose()
+                                                End If
+                                            End Sub
                 blinkTimer.Start()
             End If
         End Sub
@@ -657,7 +657,7 @@ Namespace TempleAccounting
                     ' คำนวณแยกเพื่อความโปร่งใสตามคำขอผู้ใช้
                     Dim sqlBase = "FROM Transactions t WHERE DateSerial(IIF(Year(t.TranDate) > 2400, Year(t.TranDate) - 543, Year(t.TranDate)), Month(t.TranDate), Day(t.TranDate)) < " & Db.AccessDateLiteral(startDate)
                     Dim params As New List(Of Tuple(Of String, Object))()
-                    
+
                     If fundID <> 0 Then
                         sqlBase &= " AND t.FundID = @f"
                         params.Add(New Tuple(Of String, Object)("@f", fundID))
@@ -735,9 +735,9 @@ Namespace TempleAccounting
 
                 Dim fundID = If(cboFund.SelectedValue IsNot Nothing, CInt(cboFund.SelectedValue), 0)
                 Dim bankID = If(cboBank.SelectedValue IsNot Nothing, CInt(cboBank.SelectedValue), 0)
-                
+
                 System.Diagnostics.Debug.WriteLine("[DEBUG FrmReports] btnPrintDetail_Click - startDate: " & startDate & ", endDate: " & endDate)
-                
+
                 ' 2. Pass explicit dates to the report — เปิด Print Preview ตรง ๆ (ไม่ถามเครื่องพิมพ์ก่อน)
                 '    ผู้ใช้เลือกเครื่องพิมพ์ได้จากปุ่ม Print ในแถบเครื่องมือของหน้าต่าง Preview
                 _lastReportMode = IncomeExpenseReport.ReportModes.Detailed
@@ -755,9 +755,9 @@ Namespace TempleAccounting
 
                 Dim fundID = If(cboFund.SelectedValue IsNot Nothing, CInt(cboFund.SelectedValue), 0)
                 Dim bankID = If(cboBank.SelectedValue IsNot Nothing, CInt(cboBank.SelectedValue), 0)
-                
+
                 System.Diagnostics.Debug.WriteLine("[DEBUG FrmReports] btnPrintSummary_Click - startDate: " & startDate & ", endDate: " & endDate)
-                
+
                 ' 2. Pass explicit dates to the report — เปิด Print Preview ตรง ๆ (ไม่ถามเครื่องพิมพ์ก่อน)
                 _lastReportMode = IncomeExpenseReport.ReportModes.Summary
                 IncomeExpenseReport.ShowPreview(startDate, endDate, Me, IncomeExpenseReport.ReportModes.Summary, GetManualBalance(), If(fundID = 0, Nothing, fundID), If(bankID = 0, Nothing, bankID))
@@ -774,8 +774,8 @@ Namespace TempleAccounting
                 Dim fundID = If(cboFund.SelectedValue IsNot Nothing, CInt(cboFund.SelectedValue), 0)
                 Dim bankID = If(cboBank.SelectedValue IsNot Nothing, CInt(cboBank.SelectedValue), 0)
 
-                ' บันทึกแบบเดียวกับรายงานที่เพิ่งดู/พิมพ์ล่าสุด (ค่าเริ่มต้น: ละเอียด)
-                IncomeExpenseReport.ShowSavePdfDialog(startDate, endDate, Me, _lastReportMode, GetManualBalance(), If(fundID = 0, Nothing, fundID), If(bankID = 0, Nothing, bankID))
+                ' เปิด Print Preview ก่อน — ผู้ใช้ตรวจดูรายงานทุกหน้า แล้วกดปุ่ม "💾 บันทึกเป็น PDF" บน Toolbar ได้โดยตรง
+                IncomeExpenseReport.ShowPreviewWithPdfExport(startDate, endDate, Me, _lastReportMode, GetManualBalance(), If(fundID = 0, Nothing, fundID), If(bankID = 0, Nothing, bankID))
             Catch ex As Exception
                 MessageBox.Show("เกิดข้อผิดพลาด: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
             End Try

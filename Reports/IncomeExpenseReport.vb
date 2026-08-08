@@ -660,6 +660,74 @@ Namespace TempleAccounting
         End Sub
 
         ''' <summary>
+        ''' เปิด Print Preview พร้อมปุ่ม "💾 บันทึกเป็น PDF" เพิ่มในแถบเครื่องมือของหน้าต่าง Preview
+        ''' ให้ผู้ใช้ตรวจดูรายงานก่อน แล้วจึงบันทึกเป็น PDF จากหน้าจอ Preview ได้โดยตรง
+        ''' เหมาะสำหรับ btnSavePdf: ดูรายงานก่อน → กดบันทึก PDF จาก Toolbar
+        ''' </summary>
+        Public Shared Sub ShowPreviewWithPdfExport(fromDate As Date, toDate As Date, Optional owner As IWin32Window = Nothing, Optional mode As ReportModes = ReportModes.Detailed, Optional manualOpeningBalance As Decimal? = Nothing, Optional fundID As Integer? = Nothing, Optional bankID As Integer? = Nothing)
+            Try
+                Dim doc As New IncomeExpenseReport(fromDate, toDate, mode, manualOpeningBalance, fundID, bankID)
+                ApplySessionPrinter(doc)
+
+                Using ppd As New PrintPreviewDialog()
+                    ppd.Document = doc
+                    ppd.WindowState = FormWindowState.Maximized
+                    ppd.Width = 1200 : ppd.Height = 800
+                    ppd.PrintPreviewControl.Rows = 1
+                    ppd.PrintPreviewControl.Columns = 1
+                    ppd.PrintPreviewControl.AutoZoom = True
+
+                    ' เพิ่มปุ่ม "💾 บันทึกเป็น PDF" ใน Toolbar ของหน้าต่าง Preview
+                    AddPdfButtonToPreviewToolbar(ppd, fromDate, toDate, owner, mode, manualOpeningBalance, fundID, bankID)
+
+                    If owner IsNot Nothing Then
+                        ppd.ShowDialog(owner)
+                    Else
+                        ppd.ShowDialog()
+                    End If
+                End Using
+            Catch ex As Exception
+                MessageBox.Show("ไม่สามารถเปิดดูรายงานได้: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            End Try
+        End Sub
+
+        ''' <summary>
+        ''' ค้นหา ToolStrip ใน PrintPreviewDialog และเพิ่มปุ่ม "💾 บันทึกเป็น PDF"
+        ''' </summary>
+        Private Shared Sub AddPdfButtonToPreviewToolbar(ppd As PrintPreviewDialog,
+            fromDate As Date, toDate As Date, owner As IWin32Window,
+            mode As ReportModes, manualOpeningBalance As Decimal?,
+            fundID As Integer?, bankID As Integer?)
+            Try
+                ' ค้นหา ToolStrip ใน child controls ของ PrintPreviewDialog (อยู่ Dock=Top)
+                Dim toolStrip As ToolStrip = Nothing
+                For Each ctrl As Control In ppd.Controls
+                    toolStrip = TryCast(ctrl, ToolStrip)
+                    If toolStrip IsNot Nothing Then Exit For
+                Next
+
+                If toolStrip Is Nothing Then Return
+
+                ' เพิ่มเส้นกั้นก่อนปุ่มของเรา
+                toolStrip.Items.Add(New ToolStripSeparator())
+
+                ' เพิ่มปุ่ม "💾 บันทึกเป็น PDF" — อยู่ถัดจากปุ่ม Print เดิมที่ toolbar
+                Dim btnPdf As New ToolStripButton("💾 บันทึกเป็น PDF")
+                btnPdf.ToolTipText = "บันทึกรายงานที่แสดงอยู่นี้เป็นไฟล์ PDF (A4) — ตรวจสอบข้อมูลให้ถูกต้องก่อนบันทึก"
+                btnPdf.DisplayStyle = ToolStripItemDisplayStyle.ImageAndText
+
+                AddHandler btnPdf.Click,
+                    Sub(s As Object, ev As EventArgs)
+                        ShowSavePdfDialog(fromDate, toDate, owner, mode, manualOpeningBalance, fundID, bankID)
+                    End Sub
+
+                toolStrip.Items.Add(btnPdf)
+            Catch
+                ' ถ้าเพิ่มปุ่มไม่สำเร็จ ให้ทำงานต่อไปโดยไม่มีปุ่ม PDF (ผู้ใช้ยังพิมพ์จาก toolbar เดิมได้)
+            End Try
+        End Sub
+
+        ''' <summary>
         ''' เปิด PrintDialog ให้เลือกเครื่องพิมพ์ แล้วพิมพ์โดยตรง (ไม่มี Print Preview)
         ''' เมื่อเลือกเครื่องพิมพ์แล้วจะถูกจำไว้ (_selectedPrinterName) สำหรับงานพิมพ์/พรีวิวครั้งต่อไป
         ''' </summary>
