@@ -61,7 +61,7 @@ Namespace TempleAccounting
 
         Private Const FinalSummaryRows As Integer = 3
         Private Const FinalSignatureBlockHeight As Integer = 148  ' เท่ากับ ReportEngine.totalSignatureHeight (24+52+14+26+8+24) เพื่อกันส่วนเซ็นต์ล้นขอบล่าง
-        Private Const FinalFooterGapHeight As Integer = 16       ' ตรงกับระยะ Layout Box ล่างสุดของบล็อกเซ็นต์จากขอบล่าง (12px + ชดเชยกึ่งกลางกล่อง ~4px) ใน ReportEngine — glyph จริง ≈12px (0.3 ซม.)
+        Private Const FinalFooterGapHeight As Integer = 12       ' ตรงกับระยะ Layout Box ล่างสุดของบล็อกเซ็นต์จากขอบล่าง (8px gap + ชดเชยกึ่งกลางกล่อง ~4px) — glyph จริง ≈8px (≈2 มม.)
         Private Const SectionGap As Integer = 12               ' Gap between left/right sections
 
         ''' <summary>
@@ -392,7 +392,7 @@ Namespace TempleAccounting
             ' Minimum top gap = 4px
             Dim topGap = 4
 
-            ' Total: 88 + 148 + 16 + 4 = 256px (กันส่วนสรุป+เซ็นต์ล้นหน้าสุดท้าย)
+            ' Total: 88 + 148 + 12 + 4 = 252px (กันส่วนสรุป+เซ็นต์ล้นหน้าสุดท้าย — ชิดขอบล่าง 2 มม.)
             Return summaryHeight + signatureHeight + footerGap + topGap
         End Function
 
