@@ -738,13 +738,15 @@ Namespace TempleAccounting
         End Sub
 
         ''' <summary>
-        ''' จัดรูปแบบชื่อผู้ลงนาม: (   {ชื่อ}   ) — ถ้าไม่มีชื่อในระบบให้ใช้จุดสำรอง
+        ''' จัดรูปแบบชื่อผู้ลงนาม: ( {ชื่อ} ) — จากข้อมูลจริงใน TempleSetting (ผ่าน _templateInfo)
+        ''' ถ้าและเฉพาะถ้าชื่อในระบบว่างเปล่า/เป็น NULL จึงใช้ ( .................................... ) สำรอง
+        ''' ห้าม hardcode จุดสำรองเมื่อมีชื่อจริงในฐานข้อมูล
         ''' </summary>
         Private Shared Function FormatSignerName(name As String) As String
             If String.IsNullOrWhiteSpace(name) Then
-                Return "(   ....................................   )"
+                Return "( .................................... )"
             End If
-            Return "(   " & name.Trim() & "   )"
+            Return "( " & name.Trim() & " )"
         End Function
 
         ''' <summary>
