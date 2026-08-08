@@ -61,7 +61,7 @@ Namespace TempleAccounting
 
         Private Const FinalSummaryRows As Integer = 3
         Private Const FinalSignatureBlockHeight As Integer = 148  ' เท่ากับ ReportEngine.totalSignatureHeight (24+52+14+26+8+24) เพื่อกันส่วนเซ็นต์ล้นขอบล่าง
-        Private Const FinalFooterGapHeight As Integer = 20       ' Increased from 8 to match the 20px shift-up in ReportEngine
+        Private Const FinalFooterGapHeight As Integer = 19       ' ตรงกับระยะล่างสุดของบล็อกเซ็นต์จากขอบล่าง (0.5 ซม. ≈ 19px) ใน ReportEngine
         Private Const SectionGap As Integer = 12               ' Gap between left/right sections
 
         ''' <summary>

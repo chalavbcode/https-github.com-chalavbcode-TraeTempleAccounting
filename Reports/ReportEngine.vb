@@ -1036,8 +1036,9 @@ Namespace TempleAccounting
             Dim totalSignatureHeight = labelHeight + labelToSignLine + signLineToName + nameHeight + nameToPosition + positionHeight
 
             ' Position signature block - both blocks share same bottom Y
-            ' Shifting up by 24 pixels to keep every line comfortably within the printable bottom margin
-            Dim blockBottom = pageBottom - 24
+            ' วางบล็อกทั้งบล็อกให้บรรทัดล่างสุด (เจ้าอาวาส/ไวยาวัจกร) ห่างจากขอบล่างที่พิมพ์ได้ ~0.5 ซม. (≈19px @ 96 DPI)
+            ' ยังคงระยะห่างภายในบล็อกตามเดิม (ไม่แก้ labelToSignLine/signLineToName ฯลฯ)
+            Dim blockBottom = pageBottom - 19
             Dim minimumTop = currentY + 12
             If blockBottom - totalSignatureHeight < minimumTop Then
                 blockBottom = minimumTop + totalSignatureHeight + 8
