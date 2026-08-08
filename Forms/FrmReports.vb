@@ -44,7 +44,7 @@ Namespace TempleAccounting
                 SetupFilterEnterNavigation()
                 SetupToolTips()
                 ' ปรับขนาดปุ่ม toolbar ให้เท่ากันทั้งแถว + ปรับฟอนต์ข้อความไทยให้เต็มปุ่ม
-                UiFitter.UniformButtonGroup(btnPrintDetail, btnPrintSummary, btnSummaryIncome, btnSummaryExpense, btnShowChart, btnMonthly, btnLedger, btnPrint)
+                UiFitter.UniformButtonGroup(btnPrintDetail, btnPrintSummary, btnSummaryIncome, btnSummaryExpense, btnShowChart, btnMonthly, btnLedger, btnPrint, btnPrintReport)
                 UiFitter.AutoFitFormButtons(Me)
                 UiFitter.DisableComboBoxWheel(Me)
                 btnLedger_Click(Nothing, EventArgs.Empty)
@@ -66,8 +66,10 @@ Namespace TempleAccounting
             ttMain.SetToolTip(btnCalcBalance, "คลิกเพื่อคำนวณยอดยกมาจริงจากฐานข้อมูล (คำนวณจาก รายรับ - รายจ่าย สะสม)")
             ttMain.SetToolTip(btnRefresh, "ดึงข้อมูลรายงานใหม่ตามเงื่อนไขที่เลือก (Enter)")
             ttMain.SetToolTip(btnPrint, "ส่งออกข้อมูลที่แสดงในตารางเป็นไฟล์ Excel (CSV)")
-            ttMain.SetToolTip(btnPrintDetail, "พิมพ์รายงานสรุปรายรับ-รายจ่าย แบบแสดงรายละเอียดทุกรายการ")
-            ttMain.SetToolTip(btnPrintSummary, "พิมพ์รายงานสรุปรายรับ-รายจ่าย แบบย่อ (แยกตามประเภทรายการ)")
+            ttMain.SetToolTip(btnPrintDetail, "พิมพ์รายงานสรุปรายรับ-รายจ่าย แบบแสดงรายละเอียดทุกรายการ (เลือกเครื่องพิมพ์ได้)")
+            ttMain.SetToolTip(btnPrintSummary, "พิมพ์รายงานสรุปรายรับ-รายจ่าย แบบย่อ (แยกตามประเภทรายการ — เลือกเครื่องพิมพ์ได้)")
+            ttMain.SetToolTip(btnPrintReport, "🖨️ เลือกเครื่องพิมพ์แล้วพิมพ์รายงานทันที (ตามรายงานที่เปิดล่าสุด: ละเอียดหรือย่อ)" & vbCrLf &
+                              "แสดงรายชื่อเครื่องพิมพ์ทั้งหมดในระบบ — USB, Network, PDF, Thermal")
             ttMain.SetToolTip(btnSavePdf, "บันทึกรายงานเป็นไฟล์ PDF (A4) — ใช้เครื่องพิมพ์เสมือน Microsoft Print to PDF" & vbCrLf & "บันทึกแบบเดียวกับรายงานที่เพิ่งดู/พิมพ์ล่าสุด (ละเอียดหรือย่อ)")
             ttMain.SetToolTip(btnLedger, "แสดงรายงานสมุดบัญชีรายวัน (เรียงตามวันที่)")
             ttMain.SetToolTip(btnSummaryIncome, "แสดงสรุปรายรับแยกตามประเภทรายการ")
@@ -737,9 +739,10 @@ Namespace TempleAccounting
                 
                 System.Diagnostics.Debug.WriteLine("[DEBUG FrmReports] btnPrintDetail_Click - startDate: " & startDate & ", endDate: " & endDate)
                 
-                ' 2. Pass explicit dates to the report
+                ' 2. Pass explicit dates to the report — เปิด PrintDialog เลือกเครื่องพิมพ์ก่อนแสดงตัวอย่าง
+                '    เมื่อผู้ใช้กด Print ในหน้าต่าง Preview จะใช้เครื่องพิมพ์ที่เลือกไว้แล้ว
                 _lastReportMode = IncomeExpenseReport.ReportModes.Detailed
-                IncomeExpenseReport.ShowPreview(startDate, endDate, Me, IncomeExpenseReport.ReportModes.Detailed, GetManualBalance(), If(fundID = 0, Nothing, fundID), If(bankID = 0, Nothing, bankID))
+                IncomeExpenseReport.ShowPreviewWithPrinterSelection(startDate, endDate, Me, IncomeExpenseReport.ReportModes.Detailed, GetManualBalance(), If(fundID = 0, Nothing, fundID), If(bankID = 0, Nothing, bankID))
             Catch ex As Exception
                 MessageBox.Show("เกิดข้อผิดพลาด: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
             End Try
@@ -756,9 +759,9 @@ Namespace TempleAccounting
                 
                 System.Diagnostics.Debug.WriteLine("[DEBUG FrmReports] btnPrintSummary_Click - startDate: " & startDate & ", endDate: " & endDate)
                 
-                ' 2. Pass explicit dates to the report
+                ' 2. Pass explicit dates to the report — เปิด PrintDialog เลือกเครื่องพิมพ์ก่อนแสดงตัวอย่าง
                 _lastReportMode = IncomeExpenseReport.ReportModes.Summary
-                IncomeExpenseReport.ShowPreview(startDate, endDate, Me, IncomeExpenseReport.ReportModes.Summary, GetManualBalance(), If(fundID = 0, Nothing, fundID), If(bankID = 0, Nothing, bankID))
+                IncomeExpenseReport.ShowPreviewWithPrinterSelection(startDate, endDate, Me, IncomeExpenseReport.ReportModes.Summary, GetManualBalance(), If(fundID = 0, Nothing, fundID), If(bankID = 0, Nothing, bankID))
             Catch ex As Exception
                 MessageBox.Show("เกิดข้อผิดพลาด: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
             End Try
@@ -774,6 +777,26 @@ Namespace TempleAccounting
 
                 ' บันทึกแบบเดียวกับรายงานที่เพิ่งดู/พิมพ์ล่าสุด (ค่าเริ่มต้น: ละเอียด)
                 IncomeExpenseReport.ShowSavePdfDialog(startDate, endDate, Me, _lastReportMode, GetManualBalance(), If(fundID = 0, Nothing, fundID), If(bankID = 0, Nothing, bankID))
+            Catch ex As Exception
+                MessageBox.Show("เกิดข้อผิดพลาด: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            End Try
+        End Sub
+
+        ''' <summary>
+        ''' 🖨️ พิมพ์รายงานโดยตรง — เปิด PrintDialog เลือกเครื่องพิมพ์ก่อนพิมพ์ทันที (ไม่มี Print Preview)
+        ''' เหมือนการกด Ctrl+P ใน Word/Excel — แสดงเครื่องพิมพ์ทั้งหมดในระบบ: USB, Network, PDF, Thermal
+        ''' ใช้ประเภทรายงานล่าสุดที่เคยเปิดดู (ละเอียดหรือย่อ)
+        ''' </summary>
+        Private Sub btnPrintReport_Click(sender As Object, e As EventArgs) Handles btnPrintReport.Click
+            Try
+                Dim startDate As DateTime = dtpFrom.Value.Date
+                Dim endDate As DateTime = dtpTo.Value.Date.AddDays(1).AddSeconds(-1)
+
+                Dim fundID = If(cboFund.SelectedValue IsNot Nothing, CInt(cboFund.SelectedValue), 0)
+                Dim bankID = If(cboBank.SelectedValue IsNot Nothing, CInt(cboBank.SelectedValue), 0)
+
+                ' พิมพ์รายงานแบบเดียวกับที่เพิ่งเปิดดู/พิมพ์ล่าสุด (ค่าเริ่มต้น: ละเอียด)
+                IncomeExpenseReport.ShowPrint(startDate, endDate, Me, _lastReportMode, GetManualBalance(), If(fundID = 0, Nothing, fundID), If(bankID = 0, Nothing, bankID))
             Catch ex As Exception
                 MessageBox.Show("เกิดข้อผิดพลาด: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
             End Try

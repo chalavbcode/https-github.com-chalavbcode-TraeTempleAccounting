@@ -15,6 +15,9 @@ Namespace TempleAccounting
         Private _exportFolder As String
         Private _logsFolder As String
         Private _logPath As String
+        Private _masterReceiptsDir As String
+        Private _projectRoot As String
+        Private _projectRootSearched As Boolean
 
         Public ReadOnly Property LogsFolder As String
             Get
@@ -165,28 +168,168 @@ Namespace TempleAccounting
 
         ' ... โค้ดเดิมที่มีอยู่ใน AppPaths.vb ...
 
-        ' --- 1. เพิ่ม Property สำหรับโฟลเดอร์ Receipts ---
-        Public ReadOnly Property ReceiptsDir As String
-                Get
-                    Dim dir = IO.Path.Combine(AppRoot, "Receipts")
-                    If Not IO.Directory.Exists(dir) Then IO.Directory.CreateDirectory(dir)
-                    Return dir
-                End Get
-            End Property
+        ' --- Project Root (find directory containing TempleAccounting.vbproj/.slnx) ---
+        ''' <summary>
+        ''' Finds the project root by walking up from AppRoot, looking for TempleAccounting.vbproj or TempleAccounting.slnx.
+        ''' Returns Nothing if not found (production deployment scenario).
+        ''' </summary>
+        Public ReadOnly Property ProjectRoot As String
+            Get
+                If Not _projectRootSearched Then
+                    _projectRootSearched = True
+                    Try
+                        Dim dir = AppRoot
+                        For i As Integer = 0 To 12
+                            If File.Exists(Path.Combine(dir, "TempleAccounting.vbproj")) OrElse
+                               File.Exists(Path.Combine(dir, "TempleAccounting.slnx")) Then
+                                _projectRoot = dir
+                                Exit For
+                            End If
+                            Dim parent = Directory.GetParent(dir)
+                            If parent Is Nothing Then Exit For
+                            dir = parent.FullName
+                        Next
+                    Catch
+                        _projectRoot = Nothing
+                    End Try
+                End If
+                Return _projectRoot
+            End Get
+        End Property
 
-            ' --- 2. เพิ่ม Method ตรวจสอบและสร้างโฟลเดอร์ทั้งหมด ---
-            Public Sub EnsureDirectoriesExist()
+        ' --- Permanent Master Receipts Directory (survives VS Build/Rebuild) ---
+        ''' <summary>
+        ''' The permanent master receipts directory located at {ProjectRoot}\Receipts.
+        ''' Falls back to {AppRoot}\Receipts when ProjectRoot is not found (production).
+        ''' This directory is OUTSIDE bin\ so it never gets wiped by VS Clean/Rebuild.
+        ''' </summary>
+        Public ReadOnly Property MasterReceiptsDir As String
+            Get
+                If String.IsNullOrEmpty(_masterReceiptsDir) Then
+                    Dim baseFolder As String = If(ProjectRoot IsNot Nothing, ProjectRoot, AppRoot)
+                    _masterReceiptsDir = Path.Combine(baseFolder, "Receipts")
+                    If Not Directory.Exists(_masterReceiptsDir) Then
+                        Directory.CreateDirectory(_masterReceiptsDir)
+                    End If
+                End If
+                Return _masterReceiptsDir
+            End Get
+        End Property
+
+        ' --- ReceiptsDir (primary save target — now points to the permanent master dir) ---
+        Public ReadOnly Property ReceiptsDir As String
+            Get
+                ' During development: save to project-root Receipts (survives rebuilds).
+                ' In production: save to AppRoot\Receipts (which IS the final deployment folder).
+                Return MasterReceiptsDir
+            End Get
+        End Property
+
+        ' --- One-time migration: copy any existing receipt files from legacy locations
+        '     (e.g., old bin\Debug\Receipts) to the permanent master directory ---
+        ''' <summary>
+        ''' Migrates receipt files (*.jpg) from legacy locations (bin\Debug\Receipts etc.)
+        ''' into the permanent MasterReceiptsDir. Non-destructive: skips files that already exist.
+        ''' Call once on application startup.
+        ''' </summary>
+        Public Sub MigrateReceiptsToMaster()
+            Try
+                Dim masterDir = MasterReceiptsDir
+                Dim migratedCount As Integer = 0
+
+                For Each srcFolder As String In GetLegacyReceiptFolders()
+                    If Not Directory.Exists(srcFolder) Then Continue For
+                    ' Skip if source is the master directory itself
+                    If String.Equals(srcFolder.TrimEnd(Path.DirectorySeparatorChar),
+                                    masterDir.TrimEnd(Path.DirectorySeparatorChar),
+                                    StringComparison.OrdinalIgnoreCase) Then
+                        Continue For
+                    End If
+                    Try
+                        For Each filePath As String In Directory.GetFiles(srcFolder, "*.jpg")
+                            Try
+                                Dim fileName = Path.GetFileName(filePath)
+                                Dim destPath = Path.Combine(masterDir, fileName)
+                                If Not File.Exists(destPath) Then
+                                    File.Copy(filePath, destPath, overwrite:=False)
+                                    migratedCount += 1
+                                End If
+                            Catch
+                                ' Skip individual file copy failures silently
+                            End Try
+                        Next
+                    Catch
+                    End Try
+                Next
+
+                If migratedCount > 0 Then
+                    LogStartup($"Migrated {migratedCount} receipt image(s) to permanent master directory: {masterDir}")
+                End If
+            Catch ex As Exception
+                LogCrash(ex, "AppPaths.MigrateReceiptsToMaster")
+            End Try
+        End Sub
+
+        ''' <summary>
+        ''' Legacy receipt folders that may contain images from before the permanent-directory fix.
+        ''' These are searched for migration and also as fallback lookup locations.
+        ''' </summary>
+        Public Function GetLegacyReceiptFolders() As List(Of String)
+            Dim folders As New List(Of String)()
+
+            ' 1. Old location: AppRoot\Receipts (bin\Debug\net10.0-windows\Receipts)
+            folders.Add(Path.Combine(AppRoot, "Receipts"))
+
+            ' 2. Parent of AppRoot (e.g. bin\Debug\net10.0-windows -> bin\Debug)
+            Try
+                Dim parent = Directory.GetParent(AppRoot)
+                If parent IsNot Nothing Then
+                    folders.Add(Path.Combine(parent.FullName, "Receipts"))
+                End If
+            Catch
+            End Try
+
+            ' 3. Project root Receipts (if different from AppRoot — covers legacy project-root saves)
+            If ProjectRoot IsNot Nothing Then
+                folders.Add(Path.Combine(ProjectRoot, "Receipts"))
                 Try
-                    Dim dbDir = IO.Path.GetDirectoryName(DatabaseFile)
-                    If Not IO.Directory.Exists(dbDir) Then IO.Directory.CreateDirectory(dbDir)
-                    If Not IO.Directory.Exists(BackupFolder) Then IO.Directory.CreateDirectory(BackupFolder)
-                    If Not IO.Directory.Exists(ExportFolder) Then IO.Directory.CreateDirectory(ExportFolder)
-                    If Not IO.Directory.Exists(LogsFolder) Then IO.Directory.CreateDirectory(LogsFolder)
-                    If Not IO.Directory.Exists(ReceiptsDir) Then IO.Directory.CreateDirectory(ReceiptsDir)
-                Catch ex As Exception
-                    LogCrash(ex, "AppPaths.EnsureDirectoriesExist")
+                    folders.Add(Path.Combine(ProjectRoot, "Images", "Receipts"))
+                Catch
                 End Try
-            End Sub
+            End If
+
+            ' 4. Current directory Receipts
+            Try
+                folders.Add(Path.Combine(Environment.CurrentDirectory, "Receipts"))
+                folders.Add(Path.Combine(Environment.CurrentDirectory, "Images", "Receipts"))
+            Catch
+            End Try
+
+            ' Deduplicate (case-insensitive)
+            Dim result As New List(Of String)()
+            For Each f As String In folders
+                If Not result.Contains(f, StringComparer.OrdinalIgnoreCase) Then
+                    result.Add(f)
+                End If
+            Next
+            Return result
+        End Function
+
+        ' --- 2. เพิ่ม Method ตรวจสอบและสร้างโฟลเดอร์ทั้งหมด ---
+        Public Sub EnsureDirectoriesExist()
+            Try
+                Dim dbDir = IO.Path.GetDirectoryName(DatabaseFile)
+                If Not IO.Directory.Exists(dbDir) Then IO.Directory.CreateDirectory(dbDir)
+                If Not IO.Directory.Exists(BackupFolder) Then IO.Directory.CreateDirectory(BackupFolder)
+                If Not IO.Directory.Exists(ExportFolder) Then IO.Directory.CreateDirectory(ExportFolder)
+                If Not IO.Directory.Exists(LogsFolder) Then IO.Directory.CreateDirectory(LogsFolder)
+                If Not IO.Directory.Exists(ReceiptsDir) Then IO.Directory.CreateDirectory(ReceiptsDir)
+                ' Ensure master directory is created (triggers property getter which creates if needed)
+                Dim ignore = MasterReceiptsDir
+            Catch ex As Exception
+                LogCrash(ex, "AppPaths.EnsureDirectoriesExist")
+            End Try
+        End Sub
 
         End Module
 End Namespace

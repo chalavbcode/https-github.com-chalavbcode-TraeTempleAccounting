@@ -123,6 +123,13 @@ Module Program
             BootCrash(ex, "Step 4 outer")
         End Try
 
+        ' --- Migrate existing receipt images to permanent master directory (survives VS Rebuild) ---
+        Try
+            TempleAccounting.AppPaths.MigrateReceiptsToMaster()
+        Catch ex As Exception
+            BootCrash(ex, "Step 4b - MigrateReceiptsToMaster")
+        End Try
+
         Dim mainForm As TempleAccounting.frmMain = Nothing
         Try
             mainForm = New TempleAccounting.frmMain()

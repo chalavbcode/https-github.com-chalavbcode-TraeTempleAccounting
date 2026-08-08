@@ -107,37 +107,21 @@ Namespace TempleAccounting
         ''' <summary>
         ''' รายชื่อโฟลเดอร์ที่ใช้ค้นหาใบเสร็จ (ไม่ซ้ำกัน) — ใช้ทั้งในการค้นหาไฟล์
         ''' และแสดงเส้นทางที่ค้นหาเมื่อไม่พบไฟล์
+        ''' ลำดับความสำคัญ: MasterReceiptsDir (ถาวร อยู่รอด Rebuild) อันดับแรก,
+        ''' ตามด้วยโฟลเดอร์เดิม (Legacy) ที่อาจมีไฟล์ใบเสร็จตกค้างอยู่
         ''' </summary>
         Public Shared Function GetReceiptCandidateFolders() As List(Of String)
             Dim folders As New List(Of String)()
 
-            ' 1. โฟลเดอร์มาตรฐาน (ตำแหน่งบันทึกของโปรแกรม)
-            folders.Add(AppPaths.ReceiptsDir)
+            ' 1. PRIMARY: Permanent master receipts directory (project-root Receipts)
+            '    This survives VS Build/Rebuild — always searched first.
+            folders.Add(AppPaths.MasterReceiptsDir)
 
-            ' 2. ข้างโฟลเดอร์ฐานข้อมูล (project root) — ฐานข้อมูลอาจถูกค้นพบสูงขึ้นไปในโครงสร้างไดเรกทอรี
-            Try
-                Dim dbDir = Path.GetDirectoryName(AppPaths.DatabaseFile)
-                If Not String.IsNullOrWhiteSpace(dbDir) Then
-                    Dim projRoot = Directory.GetParent(dbDir).FullName
-                    folders.Add(Path.Combine(projRoot, "Receipts"))
-                    folders.Add(Path.Combine(projRoot, "Images", "Receipts"))
-                End If
-            Catch
-            End Try
-
-            ' 3. โฟลเดอร์พ่อแม่ของ exe (เช่น bin\Debug\Receipts เมื่อรันจาก bin\Debug\net10.0-windows)
-            Try
-                Dim exeParent = Directory.GetParent(AppPaths.AppRoot).FullName
-                folders.Add(Path.Combine(exeParent, "Receipts"))
-            Catch
-            End Try
-
-            ' 4. โฟลเดอร์ทำงานปัจจุบัน
-            Try
-                folders.Add(Path.Combine(Environment.CurrentDirectory, "Receipts"))
-                folders.Add(Path.Combine(Environment.CurrentDirectory, "Images", "Receipts"))
-            Catch
-            End Try
+            ' 2. FALLBACK: Legacy receipt folders (old bin\Debug\Receipts etc.)
+            '    These may still contain images that were saved before the permanent-directory fix.
+            For Each legacyFolder As String In AppPaths.GetLegacyReceiptFolders()
+                folders.Add(legacyFolder)
+            Next
 
             ' ตัดรายการซ้ำ (case-insensitive)
             Dim result As New List(Of String)()

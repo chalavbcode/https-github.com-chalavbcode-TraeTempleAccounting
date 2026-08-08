@@ -37,6 +37,7 @@ Namespace TempleAccounting
         Friend WithEvents btnPrintDetail As Button
         Friend WithEvents btnPrintSummary As Button
         Friend WithEvents btnSavePdf As Button
+        Friend WithEvents btnPrintReport As Button
         Friend WithEvents dgvReport As DataGridView
         Friend WithEvents lblSummary As Label
         Friend WithEvents p As Panel
@@ -85,6 +86,7 @@ Namespace TempleAccounting
             btnPrintSummary = New Button()
             btnPrintDetail = New Button()
             btnSavePdf = New Button()
+            btnPrintReport = New Button()
             lblSummary = New Label()
             dgvReport = New DataGridView()
             chartMonthly = New Chart()
@@ -270,6 +272,7 @@ Namespace TempleAccounting
             ' 
             pa.BackColor = Color.FromArgb(CByte(245), CByte(240), CByte(220))
             pa.Controls.Add(btnSavePdf)
+            pa.Controls.Add(btnPrintReport)
             pa.Controls.Add(btnPrint)
             pa.Controls.Add(btnLedger)
             pa.Controls.Add(btnMonthly)
@@ -428,6 +431,22 @@ Namespace TempleAccounting
             btnSavePdf.TabIndex = 8
             btnSavePdf.Text = "📄 บันทึก PDF"
             btnSavePdf.UseVisualStyleBackColor = False
+            ' 
+            ' btnPrintReport
+            ' 
+            btnPrintReport.BackColor = Color.FromArgb(CByte(22), CByte(163), CByte(74))
+            btnPrintReport.Cursor = Cursors.Hand
+            btnPrintReport.Dock = DockStyle.Right
+            btnPrintReport.FlatAppearance.BorderSize = 0
+            btnPrintReport.FlatStyle = FlatStyle.Flat
+            btnPrintReport.Font = New Font("Tahoma", 9F, FontStyle.Bold)
+            btnPrintReport.ForeColor = Color.White
+            btnPrintReport.Location = New Point(830, 6)
+            btnPrintReport.Name = "btnPrintReport"
+            btnPrintReport.Size = New Size(120, 38)
+            btnPrintReport.TabIndex = 9
+            btnPrintReport.Text = "🖨️ พิมพ์"
+            btnPrintReport.UseVisualStyleBackColor = False
             ' 
             ' lblSummary
             ' 
