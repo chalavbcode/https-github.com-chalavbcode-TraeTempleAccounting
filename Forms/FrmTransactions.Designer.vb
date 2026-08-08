@@ -302,7 +302,7 @@ Namespace TempleAccounting
             btnBrowseReceipt.Name = "btnBrowseReceipt"
             btnBrowseReceipt.Size = New Size(208, 45)
             btnBrowseReceipt.TabIndex = 11
-            btnBrowseReceipt.Text = "� เลือกรูปย้อนหลัง"
+            btnBrowseReceipt.Text = "📂 เลือกรูปย้อนหลัง"
             btnBrowseReceipt.UseVisualStyleBackColor = False
             ' 
             ' btnPasteReceipt
@@ -316,7 +316,7 @@ Namespace TempleAccounting
             btnPasteReceipt.Name = "btnPasteReceipt"
             btnPasteReceipt.Size = New Size(200, 45)
             btnPasteReceipt.TabIndex = 10
-            btnPasteReceipt.Text = "� วางรูปย้อนหลัง"
+            btnPasteReceipt.Text = "📋 วางรูปย้อนหลัง"
             btnPasteReceipt.UseVisualStyleBackColor = False
             ' 
             ' btnClose
