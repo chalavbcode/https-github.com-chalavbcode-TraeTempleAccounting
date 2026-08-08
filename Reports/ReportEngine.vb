@@ -381,15 +381,23 @@ Namespace TempleAccounting
                         End If
 
                         ' Load Abbot and Accountant names via JOIN
-                        Dim sql = "SELECT PA.FullName AS AbbotName, PW.FullName AS AccountantName " &
-                                  "FROM (TempleSetting AS TS " &
+                        ' ลำดับ row ชัดเจน (ORDER BY TS.ID DESC = row ล่าสุด) 
+                        ' และชื่อผู้จัดทำบัญชี: ใช้ไวยาวัจกรก่อน ถ้าไม่ได้ตั้งไว้จึงใช้ผู้ทำบัญชีสำรอง
+                        Dim sql = "SELECT PA.FullName AS AbbotName, PW.FullName AS WaiyawatName, PB.FullName AS BookkeeperName " &
+                                  "FROM ((TempleSetting AS TS " &
                                   "LEFT JOIN Personnel AS PA ON TS.AbbotPersonnelID = PA.PersonnelID) " &
-                                  "LEFT JOIN Personnel AS PW ON TS.WaiyawatPersonnelID = PW.PersonnelID"
+                                  "LEFT JOIN Personnel AS PW ON TS.WaiyawatPersonnelID = PW.PersonnelID) " &
+                                  "LEFT JOIN Personnel AS PB ON TS.BookkeeperPersonnelID = PB.PersonnelID " &
+                                  "ORDER BY TS.ID DESC"
                         Dim dtPersonnel = Db.GetTable(conn, sql)
                         If dtPersonnel.Rows.Count > 0 Then
                             Dim pr = dtPersonnel.Rows(0)
                             abbotName = If(IsDBNull(pr!AbbotName), "", CStr(pr!AbbotName).Trim())
-                            accountantName = If(IsDBNull(pr!AccountantName), "", CStr(pr!AccountantName).Trim())
+                            accountantName = If(IsDBNull(pr!WaiyawatName), "", CStr(pr!WaiyawatName).Trim())
+                            ' Fallback: ถ้ายังไม่ได้ระบุไวยาวัจกร ให้ใช้ชื่อผู้ทำบัญชีแทน
+                            If String.IsNullOrWhiteSpace(accountantName) AndAlso Not IsDBNull(pr!BookkeeperName) Then
+                                accountantName = CStr(pr!BookkeeperName).Trim()
+                            End If
                         End If
                     End If
                 End Using
@@ -839,20 +847,20 @@ Namespace TempleAccounting
             Dim safeBoldFont = GetSafeFont(boldFont, 10.0!, FontStyle.Bold)
             Dim safeRowFont = GetSafeFont(rowFont, 10.0!)
 
-            Const labelHeight As Integer = 26
-            Const labelToSignLine As Integer = 50
-            Const signLineToName As Integer = 0
+            Const labelHeight As Integer = 24
+            Const labelToSignLine As Integer = 36
+            Const signLineToName As Integer = 34  ' เว้นช่องว่างเส้นประ→ชื่อ (เดิมเป็น 0 ทำให้ชื่อ/จุดสำรองทับเส้นประ = เห็นเป็นเส้นประซ้อน 2 ชั้น)
             Const nameHeight As Integer = 26
-            Const nameToPosition As Integer = 12
-            Const positionHeight As Integer = 26
+            Const nameToPosition As Integer = 8
+            Const positionHeight As Integer = 24
 
             ' Calculate total signature section height
-            ' 26 + 50 + 0 + 26 + 12 + 26 = 140px
+            ' 24 + 36 + 34 + 26 + 8 + 24 = 152px
             Dim totalSignatureHeight = labelHeight + labelToSignLine + signLineToName + nameHeight + nameToPosition + positionHeight
 
             ' Position signature block - both blocks share same bottom Y
-            ' Shifting up by 20 pixels to ensure titles don't overflow bottom margin
-            Dim blockBottom = pageBottom - 20
+            ' Shifting up by 24 pixels to keep every line comfortably within the printable bottom margin
+            Dim blockBottom = pageBottom - 24
             Dim minimumTop = currentY + 12
             If blockBottom - totalSignatureHeight < minimumTop Then
                 blockBottom = minimumTop + totalSignatureHeight + 8
@@ -883,8 +891,9 @@ Namespace TempleAccounting
             ' Dotted signature line
             DrawDottedLine(g, leftBlockX + CInt((blockWidth - signLineWidth) / 2), signatureLineY, signLineWidth, dotSpacing, dotRadius)
 
-            ' Name with fallback dots
-            Dim leftDisplay As String = If(String.IsNullOrWhiteSpace(leftName), ".....................................",
+            ' Name with fallback — ใต้เส้นประบรรทัดเดียว (ไม่มีเส้นประซ้อน) 
+            ' ถ้ายังไม่ได้ตั้งชื่อในระบบ: แสดง "( .................................... )" เป็นตัวสำรอง
+            Dim leftDisplay As String = If(String.IsNullOrWhiteSpace(leftName), "( .................................... )",
                                            "(" & leftName & ")")
             Using nameFont As Font = CreateFittedFont(g, leftDisplay, New Font("Tahoma", 12.0!, FontStyle.Bold), blockWidth - 8, 10.0!, FontStyle.Bold)
                 g.DrawString(leftDisplay, nameFont, Brushes.Black,
@@ -903,8 +912,8 @@ Namespace TempleAccounting
             ' Dotted signature line
             DrawDottedLine(g, rightBlockX + CInt((blockWidth - signLineWidth) / 2), signatureLineY, signLineWidth, dotSpacing, dotRadius)
 
-            ' Name with fallback dots
-            Dim rightDisplay As String = If(String.IsNullOrWhiteSpace(rightName), ".....................................",
+            ' Name with fallback — ใต้เส้นประบรรทัดเดียว
+            Dim rightDisplay As String = If(String.IsNullOrWhiteSpace(rightName), "( .................................... )",
                                            "(" & rightName & ")")
             Using nameFont As Font = CreateFittedFont(g, rightDisplay, New Font("Tahoma", 12.0!, FontStyle.Bold), blockWidth - 8, 10.0!, FontStyle.Bold)
                 g.DrawString(rightDisplay, nameFont, Brushes.Black,
