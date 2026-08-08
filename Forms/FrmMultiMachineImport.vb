@@ -94,7 +94,7 @@ Namespace TempleAccounting
         ' ====================== UI Events ======================
         Private Sub FrmMultiMachineImport_Load(sender As Object, e As EventArgs) Handles MyBase.Load
             Me.KeyPreview = True
-            HelpSystem.SetupHelp(Me, "FrmMultiMachineImport")
+            HelpSystem.SetupHelp(Me, "FrmMultiMachineImport", "คำแนะนำ: กดปุ่ม [F1] เพื่อดูวิธีใช้งานหน้านี้")
             Db.EnsureSchema()
             EnsureImportSchema()
             SetupToolTips()

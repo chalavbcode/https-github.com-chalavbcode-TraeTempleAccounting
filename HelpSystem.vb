@@ -10,18 +10,19 @@ Namespace TempleAccounting
         ''' </summary>
         ''' <param name="frm">หน้าจอที่ต้องการติดตั้ง</param>
         ''' <param name="sectionName">ชื่อหัวข้อในคู่มือที่เกี่ยวข้อง (ถ้ามี)</param>
-        Public Sub SetupHelp(frm As Form, Optional sectionName As String = "")
+        ''' <param name="hintText">ข้อความคำแนะนำใน Status Bar (ไม่ระบุ = ใช้ข้อความเริ่มต้น)</param>
+        Public Sub SetupHelp(frm As Form, Optional sectionName As String = "", Optional hintText As String = Nothing)
             ' 1. ตั้งค่า KeyPreview เพื่อให้ Form รับค่าการกดปุ่มก่อน Control อื่นๆ
             frm.KeyPreview = True
 
             ' 2. เพิ่ม Status Bar Hint
-            AddStatusBarHint(frm)
+            AddStatusBarHint(frm, hintText)
         End Sub
 
         ''' <summary>
         ''' เพิ่มแถบสถานะพร้อมคำแนะนำการใช้ Help (ถ้ายังไม่มี)
         ''' </summary>
-        Private Sub AddStatusBarHint(frm As Form)
+        Private Sub AddStatusBarHint(frm As Form, Optional hintText As String = Nothing)
             Try
                 Dim statusStrip As StatusStrip = Nothing
 
@@ -50,14 +51,19 @@ Namespace TempleAccounting
                     End If
                 Next
 
+                ' ข้อความเริ่มต้นใช้ทุกหน้าจอ เว้นแต่ฟอร์มนั้นระบุ hintText เอง
+                If String.IsNullOrEmpty(hintText) Then
+                    hintText = "💡 คำแนะนำ: กดปุ่ม [F1] เพื่อดูวิธีใช้งานหน้าจอนี้"
+                End If
+
                 If hintLabel Is Nothing Then
                     hintLabel = New ToolStripStatusLabel()
                     hintLabel.Name = helpHintLabelName
-                    hintLabel.Text = "💡 คำแนะนำ: กดปุ่ม [F1] เพื่อดูวิธีใช้งานหน้าจอนี้"
+                    hintLabel.Text = hintText
                     hintLabel.Alignment = ToolStripItemAlignment.Right
                     statusStrip.Items.Add(hintLabel)
                 Else
-                    hintLabel.Text = "💡 คำแนะนำ: กดปุ่ม [F1] เพื่อดูวิธีใช้งานหน้าจอนี้"
+                    hintLabel.Text = hintText
                 End If
             Catch ex As Exception
                 ' พยายามทำต่อเงียบๆ เพื่อไม่ให้กระทบการทำงานหลัก

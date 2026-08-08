@@ -52,7 +52,7 @@ Namespace TempleAccounting
         ' ====================== UI Events ======================
         Private Sub FrmExportForTransfer_Load(sender As Object, e As EventArgs) Handles MyBase.Load
             Me.KeyPreview = True
-            HelpSystem.SetupHelp(Me, "FrmExportForTransfer")
+            HelpSystem.SetupHelp(Me, "FrmExportForTransfer", "คำแนะนำ: กดปุ่ม [F1] เพื่อดูวิธีใช้งานหน้านี้")
             Db.EnsureSchema()
             EnsureExportSchema()
             SetupToolTips()
