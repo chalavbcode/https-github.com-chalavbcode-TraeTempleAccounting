@@ -159,11 +159,15 @@ Namespace TempleAccounting
 
                 Case "btnMultiImport"
                     SetOverviewCompactMode(False)
-                    ShowFormInPanel(New FrmMultiMachineImport(), "🖥️ นำเข้าข้อมูลหลายเครื่อง (หลาย Flash Drive)")
+                    ' เปิดแบบ Modal Dialog ตามสเปค (ห้ามผ่าน ShowFormInPanel — กันฟอร์มถูก Dispose กลางคันระหว่าง merge ไฟล์แนบ)
+                    Dim importDlg As New FrmMultiMachineImport()
+                    importDlg.ShowDialog()
 
                 Case "btnExportTransfer"
                     SetOverviewCompactMode(False)
-                    ShowFormInPanel(New FrmExportForTransfer(), "📤 ส่งออกข้อมูลไปเครื่องอื่น (Export to Another Machine)")
+                    ' เปิดแบบ Modal Dialog ตามสเปค (ห้ามผ่าน ShowFormInPanel — กันฟอร์มถูก Dispose กลางคันระหว่าง export ไฟล์แนบ)
+                    Dim exportDlg As New FrmExportForTransfer()
+                    exportDlg.ShowDialog()
 
                 Case "btnVip"
                     SetOverviewCompactMode(False)

@@ -41,6 +41,7 @@ Namespace TempleAccounting
             Public Property Note As String
             Public Property TransactionGUID As String
             Public Property MachineID As String
+            Public Property ReceiptFile As String          ' path ไฟล์แนบในโฟลเดอร์ Receipts ข้างไฟล์ export ("" = ไม่มีไฟล์แนบ)
             Public Property DateWarning As String      ' "" / "⚠️ วันที่ในอนาคต" / "⚠️ วันที่เก่าผิดปกติ"
             Public Property ErrorMsg As String         ' "" = แถวใช้ได้
             Public Property IsDuplicateExact As Boolean       ' ตรงกับ TransactionGUID (ซ้ำแน่นอน)
@@ -63,6 +64,9 @@ Namespace TempleAccounting
             Public Property RowErrorCount As Integer
             Public Property SchemaWarning As String         ' ไฟล์ export จากเวอร์ชันโปรแกรมไม่ตรง (อ่านต่อแบบระวัง)
             Public Property DeclaredRowCount As Integer    ' RowCount ที่ประกาศใน Metadata (ตรวจไฟล์ถูกตัดทอน/เสียหาย)
+            Public Property ReceiptFolder As String        ' โฟลเดอร์ Receipts ข้างไฟล์ export ("" = ไม่มี)
+            Public Property ReceiptCount As Integer        ' จำนวนไฟล์แนบที่พบ (match GUID)
+            Public Property ReceiptMissingCount As Integer ' แถวมี GUID แต่ไม่พบไฟล์แนบใน USB
         End Class
 
         ' ====================== State ======================
@@ -240,12 +244,8 @@ Namespace TempleAccounting
         End Sub
 
         Private Sub btnClose_Click(sender As Object, e As EventArgs) Handles btnClose.Click
-            Dim f = TryCast(Me.ParentForm, frmMain)
-            If f IsNot Nothing Then
-                f.ShowFormInPanel(New FrmTransactions(), "📖 รายการเงินรับ-จ่ายทั้งหมด (ค้นหา/แก้ไข/ลบ)")
-            Else
-                Me.Close()
-            End If
+            ' ฟอร์มนี้เปิดแบบ Modal Dialog (.ShowDialog()) — ปิดแค่ dialog ตัวเอง ฟอร์มหลักที่ฝังใน panel ไม่ถูกแตะต้อง
+            Me.Close()
         End Sub
 
         ' ====================== 2. Machine ID + File Hash (SHA-256) ======================
@@ -326,6 +326,9 @@ Namespace TempleAccounting
                 analysis.MachineIDSource = "ใช้ชื่อไฟล์แทน (ความน่าเชื่อถือต่ำ)"
             End If
 
+            ' [ไฟล์แนบ] ค้นหาโฟลเดอร์ Receipts ข้างไฟล์ export + จับคู่ไฟล์แนบกับแถวตาม TransactionGUID (สเปคไฟล์แนบข้อ 2.2)
+            DiscoverReceiptAttachments(analysis, filePath)
+
             _files.Add(analysis)
             If analysis.SchemaError.Length > 0 Then
                 Log("❌ ไฟล์ " & Path.GetFileName(filePath) & ": " & analysis.SchemaError)
@@ -342,6 +345,38 @@ Namespace TempleAccounting
         End Sub
 
         ' ====================== 1. อ่านไฟล์ Excel + Validate Schema ======================
+
+        ''' <summary>
+        ''' ค้นหาโฟลเดอร์ Receipts ข้างไฟล์ export (โฟลเดอร์ย่อยของไฟล์ข้อมูล) และจับคู่ไฟล์แนบกับแถวตาม TransactionGUID
+        ''' - แถวที่ไม่มี GUID → ไม่มีไฟล์แนบให้ match (ข้าม)
+        ''' - แถวมี GUID แต่ไม่พบไฟล์ใน USB → นับเป็น missing (ยังนำเข้าข้อมูลส่วนนั้น ตามสเปค ห้ามทิ้งข้อมูล)
+        ''' </summary>
+        Private Sub DiscoverReceiptAttachments(analysis As FileAnalysis, xlsxPath As String)
+            Try
+                Dim xlsxDir = Path.GetDirectoryName(xlsxPath)
+                If String.IsNullOrEmpty(xlsxDir) Then Return
+                Dim receiptsDir = Path.Combine(xlsxDir, "Receipts")
+                If Not Directory.Exists(receiptsDir) Then Return
+
+                analysis.ReceiptFolder = receiptsDir
+                Dim missing As Integer = 0
+                For Each r In analysis.Rows
+                    If r.ErrorMsg.Length > 0 Then Continue For
+                    If r.TransactionGUID.Length = 0 Then Continue For   ' ไม่มี GUID → ไม่มีไฟล์ให้ match
+                    Dim candidate = Path.Combine(receiptsDir, r.TransactionGUID & ".jpg")
+                    If File.Exists(candidate) Then
+                        r.ReceiptFile = candidate
+                        analysis.ReceiptCount += 1
+                    Else
+                        missing += 1
+                    End If
+                Next
+                analysis.ReceiptMissingCount = missing
+                Log("🖼️ พบไฟล์แนบ " & analysis.ReceiptCount & " ไฟล์" & If(missing > 0, " | ไม่พบไฟล์แนบของ " & missing & " รายการ (จะนำเข้าเฉพาะข้อมูล)", ""))
+            Catch ex As Exception
+                AppPaths.LogCrash(ex, "FrmMultiMachineImport.DiscoverReceiptAttachments")
+            End Try
+        End Sub
 
         Private Function ParseExcelFile(filePath As String) As FileAnalysis
             Dim analysis As New FileAnalysis()
@@ -742,6 +777,10 @@ Namespace TempleAccounting
                         If warnings.Length > 0 Then warnings &= " | "
                         warnings &= "แถวผิดพลาด " & f.RowErrorCount.ToString("#,##0")
                     End If
+                    If f.ReceiptMissingCount > 0 Then
+                        If warnings.Length > 0 Then warnings &= " | "
+                        warnings &= "ไฟล์แนบไม่พบ " & f.ReceiptMissingCount.ToString("#,##0") & " รายการ"
+                    End If
                 End If
 
                 Dim idx = dgvImportPreview.Rows.Add(
@@ -749,6 +788,7 @@ Namespace TempleAccounting
                     machineDisplay,
                     hashStatus,
                     f.Rows.Count.ToString("#,##0"),
+                    f.ReceiptCount.ToString("#,##0"),
                     f.IncomeSum.ToString("#,##0.00"),
                     f.ExpenseSum.ToString("#,##0.00"),
                     dupStatus,
@@ -877,6 +917,14 @@ Namespace TempleAccounting
             Dim mergedAmount As Decimal = 0D
             Dim batchInfos As New List(Of String)()
 
+            ' [ไฟล์แนบ] staging: copy ไฟล์แนบก่อน commit → commit DB สำเร็จ → ค่อยย้ายไปโฟลเดอร์ใบเสร็จจริง (สเปคไฟล์แนบข้อ 3.2)
+            ' ล้มเหลวขั้นไหนก็ rollback DB + ลบ staging ทิ้ง — ข้อมูลต้นทางไม่มีวันถูกแตะต้อง
+            Dim stagingDir As String = Path.Combine(Path.GetTempPath(), "TempleImport_Staging_" & Guid.NewGuid().ToString("N"))
+            Dim stagedFiles As New List(Of Tuple(Of String, String))()   ' (staging path, ชื่อไฟล์ปลายทาง Receipt_{id}.jpg)
+            Dim movedOk As Integer = 0
+            Dim movedFail As Integer = 0
+
+            Try
             Using conn = Db.OpenConn()
                 ' โหลด map ชื่อ -> ID (Categories/Funds/BankAccounts) สำหรับ resolve
                 Dim categoryMap As New Dictionary(Of String, Integer)(StringComparer.OrdinalIgnoreCase)
@@ -916,6 +964,7 @@ Namespace TempleAccounting
                         Dim fileSkipped As Integer = 0
                         Dim fileAmount As Decimal = 0D
                         Dim fileTotal As Integer = 0
+                        Dim fileReceiptImported As Integer = 0
 
                         For Each row In f.Rows
                             If row.ErrorMsg.Length > 0 Then
@@ -938,6 +987,14 @@ Namespace TempleAccounting
                             Dim fundId As Object = ResolveFundId(conn, tx, row.FundName, fundMap)
                             Dim bankId As Object = ResolveBankId(conn, tx, row.BankName, bankMap)
 
+                            ' [ไฟล์แนบ] stage ไฟล์ก่อน INSERT (ยังไม่ commit) — copy ไม่สำเร็จ = rollback + ลบ staging
+                            Dim rowReceiptStaged As String = ""
+                            If row.ReceiptFile.Length > 0 Then
+                                rowReceiptStaged = Path.Combine(stagingDir, row.TransactionGUID & ".jpg")
+                                If Not Directory.Exists(stagingDir) Then Directory.CreateDirectory(stagingDir)
+                                File.Copy(row.ReceiptFile, rowReceiptStaged, True)
+                            End If
+
                             ExecInTx(conn, tx,
                                 "INSERT INTO Transactions (TranDate, TranType, CategoryID, FundID, BankID, [Detail], Amount, [Note], TransactionGUID, SourceMachineID, ImportBatchID) VALUES (" &
                                 Db.AccessDateLiteral(Db.NormalizeGregorianDate(row.TranDate.Date)) & ", @t, @c, @f, @b, @d, @a, @n, @g, @m, @ib)",
@@ -953,11 +1010,22 @@ Namespace TempleAccounting
                                 New Tuple(Of String, Object)("@ib", batchId))
                             fileImported += 1
                             fileAmount += row.Amount
+
+                            ' ผูกไฟล์แนบกับแถวที่ insert แล้ว — ตั้งชื่อตาม convention ของระบบ (Receipt_{id}.jpg) ภายใน transaction เดียวกัน
+                            If rowReceiptStaged.Length > 0 Then
+                                Dim newId = Convert.ToInt32(ScalarInTx(conn, tx, "SELECT @@IDENTITY"))
+                                Dim finalName = "Receipt_" & newId & ".jpg"
+                                ExecInTx(conn, tx, "UPDATE Transactions SET ReceiptPath=@p WHERE ID=@id",
+                                         New Tuple(Of String, Object)("@p", finalName),
+                                         New Tuple(Of String, Object)("@id", newId))
+                                stagedFiles.Add(New Tuple(Of String, String)(rowReceiptStaged, finalName))
+                                fileReceiptImported += 1
+                            End If
                         Next
 
                         ' บันทึก ImportHistory ภายใน transaction เดียวกัน — commit ต่อเมื่อทุกไฟล์สำเร็จ
                         ExecInTx(conn, tx,
-                            "INSERT INTO ImportHistory (ImportBatchID, SourceFileName, FileHash, MachineID, ImportDateTime, ImportedBy, RowCountTotal, RowCountImported, RowCountSkippedDuplicate, TotalAmountImported, ImportStatus) VALUES (@ib, @fn, @h, @m, @dt, @by, @tot, @imp, @skp, @amt, 'Success')",
+                            "INSERT INTO ImportHistory (ImportBatchID, SourceFileName, FileHash, MachineID, ImportDateTime, ImportedBy, RowCountTotal, RowCountImported, RowCountSkippedDuplicate, ReceiptCountImported, TotalAmountImported, ImportStatus) VALUES (@ib, @fn, @h, @m, @dt, @by, @tot, @imp, @skp, @rc, @amt, 'Success')",
                             New Tuple(Of String, Object)("@ib", batchId),
                             New Tuple(Of String, Object)("@fn", Path.GetFileName(f.FilePath)),
                             New Tuple(Of String, Object)("@h", f.FileHash),
@@ -967,6 +1035,7 @@ Namespace TempleAccounting
                             New Tuple(Of String, Object)("@tot", fileTotal),
                             New Tuple(Of String, Object)("@imp", fileImported),
                             New Tuple(Of String, Object)("@skp", fileSkipped),
+                            New Tuple(Of String, Object)("@rc", fileReceiptImported),
                             New Tuple(Of String, Object)("@amt", fileAmount))
 
                         mergedTotal += fileImported
@@ -988,16 +1057,44 @@ Namespace TempleAccounting
                     End Try
                     Throw
                 End Try
-            End Using
+                End Using
+
+                ' [ไฟล์แนบ] หลัง commit สำเร็จ → ย้ายไฟล์จาก staging ไปยังโฟลเดอร์ใบเสร็จจริง (Receipt_{id}.jpg)
+                ' ล้มเหลวบางไฟล์ = ข้อมูลใน DB ยังครบสมบูรณ์ — แค่ไฟล์แนบต้องแนบใหม่ด้วยตนเอง
+                If stagedFiles.Count > 0 Then
+                    Log("🖼️ ย้ายไฟล์แนบ " & stagedFiles.Count & " ไฟล์ไปยังโฟลเดอร์ใบเสร็จจริง...")
+                    Try : Directory.CreateDirectory(AppPaths.ReceiptsDir) : Catch : End Try
+                    For Each s In stagedFiles
+                        Try
+                            File.Move(s.Item1, Path.Combine(AppPaths.ReceiptsDir, s.Item2))
+                            movedOk += 1
+                        Catch ex As Exception
+                            movedFail += 1
+                            Log("⚠️ ย้ายไฟล์แนบไม่สำเร็จ (" & s.Item2 & "): " & ex.Message)
+                        End Try
+                    Next
+                    Log("✅ ย้ายไฟล์แนบสำเร็จ " & movedOk & " ไฟล์" & If(movedFail > 0, " | ล้มเหลว " & movedFail & " ไฟล์ (ข้อมูลใน DB ยังครบ — ไฟล์แนบต้องแนบใหม่ด้วยตนเอง)", ""))
+                End If
+            Finally
+                ' ลบ staging เสมอ (ทั้งสำเร็จและล้มเหลว)
+                Try
+                    If Directory.Exists(stagingDir) Then Directory.Delete(stagingDir, True)
+                Catch
+                End Try
+            End Try
 
             Dim sb As New StringBuilder()
             sb.AppendLine("🎉 รวมข้อมูลสำเร็จ!")
             sb.AppendLine("นำเข้าจริง: " & mergedTotal.ToString("#,##0") & " รายการ")
             sb.AppendLine("ยอดรวมเงินที่เพิ่ม: " & mergedAmount.ToString("#,##0.00") & " บาท")
+            If stagedFiles.Count > 0 Then
+                sb.AppendLine("ไฟล์แนบ: ย้ายสำเร็จ " & movedOk.ToString("#,##0") & " ไฟล์" & If(movedFail > 0, " / ล้มเหลว " & movedFail.ToString("#,##0") & " ไฟล์", ""))
+            End If
             sb.AppendLine("รายละเอียดต่อไฟล์:")
             sb.AppendLine(String.Join(vbCrLf, batchInfos))
             MessageBox.Show(sb.ToString(), "สำเร็จ", MessageBoxButtons.OK, MessageBoxIcon.Information)
-            lblMergeStatus.Text = "✅ ล่าสุด: นำเข้า " & mergedTotal.ToString("#,##0") & " รายการ / ยอด " & mergedAmount.ToString("#,##0.00") & " บาท"
+            lblMergeStatus.Text = "✅ ล่าสุด: นำเข้า " & mergedTotal.ToString("#,##0") & " รายการ / ยอด " & mergedAmount.ToString("#,##0.00") & " บาท" &
+                                  If(stagedFiles.Count > 0, " / แนบไฟล์ " & movedOk.ToString("#,##0"), "")
 
             RefreshPreviewGrid()
             Log("=== จบ Merge ===")
@@ -1123,8 +1220,19 @@ Namespace TempleAccounting
                     Next
                     If Not hasImportHistory Then
                         Db.ExecuteNonQuery(conn,
-                            "CREATE TABLE ImportHistory (ImportBatchID GUID PRIMARY KEY, SourceFileName TEXT(255), FileHash TEXT(64) NOT NULL, MachineID TEXT(50), ImportDateTime DATETIME, ImportedBy TEXT(100), RowCountTotal INTEGER, RowCountImported INTEGER, RowCountSkippedDuplicate INTEGER, TotalAmountImported CURRENCY, ImportStatus TEXT(20))")
+                            "CREATE TABLE ImportHistory (ImportBatchID GUID PRIMARY KEY, SourceFileName TEXT(255), FileHash TEXT(64) NOT NULL, MachineID TEXT(50), ImportDateTime DATETIME, ImportedBy TEXT(100), RowCountTotal INTEGER, RowCountImported INTEGER, RowCountSkippedDuplicate INTEGER, ReceiptCountImported INTEGER, TotalAmountImported CURRENCY, ImportStatus TEXT(20))")
                         Log("✅ สร้างตาราง ImportHistory ใหม่แล้ว")
+                    Else
+                        ' non-breaking: เพิ่มคอลัมน์ ReceiptCountImported ถ้ายังไม่มี (ตารางเดิมจากเวอร์ชันแรก)
+                        Dim ihCols As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase)
+                        Dim ihColTable = conn.GetSchema("Columns", New String() {Nothing, Nothing, "ImportHistory", Nothing})
+                        For Each r As DataRow In ihColTable.Rows
+                            ihCols.Add(Convert.ToString(r("COLUMN_NAME")))
+                        Next
+                        If Not ihCols.Contains("ReceiptCountImported") Then
+                            Db.ExecuteNonQuery(conn, "ALTER TABLE ImportHistory ADD COLUMN ReceiptCountImported INTEGER")
+                            Log("✅ เพิ่มคอลัมน์ ReceiptCountImported ใน ImportHistory แล้ว (non-breaking)")
+                        End If
                     End If
 
                     Dim colNames As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase)
@@ -1159,7 +1267,7 @@ Namespace TempleAccounting
                     For Each f In _files
                         If f.SchemaError.Length > 0 Then Continue For
                         ExecNoTx(conn,
-                            "INSERT INTO ImportHistory (ImportBatchID, SourceFileName, FileHash, MachineID, ImportDateTime, ImportedBy, RowCountTotal, RowCountImported, RowCountSkippedDuplicate, TotalAmountImported, ImportStatus) VALUES (@ib, @fn, @h, @m, @dt, @by, @tot, 0, 0, 0, @st)",
+                            "INSERT INTO ImportHistory (ImportBatchID, SourceFileName, FileHash, MachineID, ImportDateTime, ImportedBy, RowCountTotal, RowCountImported, RowCountSkippedDuplicate, ReceiptCountImported, TotalAmountImported, ImportStatus) VALUES (@ib, @fn, @h, @m, @dt, @by, @tot, 0, 0, 0, 0, @st)",
                             New Tuple(Of String, Object)("@ib", Guid.NewGuid()),
                             New Tuple(Of String, Object)("@fn", Path.GetFileName(f.FilePath)),
                             New Tuple(Of String, Object)("@h", f.FileHash),

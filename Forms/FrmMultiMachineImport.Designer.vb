@@ -45,6 +45,7 @@ Namespace TempleAccounting
         Friend WithEvents colMachineId As DataGridViewTextBoxColumn
         Friend WithEvents colHashStatus As DataGridViewTextBoxColumn
         Friend WithEvents colTotalCount As DataGridViewTextBoxColumn
+        Friend WithEvents colReceiptCount As DataGridViewTextBoxColumn
         Friend WithEvents colIncomeSum As DataGridViewTextBoxColumn
         Friend WithEvents colExpenseSum As DataGridViewTextBoxColumn
         Friend WithEvents colDupStatus As DataGridViewTextBoxColumn
@@ -79,6 +80,7 @@ Namespace TempleAccounting
             colMachineId = New DataGridViewTextBoxColumn()
             colHashStatus = New DataGridViewTextBoxColumn()
             colTotalCount = New DataGridViewTextBoxColumn()
+            colReceiptCount = New DataGridViewTextBoxColumn()
             colIncomeSum = New DataGridViewTextBoxColumn()
             colExpenseSum = New DataGridViewTextBoxColumn()
             colDupStatus = New DataGridViewTextBoxColumn()
@@ -228,7 +230,7 @@ Namespace TempleAccounting
             dgvImportPreview.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
             dgvImportPreview.BackgroundColor = Color.FromArgb(CByte(255), CByte(253), CByte(244))
             dgvImportPreview.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize
-            dgvImportPreview.Columns.AddRange(New DataGridViewColumn() {colFileName, colMachineId, colHashStatus, colTotalCount, colIncomeSum, colExpenseSum, colDupStatus, colWarnings})
+            dgvImportPreview.Columns.AddRange(New DataGridViewColumn() {colFileName, colMachineId, colHashStatus, colTotalCount, colReceiptCount, colIncomeSum, colExpenseSum, colDupStatus, colWarnings})
             dgvImportPreview.Location = New Point(16, 32)
             dgvImportPreview.Name = "dgvImportPreview"
             dgvImportPreview.ReadOnly = True
@@ -268,6 +270,14 @@ Namespace TempleAccounting
             colTotalCount.MinimumWidth = 70
             colTotalCount.Name = "colTotalCount"
             colTotalCount.ReadOnly = True
+            ' 
+            ' colReceiptCount
+            ' 
+            colReceiptCount.FillWeight = 40F
+            colReceiptCount.HeaderText = "ไฟล์แนบ"
+            colReceiptCount.MinimumWidth = 70
+            colReceiptCount.Name = "colReceiptCount"
+            colReceiptCount.ReadOnly = True
             ' 
             ' colIncomeSum
             ' 

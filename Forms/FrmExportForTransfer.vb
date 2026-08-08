@@ -38,6 +38,8 @@ Namespace TempleAccounting
             Public Property Fund As String
             Public Property Bank As String
             Public Property Note As String
+            Public Property ReceiptName As String        ' ชื่อไฟล์แนบใน DB (เช่น Receipt_12.jpg) — "" = ไม่มี
+            Public Property ReceiptSourceFile As String ' path จริงของไฟล์แนบที่หาเจอ ("" = ไม่พบ)
         End Class
 
         ' ====================== State ======================
@@ -89,12 +91,8 @@ Namespace TempleAccounting
         End Sub
 
         Private Sub btnClose_Click(sender As Object, e As EventArgs) Handles btnClose.Click
-            Dim f = TryCast(Me.ParentForm, frmMain)
-            If f IsNot Nothing Then
-                f.ShowFormInPanel(New FrmTransactions(), "📖 รายการเงินรับ-จ่ายทั้งหมด (ค้นหา/แก้ไข/ลบ)")
-            Else
-                Me.Close()
-            End If
+            ' ฟอร์มนี้เปิดแบบ Modal Dialog (.ShowDialog()) — ปิดแค่ dialog ตัวเอง ฟอร์มหลักที่ฝังใน panel ไม่ถูกแตะต้อง
+            Me.Close()
         End Sub
 
         ' ====================== 1. Machine ID (ตั้งครั้งเดียวต่อเครื่อง) ======================
@@ -179,28 +177,71 @@ Namespace TempleAccounting
                 Return
             End If
 
+            ' [ไฟล์แนบ] วิเคราะห์ไฟล์แนบ (ใบเสร็จ/สลิป) ที่จะพาไปด้วย — แสดงสรุปก่อน export จริง (กัน Flash Drive เต็ม)
+            Dim rcFound As Integer = 0
+            Dim rcMissing As Integer = 0
+            Dim rcNoGuid As Integer = 0
+            Dim rcBytes As Long = 0
+            For Each r In rows
+                If r.TransactionGUID.Length = 0 Then
+                    rcNoGuid += 1
+                    Continue For
+                End If
+                If r.ReceiptSourceFile.Length > 0 AndAlso File.Exists(r.ReceiptSourceFile) Then
+                    rcFound += 1
+                    Try : rcBytes += New FileInfo(r.ReceiptSourceFile).Length : Catch : End Try
+                Else
+                    rcMissing += 1
+                End If
+            Next
+
+            Dim sizeText As String = "ไฟล์แนบ: " & rcFound.ToString("#,##0") & " ไฟล์" &
+                If(rcMissing > 0, " / ไม่พบต้นฉบับ " & rcMissing.ToString("#,##0") & " รายการ (ส่งเฉพาะข้อมูล)", "") &
+                If(rcNoGuid > 0, " / ไม่มี GUID " & rcNoGuid.ToString("#,##0") & " รายการ (โอนไฟล์แนบไม่ได้)", "")
+            If rcBytes > 0 Then sizeText &= vbCrLf & "ขนาดไฟล์แนบรวมโดยประมาณ: " & FormatBytes(rcBytes)
+
+            Dim confirmMsg = "📤 สรุปการส่งออก" & vbCrLf & vbCrLf &
+                "รหัสเครื่อง: " & _machineId & vbCrLf &
+                "ช่วงข้อมูล: " & rangeDesc & vbCrLf &
+                "รายการ: " & rows.Count.ToString("#,##0") & " รายการ" & vbCrLf &
+                sizeText & vbCrLf & vbCrLf &
+                "ยืนยันการส่งออกหรือไม่?"
+            If MessageBox.Show(confirmMsg, "ยืนยันการส่งออก", MessageBoxButtons.YesNo, MessageBoxIcon.Question) <> DialogResult.Yes Then
+                Log("⏭️ ผู้ใช้ยกเลิก (หน้ายืนยัน)")
+                Return
+            End If
+
             ' เลือกตำแหน่งบันทึกเอง (Flash Drive / โฟลเดอร์ที่ผู้ดูแลกำหนด) — ไม่มี scheduled export
-            Dim suggested = "Export_" & SanitizeFileName(_machineId) & "_" & DateTime.Now.ToString("yyyyMMdd_HHmm") & ".xlsx"
-            Using sfd As New SaveFileDialog()
-                sfd.Title = "บันทึกไฟล์ Export สำหรับโอนไปเครื่องอื่น"
-                sfd.Filter = "ไฟล์ Excel Export (*.xlsx)|*.xlsx"
-                sfd.FileName = suggested
-                sfd.DefaultExt = "xlsx"
-                sfd.InitialDirectory = AppPaths.ExportFolder
-                If sfd.ShowDialog() <> DialogResult.OK Then
-                    Log("⏭️ ผู้ใช้ยกเลิกการเลือกตำแหน่งบันทึกไฟล์")
+            ' ระบบจะสร้างโฟลเดอร์ Export_<MachineID>_<datetime> ภายใน ประกอบด้วย TransactionData.xlsx + โฟลเดอร์ย่อย Receipts/ (สเปคไฟล์แนบข้อ 2)
+            Using fbd As New FolderBrowserDialog()
+                fbd.Description = "เลือกโฟลเดอร์ปลายทาง (เช่น Flash Drive) — ระบบจะสร้างโฟลเดอร์ Export_... ภายใน"
+                fbd.SelectedPath = AppPaths.ExportFolder
+                If fbd.ShowDialog() <> DialogResult.OK OrElse String.IsNullOrEmpty(fbd.SelectedPath) Then
+                    Log("⏭️ ผู้ใช้ยกเลิกการเลือกตำแหน่งบันทึก")
                     Return
                 End If
+
+                Dim folderName = "Export_" & SanitizeFileName(_machineId) & "_" & DateTime.Now.ToString("yyyyMMdd_HHmm")
+                Dim exportFolder = Path.Combine(fbd.SelectedPath, folderName)
+                If Directory.Exists(exportFolder) Then
+                    folderName &= "_" & DateTime.Now.ToString("ss")
+                    exportFolder = Path.Combine(fbd.SelectedPath, folderName)
+                End If
+                Directory.CreateDirectory(exportFolder)
 
                 btnExportForTransfer.Enabled = False
                 prgExport.Value = 0
                 prgExport.Maximum = Math.Max(rows.Count, 1)
                 Try
-                    WriteExportFile(sfd.FileName, rangeFrom, rangeTo, rows, rangeDesc)
+                    WriteExportFile(exportFolder, rangeFrom, rangeTo, rows, rangeDesc)
                 Catch ex As Exception
                     AppPaths.LogCrash(ex, "FrmExportForTransfer.Write")
-                    Log("❌ ส่งออกไฟล์ไม่สำเร็จ: " & ex.Message)
-                    MessageBox.Show("ส่งออกไฟล์ไม่สำเร็จ: " & ex.Message, "ข้อผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                    Log("❌ ส่งออกไม่สำเร็จ: " & ex.Message)
+                    MessageBox.Show("ส่งออกไม่สำเร็จ: " & ex.Message & vbCrLf & "โฟลเดอร์ที่สร้างไว้จะถูกลบ (ข้อมูลต้นทางไม่ถูกแตะต้อง)", "ข้อผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                    Try
+                        If Directory.Exists(exportFolder) Then Directory.Delete(exportFolder, True)
+                    Catch
+                    End Try
                     Return
                 Finally
                     btnExportForTransfer.Enabled = True
@@ -252,7 +293,8 @@ Namespace TempleAccounting
             Dim rows As New List(Of ExportRow)()
             Using conn = Db.OpenConn()
                 Dim sql = "SELECT t.TransactionGUID, DateValue(t.TranDate) AS TranDate, t.TranType AS Type, t.[Detail] AS Description, t.Amount, " &
-                          "c.CategoryName AS Category, f.FundName AS Fund, b.BankName AS Bank, IIF(t.[Note] IS NULL,'',t.[Note]) AS Remark " &
+                          "c.CategoryName AS Category, f.FundName AS Fund, b.BankName AS Bank, IIF(t.[Note] IS NULL,'',t.[Note]) AS Remark, " &
+                          "IIF(t.ReceiptPath IS NULL,'',t.ReceiptPath) AS ReceiptName " &
                           "FROM ((Transactions t LEFT JOIN Categories c ON t.CategoryID=c.ID) " &
                           "LEFT JOIN Funds f ON t.FundID=f.ID) LEFT JOIN BankAccounts b ON t.BankID=b.ID " &
                           "WHERE DateValue(t.TranDate) >= @d1 AND DateValue(t.TranDate) <= @d2 ORDER BY t.TranDate, t.ID"
@@ -266,6 +308,7 @@ Namespace TempleAccounting
                         td = Db.NormalizeGregorianDate(CDate(r("TranDate")))
                     Catch
                     End Try
+                    Dim rcName = SafeStr(r, "ReceiptName")
                     rows.Add(New ExportRow() With {
                         .TransactionGUID = SafeStr(r, "TransactionGUID"),
                         .TranDate = td,
@@ -275,16 +318,22 @@ Namespace TempleAccounting
                         .Category = SafeStr(r, "Category"),
                         .Fund = SafeStr(r, "Fund"),
                         .Bank = SafeStr(r, "Bank"),
-                        .Note = SafeStr(r, "Remark")
+                        .Note = SafeStr(r, "Remark"),
+                        .ReceiptName = rcName,
+                        .ReceiptSourceFile = If(rcName.Length > 0, ReceiptImageHelper.ResolveReceiptPath(rcName), "")
                     })
                 Next
             End Using
             Return rows
         End Function
 
-        ''' <summary>เขียนไฟล์ .xlsx (Metadata + Data) ผ่าน ACE OLEDB แล้วบันทึก ExportHistory</summary>
-        Private Sub WriteExportFile(filePath As String, rangeFrom As Date, rangeTo As Date, rows As List(Of ExportRow), rangeDesc As String)
-            Log("📦 กำลังเขียนไฟล์: " & Path.GetFileName(filePath) & " (" & rows.Count.ToString("#,##0") & " แถว) ...")
+        ''' <summary>
+        ''' เขียนชุดไฟล์ export ลงใน exportFolder: TransactionData.xlsx (Metadata + Data) + โฟลเดอร์ย่อย Receipts/ (ไฟล์แนบตั้งชื่อ GUID)
+        ''' แล้วบันทึก ExportHistory เฉพาะเมื่อสำเร็จ
+        ''' </summary>
+        Private Sub WriteExportFile(exportFolder As String, rangeFrom As Date, rangeTo As Date, rows As List(Of ExportRow), rangeDesc As String)
+            Dim filePath = Path.Combine(exportFolder, "TransactionData.xlsx")
+            Log("📦 กำลังเขียนไฟล์ข้อมูล: " & Path.GetFileName(filePath) & " (" & rows.Count.ToString("#,##0") & " แถว) ...")
 
             ' ACE จะเพิ่มชีตซ้ำถ้าไฟล์มีอยู่เดิม — ลบไฟล์เก่าออกก่อน (ชื่อไฟล์มีเวลากำกับ ไม่ชนกันอยู่แล้ว)
             If File.Exists(filePath) Then File.Delete(filePath)
@@ -341,6 +390,33 @@ Namespace TempleAccounting
                 Next
             End Using
 
+            ' [ไฟล์แนบ] copy ไฟล์แนบที่ optimize แล้วไปยังโฟลเดอร์ย่อย Receipts/ ตั้งชื่อด้วย TransactionGUID (ฝั่งนำเข้าจับคู่ตาม GUID)
+            ' - แถวไม่มี GUID / ไม่พบต้นฉบับ → ข้าม แต่นับไว้ในสรุป (ห้ามทำให้ export ล้มเหลวทั้งชุด)
+            Dim rcCopied As Integer = 0
+            Dim rcCopyFailed As Integer = 0
+            Dim rcSkippedNoGuid As Integer = 0
+            Dim rcSkippedNoFile As Integer = 0
+            Dim receiptsDir = Path.Combine(exportFolder, "Receipts")
+            For Each r In rows
+                If r.TransactionGUID.Length = 0 Then
+                    rcSkippedNoGuid += 1
+                    Continue For
+                End If
+                If r.ReceiptSourceFile.Length = 0 OrElse Not File.Exists(r.ReceiptSourceFile) Then
+                    rcSkippedNoFile += 1
+                    Continue For
+                End If
+                Try
+                    If Not Directory.Exists(receiptsDir) Then Directory.CreateDirectory(receiptsDir)
+                    File.Copy(r.ReceiptSourceFile, Path.Combine(receiptsDir, r.TransactionGUID & ".jpg"), True)
+                    rcCopied += 1
+                Catch ex As Exception
+                    rcCopyFailed += 1
+                    Log("⚠️ copy ไฟล์แนบไม่สำเร็จ (" & r.TransactionGUID & "): " & ex.Message)
+                End Try
+            Next
+            If rcCopied > 0 Then Log("🖼️ copy ไฟล์แนบสำเร็จ " & rcCopied & " ไฟล์ → " & Path.Combine(Path.GetFileName(exportFolder), "Receipts\"))
+
             ' บันทึก ExportHistory เฉพาะเมื่อเขียนไฟล์สำเร็จแล้วเท่านั้น (resume point ของโหมด "เฉพาะรายการใหม่")
             Dim batchId As Guid = Guid.NewGuid()
             Using conn = Db.OpenConn()
@@ -355,7 +431,7 @@ Namespace TempleAccounting
                     cmd.Parameters.AddWithValue("@f", rangeFrom)
                     cmd.Parameters.AddWithValue("@t", rangeTo)
                     cmd.Parameters.AddWithValue("@n", rows.Count)
-                    cmd.Parameters.AddWithValue("@fn", Path.GetFileName(filePath))
+                    cmd.Parameters.AddWithValue("@fn", Path.GetFileName(exportFolder))
                     cmd.Parameters.AddWithValue("@m", _machineId)
                     cmd.ExecuteNonQuery()
                 End Using
@@ -369,18 +445,31 @@ Namespace TempleAccounting
             Next
 
             SetProgress(rows.Count, rows.Count, "เสร็จสิ้น")
-            Log("✅ ส่งออกสำเร็จ: " & Path.GetFileName(filePath))
+            Log("✅ ส่งออกสำเร็จ: " & Path.GetFileName(exportFolder))
             Log("   ช่วงข้อมูล: " & rangeDesc & " | ยอดรับ " & sumIncome.ToString("#,##0.00") & " / ยอดจ่าย " & sumExpense.ToString("#,##0.00") & " บาท")
+            If rcCopied > 0 OrElse rcCopyFailed > 0 OrElse rcSkippedNoGuid > 0 OrElse rcSkippedNoFile > 0 Then
+                Log("   ไฟล์แนบ: สำเร็จ " & rcCopied & " / copy ล้มเหลว " & rcCopyFailed & " / ไม่มี GUID " & rcSkippedNoGuid & " / ไม่พบต้นฉบับ " & rcSkippedNoFile)
+            End If
             LoadLastExportInfo()
+
+            Dim attachLine As String = ""
+            If rcCopied > 0 OrElse rcSkippedNoGuid > 0 OrElse rcSkippedNoFile > 0 Then
+                attachLine = "ไฟล์แนบ: " & rcCopied.ToString("#,##0") & " ไฟล์" &
+                    If(rcCopyFailed > 0, " (copy ล้มเหลว " & rcCopyFailed & ")", "") &
+                    If(rcSkippedNoFile > 0, " | ไม่พบต้นฉบับ " & rcSkippedNoFile & " รายการ — ส่งเฉพาะข้อมูล", "") &
+                    If(rcSkippedNoGuid > 0, " | ไม่มี GUID " & rcSkippedNoGuid & " รายการ — โอนไฟล์แนบไม่ได้", "") &
+                    vbCrLf
+            End If
 
             MessageBox.Show(
                 "🎉 ส่งออกข้อมูลสำเร็จ!" & vbCrLf & vbCrLf &
-                "ไฟล์: " & Path.GetFileName(filePath) & vbCrLf &
+                "โฟลเดอร์: " & Path.GetFileName(exportFolder) & vbCrLf &
                 "รหัสเครื่อง: " & _machineId & vbCrLf &
                 "รายการ: " & rows.Count.ToString("#,##0") & " รายการ" & vbCrLf &
                 "ยอดรับรวม: " & sumIncome.ToString("#,##0.00") & " บาท" & vbCrLf &
-                "ยอดจ่ายรวม: " & sumExpense.ToString("#,##0.00") & " บาท" & vbCrLf & vbCrLf &
-                "💡 นำไฟล์นี้ไปเปิดในฝั่ง 'นำเข้าข้อมูลหลายเครื่อง' ของเครื่องเป้าหมายเพื่อรวมข้อมูล",
+                "ยอดจ่ายรวม: " & sumExpense.ToString("#,##0.00") & " บาท" & vbCrLf &
+                attachLine & vbCrLf &
+                "💡 นำโฟลเดอร์นี้ (ทั้งไฟล์ TransactionData.xlsx และโฟลเดอร์ Receipts) ไปเปิดในฝั่ง 'นำเข้าข้อมูลหลายเครื่อง' ของเครื่องเป้าหมาย",
                 "สำเร็จ", MessageBoxButtons.OK, MessageBoxIcon.Information)
         End Sub
 
@@ -459,6 +548,13 @@ Namespace TempleAccounting
             p.Value = If(value Is Nothing, DBNull.Value, value)
             cmd.Parameters.Add(p)
         End Sub
+
+        ''' <summary>จัดรูปแบบขนาดไฟล์ให้อ่านง่าย (B / KB / MB)</summary>
+        Private Shared Function FormatBytes(bytes As Long) As String
+            If bytes < 1024 Then Return bytes.ToString("#,##0") & " B"
+            If bytes < 1024 * 1024 Then Return (bytes / 1024).ToString("#,##0.0") & " KB"
+            Return (bytes / (1024 * 1024)).ToString("#,##0.00") & " MB"
+        End Function
 
         Private Shared Function SanitizeFileName(value As String) As String
             Dim sb As New StringBuilder()
