@@ -398,6 +398,31 @@ Namespace TempleAccounting
                 End If
             Next
 
+            ' เรียงลำดับคอลัมน์ตามความสำคัญ (ใบเสร็จไว้ด้านหน้า ส่วนคอลัมน์โอนเงินไว้ท้ายสุด)
+            ' ลำดับ: ID, ใบเสร็จ, วันที่, ชนิด, ประเภท, รายละเอียด, จำนวนเงิน, กองทุน, ธนาคาร, หมายเหตุ, วันที่บันทึก, ไปยังกองทุน, ไปยังธนาคาร
+            Dim displayOrder As String() = New String() {
+                "ID",
+                "HasReceiptDisplay",
+                "TranDate",
+                "TranTypeDisplay",
+                "CategoryName",
+                "Detail",
+                "Amount",
+                "FundName",
+                "BankName",
+                "Note",
+                "CreateDate",
+                "ToFundName",
+                "ToBankName"
+            }
+            Dim nextIndex As Integer = 0
+            For Each colName In displayOrder
+                If dgvTransactions.Columns.Contains(colName) Then
+                    dgvTransactions.Columns(colName).DisplayIndex = nextIndex
+                    nextIndex += 1
+                End If
+            Next
+
             For Each pair In headers
                 If dgvTransactions.Columns.Contains(pair.Key) Then
                     dgvTransactions.Columns(pair.Key).HeaderText = pair.Value
@@ -450,6 +475,20 @@ Namespace TempleAccounting
                     col.AutoSizeMode = DataGridViewAutoSizeColumnMode.None
                     col.Width = kv.Value
                     col.MinimumWidth = Math.Min(90, kv.Value)
+                End If
+            Next
+
+            ' คอลัมน์ข้อความยาว (รายละเอียด / หมายเหตุ) ยืดหยุ่นตามความกว้างกริด
+            ' เพื่อให้คอลัมน์ทั้งหมดพอดีกับพื้นที่ที่มองเห็น (คอลัมน์อื่นคงความกว้างคงที่)
+            Dim fillWeights As New Dictionary(Of String, Integer) From {
+                {"Detail", 110},
+                {"Note", 100}
+            }
+            For Each kv In fillWeights
+                If dgvTransactions.Columns.Contains(kv.Key) Then
+                    Dim col = dgvTransactions.Columns(kv.Key)
+                    col.FillWeight = kv.Value
+                    col.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
                 End If
             Next
         End Sub
