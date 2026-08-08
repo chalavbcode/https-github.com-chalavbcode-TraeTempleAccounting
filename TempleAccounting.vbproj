@@ -62,6 +62,18 @@
       <DependentUpon>frmMain.vb</DependentUpon>
     </EmbeddedResource>
 
+    <!-- ===== Receipt Viewer ===== -->
+    <Compile Include="Forms\FrmReceiptViewer.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FrmReceiptViewer.Designer.vb">
+      <DependentUpon>FrmReceiptViewer.vb</DependentUpon>
+      <SubType>Form</SubType>
+    </Compile>
+    <EmbeddedResource Include="Forms\FrmReceiptViewer.resx">
+      <DependentUpon>FrmReceiptViewer.vb</DependentUpon>
+    </EmbeddedResource>
+
     <!-- ===== Transaction Forms ===== -->
     <Compile Include="Forms\FrmIncome.vb">
       <SubType>Form</SubType>

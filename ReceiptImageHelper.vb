@@ -81,5 +81,72 @@ Namespace TempleAccounting
             Next
             Return Nothing
         End Function
+
+        ''' <summary>
+        ''' ค้นหาเส้นทางจริงของไฟล์ใบเสร็จ (fileName เช่น Receipt_124.jpg)
+        ''' ลำดับการค้นหา:
+        ''' 1) โฟลเดอร์มาตรฐาน <แอป>\Receipts (ตำแหน่งที่โปรแกรมบันทึกใหม่)
+        ''' 2) โฟลเดอร์ Receipts ข้างโฟลเดอร์ฐานข้อมูล (<root>\Receipts) — ครอบคลุมกรณี
+        '''    โปรแกรมรันจาก bin\... แต่ฐานข้อมูลอยู่ที่ root\Database\
+        ''' 3) <root>\Images\Receipts และโฟลเดอร์ Receipts ของพ่อแม่ exe (bin\Debug\Receipts)
+        ''' 4) โฟลเดอร์ทำงานปัจจุบัน (CurrentDirectory)
+        ''' คืนค่าเส้นทางไฟล์แรกที่พบ หรือ "" ถ้าไม่พบ
+        ''' </summary>
+        Public Shared Function ResolveReceiptPath(fileName As String) As String
+            If String.IsNullOrWhiteSpace(fileName) Then Return ""
+
+            For Each folder As String In GetReceiptCandidateFolders()
+                Dim candidate = Path.Combine(folder, fileName)
+                If File.Exists(candidate) Then
+                    Return candidate
+                End If
+            Next
+            Return ""
+        End Function
+
+        ''' <summary>
+        ''' รายชื่อโฟลเดอร์ที่ใช้ค้นหาใบเสร็จ (ไม่ซ้ำกัน) — ใช้ทั้งในการค้นหาไฟล์
+        ''' และแสดงเส้นทางที่ค้นหาเมื่อไม่พบไฟล์
+        ''' </summary>
+        Public Shared Function GetReceiptCandidateFolders() As List(Of String)
+            Dim folders As New List(Of String)()
+
+            ' 1. โฟลเดอร์มาตรฐาน (ตำแหน่งบันทึกของโปรแกรม)
+            folders.Add(AppPaths.ReceiptsDir)
+
+            ' 2. ข้างโฟลเดอร์ฐานข้อมูล (project root) — ฐานข้อมูลอาจถูกค้นพบสูงขึ้นไปในโครงสร้างไดเรกทอรี
+            Try
+                Dim dbDir = Path.GetDirectoryName(AppPaths.DatabaseFile)
+                If Not String.IsNullOrWhiteSpace(dbDir) Then
+                    Dim projRoot = Directory.GetParent(dbDir).FullName
+                    folders.Add(Path.Combine(projRoot, "Receipts"))
+                    folders.Add(Path.Combine(projRoot, "Images", "Receipts"))
+                End If
+            Catch
+            End Try
+
+            ' 3. โฟลเดอร์พ่อแม่ของ exe (เช่น bin\Debug\Receipts เมื่อรันจาก bin\Debug\net10.0-windows)
+            Try
+                Dim exeParent = Directory.GetParent(AppPaths.AppRoot).FullName
+                folders.Add(Path.Combine(exeParent, "Receipts"))
+            Catch
+            End Try
+
+            ' 4. โฟลเดอร์ทำงานปัจจุบัน
+            Try
+                folders.Add(Path.Combine(Environment.CurrentDirectory, "Receipts"))
+                folders.Add(Path.Combine(Environment.CurrentDirectory, "Images", "Receipts"))
+            Catch
+            End Try
+
+            ' ตัดรายการซ้ำ (case-insensitive)
+            Dim result As New List(Of String)()
+            For Each f As String In folders
+                If Not result.Contains(f, StringComparer.OrdinalIgnoreCase) Then
+                    result.Add(f)
+                End If
+            Next
+            Return result
+        End Function
     End Class
 End Namespace
