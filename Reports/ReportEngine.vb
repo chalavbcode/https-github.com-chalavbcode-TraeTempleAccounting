@@ -1036,9 +1036,11 @@ Namespace TempleAccounting
             Dim totalSignatureHeight = labelHeight + labelToSignLine + signLineToName + nameHeight + nameToPosition + positionHeight
 
             ' Position signature block - both blocks share same bottom Y
-            ' วางบล็อกทั้งบล็อกให้บรรทัดล่างสุด (เจ้าอาวาส/ไวยาวัจกร) ห่างจากขอบล่างที่พิมพ์ได้ ~0.5 ซม. (≈19px @ 96 DPI)
+            ' เลื่อนบล็อกลงให้ชิดขอบล่างขึ้นอีก: ระยะของ Layout Box ล่างสุดจากขอบล่างที่พิมพ์ได้ = 14px
+            ' โดยข้อความจริง (เจ้าอาวาส/ไวยาวัจกร ฟอนต์ 10pt กลางกล่อง 24px สูง ~14.9px) จะมี glyph ล่างสุด
+            ' ห่างจากขอบล่างที่พิมพ์ได้ ~14 + (24-14.9)/2 ≈ 19px (~0.5 ซม. @ 96 DPI) พอดีตามสเปค
             ' ยังคงระยะห่างภายในบล็อกตามเดิม (ไม่แก้ labelToSignLine/signLineToName ฯลฯ)
-            Dim blockBottom = pageBottom - 19
+            Dim blockBottom = pageBottom - 14
             Dim minimumTop = currentY + 12
             If blockBottom - totalSignatureHeight < minimumTop Then
                 blockBottom = minimumTop + totalSignatureHeight + 8
