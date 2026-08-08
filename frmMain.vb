@@ -32,7 +32,7 @@ Namespace TempleAccounting
                 AppPaths.LogCrash(ex, "frmMain New() UI init")
                 MessageBox.Show("⛔ ไม่สามารถสร้างหน้าต่างหลักได้: " & vbCrLf & ex.Message & vbCrLf & vbCrLf &
                                 "📄 ดูรายละเอียดที่: " & Path.Combine(AppPaths.LogsFolder, "crash.log"),
-                                "TempleAccounting - Startup Failed", MessageBoxButtons.OK, MessageBoxIcon.Stop)
+                                "ระบบบัญชีวัด - เปิดโปรแกรมไม่สำเร็จ", MessageBoxButtons.OK, MessageBoxIcon.Stop)
                 Throw
             End Try
         End Sub
@@ -372,7 +372,7 @@ Namespace TempleAccounting
             lblDesc.ForeColor = Color.FromArgb(90, 70, 40)
             lblDesc.Location = New Point(160, 96)
             lblDesc.MaximumSize = New Size(780, 0)
-            lblDesc.Text = "💡 คำแนะนำสำหรับทีมพัฒนา (Placeholder)" & vbCrLf & vbCrLf & description
+            lblDesc.Text = "💡 คำแนะนำสำหรับทีมพัฒนา" & vbCrLf & vbCrLf & description
             ph.Controls.Add(lblDesc)
 
             Dim lblHow As New Label()
@@ -725,8 +725,8 @@ Namespace TempleAccounting
 
             If result = DialogResult.Yes Then
                 Using ofd As New OpenFileDialog()
-                    ofd.Title = "เลือกไฟล์ฐานข้อมูลจากโฟลเดอร์สำรองข้อมูล (Restore)"
-                    ofd.Filter = "All Supported Files|*.accdb;*.jpg;*.jpeg;*.png;*.bmp|Database Files|*.accdb|Image Files|*.jpg;*.jpeg;*.png;*.bmp|All Files (*.*)|*.*"
+                    ofd.Title = "เลือกไฟล์ฐานข้อมูลจากโฟลเดอร์สำรองข้อมูล (คืนค่า)"
+                    ofd.Filter = "ไฟล์ที่รองรับทั้งหมด|*.accdb;*.jpg;*.jpeg;*.png;*.bmp|ไฟล์ฐานข้อมูล|*.accdb|ไฟล์รูปภาพ|*.jpg;*.jpeg;*.png;*.bmp|ไฟล์ทั้งหมด (*.*)|*.*"
                     ofd.CheckFileExists = True
 
                     If ofd.ShowDialog() = DialogResult.OK Then

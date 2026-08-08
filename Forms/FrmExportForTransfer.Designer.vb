@@ -95,7 +95,7 @@ Namespace TempleAccounting
             lblHeader.Name = "lblHeader"
             lblHeader.Size = New Size(1591, 42)
             lblHeader.TabIndex = 0
-            lblHeader.Text = "📤 ส่งออกข้อมูลไปเครื่องอื่น (Export Data for Transfer / Flash Drive)"
+            lblHeader.Text = "📤 ส่งออกข้อมูลไปเครื่องอื่น (โอนไปยังเครื่องอื่น / แฟลชไดรฟ์)"
             lblHeader.TextAlign = ContentAlignment.MiddleCenter
             ' 
             ' grpMachine
@@ -112,7 +112,7 @@ Namespace TempleAccounting
             grpMachine.Size = New Size(965, 140)
             grpMachine.TabIndex = 1
             grpMachine.TabStop = False
-            grpMachine.Text = "1️⃣ รหัสเครื่องต้นทาง (Machine ID) — ตั้งครั้งเดียวต่อเครื่อง"
+            grpMachine.Text = "1️⃣ รหัสเครื่องต้นทาง — ตั้งครั้งเดียวต่อเครื่อง"
             ' 
             ' lblMachineStatus
             ' 
@@ -154,7 +154,7 @@ Namespace TempleAccounting
             lblMachineHint.Name = "lblMachineHint"
             lblMachineHint.Size = New Size(925, 32)
             lblMachineHint.TabIndex = 3
-            lblMachineHint.Text = "💡 เช่น KIOSK-01, Main Office — รหัสนี้จะถูกฝังในไฟล์ export ทุกไฟล์ (Metadata)" & vbCrLf &
+            lblMachineHint.Text = "💡 เช่น KIOSK-01, สำนักงานใหญ่ — รหัสนี้จะถูกฝังในไฟล์ส่งออกทุกไฟล์" & vbCrLf &
                                  "ฝั่งนำเข้า (FrmMultiMachineImport) จะอ่านจากไฟล์โดยตรง ไม่ใช้ชื่อไฟล์เป็นตัวระบุ"
             ' 
             ' grpRange
@@ -280,7 +280,7 @@ Namespace TempleAccounting
             btnExportForTransfer.Name = "btnExportForTransfer"
             btnExportForTransfer.Size = New Size(340, 50)
             btnExportForTransfer.TabIndex = 0
-            btnExportForTransfer.Text = "📤 ส่งออกข้อมูลไปเครื่องอื่น (Export)"
+            btnExportForTransfer.Text = "📤 ส่งออกข้อมูลไปเครื่องอื่น"
             btnExportForTransfer.UseVisualStyleBackColor = False
             ' 
             ' btnOpenExportFolder
@@ -294,7 +294,7 @@ Namespace TempleAccounting
             btnOpenExportFolder.Name = "btnOpenExportFolder"
             btnOpenExportFolder.Size = New Size(220, 50)
             btnOpenExportFolder.TabIndex = 1
-            btnOpenExportFolder.Text = "📂 เปิดโฟลเดอร์ Export"
+            btnOpenExportFolder.Text = "📂 เปิดโฟลเดอร์ไฟล์ส่งออก"
             btnOpenExportFolder.UseVisualStyleBackColor = False
             ' 
             ' grpLog
@@ -310,7 +310,7 @@ Namespace TempleAccounting
             grpLog.Size = New Size(1559, 120)
             grpLog.TabIndex = 4
             grpLog.TabStop = False
-            grpLog.Text = "Log ประวัติการทำงาน"
+            grpLog.Text = "ประวัติการทำงาน"
             ' 
             ' rtbLog
             ' 

@@ -365,7 +365,7 @@ Namespace TempleAccounting
                 txtReceipt.Text = "[รูปภาพจากคลิปบอร์ด/LINE]"
                 btnSave.Focus()
             Else
-                MessageBox.Show("ไม่พบรูปภาพใหม่ใน Clipboard กรุณาไปที่ LINE แล้วกด Copy รูปภาพใบเสร็จรูปใหม่ก่อนกดปุ่มนี้", "แจ้งเตือน", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                MessageBox.Show("ไม่พบรูปภาพใหม่ในคลิปบอร์ด กรุณาไปที่ LINE แล้วกดคัดลอกรูปภาพใบเสร็จใหม่ก่อนกดปุ่มนี้", "แจ้งเตือน", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             End If
         End Sub
 

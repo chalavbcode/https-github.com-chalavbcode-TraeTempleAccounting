@@ -113,7 +113,7 @@ Namespace TempleAccounting
             lblHeader.Name = "lblHeader"
             lblHeader.Size = New Size(1591, 42)
             lblHeader.TabIndex = 0
-            lblHeader.Text = "🖥️ นำเข้าข้อมูลหลายเครื่อง (Multi-Machine Import / Flash Drive Merge)"
+            lblHeader.Text = "🖥️ นำเข้าข้อมูลหลายเครื่อง (นำเข้ารวมจากหลายเครื่อง / แฟลชไดรฟ์)"
             lblHeader.TextAlign = ContentAlignment.MiddleCenter
             ' 
             ' grpFiles
@@ -129,7 +129,7 @@ Namespace TempleAccounting
             grpFiles.Size = New Size(965, 120)
             grpFiles.TabIndex = 1
             grpFiles.TabStop = False
-            grpFiles.Text = "1️⃣ เลือกไฟล์ Export จากหลายเครื่อง / Flash Drive"
+            grpFiles.Text = "1️⃣ เลือกไฟล์ส่งออกจากหลายเครื่อง / แฟลชไดรฟ์"
             ' 
             ' btnSelectFiles
             ' 
@@ -142,7 +142,7 @@ Namespace TempleAccounting
             btnSelectFiles.Name = "btnSelectFiles"
             btnSelectFiles.Size = New Size(300, 50)
             btnSelectFiles.TabIndex = 0
-            btnSelectFiles.Text = "📂 เลือกไฟล์ Export (เลือกได้หลายไฟล์)"
+            btnSelectFiles.Text = "📂 เลือกไฟล์ส่งออก (เลือกได้หลายไฟล์)"
             btnSelectFiles.UseVisualStyleBackColor = False
             ' 
             ' btnClearFiles
@@ -182,7 +182,7 @@ Namespace TempleAccounting
             grpMachine.Size = New Size(588, 120)
             grpMachine.TabIndex = 2
             grpMachine.TabStop = False
-            grpMachine.Text = "2️⃣ รหัสเครื่องต้นทาง (Machine ID) และ File Hash"
+            grpMachine.Text = "2️⃣ รหัสเครื่องต้นทาง และรหัสยืนยันไฟล์"
             ' 
             ' lblMachineInfo
             ' 
@@ -192,9 +192,9 @@ Namespace TempleAccounting
             lblMachineInfo.Name = "lblMachineInfo"
             lblMachineInfo.Size = New Size(556, 60)
             lblMachineInfo.TabIndex = 0
-            lblMachineInfo.Text = "ระบบจะอ่าน MachineID / KioskCode ที่ฝังอยู่ในตัวไฟล์ export" & vbCrLf &
+            lblMachineInfo.Text = "ระบบจะอ่านรหัสเครื่องที่ฝังอยู่ในตัวไฟล์ส่งออก" & vbCrLf &
                                  "(ไม่ใช้ชื่อไฟล์หรือชื่อเครื่อง Windows เป็นตัวระบุ)" & vbCrLf &
-                                 "พร้อมคำนวณ SHA-256 ของไฟล์ทั้งไฟล์เพื่อกันการนำเข้าซ้ำ"
+                                 "พร้อมคำนวณรหัสยืนยันไฟล์เพื่อกันการนำเข้าซ้ำ"
             ' 
             ' lblMachineStatus
             ' 
@@ -220,7 +220,7 @@ Namespace TempleAccounting
             grpPreview.Size = New Size(1559, 300)
             grpPreview.TabIndex = 3
             grpPreview.TabStop = False
-            grpPreview.Text = "3️⃣ ตัวอย่างข้อมูลก่อนรวม (Preview ต่อไฟล์)"
+            grpPreview.Text = "3️⃣ ตัวอย่างข้อมูลก่อนรวม (ทีละไฟล์)"
             ' 
             ' dgvImportPreview
             ' 
@@ -242,7 +242,7 @@ Namespace TempleAccounting
             ' colFileName
             ' 
             colFileName.FillWeight = 110F
-            colFileName.HeaderText = "Source File Name"
+            colFileName.HeaderText = "ชื่อไฟล์ต้นทาง"
             colFileName.MinimumWidth = 150
             colFileName.Name = "colFileName"
             colFileName.ReadOnly = True
@@ -250,7 +250,7 @@ Namespace TempleAccounting
             ' colMachineId
             ' 
             colMachineId.FillWeight = 70F
-            colMachineId.HeaderText = "Machine ID"
+            colMachineId.HeaderText = "รหัสเครื่อง"
             colMachineId.MinimumWidth = 100
             colMachineId.Name = "colMachineId"
             colMachineId.ReadOnly = True
@@ -258,7 +258,7 @@ Namespace TempleAccounting
             ' colHashStatus
             ' 
             colHashStatus.FillWeight = 90F
-            colHashStatus.HeaderText = "File Hash Status"
+            colHashStatus.HeaderText = "สถานะรหัสยืนยันไฟล์"
             colHashStatus.MinimumWidth = 130
             colHashStatus.Name = "colHashStatus"
             colHashStatus.ReadOnly = True
@@ -282,7 +282,7 @@ Namespace TempleAccounting
             ' colIncomeSum
             ' 
             colIncomeSum.FillWeight = 55F
-            colIncomeSum.HeaderText = "Total Income Sum"
+            colIncomeSum.HeaderText = "รวมรายรับ"
             colIncomeSum.MinimumWidth = 90
             colIncomeSum.Name = "colIncomeSum"
             colIncomeSum.ReadOnly = True
@@ -290,7 +290,7 @@ Namespace TempleAccounting
             ' colExpenseSum
             ' 
             colExpenseSum.FillWeight = 55F
-            colExpenseSum.HeaderText = "Total Expense Sum"
+            colExpenseSum.HeaderText = "รวมรายจ่าย"
             colExpenseSum.MinimumWidth = 90
             colExpenseSum.Name = "colExpenseSum"
             colExpenseSum.ReadOnly = True
@@ -298,7 +298,7 @@ Namespace TempleAccounting
             ' colDupStatus
             ' 
             colDupStatus.FillWeight = 95F
-            colDupStatus.HeaderText = "Duplicate Status"
+            colDupStatus.HeaderText = "สถานะการซ้ำ"
             colDupStatus.MinimumWidth = 140
             colDupStatus.Name = "colDupStatus"
             colDupStatus.ReadOnly = True
@@ -306,7 +306,7 @@ Namespace TempleAccounting
             ' colWarnings
             ' 
             colWarnings.FillWeight = 70F
-            colWarnings.HeaderText = "คำเตือน (Warning)"
+            colWarnings.HeaderText = "คำเตือน"
             colWarnings.MinimumWidth = 120
             colWarnings.Name = "colWarnings"
             colWarnings.ReadOnly = True
@@ -333,7 +333,7 @@ Namespace TempleAccounting
             lblPreviewNote.Name = "lblPreviewNote"
             lblPreviewNote.Size = New Size(1220, 30)
             lblPreviewNote.TabIndex = 2
-            lblPreviewNote.Text = "💡 ดับเบิลคลิกแถวไฟล์เพื่อดูรายการซ้ำของไฟล์นั้น / คลิกปุ่มด้านซ้ายเพื่อดูรายการซ้ำทั้งหมดก่อนตัดสินใจ merge — ระบบจะไม่ข้ามรายการซ้ำแบบเงียบๆ"
+            lblPreviewNote.Text = "💡 ดับเบิลคลิกแถวไฟล์เพื่อดูรายการซ้ำของไฟล์นั้น / คลิกปุ่มด้านซ้ายเพื่อดูรายการซ้ำทั้งหมดก่อนตัดสินใจรวมข้อมูล — ระบบจะไม่ข้ามรายการซ้ำแบบเงียบๆ"
             ' 
             ' grpMerge
             ' 
@@ -388,7 +388,7 @@ Namespace TempleAccounting
             grpLog.Size = New Size(1559, 120)
             grpLog.TabIndex = 5
             grpLog.TabStop = False
-            grpLog.Text = "Log ประวัติการทำงาน"
+            grpLog.Text = "ประวัติการทำงาน"
             ' 
             ' rtbLog
             ' 

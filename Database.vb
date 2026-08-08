@@ -383,7 +383,7 @@ Namespace TempleAccounting
 
         Public Sub BackupDatabase(Optional targetDir As String = Nothing)
             Dim src = AppPaths.DatabaseFile
-            If Not File.Exists(src) Then Throw New FileNotFoundException("ไม่พบไฟล์ฐานข้อมูลสำหรับ Backup")
+            If Not File.Exists(src) Then Throw New FileNotFoundException("ไม่พบไฟล์ฐานข้อมูลสำหรับสำรองข้อมูล")
             If String.IsNullOrEmpty(targetDir) Then targetDir = AppPaths.BackupFolder
             If Not Directory.Exists(targetDir) Then Directory.CreateDirectory(targetDir)
             Dim fn = $"TempleAccounting_{DateTime.Now:yyyyMMdd_HHmmss}.accdb"

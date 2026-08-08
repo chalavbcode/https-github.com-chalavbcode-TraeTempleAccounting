@@ -136,7 +136,7 @@ Namespace TempleAccounting
             lnkOpenImportFolder.Size = New Size(236, 24)
             lnkOpenImportFolder.TabIndex = 6
             lnkOpenImportFolder.TabStop = True
-            lnkOpenImportFolder.Text = "📂 เปิดโฟลเดอร์ Import"
+            lnkOpenImportFolder.Text = "📂 เปิดโฟลเดอร์นำเข้า"
             ' 
             ' lblSubDistrictCount
             ' 
@@ -176,7 +176,7 @@ Namespace TempleAccounting
             Label2.Name = "Label2"
             Label2.Size = New Size(119, 24)
             Label2.TabIndex = 2
-            Label2.Text = "tambon.csv:"
+            Label2.Text = "ไฟล์ตำบล:"
             ' 
             ' lblDistrictFile
             ' 
@@ -186,7 +186,7 @@ Namespace TempleAccounting
             lblDistrictFile.Name = "lblDistrictFile"
             lblDistrictFile.Size = New Size(123, 24)
             lblDistrictFile.TabIndex = 1
-            lblDistrictFile.Text = "amphoe.csv:"
+            lblDistrictFile.Text = "ไฟล์อำเภอ:"
             ' 
             ' lblProvinceFile
             ' 
@@ -196,7 +196,7 @@ Namespace TempleAccounting
             lblProvinceFile.Name = "lblProvinceFile"
             lblProvinceFile.Size = New Size(126, 24)
             lblProvinceFile.TabIndex = 0
-            lblProvinceFile.Text = "province.csv:"
+            lblProvinceFile.Text = "ไฟล์จังหวัด:"
             ' 
             ' grp2
             ' 
@@ -297,7 +297,7 @@ Namespace TempleAccounting
             Label4.Name = "Label4"
             Label4.Size = New Size(265, 23)
             Label4.TabIndex = 2
-            Label4.Text = "Province / District / SubDistrict"
+            Label4.Text = "จังหวัด / อำเภอ / ตำบล"
             ' 
             ' Label3
             ' 
@@ -333,7 +333,7 @@ Namespace TempleAccounting
             grp4.Size = New Size(1559, 90)
             grp4.TabIndex = 4
             grp4.TabStop = False
-            grp4.Text = "Progress"
+            grp4.Text = "ความคืบหน้า"
             ' 
             ' lblProgress
             ' 

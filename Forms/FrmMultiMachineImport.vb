@@ -99,7 +99,7 @@ Namespace TempleAccounting
             EnsureImportSchema()
             SetupToolTips()
             UiFitter.AutoFitFormButtons(Me)
-            Log("ระบบพร้อมใช้งาน — เลือกไฟล์ Export จากเครื่องปลายทาง (เลือกได้หลายไฟล์) เพื่อตรวจสอบและรวมข้อมูล")
+            Log("ระบบพร้อมใช้งาน — เลือกไฟล์ส่งออกจากเครื่องปลายทาง (เลือกได้หลายไฟล์) เพื่อตรวจสอบและรวมข้อมูล")
         End Sub
 
         Private Sub FrmMultiMachineImport_KeyDown(sender As Object, e As KeyEventArgs) Handles Me.KeyDown
@@ -111,17 +111,17 @@ Namespace TempleAccounting
         End Sub
 
         Private Sub SetupToolTips()
-            ttMain.SetToolTip(btnSelectFiles, "เลือกไฟล์ Export (.xlsx) จากหลายเครื่อง/Flash Drive ได้พร้อมกันหลายไฟล์")
+            ttMain.SetToolTip(btnSelectFiles, "เลือกไฟล์ส่งออก (.xlsx) จากหลายเครื่อง/แฟลชไดรฟ์ ได้พร้อมกันหลายไฟล์")
             ttMain.SetToolTip(btnClearFiles, "ล้างรายการไฟล์ที่เลือกทั้งหมด")
             ttMain.SetToolTip(btnViewDuplicates, "ดูรายละเอียดรายการที่ตรวจพบว่าซ้ำ/สงสัยซ้ำ ก่อนตัดสินใจรวมข้อมูล")
-            ttMain.SetToolTip(btnConfirmMerge, "สำรองฐานข้อมูลอัตโนมัติ แล้วรวมข้อมูลทั้งหมดลงฐานข้อมูลหลัก (Transaction เดียว)")
+            ttMain.SetToolTip(btnConfirmMerge, "สำรองฐานข้อมูลอัตโนมัติ แล้วรวมข้อมูลทั้งหมดลงฐานข้อมูลหลักในครั้งเดียว")
             ttMain.SetToolTip(btnClose, "ปิดหน้าจอนี้และกลับไปที่หน้ารายการเงินรับ-จ่าย")
         End Sub
 
         Private Sub btnSelectFiles_Click(sender As Object, e As EventArgs) Handles btnSelectFiles.Click
             Using ofd As New OpenFileDialog()
-                ofd.Title = "เลือกไฟล์ Export จากหลายเครื่อง / Flash Drive (เลือกได้หลายไฟล์)"
-                ofd.Filter = "ไฟล์ Excel Export (*.xlsx;*.xlsm;*.xlsb;*.xls)|*.xlsx;*.xlsm;*.xlsb;*.xls|ไฟล์ทั้งหมด (*.*)|*.*"
+                ofd.Title = "เลือกไฟล์ส่งออกจากหลายเครื่อง / แฟลชไดรฟ์ (เลือกได้หลายไฟล์)"
+                ofd.Filter = "ไฟล์ข้อมูลส่งออก (*.xlsx;*.xlsm;*.xlsb;*.xls)|*.xlsx;*.xlsm;*.xlsb;*.xls|ไฟล์ทั้งหมด (*.*)|*.*"
                 ofd.Multiselect = True
                 ofd.CheckFileExists = True
                 If ofd.ShowDialog() <> DialogResult.OK Then Return
@@ -141,9 +141,9 @@ Namespace TempleAccounting
 
                 If fallbackCount > 0 Then
                     MessageBox.Show(
-                        "⚠️ ไม่พบรหัสเครื่องต้นทาง (MachineID / KioskCode) ในไฟล์จำนวน " & fallbackCount & " ไฟล์" & vbCrLf & vbCrLf &
+                        "⚠️ ไม่พบรหัสเครื่องต้นทางในไฟล์จำนวน " & fallbackCount & " ไฟล์" & vbCrLf & vbCrLf &
                         "ระบบจะใช้ชื่อไฟล์แทน (ความน่าเชื่อถือต่ำ)" & vbCrLf &
-                        "กรุณาตรวจสอบว่าไฟล์ export จากเครื่องปลายทางมีคอลัมน์ MachineID หรือ KioskCode ฝังอยู่ในไฟล์",
+                        "กรุณาตรวจสอบว่าไฟล์ส่งออกจากเครื่องปลายทางมีคอลัมน์รหัสเครื่องฝังอยู่ในไฟล์",
                         "คำเตือน: ไม่พบรหัสเครื่องต้นทาง", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                 End If
 
@@ -170,7 +170,7 @@ Namespace TempleAccounting
         Private Sub btnConfirmMerge_Click(sender As Object, e As EventArgs) Handles btnConfirmMerge.Click
             If _isMerging Then Return
             If _files.Count = 0 Then
-                MessageBox.Show("กรุณาเลือกไฟล์ Export ก่อน", "แจ้งเตือน", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                MessageBox.Show("กรุณาเลือกไฟล์ส่งออกก่อน", "แจ้งเตือน", MessageBoxButtons.OK, MessageBoxIcon.Information)
                 Return
             End If
 
@@ -189,7 +189,7 @@ Namespace TempleAccounting
             Next
 
             If totalValid = 0 Then
-                MessageBox.Show("ไม่มีแถวข้อมูลที่นำเข้าได้ (ตรวจสอบ schema / ข้อมูลผิดพลาดในคอลัมน์ Preview)", "แจ้งเตือน", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                MessageBox.Show("ไม่มีแถวข้อมูลที่นำเข้าได้ (ตรวจสอบโครงสร้างไฟล์ / ข้อมูลผิดพลาดในคอลัมน์ตัวอย่าง)", "แจ้งเตือน", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                 Return
             End If
 
@@ -198,10 +198,10 @@ Namespace TempleAccounting
             If suspected > 0 Then
                 Dim r = MessageBox.Show(
                     "พบรายการสงสัยซ้ำ " & suspected.ToString("#,##0") & " รายการ" & vbCrLf &
-                    "(ตรวจจาก composite key: วันที่ + จำนวนเงิน + ประเภท + รายละเอียด + รหัสเครื่อง เทียบกับฐานข้อมูลหลัก)" & vbCrLf & vbCrLf &
-                    "กด [Yes] = ข้ามรายการสงสัยซ้ำ (แนะนำ)" & vbCrLf &
-                    "กด [No] = นำเข้าทุกแถว รวมรายการสงสัยซ้ำ" & vbCrLf &
-                    "กด [Cancel] = ยกเลิกการรวมข้อมูล",
+                    "(ตรวจจากชุดข้อมูล: วันที่ + จำนวนเงิน + ประเภท + รายละเอียด + รหัสเครื่อง เทียบกับฐานข้อมูลหลัก)" & vbCrLf & vbCrLf &
+                    "เลือก 'ข้ามรายการสงสัยซ้ำ' (แนะนำ)" & vbCrLf &
+                    "เลือก 'นำเข้าทุกแถว' เพื่อรวมรายการสงสัยซ้ำ" & vbCrLf &
+                    "เลือก 'ยกเลิก' เพื่อหยุดการรวมข้อมูล",
                     "ยืนยันรายการสงสัยซ้ำ", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question)
                 If r = DialogResult.Cancel Then
                     LogMergeOutcome("Cancelled")
@@ -215,7 +215,7 @@ Namespace TempleAccounting
             Dim msg As String = "📊 สรุปก่อนรวมข้อมูล" & vbCrLf &
                 "ไฟล์ที่เลือก: " & _files.Count & " ไฟล์" & vbCrLf &
                 "แถวที่นำเข้าได้: " & totalValid.ToString("#,##0") & " รายการ" & vbCrLf &
-                "ข้าม (GUID ซ้ำแน่นอน): " & exactDup.ToString("#,##0") & " รายการ"
+                "ข้าม (รหัสอ้างอิงซ้ำแน่นอน): " & exactDup.ToString("#,##0") & " รายการ"
             If suspected > 0 Then
                 msg &= vbCrLf & "ข้าม (สงสัยซ้ำ): " & If(confirmedSkipSuspected, suspected.ToString("#,##0") & " รายการ", "0 รายการ (นำเข้าทั้งหมด)")
             End If
@@ -236,7 +236,7 @@ Namespace TempleAccounting
                 AppPaths.LogCrash(ex, "FrmMultiMachineImport.Merge")
                 LogMergeOutcome("Failed")
                 Log("❌ เกิดข้อผิดพลาดระหว่างรวมข้อมูล: " & ex.Message)
-                MessageBox.Show("เกิดข้อผิดพลาดระหว่างการรวมข้อมูล: " & ex.Message & vbCrLf & "ระบบ Rollback ข้อมูลทั้งหมดแล้ว", "ข้อผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                MessageBox.Show("เกิดข้อผิดพลาดระหว่างการรวมข้อมูล: " & ex.Message & vbCrLf & "ระบบได้ยกเลิกการบันทึกข้อมูลทั้งหมดแล้ว", "ข้อผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
             Finally
                 btnConfirmMerge.Enabled = True
                 _isMerging = False
@@ -289,10 +289,10 @@ Namespace TempleAccounting
             Try
                 hash = ComputeSha256(filePath)
             Catch ex As Exception
-                MessageBox.Show("ไม่สามารถคำนวณ File Hash (SHA-256) ของไฟล์นี้ได้: " & ex.Message, "ข้อผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                MessageBox.Show("ไม่สามารถคำนวณรหัสยืนยันไฟล์ของไฟล์นี้ได้: " & ex.Message, "ข้อผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
                 Return
             End Try
-            Log("🔑 SHA-256: " & hash.Substring(0, 12) & "... (" & Path.GetFileName(filePath) & ")")
+            Log("🔑 รหัสยืนยันไฟล์: " & hash.Substring(0, 12) & "... (" & Path.GetFileName(filePath) & ")")
 
             Dim prev = FindPreviousImport(hash)
             If prev IsNot Nothing Then
@@ -303,11 +303,11 @@ Namespace TempleAccounting
                 Dim ans = MessageBox.Show(
                     "⚠️ ไฟล์นี้เคยถูกนำเข้าระบบแล้วเมื่อ " & prevDate & " โดย " & prevUser & vbCrLf &
                     "ไฟล์เดิมที่บันทึก: " & Convert.ToString(prev("SourceFileName")) & vbCrLf & vbCrLf &
-                    "กด [Yes] = นำเข้าซ้ำแบบตั้งใจ (ระบบจะตรวจสอบรายการซ้ำอีกครั้ง)" & vbCrLf &
-                    "กด [No] = ข้ามไฟล์นี้",
-                    "ไฟล์เคยถูกนำเข้าแล้ว (SHA-256 ตรงกัน)", MessageBoxButtons.YesNo, MessageBoxIcon.Warning)
+                    "เลือก 'นำเข้าซ้ำแบบตั้งใจ' (ระบบจะตรวจสอบรายการซ้ำอีกครั้ง)" & vbCrLf &
+                    "เลือก 'ข้ามไฟล์นี้'",
+                    "ไฟล์เคยถูกนำเข้าแล้ว (รหัสยืนยันตรงกัน)", MessageBoxButtons.YesNo, MessageBoxIcon.Warning)
                 If ans = DialogResult.No Then
-                    Log("⏭️ ข้ามไฟล์ (เคย import สำเร็จแล้ว): " & Path.GetFileName(filePath))
+                    Log("⏭️ ข้ามไฟล์ (เคยนำเข้าสำเร็จแล้ว): " & Path.GetFileName(filePath))
                     Return
                 End If
             End If
@@ -756,10 +756,10 @@ Namespace TempleAccounting
                     machineDisplay = "ไม่ทราบ/Unknown"
                 End If
 
-                Dim hashStatus As String = If(f.PreviousImportInfo.Length > 0, "เคย Import แล้ว " & f.PreviousImportInfo, "ใหม่")
+                Dim hashStatus As String = If(f.PreviousImportInfo.Length > 0, "เคยนำเข้าแล้ว " & f.PreviousImportInfo, "ใหม่")
                 Dim dupStatus As String = "Ready"
                 If f.GuidDuplicateCount > 0 OrElse f.SuspectedDuplicateCount > 0 Then
-                    dupStatus = "พบซ้ำ " & f.GuidDuplicateCount.ToString("#,##0") & " (GUID) / สงสัยซ้ำ " & f.SuspectedDuplicateCount.ToString("#,##0")
+                    dupStatus = "พบซ้ำ " & f.GuidDuplicateCount.ToString("#,##0") & " (รหัสอ้างอิง) / สงสัยซ้ำ " & f.SuspectedDuplicateCount.ToString("#,##0")
                 End If
 
                 Dim warnings As String = ""
@@ -805,7 +805,7 @@ Namespace TempleAccounting
             btnConfirmMerge.Enabled = (_files.Count > 0 AndAlso filesWithData > 0)
 
             If fallbackCount > 0 Then
-                lblMachineStatus.Text = "⚠️ " & fallbackCount & " ไฟล์ ไม่พบ MachineID ในไฟล์ — ใช้ชื่อไฟล์แทน (ความน่าเชื่อถือต่ำ)"
+                lblMachineStatus.Text = "⚠️ " & fallbackCount & " ไฟล์ ไม่พบรหัสเครื่องในไฟล์ — ใช้ชื่อไฟล์แทน (ความน่าเชื่อถือต่ำ)"
                 lblMachineStatus.ForeColor = Color.FromArgb(153, 27, 27)
             ElseIf _files.Count = 0 Then
                 lblMachineStatus.Text = "⏳ ยังไม่มีการเลือกไฟล์"
@@ -837,7 +837,7 @@ Namespace TempleAccounting
             dt.Columns.Add("ประเภท", GetType(String))
             dt.Columns.Add("รายละเอียด", GetType(String))
             dt.Columns.Add("จำนวนเงิน", GetType(Decimal))
-            dt.Columns.Add("MachineID", GetType(String))
+            dt.Columns.Add("รหัสเครื่อง", GetType(String))
             dt.Columns.Add("สถานะ", GetType(String))
 
             For Each r In rows
@@ -848,7 +848,7 @@ Namespace TempleAccounting
                         Exit For
                     End If
                 Next
-                Dim status As String = If(r.IsDuplicateExact, "ซ้ำแน่นอน (TransactionGUID ตรง)", "สงสัยซ้ำ (วันที่+จำนวน+ประเภท+รายละเอียด+เครื่อง ตรงกับฐานข้อมูล)")
+                Dim status As String = If(r.IsDuplicateExact, "ซ้ำแน่นอน (รหัสอ้างอิงตรงกัน)", "สงสัยซ้ำ (วันที่+จำนวน+ประเภท+รายละเอียด+เครื่อง ตรงกับฐานข้อมูล)")
                 Dim dateText As String = If(r.TranDate = Date.MinValue, "-", r.TranDate.ToString("dd/MM/yyyy"))
                 dt.Rows.Add(fileName, r.RowNumber, dateText, r.TranType, r.Detail, r.Amount,
                             If(r.MachineID.Length > 0, r.MachineID, "-"), status)
@@ -881,7 +881,7 @@ Namespace TempleAccounting
             lblNote.Font = New Font("Tahoma", 9.5F)
             lblNote.ForeColor = Color.FromArgb(153, 27, 27)
             lblNote.Padding = New Padding(10, 6, 10, 0)
-            lblNote.Text = "⚠️ รายการ " & ChrW(34) & "สงสัยซ้ำ" & ChrW(34) & " ตรวจจาก composite key (วันที่+จำนวนเงิน+ประเภท+รายละเอียด+รหัสเครื่อง) เทียบกับฐานข้อมูลหลัก — " &
+            lblNote.Text = "⚠️ รายการ " & ChrW(34) & "สงสัยซ้ำ" & ChrW(34) & " ตรวจจากชุดข้อมูล (วันที่+จำนวนเงิน+ประเภท+รายละเอียด+รหัสเครื่อง) เทียบกับฐานข้อมูลหลัก — " &
                 "อาจเป็น false positive ได้ (ธุรกรรมที่เหมือนกันโดยบังเอิญ) จึงไม่ถูกข้ามอัตโนมัติ ต้องยืนยันอีกครั้งตอนกดรวมข้อมูล"
 
             Dim btnOk As New Button()
@@ -906,7 +906,7 @@ Namespace TempleAccounting
         ' ====================== 5. Merge Execution & Transaction Handling ======================
 
         Private Sub RunMerge(skipSuspected As Boolean)
-            Log("=== เริ่มรวมข้อมูล (Merge) ===")
+            Log("=== เริ่มรวมข้อมูล ===")
 
             ' ก่อน merge: สำรองฐานข้อมูลอัตโนมัติ (เซฟตี้เน็ตสุดท้าย — transaction ป้องกัน insert ผิดพลาด แต่ไม่กันไฟล์ corrupt)
             Log("📦 สำรองฐานข้อมูลอัตโนมัติก่อนรวมข้อมูล...")
@@ -954,7 +954,7 @@ Namespace TempleAccounting
                     For Each f In _files
                         fileIndex += 1
                         If f.SchemaError.Length > 0 Then
-                            Log("⚠️ ข้ามไฟล์ " & Path.GetFileName(f.FilePath) & " (schema ไม่ถูกต้อง: " & f.SchemaError & ")")
+                            Log("⚠️ ข้ามไฟล์ " & Path.GetFileName(f.FilePath) & " (โครงสร้างไฟล์ไม่ถูกต้อง: " & f.SchemaError & ")")
                             Continue For
                         End If
 
@@ -1048,11 +1048,11 @@ Namespace TempleAccounting
                     Next
 
                     tx.Commit()
-                    Log("✅ Commit สำเร็จ (เขียนลง ImportHistory เฉพาะเมื่อสำเร็จเท่านั้น)")
+                    Log("✅ บันทึกสำเร็จ (เขียนลงตารางประวัติการนำเข้าเฉพาะเมื่อสำเร็จเท่านั้น)")
                 Catch ex As Exception
                     Try
                         tx.Rollback()
-                        Log("↩️ Rollback ทั้งหมด เนื่องจาก error: " & ex.Message)
+                        Log("↩️ ยกเลิกการบันทึกทั้งหมด เนื่องจากข้อผิดพลาด: " & ex.Message)
                     Catch
                     End Try
                     Throw
@@ -1097,7 +1097,7 @@ Namespace TempleAccounting
                                   If(stagedFiles.Count > 0, " / แนบไฟล์ " & movedOk.ToString("#,##0"), "")
 
             RefreshPreviewGrid()
-            Log("=== จบ Merge ===")
+            Log("=== จบการรวมข้อมูล ===")
         End Sub
 
         ' ---------- Helpers สำหรับ OLEDB Transaction ----------
@@ -1221,7 +1221,7 @@ Namespace TempleAccounting
                     If Not hasImportHistory Then
                         Db.ExecuteNonQuery(conn,
                             "CREATE TABLE ImportHistory (ImportBatchID GUID PRIMARY KEY, SourceFileName TEXT(255), FileHash TEXT(64) NOT NULL, MachineID TEXT(50), ImportDateTime DATETIME, ImportedBy TEXT(100), RowCountTotal INTEGER, RowCountImported INTEGER, RowCountSkippedDuplicate INTEGER, ReceiptCountImported INTEGER, TotalAmountImported CURRENCY, ImportStatus TEXT(20))")
-                        Log("✅ สร้างตาราง ImportHistory ใหม่แล้ว")
+                        Log("✅ สร้างตารางประวัติการนำเข้าใหม่แล้ว")
                     Else
                         ' non-breaking: เพิ่มคอลัมน์ ReceiptCountImported ถ้ายังไม่มี (ตารางเดิมจากเวอร์ชันแรก)
                         Dim ihCols As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase)
@@ -1231,7 +1231,7 @@ Namespace TempleAccounting
                         Next
                         If Not ihCols.Contains("ReceiptCountImported") Then
                             Db.ExecuteNonQuery(conn, "ALTER TABLE ImportHistory ADD COLUMN ReceiptCountImported INTEGER")
-                            Log("✅ เพิ่มคอลัมน์ ReceiptCountImported ใน ImportHistory แล้ว (non-breaking)")
+                            Log("✅ เพิ่มคอลัมน์จำนวนไฟล์แนบในตารางประวัติการนำเข้าแล้ว (ไม่ทำลายข้อมูลเดิม)")
                         End If
                     End If
 
@@ -1242,15 +1242,15 @@ Namespace TempleAccounting
                     Next
                     If Not colNames.Contains("ImportBatchID") Then
                         Db.ExecuteNonQuery(conn, "ALTER TABLE Transactions ADD COLUMN ImportBatchID GUID")
-                        Log("✅ เพิ่มคอลัมน์ ImportBatchID ใน Transactions แล้ว (non-breaking)")
+                        Log("✅ เพิ่มคอลัมน์หมายเลขชุดนำเข้าในตารางธุรกรรมแล้ว (ไม่ทำลายข้อมูลเดิม)")
                     End If
                     If Not colNames.Contains("TransactionGUID") Then
                         Db.ExecuteNonQuery(conn, "ALTER TABLE Transactions ADD COLUMN TransactionGUID TEXT(36)")
-                        Log("✅ เพิ่มคอลัมน์ TransactionGUID ใน Transactions แล้ว (non-breaking)")
+                        Log("✅ เพิ่มคอลัมน์รหัสอ้างอิงในตารางธุรกรรมแล้ว (ไม่ทำลายข้อมูลเดิม)")
                     End If
                     If Not colNames.Contains("SourceMachineID") Then
                         Db.ExecuteNonQuery(conn, "ALTER TABLE Transactions ADD COLUMN SourceMachineID TEXT(50)")
-                        Log("✅ เพิ่มคอลัมน์ SourceMachineID ใน Transactions แล้ว (non-breaking)")
+                        Log("✅ เพิ่มคอลัมน์รหัสเครื่องต้นทางในตารางธุรกรรมแล้ว (ไม่ทำลายข้อมูลเดิม)")
                     End If
                 End Using
             Catch ex As Exception

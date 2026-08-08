@@ -138,7 +138,7 @@ Namespace TempleAccounting
                         New Tuple(Of String, Object)("@n", name), New Tuple(Of String, Object)("@t", type))
                 End Using
                 txtCatName.Clear() : LoadAll()
-            Catch ex As Exception : MessageBox.Show(ex.Message) : End Try
+            Catch ex As Exception : MessageBoxHelper.ShowError("เกิดข้อผิดพลาด: " & ex.Message) : End Try
         End Sub
 
         Private Sub btnCatEdit_Click(sender As Object, e As EventArgs) Handles btnCatEdit.Click
@@ -157,7 +157,7 @@ Namespace TempleAccounting
                         New Tuple(Of String, Object)("@n", name), New Tuple(Of String, Object)("@t", type), New Tuple(Of String, Object)("@id", selCatId))
                 End Using
                 LoadAll()
-            Catch ex As Exception : MessageBox.Show(ex.Message) : End Try
+            Catch ex As Exception : MessageBoxHelper.ShowError("เกิดข้อผิดพลาด: " & ex.Message) : End Try
         End Sub
 
         Private Sub btnCatDel_Click(sender As Object, e As EventArgs) Handles btnCatDel.Click
@@ -188,7 +188,7 @@ Namespace TempleAccounting
                     Db.ExecuteNonQuery(conn, "INSERT INTO Funds (FundName) VALUES (@n)", New Tuple(Of String, Object)("@n", name))
                 End Using
                 txtFundName.Clear() : LoadAll()
-            Catch ex As Exception : MessageBox.Show(ex.Message) : End Try
+            Catch ex As Exception : MessageBoxHelper.ShowError("เกิดข้อผิดพลาด: " & ex.Message) : End Try
         End Sub
 
         Private Sub btnFundDel_Click(sender As Object, e As EventArgs) Handles btnFundDel.Click
@@ -218,7 +218,7 @@ Namespace TempleAccounting
                         New Tuple(Of String, Object)("@n", name), New Tuple(Of String, Object)("@no", no), New Tuple(Of String, Object)("@a", acc))
                 End Using
                 txtBankName.Clear() : txtBankAccountNo.Clear() : txtBankAccountName.Clear() : LoadAll()
-            Catch ex As Exception : MessageBox.Show(ex.Message) : End Try
+            Catch ex As Exception : MessageBoxHelper.ShowError("เกิดข้อผิดพลาด: " & ex.Message) : End Try
         End Sub
 
         Private Sub btnBankDel_Click(sender As Object, e As EventArgs) Handles btnBankDel.Click

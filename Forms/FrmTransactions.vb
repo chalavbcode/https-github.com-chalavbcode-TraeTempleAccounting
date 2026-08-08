@@ -902,7 +902,7 @@ New Tuple(Of String, Object)("@id", id))
 
                 ' ตรวจสอบว่า Clipboard มีรูปภาพหรือไม่
                 If Not Clipboard.ContainsImage() Then
-                    MessageBox.Show("ไม่พบรูปภาพใหม่ใน Clipboard กรุณาไปที่ LINE แล้วกด Copy รูปภาพใบเสร็จรูปใหม่ก่อนกดปุ่มนี้", "แจ้งเตือน", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                    MessageBox.Show("ไม่พบรูปภาพใหม่ในคลิปบอร์ด กรุณาไปที่ LINE แล้วกดคัดลอกรูปภาพใบเสร็จใหม่ก่อนกดปุ่มนี้", "แจ้งเตือน", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                     Return
                 End If
 

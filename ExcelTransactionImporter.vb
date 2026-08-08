@@ -80,7 +80,7 @@ Namespace TempleAccounting
             If String.IsNullOrEmpty(amountCol) Then missing.Add("จำนวนเงิน")
             If missing.Count > 0 Then
                 Throw New ApplicationException("ไฟล์นำเข้ายังไม่ครบคอลัมน์หลัก: " & String.Join(", ", missing) &
-                                               vbCrLf & "คอลัมน์ที่รองรับเช่น วันที่/Date, รายการ/Detail, จำนวนเงิน/Amount")
+                                               vbCrLf & "คอลัมน์ที่รองรับ เช่น วันที่, รายการ, จำนวนเงิน")
             End If
 
             Db.EnsureSchema()

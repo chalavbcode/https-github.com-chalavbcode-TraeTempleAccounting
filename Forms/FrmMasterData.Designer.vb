@@ -123,7 +123,7 @@ Namespace TempleAccounting
             tpCategory.Name = "tpCategory"
             tpCategory.Size = New Size(1170, 593)
             tpCategory.TabIndex = 0
-            tpCategory.Text = "ประเภทรายการ (Category)"
+            tpCategory.Text = "ประเภทรายการ"
             ' 
             ' dgvCategory
             ' 
@@ -250,7 +250,7 @@ Namespace TempleAccounting
             tpFund.Name = "tpFund"
             tpFund.Size = New Size(1170, 593)
             tpFund.TabIndex = 1
-            tpFund.Text = "กองทุน (Funds)"
+            tpFund.Text = "กองทุน"
             ' 
             ' dgvFund
             ' 
@@ -341,7 +341,7 @@ Namespace TempleAccounting
             tpBank.Name = "tpBank"
             tpBank.Size = New Size(1170, 593)
             tpBank.TabIndex = 2
-            tpBank.Text = "บัญชีธนาคาร (Bank Accounts)"
+            tpBank.Text = "บัญชีธนาคาร"
             ' 
             ' dgvBank
             ' 

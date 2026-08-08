@@ -79,7 +79,7 @@ Namespace TempleAccounting
                 Process.Start(New ProcessStartInfo With {.FileName = AppPaths.ImportFolder, .UseShellExecute = True})
             Catch
                 Clipboard.SetText(AppPaths.ImportFolder)
-                MessageBox.Show("Path ของโฟลเดอร์ Import: " & AppPaths.ImportFolder & " (คัดลอกแล้ววางใน Explorer ได้เลย)", "แจ้งเตือน")
+                MessageBox.Show("ที่อยู่ของโฟลเดอร์นำเข้า: " & AppPaths.ImportFolder & " (คัดลอกที่อยู่แล้วนำไปเปิดในหน้าต่างสำรวจไฟล์ได้เลย)", "แจ้งเตือน")
             End Try
         End Sub
 
@@ -98,7 +98,7 @@ Namespace TempleAccounting
                     Dim p = CInt(Db.DbScalar(conn, "SELECT COUNT(*) FROM Province"))
                     Dim a = CInt(Db.DbScalar(conn, "SELECT COUNT(*) FROM District"))
                     Dim t = CInt(Db.DbScalar(conn, "SELECT COUNT(*) FROM SubDistrict"))
-                    lblStatus.Text = $"Province: {p} / District: {a} / SubDistrict: {t}"
+                    lblStatus.Text = $"จังหวัด: {p} / อำเภอ: {a} / ตำบล: {t}"
                     Log($"ตรวจสอบ: จังหวัด {p} แถว, อำเภอ {a} แถว, ตำบล {t} แถว")
                 End Using
             Catch ex As Exception
@@ -136,10 +136,10 @@ Namespace TempleAccounting
         End Sub
 
         Private Sub RunImport(clearBefore As Boolean, rebuild As Boolean)
-            Log("=== เริ่มทำงาน Import ===")
+            Log("=== เริ่มทำงานนำเข้า ===")
             CheckFiles()
             If Not File.Exists(AppPaths.ProvinceCsv()) OrElse Not File.Exists(AppPaths.DistrictCsv()) OrElse Not File.Exists(AppPaths.SubDistrictCsv()) Then
-                MessageBox.Show("ไม่พบไฟล์ CSV ในโฟลเดอร์ Import กรุณาดาวน์โหลดไฟล์ province/amphoe/tambon.csv มาใส่ก่อน", "แจ้งเตือน", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                MessageBox.Show("ไม่พบไฟล์ CSV ในโฟลเดอร์นำเข้า กรุณาดาวน์โหลดไฟล์ province/amphoe/tambon.csv มาใส่ก่อน", "แจ้งเตือน", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                 Return
             End If
             Using conn = Db.OpenConn()
@@ -179,7 +179,7 @@ Namespace TempleAccounting
                         End If
                     End If
                 Next
-                Log("Import จังหวัดสำเร็จ -> เพิ่ม " & pIns & " แถว")
+                Log("นำเข้าจังหวัดสำเร็จ -> เพิ่ม " & pIns & " แถว")
 
                 For Each ln In amphoeLines
                     cur += 1 : SetProgress(cur, total, $"อำเภอ {cur - provLines.Length}/{amphoeLines.Length}")
@@ -203,7 +203,7 @@ Namespace TempleAccounting
                         End If
                     End If
                 Next
-                Log("Import อำเภอสำเร็จ -> เพิ่ม " & aIns & " แถว")
+                Log("นำเข้าอำเภอสำเร็จ -> เพิ่ม " & aIns & " แถว")
 
                 For Each ln In tambonLines
                     cur += 1 : SetProgress(cur, total, $"ตำบล {cur - provLines.Length - amphoeLines.Length}/{tambonLines.Length}")
@@ -228,8 +228,8 @@ Namespace TempleAccounting
                         End If
                     End If
                 Next
-                Log("Import ตำบลสำเร็จ -> เพิ่ม " & tIns & " แถว")
-                SaveLastImport($"{DateTime.Now:dd MMM yyyy HH:mm} เพิ่ม จังหวัด {pIns} / อำเภอ {aIns} / ตำบล {tIns}")
+                Log("นำเข้าตำบลสำเร็จ -> เพิ่ม " & tIns & " แถว")
+                SaveLastImport($"{DateTime.Now:dd/MM/yyyy HH:mm} เพิ่ม จังหวัด {pIns} / อำเภอ {aIns} / ตำบล {tIns}")
             End Using
             SetProgress(1, 1, "✅ สำเร็จ")
             btnCheck_Click(Nothing, EventArgs.Empty)

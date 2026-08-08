@@ -295,7 +295,7 @@ Namespace TempleAccounting
             btnPrint.Name = "btnPrint"
             btnPrint.Size = New Size(145, 38)
             btnPrint.TabIndex = 0
-            btnPrint.Text = "📊 Excel"
+            btnPrint.Text = "📊 ส่งออกข้อมูล"
             btnPrint.UseVisualStyleBackColor = False
             ' 
             ' btnLedger

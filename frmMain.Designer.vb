@@ -258,7 +258,7 @@ Namespace TempleAccounting
             lblSubtitle.Name = "lblSubtitle"
             lblSubtitle.Size = New Size(414, 25)
             lblSubtitle.TabIndex = 2
-            lblSubtitle.Text = "ระบบบัญชีวัด - Temple Accounting Software"
+            lblSubtitle.Text = "ระบบบัญชีวัด - โปรแกรมบัญชีสำหรับวัด"
             ' 
             ' lblTitle
             ' 

@@ -202,6 +202,11 @@ Namespace TempleAccounting
                 End If
 
                 dgvReport.DataSource = dtMonthlySummary
+                ' แปลงหัวคอลัมน์ (ชื่อภายใน) เป็นภาษาไทย
+                If dgvReport.Columns.Contains("MonthName") Then dgvReport.Columns("MonthName").HeaderText = "เดือน"
+                If dgvReport.Columns.Contains("TotalIncome") Then dgvReport.Columns("TotalIncome").HeaderText = "รายรับ"
+                If dgvReport.Columns.Contains("TotalExpense") Then dgvReport.Columns("TotalExpense").HeaderText = "รายจ่าย"
+                If dgvReport.Columns.Contains("NetBalance") Then dgvReport.Columns("NetBalance").HeaderText = "คงเหลือ"
 
                 ' 3. ฟอร์แมตคอลัมน์ตัวเลขให้อ่านง่าย
                 For Each col As DataGridViewColumn In dgvReport.Columns
@@ -697,7 +702,7 @@ Namespace TempleAccounting
                     Next
                 End Using
                 Clipboard.SetText(fn)
-                MessageBox.Show("ส่งออก CSV (เปิดใน Excel ได้เลย) ไว้ที่: " & fn & vbCrLf & "(Path ถูกคัดลอกไปยังคลิปบอร์ดแล้ว)", "สำเร็จ", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                MessageBox.Show("ส่งออกไฟล์ข้อมูล (CSV) ไว้ที่: " & fn & vbCrLf & "(ที่อยู่ของไฟล์ถูกคัดลอกไปยังคลิปบอร์ดแล้ว)", "สำเร็จ", MessageBoxButtons.OK, MessageBoxIcon.Information)
             Catch ex As Exception
                 MessageBox.Show("ส่งออกไม่ได้: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
             End Try

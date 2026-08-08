@@ -74,7 +74,7 @@ Namespace TempleAccounting
             Me.lblHeader.Name = "lblHeader"
             Me.lblHeader.Size = New System.Drawing.Size(900, 50)
             Me.lblHeader.TabIndex = 0
-            Me.lblHeader.Text = "🧾 ดูใบเสร็จ (Receipt Viewer)"
+            Me.lblHeader.Text = "🧾 ดูใบเสร็จ"
             Me.lblHeader.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
             '
             'pnlBottom

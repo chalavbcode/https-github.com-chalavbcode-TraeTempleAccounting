@@ -59,7 +59,7 @@ Namespace TempleAccounting
             UiFitter.AutoFitFormButtons(Me)
             LoadMachineId()
             LoadLastExportInfo()
-            Log("ระบบพร้อมใช้งาน — ตั้งค่ารหัสเครื่อง (Machine ID) ครั้งเดียวต่อเครื่อง แล้วกดปุ่มส่งออก")
+            Log("ระบบพร้อมใช้งาน — ตั้งค่ารหัสเครื่องครั้งเดียวต่อเครื่อง แล้วกดปุ่มส่งออก")
         End Sub
 
         Private Sub FrmExportForTransfer_KeyDown(sender As Object, e As KeyEventArgs) Handles Me.KeyDown
@@ -71,10 +71,10 @@ Namespace TempleAccounting
         End Sub
 
         Private Sub SetupToolTips()
-            ttMain.SetToolTip(txtMachineID, "รหัสเครื่องต้นทาง เช่น KIOSK-01 / Main Office — ตั้งครั้งเดียวต่อเครื่อง ฝังลงในไฟล์ export ทุกไฟล์")
-            ttMain.SetToolTip(btnSaveMachineID, "บันทึกรหัสเครื่องลงในเครื่องนี้ (LocalSettings) — ใช้เป็นค่าเดียวกันกับที่ฝั่ง import อ่านจากไฟล์")
-            ttMain.SetToolTip(btnExportForTransfer, "ส่งออกข้อมูลเป็นไฟล์ .xlsx (พร้อม Header Block) สำหรับโอนไปเครื่องอื่น/Flash Drive")
-            ttMain.SetToolTip(btnOpenExportFolder, "เปิดโฟลเดอร์ที่ใช้บันทึกไฟล์ export")
+            ttMain.SetToolTip(txtMachineID, "รหัสเครื่องต้นทาง เช่น KIOSK-01 / สำนักงานใหญ่ — ตั้งครั้งเดียวต่อเครื่อง ฝังลงในไฟล์ส่งออกทุกไฟล์")
+            ttMain.SetToolTip(btnSaveMachineID, "บันทึกรหัสเครื่องลงในเครื่องนี้ — ใช้เป็นค่าเดียวกันกับที่ฝั่งนำเข้าอ่านจากไฟล์")
+            ttMain.SetToolTip(btnExportForTransfer, "ส่งออกข้อมูลเป็นไฟล์ .xlsx สำหรับโอนไปเครื่องอื่น/แฟลชไดรฟ์")
+            ttMain.SetToolTip(btnOpenExportFolder, "เปิดโฟลเดอร์ที่ใช้บันทึกไฟล์ส่งออก")
             ttMain.SetToolTip(btnClose, "ปิดหน้าจอนี้และกลับไปที่หน้ารายการเงินรับ-จ่าย")
         End Sub
 
@@ -119,7 +119,7 @@ Namespace TempleAccounting
         Private Sub SaveMachineId(Optional machineId As String = "")
             Dim newValue = If(machineId.Length > 0, machineId, txtMachineID.Text.Trim())
             If newValue.Length = 0 Then
-                MessageBox.Show("กรุณากรอกรหัสเครื่อง (เช่น KIOSK-01, Main Office)", "แจ้งเตือน", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                MessageBox.Show("กรุณากรอกรหัสเครื่อง (เช่น KIOSK-01, สำนักงานใหญ่)", "แจ้งเตือน", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                 txtMachineID.Focus()
                 Return
             End If
@@ -148,7 +148,7 @@ Namespace TempleAccounting
         Private Sub btnExportForTransfer_Click(sender As Object, e As EventArgs) Handles btnExportForTransfer.Click
             ' หลักการข้อ 1: ถ้ายังไม่เคยตั้ง MachineID ให้ตั้งก่อน — ห้าม export โดยไม่มี MachineID
             If _machineId.Length = 0 Then
-                MessageBox.Show("กรุณาตั้งค่ารหัสเครื่อง (Machine ID) ก่อนส่งออกข้อมูล" & vbCrLf & vbCrLf &
+                MessageBox.Show("กรุณาตั้งค่ารหัสเครื่องก่อนส่งออกข้อมูล" & vbCrLf & vbCrLf &
                                 "กรอกรหัส เช่น KIOSK-01 แล้วกด [💾 ตั้งค่า/บันทึกรหัสเครื่อง]" & vbCrLf &
                                 "ระบบจะไม่ส่งออกโดยไม่มีรหัสเครื่อง เพราะฝั่งนำเข้าจำเป็นต้องใช้รหัสนี้ในการติดตามข้อมูล",
                                 "ตั้งค่ารหัสเครื่องก่อน", MessageBoxButtons.OK, MessageBoxIcon.Warning)
@@ -197,7 +197,7 @@ Namespace TempleAccounting
 
             Dim sizeText As String = "ไฟล์แนบ: " & rcFound.ToString("#,##0") & " ไฟล์" &
                 If(rcMissing > 0, " / ไม่พบต้นฉบับ " & rcMissing.ToString("#,##0") & " รายการ (ส่งเฉพาะข้อมูล)", "") &
-                If(rcNoGuid > 0, " / ไม่มี GUID " & rcNoGuid.ToString("#,##0") & " รายการ (โอนไฟล์แนบไม่ได้)", "")
+                If(rcNoGuid > 0, " / ไม่มีรหัสอ้างอิง " & rcNoGuid.ToString("#,##0") & " รายการ (โอนไฟล์แนบไม่ได้)", "")
             If rcBytes > 0 Then sizeText &= vbCrLf & "ขนาดไฟล์แนบรวมโดยประมาณ: " & FormatBytes(rcBytes)
 
             Dim confirmMsg = "📤 สรุปการส่งออก" & vbCrLf & vbCrLf &
@@ -214,7 +214,7 @@ Namespace TempleAccounting
             ' เลือกตำแหน่งบันทึกเอง (Flash Drive / โฟลเดอร์ที่ผู้ดูแลกำหนด) — ไม่มี scheduled export
             ' ระบบจะสร้างโฟลเดอร์ Export_<MachineID>_<datetime> ภายใน ประกอบด้วย TransactionData.xlsx + โฟลเดอร์ย่อย Receipts/ (สเปคไฟล์แนบข้อ 2)
             Using fbd As New FolderBrowserDialog()
-                fbd.Description = "เลือกโฟลเดอร์ปลายทาง (เช่น Flash Drive) — ระบบจะสร้างโฟลเดอร์ Export_... ภายใน"
+                fbd.Description = "เลือกโฟลเดอร์ปลายทาง (เช่น แฟลชไดรฟ์) — ระบบจะสร้างโฟลเดอร์ Export_... ภายใน"
                 fbd.SelectedPath = AppPaths.ExportFolder
                 If fbd.ShowDialog() <> DialogResult.OK OrElse String.IsNullOrEmpty(fbd.SelectedPath) Then
                     Log("⏭️ ผู้ใช้ยกเลิกการเลือกตำแหน่งบันทึก")
@@ -412,10 +412,10 @@ Namespace TempleAccounting
                     rcCopied += 1
                 Catch ex As Exception
                     rcCopyFailed += 1
-                    Log("⚠️ copy ไฟล์แนบไม่สำเร็จ (" & r.TransactionGUID & "): " & ex.Message)
+                    Log("⚠️ คัดลอกไฟล์แนบไม่สำเร็จ (" & r.TransactionGUID & "): " & ex.Message)
                 End Try
             Next
-            If rcCopied > 0 Then Log("🖼️ copy ไฟล์แนบสำเร็จ " & rcCopied & " ไฟล์ → " & Path.Combine(Path.GetFileName(exportFolder), "Receipts\"))
+            If rcCopied > 0 Then Log("🖼️ คัดลอกไฟล์แนบสำเร็จ " & rcCopied & " ไฟล์ → " & Path.Combine(Path.GetFileName(exportFolder), "Receipts\"))
 
             ' บันทึก ExportHistory เฉพาะเมื่อเขียนไฟล์สำเร็จแล้วเท่านั้น (resume point ของโหมด "เฉพาะรายการใหม่")
             Dim batchId As Guid = Guid.NewGuid()
@@ -448,16 +448,16 @@ Namespace TempleAccounting
             Log("✅ ส่งออกสำเร็จ: " & Path.GetFileName(exportFolder))
             Log("   ช่วงข้อมูล: " & rangeDesc & " | ยอดรับ " & sumIncome.ToString("#,##0.00") & " / ยอดจ่าย " & sumExpense.ToString("#,##0.00") & " บาท")
             If rcCopied > 0 OrElse rcCopyFailed > 0 OrElse rcSkippedNoGuid > 0 OrElse rcSkippedNoFile > 0 Then
-                Log("   ไฟล์แนบ: สำเร็จ " & rcCopied & " / copy ล้มเหลว " & rcCopyFailed & " / ไม่มี GUID " & rcSkippedNoGuid & " / ไม่พบต้นฉบับ " & rcSkippedNoFile)
+                Log("   ไฟล์แนบ: สำเร็จ " & rcCopied & " / คัดลอกล้มเหลว " & rcCopyFailed & " / ไม่มีรหัสอ้างอิง " & rcSkippedNoGuid & " / ไม่พบต้นฉบับ " & rcSkippedNoFile)
             End If
             LoadLastExportInfo()
 
             Dim attachLine As String = ""
             If rcCopied > 0 OrElse rcSkippedNoGuid > 0 OrElse rcSkippedNoFile > 0 Then
                 attachLine = "ไฟล์แนบ: " & rcCopied.ToString("#,##0") & " ไฟล์" &
-                    If(rcCopyFailed > 0, " (copy ล้มเหลว " & rcCopyFailed & ")", "") &
+                    If(rcCopyFailed > 0, " (คัดลอกล้มเหลว " & rcCopyFailed & ")", "") &
                     If(rcSkippedNoFile > 0, " | ไม่พบต้นฉบับ " & rcSkippedNoFile & " รายการ — ส่งเฉพาะข้อมูล", "") &
-                    If(rcSkippedNoGuid > 0, " | ไม่มี GUID " & rcSkippedNoGuid & " รายการ — โอนไฟล์แนบไม่ได้", "") &
+                    If(rcSkippedNoGuid > 0, " | ไม่มีรหัสอ้างอิง " & rcSkippedNoGuid & " รายการ — โอนไฟล์แนบไม่ได้", "") &
                     vbCrLf
             End If
 
@@ -491,12 +491,12 @@ Namespace TempleAccounting
 
                     If Not hasLocal Then
                         Db.ExecuteNonQuery(conn, "CREATE TABLE LocalSettings (ID COUNTER PRIMARY KEY, KeyName TEXT(50) NOT NULL, KeyValue TEXT(255))")
-                        Log("✅ สร้างตาราง LocalSettings แล้ว")
+                        Log("✅ สร้างตารางตั้งค่าเครื่องแล้ว")
                     End If
 
                     If Not hasExport Then
                         Db.ExecuteNonQuery(conn, "CREATE TABLE ExportHistory (ExportBatchID GUID PRIMARY KEY, ExportDateTime DATETIME, DateRangeFrom DATETIME, DateRangeTo DATETIME, RowCount INTEGER, FileNameGenerated TEXT(255), MachineID TEXT(50))")
-                        Log("✅ สร้างตาราง ExportHistory แล้ว")
+                        Log("✅ สร้างตารางประวัติการส่งออกแล้ว")
                     End If
 
                     ' กันกรณีฐานข้อมูลเก่าที่คอลัมน์ TransactionGUID ยังไม่มี (ปกติ Db.EnsureSchema สร้างให้แล้ว)
@@ -507,7 +507,7 @@ Namespace TempleAccounting
                     Next
                     If Not colNames.Contains("TransactionGUID") Then
                         Db.ExecuteNonQuery(conn, "ALTER TABLE Transactions ADD COLUMN TransactionGUID TEXT(36)")
-                        Log("✅ เพิ่มคอลัมน์ TransactionGUID ใน Transactions แล้ว (non-breaking)")
+                        Log("✅ เพิ่มคอลัมน์รหัสอ้างอิงในตารางธุรกรรมแล้ว (ไม่ทำลายข้อมูลเดิม)")
                     End If
                 End Using
             Catch ex As Exception

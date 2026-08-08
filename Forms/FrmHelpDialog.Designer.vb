@@ -75,7 +75,7 @@ Namespace TempleAccounting
             Me.btnClose.Name = "btnClose"
             Me.btnClose.Size = New System.Drawing.Size(95, 32)
             Me.btnClose.TabIndex = 0
-            Me.btnClose.Text = "ปิด (Close)"
+            Me.btnClose.Text = "ปิด"
             Me.btnClose.UseVisualStyleBackColor = False
             '
             'FrmHelpDialog
