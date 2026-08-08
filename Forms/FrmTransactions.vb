@@ -511,11 +511,11 @@ Namespace TempleAccounting
                     End Using
                 End Using
 
-                ' ลบไฟล์รูปจริง
+                ' ลบไฟล์รูปจริง (ค้นหาโฟลเดอร์มาตรฐาน + โฟลเดอร์สำรอง)
                 For Each fileName In filesToDelete
                     Try
-                        Dim fullPath = Path.Combine(AppPaths.ReceiptsDir, fileName)
-                        If File.Exists(fullPath) Then File.Delete(fullPath)
+                        Dim fullPath = ReceiptImageHelper.ResolveReceiptPath(fileName)
+                        If Not String.IsNullOrEmpty(fullPath) Then File.Delete(fullPath)
                     Catch
                         ' ปล่อยผ่านถ้าไฟล์ถูกล็อค
                     End Try
@@ -835,14 +835,22 @@ New Tuple(Of String, Object)("@id", id))
                     Exit Sub
                 End If
 
-                ' 3. หาตำแหน่งไฟล์จริงในโฟลเดอร์ Receipts
-                Dim fullPath As String = IO.Path.Combine(AppPaths.ReceiptsDir, fileName)
+                ' 3. หาตำแหน่งไฟล์จริง — ค้นหาโฟลเดอร์มาตรฐาน + โฟลเดอร์สำรองอัตโนมัติ
+                Dim fullPath As String = ReceiptImageHelper.ResolveReceiptPath(fileName)
 
-                ' 4. ตรวจสอบไฟล์และสั่งเปิดดูรูปด้วยโปรแกรมมาตรฐานของ Windows
-                If IO.File.Exists(fullPath) Then
-                    Process.Start(New ProcessStartInfo(fullPath) With {.UseShellExecute = True})
+                ' 4. พบไฟล์ -> เปิดหน้าต่างดูใบเสร็จ (โหลดผ่าน MemoryStream เพื่อไม่ให้ไฟล์ถูกล็อค)
+                If Not String.IsNullOrEmpty(fullPath) Then
+                    Using viewer As New FrmReceiptViewer(fullPath)
+                        viewer.ShowDialog(Me)
+                    End Using
                 Else
-                    MessageBox.Show($"ไม่พบไฟล์รูปภาพในระบบ: {fileName}", "ข้อผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                    ' 5. ไม่พบไฟล์ -> แจ้งเตือนพร้อมแสดงเส้นทางทั้งหมดที่ค้นหาแล้ว
+                    Dim searched As String = String.Join(Environment.NewLine,
+                        ReceiptImageHelper.GetReceiptCandidateFolders().ToArray())
+                    MessageBox.Show(
+                        $"ไม่พบไฟล์รูปภาพในระบบ: {fileName}" & Environment.NewLine & Environment.NewLine &
+                        "ตำแหน่งที่ค้นหาแล้ว:" & Environment.NewLine & searched,
+                        "ข้อผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
                 End If
             Catch ex As Exception
                 AppPaths.LogCrash(ex, "btnViewReceipt_Click")
@@ -948,8 +956,9 @@ New Tuple(Of String, Object)("@id", id))
 
                 If MessageBox.Show("คุณแน่ใจว่าต้องการลบรูปภาพหลักฐานใบเสร็จนี้ใช่หรือไม่? (ไฟล์รูปจะถูกลบออกจากเครื่องด้วย)", "ยืนยันการลบ", MessageBoxButtons.YesNo, MessageBoxIcon.Question) <> DialogResult.Yes Then Return
 
-                Dim fullPath = Path.Combine(AppPaths.ReceiptsDir, fileName)
-                If File.Exists(fullPath) Then
+                ' ค้นหาไฟล์จริง (รวมโฟลเดอร์สำรอง) แล้วลบ
+                Dim fullPath = ReceiptImageHelper.ResolveReceiptPath(fileName)
+                If Not String.IsNullOrEmpty(fullPath) Then
                     Try
                         File.Delete(fullPath)
                     Catch
