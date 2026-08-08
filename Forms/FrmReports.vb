@@ -19,6 +19,9 @@ Namespace TempleAccounting
 
         Private ReadOnly _filterFlow As New List(Of Control)()
 
+        ' จำประเภทรายงานที่ใช้ล่าสุด (ละเอียด/ย่อ) เพื่อให้ปุ่ม "บันทึก PDF" บันทึกแบบเดียวกับที่เคยดู/พิมพ์
+        Private _lastReportMode As IncomeExpenseReport.ReportModes = IncomeExpenseReport.ReportModes.Detailed
+
         Public Sub New()
             InitializeComponent()
         End Sub
@@ -65,6 +68,7 @@ Namespace TempleAccounting
             ttMain.SetToolTip(btnPrint, "ส่งออกข้อมูลที่แสดงในตารางเป็นไฟล์ Excel (CSV)")
             ttMain.SetToolTip(btnPrintDetail, "พิมพ์รายงานสรุปรายรับ-รายจ่าย แบบแสดงรายละเอียดทุกรายการ")
             ttMain.SetToolTip(btnPrintSummary, "พิมพ์รายงานสรุปรายรับ-รายจ่าย แบบย่อ (แยกตามประเภทรายการ)")
+            ttMain.SetToolTip(btnSavePdf, "บันทึกรายงานเป็นไฟล์ PDF (A4) — ใช้เครื่องพิมพ์เสมือน Microsoft Print to PDF" & vbCrLf & "บันทึกแบบเดียวกับรายงานที่เพิ่งดู/พิมพ์ล่าสุด (ละเอียดหรือย่อ)")
             ttMain.SetToolTip(btnLedger, "แสดงรายงานสมุดบัญชีรายวัน (เรียงตามวันที่)")
             ttMain.SetToolTip(btnSummaryIncome, "แสดงสรุปรายรับแยกตามประเภทรายการ")
             ttMain.SetToolTip(btnSummaryExpense, "แสดงสรุปรายจ่ายแยกตามประเภทรายการ")
@@ -734,6 +738,7 @@ Namespace TempleAccounting
                 System.Diagnostics.Debug.WriteLine("[DEBUG FrmReports] btnPrintDetail_Click - startDate: " & startDate & ", endDate: " & endDate)
                 
                 ' 2. Pass explicit dates to the report
+                _lastReportMode = IncomeExpenseReport.ReportModes.Detailed
                 IncomeExpenseReport.ShowPreview(startDate, endDate, Me, IncomeExpenseReport.ReportModes.Detailed, GetManualBalance(), If(fundID = 0, Nothing, fundID), If(bankID = 0, Nothing, bankID))
             Catch ex As Exception
                 MessageBox.Show("เกิดข้อผิดพลาด: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
@@ -752,7 +757,23 @@ Namespace TempleAccounting
                 System.Diagnostics.Debug.WriteLine("[DEBUG FrmReports] btnPrintSummary_Click - startDate: " & startDate & ", endDate: " & endDate)
                 
                 ' 2. Pass explicit dates to the report
+                _lastReportMode = IncomeExpenseReport.ReportModes.Summary
                 IncomeExpenseReport.ShowPreview(startDate, endDate, Me, IncomeExpenseReport.ReportModes.Summary, GetManualBalance(), If(fundID = 0, Nothing, fundID), If(bankID = 0, Nothing, bankID))
+            Catch ex As Exception
+                MessageBox.Show("เกิดข้อผิดพลาด: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            End Try
+        End Sub
+
+        Private Sub btnSavePdf_Click(sender As Object, e As EventArgs) Handles btnSavePdf.Click
+            Try
+                Dim startDate As DateTime = dtpFrom.Value.Date
+                Dim endDate As DateTime = dtpTo.Value.Date.AddDays(1).AddSeconds(-1) ' Include entire end day
+
+                Dim fundID = If(cboFund.SelectedValue IsNot Nothing, CInt(cboFund.SelectedValue), 0)
+                Dim bankID = If(cboBank.SelectedValue IsNot Nothing, CInt(cboBank.SelectedValue), 0)
+
+                ' บันทึกแบบเดียวกับรายงานที่เพิ่งดู/พิมพ์ล่าสุด (ค่าเริ่มต้น: ละเอียด)
+                IncomeExpenseReport.ShowSavePdfDialog(startDate, endDate, Me, _lastReportMode, GetManualBalance(), If(fundID = 0, Nothing, fundID), If(bankID = 0, Nothing, bankID))
             Catch ex As Exception
                 MessageBox.Show("เกิดข้อผิดพลาด: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
             End Try

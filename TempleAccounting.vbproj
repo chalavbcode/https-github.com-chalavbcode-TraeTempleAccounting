@@ -58,6 +58,7 @@
       <DependentUpon>frmMain.vb</DependentUpon>
     </Compile>
     <EmbeddedResource Include="Forms\FrmMasterData.resx" />
+    <EmbeddedResource Include="Forms\FrmMultiMachineImport.Designer.resx" />
     <EmbeddedResource Include="frmMain.resx">
       <DependentUpon>frmMain.vb</DependentUpon>
     </EmbeddedResource>

@@ -93,13 +93,14 @@ Namespace TempleAccounting
             lblHeader.ForeColor = Color.FromArgb(CByte(12), CByte(74), CByte(110))
             lblHeader.Location = New Point(0, 0)
             lblHeader.Name = "lblHeader"
-            lblHeader.Size = New Size(1591, 42)
+            lblHeader.Size = New Size(880, 46)
             lblHeader.TabIndex = 0
             lblHeader.Text = "📤 ส่งออกข้อมูลไปเครื่องอื่น (โอนไปยังเครื่องอื่น / แฟลชไดรฟ์)"
             lblHeader.TextAlign = ContentAlignment.MiddleCenter
             ' 
             ' grpMachine
             ' 
+            grpMachine.Anchor = CType((AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right), AnchorStyles)
             grpMachine.BackColor = Color.White
             grpMachine.Controls.Add(lblMachineStatus)
             grpMachine.Controls.Add(txtMachineID)
@@ -107,58 +108,63 @@ Namespace TempleAccounting
             grpMachine.Controls.Add(lblMachineHint)
             grpMachine.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             grpMachine.ForeColor = Color.FromArgb(CByte(12), CByte(74), CByte(110))
-            grpMachine.Location = New Point(20, 60)
+            grpMachine.Location = New Point(20, 56)
             grpMachine.Name = "grpMachine"
-            grpMachine.Size = New Size(965, 140)
+            grpMachine.Size = New Size(840, 145)
             grpMachine.TabIndex = 1
             grpMachine.TabStop = False
             grpMachine.Text = "1️⃣ รหัสเครื่องต้นทาง — ตั้งครั้งเดียวต่อเครื่อง"
             ' 
             ' lblMachineStatus
             ' 
+            lblMachineStatus.AutoSize = True
             lblMachineStatus.Font = New Font("Tahoma", 9.5F, FontStyle.Bold)
             lblMachineStatus.ForeColor = Color.FromArgb(153, 27, 27)
-            lblMachineStatus.Location = New Point(20, 30)
+            lblMachineStatus.Location = New Point(20, 28)
             lblMachineStatus.Name = "lblMachineStatus"
-            lblMachineStatus.Size = New Size(925, 26)
+            lblMachineStatus.Size = New Size(200, 26)
             lblMachineStatus.TabIndex = 0
             lblMachineStatus.Text = "⚠️ ยังไม่ได้ตั้งค่ารหัสเครื่อง — ต้องตั้งก่อนส่งออกครั้งแรก"
             ' 
             ' txtMachineID
             ' 
+            txtMachineID.Anchor = CType((AnchorStyles.Top Or AnchorStyles.Left), AnchorStyles)
             txtMachineID.Font = New Font("Tahoma", 11F)
-            txtMachineID.Location = New Point(20, 64)
+            txtMachineID.Location = New Point(20, 62)
             txtMachineID.Name = "txtMachineID"
-            txtMachineID.Size = New Size(260, 30)
+            txtMachineID.Size = New Size(300, 30)
             txtMachineID.TabIndex = 1
             ' 
             ' btnSaveMachineID
             ' 
+            btnSaveMachineID.Anchor = CType((AnchorStyles.Top Or AnchorStyles.Left), AnchorStyles)
             btnSaveMachineID.BackColor = Color.FromArgb(CByte(37), CByte(99), CByte(235))
             btnSaveMachineID.Cursor = Cursors.Hand
             btnSaveMachineID.FlatStyle = FlatStyle.Flat
             btnSaveMachineID.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             btnSaveMachineID.ForeColor = Color.White
-            btnSaveMachineID.Location = New Point(290, 62)
+            btnSaveMachineID.Location = New Point(332, 60)
             btnSaveMachineID.Name = "btnSaveMachineID"
-            btnSaveMachineID.Size = New Size(240, 34)
+            btnSaveMachineID.Size = New Size(260, 34)
             btnSaveMachineID.TabIndex = 2
             btnSaveMachineID.Text = "💾 ตั้งค่า/บันทึกรหัสเครื่อง"
             btnSaveMachineID.UseVisualStyleBackColor = False
             ' 
             ' lblMachineHint
             ' 
+            lblMachineHint.AutoSize = True
             lblMachineHint.Font = New Font("Tahoma", 9F)
             lblMachineHint.ForeColor = Color.FromArgb(75, 85, 99)
             lblMachineHint.Location = New Point(20, 102)
             lblMachineHint.Name = "lblMachineHint"
-            lblMachineHint.Size = New Size(925, 32)
+            lblMachineHint.Size = New Size(300, 32)
             lblMachineHint.TabIndex = 3
             lblMachineHint.Text = "💡 เช่น KIOSK-01, สำนักงานใหญ่ — รหัสนี้จะถูกฝังในไฟล์ส่งออกทุกไฟล์" & vbCrLf &
                                  "ฝั่งนำเข้า (FrmMultiMachineImport) จะอ่านจากไฟล์โดยตรง ไม่ใช้ชื่อไฟล์เป็นตัวระบุ"
             ' 
             ' grpRange
             ' 
+            grpRange.Anchor = CType((AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right), AnchorStyles)
             grpRange.BackColor = Color.White
             grpRange.Controls.Add(rbSinceLast)
             grpRange.Controls.Add(rbCustom)
@@ -169,9 +175,9 @@ Namespace TempleAccounting
             grpRange.Controls.Add(lblLastExport)
             grpRange.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             grpRange.ForeColor = Color.FromArgb(CByte(12), CByte(74), CByte(110))
-            grpRange.Location = New Point(991, 60)
+            grpRange.Location = New Point(20, 209)
             grpRange.Name = "grpRange"
-            grpRange.Size = New Size(588, 200)
+            grpRange.Size = New Size(840, 185)
             grpRange.TabIndex = 2
             grpRange.TabStop = False
             grpRange.Text = "2️⃣ ช่วงข้อมูลที่จะส่งออก"
@@ -182,7 +188,7 @@ Namespace TempleAccounting
             rbSinceLast.Checked = True
             rbSinceLast.Font = New Font("Tahoma", 10F)
             rbSinceLast.ForeColor = Color.FromArgb(30, 41, 59)
-            rbSinceLast.Location = New Point(16, 32)
+            rbSinceLast.Location = New Point(16, 30)
             rbSinceLast.Name = "rbSinceLast"
             rbSinceLast.Size = New Size(420, 24)
             rbSinceLast.TabIndex = 0
@@ -195,7 +201,7 @@ Namespace TempleAccounting
             rbCustom.AutoSize = True
             rbCustom.Font = New Font("Tahoma", 10F)
             rbCustom.ForeColor = Color.FromArgb(30, 41, 59)
-            rbCustom.Location = New Point(16, 70)
+            rbCustom.Location = New Point(16, 68)
             rbCustom.Name = "rbCustom"
             rbCustom.Size = New Size(190, 24)
             rbCustom.TabIndex = 1
@@ -205,11 +211,12 @@ Namespace TempleAccounting
             ' 
             ' dtpFrom
             ' 
+            dtpFrom.Anchor = CType((AnchorStyles.Top Or AnchorStyles.Left), AnchorStyles)
             dtpFrom.Font = New Font("Tahoma", 10F)
             dtpFrom.Format = DateTimePickerFormat.Short
-            dtpFrom.Location = New Point(200, 66)
+            dtpFrom.Location = New Point(210, 64)
             dtpFrom.Name = "dtpFrom"
-            dtpFrom.Size = New Size(110, 28)
+            dtpFrom.Size = New Size(140, 28)
             dtpFrom.TabIndex = 2
             ' 
             ' lblTo
@@ -217,7 +224,7 @@ Namespace TempleAccounting
             lblTo.AutoSize = True
             lblTo.Font = New Font("Tahoma", 10F)
             lblTo.ForeColor = Color.FromArgb(30, 41, 59)
-            lblTo.Location = New Point(318, 71)
+            lblTo.Location = New Point(358, 69)
             lblTo.Name = "lblTo"
             lblTo.Size = New Size(27, 24)
             lblTo.TabIndex = 3
@@ -225,11 +232,12 @@ Namespace TempleAccounting
             ' 
             ' dtpTo
             ' 
+            dtpTo.Anchor = CType((AnchorStyles.Top Or AnchorStyles.Left), AnchorStyles)
             dtpTo.Font = New Font("Tahoma", 10F)
             dtpTo.Format = DateTimePickerFormat.Short
-            dtpTo.Location = New Point(352, 66)
+            dtpTo.Location = New Point(392, 64)
             dtpTo.Name = "dtpTo"
-            dtpTo.Size = New Size(110, 28)
+            dtpTo.Size = New Size(140, 28)
             dtpTo.TabIndex = 4
             ' 
             ' rbAll
@@ -237,7 +245,7 @@ Namespace TempleAccounting
             rbAll.AutoSize = True
             rbAll.Font = New Font("Tahoma", 10F)
             rbAll.ForeColor = Color.FromArgb(30, 41, 59)
-            rbAll.Location = New Point(16, 108)
+            rbAll.Location = New Point(16, 106)
             rbAll.Name = "rbAll"
             rbAll.Size = New Size(430, 24)
             rbAll.TabIndex = 5
@@ -247,30 +255,33 @@ Namespace TempleAccounting
             ' 
             ' lblLastExport
             ' 
+            lblLastExport.AutoSize = True
             lblLastExport.Font = New Font("Tahoma", 9F)
             lblLastExport.ForeColor = Color.FromArgb(75, 85, 99)
-            lblLastExport.Location = New Point(16, 150)
+            lblLastExport.Location = New Point(16, 146)
             lblLastExport.Name = "lblLastExport"
-            lblLastExport.Size = New Size(556, 40)
+            lblLastExport.Size = New Size(500, 40)
             lblLastExport.TabIndex = 6
             lblLastExport.Text = "ครั้งล่าสุด: ยังไม่เคยส่งออก"
             ' 
             ' grpActions
             ' 
+            grpActions.Anchor = CType((AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right), AnchorStyles)
             grpActions.BackColor = Color.White
             grpActions.Controls.Add(btnExportForTransfer)
             grpActions.Controls.Add(btnOpenExportFolder)
             grpActions.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             grpActions.ForeColor = Color.FromArgb(CByte(12), CByte(74), CByte(110))
-            grpActions.Location = New Point(20, 210)
+            grpActions.Location = New Point(20, 402)
             grpActions.Name = "grpActions"
-            grpActions.Size = New Size(1559, 90)
+            grpActions.Size = New Size(840, 90)
             grpActions.TabIndex = 3
             grpActions.TabStop = False
             grpActions.Text = "3️⃣ ส่งออกไฟล์"
             ' 
             ' btnExportForTransfer
             ' 
+            btnExportForTransfer.Anchor = CType((AnchorStyles.Top Or AnchorStyles.Left), AnchorStyles)
             btnExportForTransfer.BackColor = Color.FromArgb(CByte(5), CByte(150), CByte(105))
             btnExportForTransfer.Cursor = Cursors.Hand
             btnExportForTransfer.FlatStyle = FlatStyle.Flat
@@ -285,6 +296,7 @@ Namespace TempleAccounting
             ' 
             ' btnOpenExportFolder
             ' 
+            btnOpenExportFolder.Anchor = CType((AnchorStyles.Top Or AnchorStyles.Left), AnchorStyles)
             btnOpenExportFolder.BackColor = Color.FromArgb(CByte(100), CByte(116), CByte(139))
             btnOpenExportFolder.Cursor = Cursors.Hand
             btnOpenExportFolder.FlatStyle = FlatStyle.Flat
@@ -299,43 +311,47 @@ Namespace TempleAccounting
             ' 
             ' grpLog
             ' 
+            grpLog.Anchor = CType((AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right), AnchorStyles)
             grpLog.BackColor = Color.White
             grpLog.Controls.Add(rtbLog)
             grpLog.Controls.Add(prgExport)
             grpLog.Controls.Add(lblProgress)
             grpLog.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             grpLog.ForeColor = Color.FromArgb(CByte(12), CByte(74), CByte(110))
-            grpLog.Location = New Point(20, 310)
+            grpLog.Location = New Point(20, 500)
             grpLog.Name = "grpLog"
-            grpLog.Size = New Size(1559, 120)
+            grpLog.Size = New Size(840, 115)
             grpLog.TabIndex = 4
             grpLog.TabStop = False
             grpLog.Text = "ประวัติการทำงาน"
             ' 
             ' rtbLog
             ' 
+            rtbLog.Anchor = CType((AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right), AnchorStyles)
             rtbLog.BackColor = Color.FromArgb(CByte(15), CByte(23), CByte(42))
             rtbLog.Font = New Font("Consolas", 9F)
             rtbLog.ForeColor = Color.FromArgb(CByte(226), CByte(232), CByte(240))
-            rtbLog.Location = New Point(16, 32)
+            rtbLog.Location = New Point(16, 30)
             rtbLog.Name = "rtbLog"
             rtbLog.ReadOnly = True
-            rtbLog.Size = New Size(1527, 52)
+            rtbLog.Size = New Size(808, 48)
             rtbLog.TabIndex = 0
             rtbLog.Text = ""
             ' 
             ' prgExport
             ' 
-            prgExport.Location = New Point(16, 92)
+            prgExport.Anchor = CType((AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right), AnchorStyles)
+            prgExport.Location = New Point(16, 86)
             prgExport.Name = "prgExport"
-            prgExport.Size = New Size(1300, 20)
+            prgExport.Size = New Size(660, 20)
             prgExport.TabIndex = 1
             ' 
             ' lblProgress
             ' 
+            lblProgress.Anchor = CType((AnchorStyles.Top Or AnchorStyles.Right), AnchorStyles)
             lblProgress.AutoSize = True
             lblProgress.Font = New Font("Tahoma", 10F)
-            lblProgress.Location = New Point(1330, 90)
+            lblProgress.Location = New Point(690, 84)
             lblProgress.Name = "lblProgress"
             lblProgress.Size = New Size(160, 24)
             lblProgress.TabIndex = 2
@@ -343,23 +359,25 @@ Namespace TempleAccounting
             ' 
             ' btnClose
             ' 
+            btnClose.Anchor = CType((AnchorStyles.Top Or AnchorStyles.Right), AnchorStyles)
             btnClose.BackColor = Color.FromArgb(CByte(75), CByte(85), CByte(99))
             btnClose.Cursor = Cursors.Hand
             btnClose.FlatStyle = FlatStyle.Flat
             btnClose.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             btnClose.ForeColor = Color.White
-            btnClose.Location = New Point(1429, 440)
+            btnClose.Location = New Point(710, 623)
             btnClose.Name = "btnClose"
-            btnClose.Size = New Size(150, 50)
+            btnClose.Size = New Size(150, 44)
             btnClose.TabIndex = 5
             btnClose.Text = "ปิดหน้านี้"
             btnClose.UseVisualStyleBackColor = False
             ' 
             ' FrmExportForTransfer
             ' 
+            AutoScaleMode = AutoScaleMode.Dpi
             AutoScroll = True
             BackColor = Color.FromArgb(CByte(254), CByte(249), CByte(235))
-            ClientSize = New Size(1591, 501)
+            ClientSize = New Size(880, 690)
             Controls.Add(btnClose)
             Controls.Add(grpLog)
             Controls.Add(grpActions)
@@ -367,7 +385,7 @@ Namespace TempleAccounting
             Controls.Add(grpMachine)
             Controls.Add(lblHeader)
             Font = New Font("Tahoma", 10.5F)
-            MinimumSize = New Size(1180, 460)
+            MinimumSize = New Size(850, 550)
             Name = "FrmExportForTransfer"
             StartPosition = FormStartPosition.CenterScreen
             Text = "ส่งออกข้อมูลไปเครื่องอื่น"

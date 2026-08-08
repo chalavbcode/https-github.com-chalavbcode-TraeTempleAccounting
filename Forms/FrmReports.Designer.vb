@@ -36,6 +36,7 @@ Namespace TempleAccounting
         Friend WithEvents btnRefresh As Button
         Friend WithEvents btnPrintDetail As Button
         Friend WithEvents btnPrintSummary As Button
+        Friend WithEvents btnSavePdf As Button
         Friend WithEvents dgvReport As DataGridView
         Friend WithEvents lblSummary As Label
         Friend WithEvents p As Panel
@@ -83,6 +84,7 @@ Namespace TempleAccounting
             btnSummaryIncome = New Button()
             btnPrintSummary = New Button()
             btnPrintDetail = New Button()
+            btnSavePdf = New Button()
             lblSummary = New Label()
             dgvReport = New DataGridView()
             chartMonthly = New Chart()
@@ -267,6 +269,7 @@ Namespace TempleAccounting
             ' pa
             ' 
             pa.BackColor = Color.FromArgb(CByte(245), CByte(240), CByte(220))
+            pa.Controls.Add(btnSavePdf)
             pa.Controls.Add(btnPrint)
             pa.Controls.Add(btnLedger)
             pa.Controls.Add(btnMonthly)
@@ -409,6 +412,22 @@ Namespace TempleAccounting
             btnPrintDetail.TabIndex = 6
             btnPrintDetail.Text = "📜 รายงานละเอียด"
             btnPrintDetail.UseVisualStyleBackColor = False
+            ' 
+            ' btnSavePdf
+            ' 
+            btnSavePdf.BackColor = Color.FromArgb(CByte(202), CByte(37), CByte(90))
+            btnSavePdf.Cursor = Cursors.Hand
+            btnSavePdf.Dock = DockStyle.Right
+            btnSavePdf.FlatAppearance.BorderSize = 0
+            btnSavePdf.FlatStyle = FlatStyle.Flat
+            btnSavePdf.Font = New Font("Tahoma", 9F, FontStyle.Bold)
+            btnSavePdf.ForeColor = Color.White
+            btnSavePdf.Location = New Point(952, 6)
+            btnSavePdf.Name = "btnSavePdf"
+            btnSavePdf.Size = New Size(120, 38)
+            btnSavePdf.TabIndex = 8
+            btnSavePdf.Text = "📄 บันทึก PDF"
+            btnSavePdf.UseVisualStyleBackColor = False
             ' 
             ' lblSummary
             ' 

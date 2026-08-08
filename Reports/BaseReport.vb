@@ -69,7 +69,8 @@ Namespace TempleAccounting
         ''' </summary>
         Protected Sub ConfigurePageSettings()
             Dim a4Paper = CreateA4Paper(Me.PrinterSettings)
-            Dim pageMargins As New Margins(32, 32, 28, 28)
+            ' ระยะขอบปลอดภัย 0.5 นิ้ว (50/96 นิ้ว) ทุกด้าน กันเครื่องพิมพ์รุ่นเก่าตัดขอบภาพ
+            Dim pageMargins As New Margins(50, 50, 50, 50)
 
             Me.DefaultPageSettings.PaperSize = a4Paper
             Me.DefaultPageSettings.Margins = pageMargins
@@ -105,7 +106,8 @@ Namespace TempleAccounting
         ''' Setup layout for current page
         ''' </summary>
         Protected Sub SetupLayout(e As PrintPageEventArgs)
-            _layout = LayoutConfig.CreateA4Landscape(32, 32, 28, 28)
+            ' ระยะขอบตรงกับ PageSettings (50,50,50,50) เพื่อให้คอลัมน์พอดีกับพื้นที่พิมพ์จริง
+            _layout = LayoutConfig.CreateA4Landscape(50, 50, 50, 50)
 
             _pageW = e.PageBounds.Width
             _startX = e.MarginBounds.Left

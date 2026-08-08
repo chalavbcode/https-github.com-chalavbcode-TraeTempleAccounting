@@ -111,28 +111,30 @@ Namespace TempleAccounting
             lblHeader.ForeColor = Color.FromArgb(CByte(12), CByte(74), CByte(110))
             lblHeader.Location = New Point(0, 0)
             lblHeader.Name = "lblHeader"
-            lblHeader.Size = New Size(1591, 42)
+            lblHeader.Size = New Size(960, 46)
             lblHeader.TabIndex = 0
             lblHeader.Text = "🖥️ นำเข้าข้อมูลหลายเครื่อง (นำเข้ารวมจากหลายเครื่อง / แฟลชไดรฟ์)"
             lblHeader.TextAlign = ContentAlignment.MiddleCenter
             ' 
             ' grpFiles
             ' 
+            grpFiles.Anchor = CType((AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right), AnchorStyles)
             grpFiles.BackColor = Color.White
             grpFiles.Controls.Add(btnSelectFiles)
             grpFiles.Controls.Add(btnClearFiles)
             grpFiles.Controls.Add(lblFileSummary)
             grpFiles.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             grpFiles.ForeColor = Color.FromArgb(CByte(12), CByte(74), CByte(110))
-            grpFiles.Location = New Point(20, 60)
+            grpFiles.Location = New Point(20, 54)
             grpFiles.Name = "grpFiles"
-            grpFiles.Size = New Size(965, 120)
+            grpFiles.Size = New Size(920, 120)
             grpFiles.TabIndex = 1
             grpFiles.TabStop = False
             grpFiles.Text = "1️⃣ เลือกไฟล์ส่งออกจากหลายเครื่อง / แฟลชไดรฟ์"
             ' 
             ' btnSelectFiles
             ' 
+            btnSelectFiles.Anchor = CType((AnchorStyles.Top Or AnchorStyles.Left), AnchorStyles)
             btnSelectFiles.BackColor = Color.FromArgb(CByte(37), CByte(99), CByte(235))
             btnSelectFiles.Cursor = Cursors.Hand
             btnSelectFiles.FlatStyle = FlatStyle.Flat
@@ -147,6 +149,7 @@ Namespace TempleAccounting
             ' 
             ' btnClearFiles
             ' 
+            btnClearFiles.Anchor = CType((AnchorStyles.Top Or AnchorStyles.Left), AnchorStyles)
             btnClearFiles.BackColor = Color.FromArgb(CByte(100), CByte(116), CByte(139))
             btnClearFiles.Cursor = Cursors.Hand
             btnClearFiles.FlatStyle = FlatStyle.Flat
@@ -166,31 +169,33 @@ Namespace TempleAccounting
             lblFileSummary.ForeColor = Color.FromArgb(75, 85, 99)
             lblFileSummary.Location = New Point(20, 92)
             lblFileSummary.Name = "lblFileSummary"
-            lblFileSummary.Size = New Size(320, 24)
+            lblFileSummary.Size = New Size(400, 24)
             lblFileSummary.TabIndex = 2
             lblFileSummary.Text = "ยังไม่ได้เลือกไฟล์ — คลิกปุ่มด้านบนเพื่อเริ่ม"
             ' 
             ' grpMachine
             ' 
+            grpMachine.Anchor = CType((AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right), AnchorStyles)
             grpMachine.BackColor = Color.White
             grpMachine.Controls.Add(lblMachineInfo)
             grpMachine.Controls.Add(lblMachineStatus)
             grpMachine.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             grpMachine.ForeColor = Color.FromArgb(CByte(12), CByte(74), CByte(110))
-            grpMachine.Location = New Point(991, 60)
+            grpMachine.Location = New Point(20, 182)
             grpMachine.Name = "grpMachine"
-            grpMachine.Size = New Size(588, 120)
+            grpMachine.Size = New Size(920, 135)
             grpMachine.TabIndex = 2
             grpMachine.TabStop = False
             grpMachine.Text = "2️⃣ รหัสเครื่องต้นทาง และรหัสยืนยันไฟล์"
             ' 
             ' lblMachineInfo
             ' 
+            lblMachineInfo.AutoSize = True
             lblMachineInfo.Font = New Font("Tahoma", 9.5F)
             lblMachineInfo.ForeColor = Color.FromArgb(75, 85, 99)
             lblMachineInfo.Location = New Point(16, 26)
             lblMachineInfo.Name = "lblMachineInfo"
-            lblMachineInfo.Size = New Size(556, 60)
+            lblMachineInfo.Size = New Size(500, 60)
             lblMachineInfo.TabIndex = 0
             lblMachineInfo.Text = "ระบบจะอ่านรหัสเครื่องที่ฝังอยู่ในตัวไฟล์ส่งออก" & vbCrLf &
                                  "(ไม่ใช้ชื่อไฟล์หรือชื่อเครื่อง Windows เป็นตัวระบุ)" & vbCrLf &
@@ -201,23 +206,24 @@ Namespace TempleAccounting
             lblMachineStatus.AutoSize = True
             lblMachineStatus.Font = New Font("Tahoma", 9.5F, FontStyle.Bold)
             lblMachineStatus.ForeColor = Color.FromArgb(153, 27, 27)
-            lblMachineStatus.Location = New Point(16, 92)
+            lblMachineStatus.Location = New Point(16, 100)
             lblMachineStatus.Name = "lblMachineStatus"
-            lblMachineStatus.Size = New Size(240, 23)
+            lblMachineStatus.Size = New Size(400, 23)
             lblMachineStatus.TabIndex = 1
             lblMachineStatus.Text = "⏳ ยังไม่มีการเลือกไฟล์"
             ' 
             ' grpPreview
             ' 
+            grpPreview.Anchor = CType((AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right), AnchorStyles)
             grpPreview.BackColor = Color.White
             grpPreview.Controls.Add(dgvImportPreview)
             grpPreview.Controls.Add(btnViewDuplicates)
             grpPreview.Controls.Add(lblPreviewNote)
             grpPreview.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             grpPreview.ForeColor = Color.FromArgb(CByte(12), CByte(74), CByte(110))
-            grpPreview.Location = New Point(20, 190)
+            grpPreview.Location = New Point(20, 325)
             grpPreview.Name = "grpPreview"
-            grpPreview.Size = New Size(1559, 300)
+            grpPreview.Size = New Size(920, 290)
             grpPreview.TabIndex = 3
             grpPreview.TabStop = False
             grpPreview.Text = "3️⃣ ตัวอย่างข้อมูลก่อนรวม (ทีละไฟล์)"
@@ -227,6 +233,7 @@ Namespace TempleAccounting
             dgvImportPreview.AllowUserToAddRows = False
             dgvImportPreview.AllowUserToDeleteRows = False
             dgvImportPreview.AllowUserToOrderColumns = False
+            dgvImportPreview.Anchor = CType((AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right), AnchorStyles)
             dgvImportPreview.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
             dgvImportPreview.BackgroundColor = Color.FromArgb(CByte(255), CByte(253), CByte(244))
             dgvImportPreview.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize
@@ -236,7 +243,7 @@ Namespace TempleAccounting
             dgvImportPreview.ReadOnly = True
             dgvImportPreview.RowHeadersVisible = False
             dgvImportPreview.SelectionMode = DataGridViewSelectionMode.FullRowSelect
-            dgvImportPreview.Size = New Size(1527, 200)
+            dgvImportPreview.Size = New Size(888, 200)
             dgvImportPreview.TabIndex = 0
             ' 
             ' colFileName
@@ -313,12 +320,13 @@ Namespace TempleAccounting
             ' 
             ' btnViewDuplicates
             ' 
+            btnViewDuplicates.Anchor = CType((AnchorStyles.Top Or AnchorStyles.Left), AnchorStyles)
             btnViewDuplicates.BackColor = Color.FromArgb(CByte(124), CByte(58), CByte(237))
             btnViewDuplicates.Cursor = Cursors.Hand
             btnViewDuplicates.FlatStyle = FlatStyle.Flat
             btnViewDuplicates.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             btnViewDuplicates.ForeColor = Color.White
-            btnViewDuplicates.Location = New Point(16, 242)
+            btnViewDuplicates.Location = New Point(16, 240)
             btnViewDuplicates.Name = "btnViewDuplicates"
             btnViewDuplicates.Size = New Size(280, 48)
             btnViewDuplicates.TabIndex = 1
@@ -327,37 +335,40 @@ Namespace TempleAccounting
             ' 
             ' lblPreviewNote
             ' 
+            lblPreviewNote.AutoSize = True
             lblPreviewNote.Font = New Font("Tahoma", 9.5F)
             lblPreviewNote.ForeColor = Color.FromArgb(75, 85, 99)
-            lblPreviewNote.Location = New Point(310, 256)
+            lblPreviewNote.Location = New Point(310, 252)
             lblPreviewNote.Name = "lblPreviewNote"
-            lblPreviewNote.Size = New Size(1220, 30)
+            lblPreviewNote.Size = New Size(594, 30)
             lblPreviewNote.TabIndex = 2
             lblPreviewNote.Text = "💡 ดับเบิลคลิกแถวไฟล์เพื่อดูรายการซ้ำของไฟล์นั้น / คลิกปุ่มด้านซ้ายเพื่อดูรายการซ้ำทั้งหมดก่อนตัดสินใจรวมข้อมูล — ระบบจะไม่ข้ามรายการซ้ำแบบเงียบๆ"
             ' 
             ' grpMerge
             ' 
+            grpMerge.Anchor = CType((AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right), AnchorStyles)
             grpMerge.BackColor = Color.White
             grpMerge.Controls.Add(btnConfirmMerge)
             grpMerge.Controls.Add(lblMergeStatus)
             grpMerge.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             grpMerge.ForeColor = Color.FromArgb(CByte(12), CByte(74), CByte(110))
-            grpMerge.Location = New Point(20, 500)
+            grpMerge.Location = New Point(20, 623)
             grpMerge.Name = "grpMerge"
-            grpMerge.Size = New Size(1559, 90)
+            grpMerge.Size = New Size(920, 85)
             grpMerge.TabIndex = 4
             grpMerge.TabStop = False
             grpMerge.Text = "4️⃣ บันทึกรวมข้อมูลลงฐานข้อมูลหลัก"
             ' 
             ' btnConfirmMerge
             ' 
+            btnConfirmMerge.Anchor = CType((AnchorStyles.Top Or AnchorStyles.Left), AnchorStyles)
             btnConfirmMerge.BackColor = Color.FromArgb(CByte(5), CByte(150), CByte(105))
             btnConfirmMerge.Cursor = Cursors.Hand
             btnConfirmMerge.Enabled = False
             btnConfirmMerge.FlatStyle = FlatStyle.Flat
             btnConfirmMerge.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             btnConfirmMerge.ForeColor = Color.White
-            btnConfirmMerge.Location = New Point(20, 30)
+            btnConfirmMerge.Location = New Point(20, 28)
             btnConfirmMerge.Name = "btnConfirmMerge"
             btnConfirmMerge.Size = New Size(330, 50)
             btnConfirmMerge.TabIndex = 0
@@ -369,51 +380,55 @@ Namespace TempleAccounting
             lblMergeStatus.AutoSize = True
             lblMergeStatus.Font = New Font("Tahoma", 10F)
             lblMergeStatus.ForeColor = Color.FromArgb(75, 85, 99)
-            lblMergeStatus.Location = New Point(370, 40)
+            lblMergeStatus.Location = New Point(370, 38)
             lblMergeStatus.Name = "lblMergeStatus"
-            lblMergeStatus.Size = New Size(380, 24)
+            lblMergeStatus.Size = New Size(500, 24)
             lblMergeStatus.TabIndex = 1
             lblMergeStatus.Text = "ระบบจะสำรองฐานข้อมูลอัตโนมัติก่อนรวมทุกครั้ง"
             ' 
             ' grpLog
             ' 
+            grpLog.Anchor = CType((AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right), AnchorStyles)
             grpLog.BackColor = Color.White
             grpLog.Controls.Add(rtbLog)
             grpLog.Controls.Add(prgImport)
             grpLog.Controls.Add(lblProgress)
             grpLog.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             grpLog.ForeColor = Color.FromArgb(CByte(12), CByte(74), CByte(110))
-            grpLog.Location = New Point(20, 600)
+            grpLog.Location = New Point(20, 716)
             grpLog.Name = "grpLog"
-            grpLog.Size = New Size(1559, 120)
+            grpLog.Size = New Size(920, 115)
             grpLog.TabIndex = 5
             grpLog.TabStop = False
             grpLog.Text = "ประวัติการทำงาน"
             ' 
             ' rtbLog
             ' 
+            rtbLog.Anchor = CType((AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right), AnchorStyles)
             rtbLog.BackColor = Color.FromArgb(CByte(15), CByte(23), CByte(42))
             rtbLog.Font = New Font("Consolas", 9F)
             rtbLog.ForeColor = Color.FromArgb(CByte(226), CByte(232), CByte(240))
-            rtbLog.Location = New Point(16, 32)
+            rtbLog.Location = New Point(16, 30)
             rtbLog.Name = "rtbLog"
             rtbLog.ReadOnly = True
-            rtbLog.Size = New Size(1527, 52)
+            rtbLog.Size = New Size(888, 48)
             rtbLog.TabIndex = 0
             rtbLog.Text = ""
             ' 
             ' prgImport
             ' 
-            prgImport.Location = New Point(16, 92)
+            prgImport.Anchor = CType((AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right), AnchorStyles)
+            prgImport.Location = New Point(16, 86)
             prgImport.Name = "prgImport"
-            prgImport.Size = New Size(1300, 20)
+            prgImport.Size = New Size(720, 20)
             prgImport.TabIndex = 1
             ' 
             ' lblProgress
             ' 
+            lblProgress.Anchor = CType((AnchorStyles.Top Or AnchorStyles.Right), AnchorStyles)
             lblProgress.AutoSize = True
             lblProgress.Font = New Font("Tahoma", 10F)
-            lblProgress.Location = New Point(1330, 90)
+            lblProgress.Location = New Point(750, 84)
             lblProgress.Name = "lblProgress"
             lblProgress.Size = New Size(160, 24)
             lblProgress.TabIndex = 2
@@ -421,12 +436,13 @@ Namespace TempleAccounting
             ' 
             ' btnClose
             ' 
+            btnClose.Anchor = CType((AnchorStyles.Top Or AnchorStyles.Right), AnchorStyles)
             btnClose.BackColor = Color.FromArgb(CByte(75), CByte(85), CByte(99))
             btnClose.Cursor = Cursors.Hand
             btnClose.FlatStyle = FlatStyle.Flat
             btnClose.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             btnClose.ForeColor = Color.White
-            btnClose.Location = New Point(1429, 730)
+            btnClose.Location = New Point(790, 839)
             btnClose.Name = "btnClose"
             btnClose.Size = New Size(150, 50)
             btnClose.TabIndex = 6
@@ -435,9 +451,10 @@ Namespace TempleAccounting
             ' 
             ' FrmMultiMachineImport
             ' 
+            AutoScaleMode = AutoScaleMode.Dpi
             AutoScroll = True
             BackColor = Color.FromArgb(CByte(254), CByte(249), CByte(235))
-            ClientSize = New Size(1591, 781)
+            ClientSize = New Size(960, 905)
             Controls.Add(btnClose)
             Controls.Add(grpLog)
             Controls.Add(grpMerge)
@@ -446,7 +463,7 @@ Namespace TempleAccounting
             Controls.Add(grpFiles)
             Controls.Add(lblHeader)
             Font = New Font("Tahoma", 10.5F)
-            MinimumSize = New Size(1180, 700)
+            MinimumSize = New Size(950, 650)
             Name = "FrmMultiMachineImport"
             StartPosition = FormStartPosition.CenterScreen
             Text = "นำเข้าข้อมูลหลายเครื่อง"

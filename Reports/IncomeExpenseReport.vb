@@ -20,6 +20,12 @@ Namespace TempleAccounting
             Summary = 1
         End Enum
 
+        ''' <summary>
+        ''' กำหนดทิศทางกระดาษ: True = A4 แนวนอน (ค่าเริ่มต้น), False = A4 แนวตั้ง
+        ''' คอลัมน์ทั้งหมดคำนวณจาก e.MarginBounds.Width แบบอัตโนมัติ จึงรองรับได้ทั้ง 2 แบบ
+        ''' </summary>
+        Public Property UseLandscape As Boolean = True
+
         ' Report date range - MUST be set via constructor
         Private ReadOnly _fromDate As Date
         Private ReadOnly _toDate As Date
@@ -119,15 +125,16 @@ Namespace TempleAccounting
 
         Private Sub ConfigurePageSettings()
             Dim a4Paper = CreateA4Paper(Me.PrinterSettings)
-            Dim pageMargins As New Margins(32, 32, 28, 28)
+            ' ระยะขอบปลอดภัย 0.5 นิ้ว (50/96 นิ้ว) ทุกด้าน กันเครื่องพิมพ์รุ่นเก่าตัดขอบภาพ
+            Dim pageMargins As New Margins(50, 50, 50, 50)
 
             Me.DefaultPageSettings.PaperSize = a4Paper
             Me.DefaultPageSettings.Margins = pageMargins
-            Me.DefaultPageSettings.Landscape = True
+            Me.DefaultPageSettings.Landscape = UseLandscape
 
             Me.PrinterSettings.DefaultPageSettings.PaperSize = a4Paper
             Me.PrinterSettings.DefaultPageSettings.Margins = pageMargins
-            Me.PrinterSettings.DefaultPageSettings.Landscape = True
+            Me.PrinterSettings.DefaultPageSettings.Landscape = UseLandscape
         End Sub
 
         Private Sub InitFonts()
@@ -335,8 +342,9 @@ Namespace TempleAccounting
         Protected Overrides Sub OnQueryPageSettings(e As QueryPageSettingsEventArgs)
             MyBase.OnQueryPageSettings(e)
             e.PageSettings.PaperSize = CreateA4Paper(Me.PrinterSettings)
-            e.PageSettings.Margins = New Margins(32, 32, 28, 28)
-            e.PageSettings.Landscape = True
+            ' ระยะขอบปลอดภัย 0.5 นิ้ว ทุกด้าน กันฮาร์ดแวร์มาร์จิ้นของเครื่องพิมพ์เก่าตัดขอบ
+            e.PageSettings.Margins = New Margins(50, 50, 50, 50)
+            e.PageSettings.Landscape = UseLandscape
         End Sub
 
         Protected Overrides Sub OnPrintPage(e As PrintPageEventArgs)
@@ -346,7 +354,8 @@ Namespace TempleAccounting
             g.TextRenderingHint = Drawing.Text.TextRenderingHint.AntiAliasGridFit
 
             ' Use LayoutConfig for consistent layout calculations
-            _layout = LayoutConfig.CreateA4Landscape(32, 32, 28, 28)
+            ' ระยะขอบตรงกับ PageSettings (50,50,50,50) เพื่อให้คอลัมน์พอดีกับพื้นที่พิมพ์จริง
+            _layout = LayoutConfig.CreateA4Landscape(50, 50, 50, 50)
 
             Dim pageW = e.PageBounds.Width
             _startX = e.MarginBounds.Left
@@ -758,6 +767,76 @@ Namespace TempleAccounting
             Catch ex As Exception
                 MessageBox.Show("ไม่สามารถเปิดดูรายงานได้: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
             End Try
+        End Sub
+
+        ''' <summary>
+        ''' บันทึกรายงานเป็นไฟล์ PDF (A4) ผ่านเครื่องพิมพ์เสมือน "Microsoft Print to PDF"
+        ''' ที่ติดตั้งมาพร้อม Windows 10/11 — ไม่ต้องพึ่งไลบรารีภายนอก และผลลัพธ์เป็น PDF ที่แก้ไขไม่ได้
+        ''' </summary>
+        Public Sub SaveToPdf(filePath As String)
+            If String.IsNullOrWhiteSpace(filePath) Then
+                Throw New ApplicationException("ไม่ได้ระบุตำแหน่งไฟล์ PDF")
+            End If
+
+            ' ค้นหาเครื่องพิมพ์เสมือน Microsoft Print to PDF
+            Dim pdfPrinter = "Microsoft Print to PDF"
+            Dim found = False
+            Try
+                For Each name As String In System.Drawing.Printing.PrinterSettings.InstalledPrinters
+                    If String.Equals(name, pdfPrinter, StringComparison.OrdinalIgnoreCase) Then
+                        found = True
+                        Exit For
+                    End If
+                Next
+            Catch
+                found = False
+            End Try
+
+            If Not found Then
+                Throw New ApplicationException("ไม่พบเครื่องพิมพ์ 'Microsoft Print to PDF' ในระบบ" & vbCrLf &
+                                               "กรุณาเปิดใช้งานที่: การตั้งค่า Windows > อุปกรณ์ > เครื่องพิมพ์และสแกนเนอร์ > Microsoft Print to PDF")
+            End If
+
+            Try
+                Me.PrinterSettings.PrinterName = pdfPrinter
+                ' กำหนดให้พิมพ์ลงไฟล์โดยตรง (ไม่เปิดกล่องบันทึกซ้ำ) — ใช้กับไดรเวอร์ Microsoft Print to PDF
+                Me.PrinterSettings.PrintToFile = True
+                Me.PrinterSettings.PrintFileName = filePath
+
+                ' สลับเครื่องพิมพ์แล้ว: เตรียมกระดาษ A4 + ระยะขอบปลอดภัยของเครื่องพิมพ์นั้นใหม่
+                ConfigurePageSettings()
+                Me.Print()
+            Catch ex As Exception
+                Me.PrinterSettings.PrintToFile = False
+                Throw
+            End Try
+        End Sub
+
+        ''' <summary>
+        ''' เปิดกล่องบันทึกไฟล์ แล้วสร้าง PDF (A4) ของรายงานที่เลือก
+        ''' </summary>
+        Public Shared Sub ShowSavePdfDialog(fromDate As Date, toDate As Date, Optional owner As IWin32Window = Nothing, Optional mode As ReportModes = ReportModes.Detailed, Optional manualOpeningBalance As Decimal? = Nothing, Optional fundID As Integer? = Nothing, Optional bankID As Integer? = Nothing)
+            Using sfd As New SaveFileDialog()
+                sfd.Filter = "ไฟล์ PDF|*.pdf"
+                sfd.FilterIndex = 1
+                sfd.Title = "บันทึกเป็น PDF (A4)"
+                sfd.FileName = "รายงาน_" & fromDate.ToString("yyyyMMdd") & "_" & toDate.ToString("yyyyMMdd") & ".pdf"
+                sfd.OverwritePrompt = True
+                sfd.AddExtension = True
+                sfd.DefaultExt = "pdf"
+
+                If sfd.ShowDialog(owner) <> DialogResult.OK Then Return
+
+                Try
+                    Dim doc As New IncomeExpenseReport(fromDate, toDate, mode, manualOpeningBalance, fundID, bankID)
+                    doc.SaveToPdf(sfd.FileName)
+                    MessageBox.Show("บันทึกไฟล์ PDF เรียบร้อยแล้ว:" & vbCrLf & sfd.FileName,
+                                    "บันทึกสำเร็จ", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                Catch ex As Exception
+                    MessageBox.Show("บันทึก PDF ไม่สำเร็จ:" & vbCrLf & ex.Message,
+                                    "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                End Try
+            End Using
         End Sub
     End Class
 End Namespace
