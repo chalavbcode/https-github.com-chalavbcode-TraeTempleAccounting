@@ -1025,14 +1025,14 @@ Namespace TempleAccounting
             Dim safeRowFont = GetSafeFont(rowFont, 10.0!)
 
             Const labelHeight As Integer = 24
-            Const labelToSignLine As Integer = 36
-            Const signLineToName As Integer = 34  ' เว้นช่องว่างเส้นประ→ชื่อ (เดิมเป็น 0 ทำให้ชื่อ/จุดสำรองทับเส้นประ = เห็นเป็นเส้นประซ้อน 2 ชั้น)
+            Const labelToSignLine As Integer = 52  ' ช่องว่างระหว่างหัวข้อ→เส้นประ (เพิ่มจาก 36) ให้มีพื้นที่ว่างพอสำหรับเขียนลายเซ็นจริงโดยไม่ชนข้อความด้านบน
+            Const signLineToName As Integer = 14  ' ช่องว่างเส้นประ→ชื่อ (ลดจาก 34) ให้ชื่อในวงเล็บ ( {ชื่อ} ) อยู่ชิดใต้เส้นประ
             Const nameHeight As Integer = 26
             Const nameToPosition As Integer = 8
             Const positionHeight As Integer = 24
 
             ' Calculate total signature section height
-            ' 24 + 36 + 34 + 26 + 8 + 24 = 152px
+            ' 24 + 52 + 14 + 26 + 8 + 24 = 148px
             Dim totalSignatureHeight = labelHeight + labelToSignLine + signLineToName + nameHeight + nameToPosition + positionHeight
 
             ' Position signature block - both blocks share same bottom Y
@@ -1108,6 +1108,27 @@ Namespace TempleAccounting
             If rowFont Is Nothing AndAlso safeRowFont IsNot Nothing Then safeRowFont.Dispose()
 
             Return signaturePositionY + positionHeight
+        End Function
+
+        ''' <summary>
+        ''' วาดบล็อกลายเซ็นสำหรับรายงานรับ-จ่าย โดยผูกชื่อผู้ลงนามจาก ReportEngine.GetTemplateInfo()
+        ''' (อ่าน TempleSetting/Personnel จากฐานข้อมูล + cache) — ซ้าย: เจ้าอาวาส, ขวา: ผู้จัดทำบัญชี (ไวยาวัจกร)
+        ''' เป็น source of truth สำหรับข้อมูลและ layout ลายเซ็นทั้งหมดของ ReportEngine.vb
+        ''' </summary>
+        Public Function DrawSignatureBlock(g As Graphics,
+                                           leftTitle As String, leftPosition As String,
+                                           rightTitle As String, rightPosition As String,
+                                           leftX As Integer, rightX As Integer, blockWidth As Integer,
+                                           pageBottom As Integer, currentY As Integer,
+                                           boldFont As Font, rowFont As Font) As Integer
+            ' ผูกชื่อผู้ลงนามจาก data properties ของ ReportEngine (TempleSetting/Personnel)
+            Dim info = GetTemplateInfo()
+            Return DrawSignatureBlock(g,
+                                      leftTitle, If(info Is Nothing, "", info.AbbotName), leftPosition,
+                                      rightTitle, If(info Is Nothing, "", info.AccountantName), rightPosition,
+                                      leftX, rightX, blockWidth,
+                                      pageBottom, currentY,
+                                      boldFont, rowFont)
         End Function
 
     End Module

@@ -60,7 +60,7 @@ Namespace TempleAccounting
         Private _rowIndex As Integer = 0
 
         Private Const FinalSummaryRows As Integer = 3
-        Private Const FinalSignatureBlockHeight As Integer = 152  ' เท่ากับ ReportEngine.totalSignatureHeight (24+36+34+26+8+24) เพื่อกันส่วนเซ็นต์ล้นขอบล่าง
+        Private Const FinalSignatureBlockHeight As Integer = 148  ' เท่ากับ ReportEngine.totalSignatureHeight (24+52+14+26+8+24) เพื่อกันส่วนเซ็นต์ล้นขอบล่าง
         Private Const FinalFooterGapHeight As Integer = 20       ' Increased from 8 to match the 20px shift-up in ReportEngine
         Private Const SectionGap As Integer = 12               ' Gap between left/right sections
 
@@ -519,16 +519,14 @@ Namespace TempleAccounting
         ''' <summary>
         ''' วาดบล็อกลายเซ็น (ซ้าย: ตรวจถูกต้องแล้ว/เจ้าอาวาส — ขวา: ผู้จัดทำบัญชี/ไวยาวัจกร)
         ''' ผ่าน ReportEngine.DrawSignatureBlock อย่างเดียว (ไม่มีการวาด inline หรือ layout ทับเอง)
-        ''' ชื่อเจ้าอาวาส/ไวยาวัจกร ดึงจาก ReportEngine.GetTemplateInfo() (อ่าน TempleSetting/Personnel จากฐานข้อมูล)
+        ''' ชื่อเจ้าอาวาส/ผู้จัดทำบัญชี ผูกจาก data properties ของ ReportEngine (GetTemplateInfo) ภายใน ReportEngine.vb
         ''' เส้นประวาดเพียงเส้นเดียว และชื่อแสดงเป็น ( {ชื่อ} ) — fallback ( .................................... ) เฉพาะเมื่อชื่อว่าง
         ''' </summary>
         Private Sub DrawSignatures(g As Graphics, rowH As Integer, c1 As Integer, c2 As Integer, c3 As Integer, c4 As Integer, usableW As Integer)
-            ' ใช้ data service ของ ReportEngine เพื่อโหลดชื่อผู้ลงนามจริงจาก TempleSetting (มี cache)
-            Dim info = ReportEngine.GetTemplateInfo()
-
+            ' layout + การผูกชื่อผู้ลงนามจัดการภายใน ReportEngine.DrawSignatureBlock ทั้งหมด
             _pageY = ReportEngine.DrawSignatureBlock(g,
-                "ตรวจถูกต้องแล้ว", info.AbbotName, "เจ้าอาวาส",
-                "ผู้จัดทำบัญชี", info.AccountantName, "ไวยาวัจกร",
+                "ตรวจถูกต้องแล้ว", "เจ้าอาวาส",
+                "ผู้จัดทำบัญชี", "ไวยาวัจกร",
                 _leftX, _rightX, _leftSectionWidth, _pageBottom, _pageY,
                 _theme.BoldFont, _theme.RowFont)
         End Sub
