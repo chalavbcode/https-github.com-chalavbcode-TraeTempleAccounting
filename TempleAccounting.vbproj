@@ -152,6 +152,16 @@
     <EmbeddedResource Include="Forms\FrmLocationImport.resx">
       <DependentUpon>FrmLocationImport.vb</DependentUpon>
     </EmbeddedResource>
+    <Compile Include="Forms\FrmMultiMachineImport.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FrmMultiMachineImport.Designer.vb">
+      <DependentUpon>FrmMultiMachineImport.vb</DependentUpon>
+      <SubType>Form</SubType>
+    </Compile>
+    <EmbeddedResource Include="Forms\FrmMultiMachineImport.resx">
+      <DependentUpon>FrmMultiMachineImport.vb</DependentUpon>
+    </EmbeddedResource>
     <Compile Include="Forms\FrmReports.vb">
       <SubType>Form</SubType>
     </Compile>

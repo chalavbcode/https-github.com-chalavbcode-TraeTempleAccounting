@@ -25,6 +25,7 @@ Namespace TempleAccounting
         Friend btnRestore As Button
         Friend btnVip As Button
         Friend btnActivity As Button
+        Friend btnMultiImport As Button
         Private pnlSidebarSpacer As Panel
         Private pnlContent As Panel
         Private pnlOverview As Panel
@@ -92,6 +93,7 @@ Namespace TempleAccounting
             btnRestore = New Button()
             btnVip = New Button()
             btnActivity = New Button()
+            btnMultiImport = New Button()
             btnReport = New Button()
             btnMember = New Button()
             btnExpense = New Button()
@@ -277,6 +279,7 @@ Namespace TempleAccounting
             pnlSidebar.Controls.Add(btnRestore)
             pnlSidebar.Controls.Add(btnVip)
             pnlSidebar.Controls.Add(btnActivity)
+            pnlSidebar.Controls.Add(btnMultiImport)
             pnlSidebar.Controls.Add(btnReport)
             pnlSidebar.Controls.Add(btnMember)
             pnlSidebar.Controls.Add(btnExpense)
@@ -436,6 +439,26 @@ Namespace TempleAccounting
             btnReport.Text = "🖨️ พิมพ์รายงาน"
             btnReport.TextAlign = ContentAlignment.MiddleLeft
             btnReport.UseVisualStyleBackColor = False
+            ' 
+            ' btnMultiImport
+            ' 
+            btnMultiImport.BackColor = Color.Transparent
+            btnMultiImport.Cursor = Cursors.Hand
+            btnMultiImport.Dock = DockStyle.Top
+            btnMultiImport.FlatAppearance.BorderSize = 0
+            btnMultiImport.FlatAppearance.MouseOverBackColor = Color.FromArgb(CByte(146), CByte(64), CByte(14))
+            btnMultiImport.FlatStyle = FlatStyle.Flat
+            btnMultiImport.Font = New Font("Tahoma", 11.25F, FontStyle.Regular, GraphicsUnit.Point, CByte(222))
+            btnMultiImport.ForeColor = Color.White
+            btnMultiImport.ImageAlign = ContentAlignment.MiddleLeft
+            btnMultiImport.Location = New Point(12, 307)
+            btnMultiImport.Name = "btnMultiImport"
+            btnMultiImport.Padding = New Padding(14, 0, 8, 0)
+            btnMultiImport.Size = New Size(227, 64)
+            btnMultiImport.TabIndex = 20
+            btnMultiImport.Text = "🖥️ นำเข้าหลายเครื่อง"
+            btnMultiImport.TextAlign = ContentAlignment.MiddleLeft
+            btnMultiImport.UseVisualStyleBackColor = False
             ' 
             ' btnMember
             ' 
