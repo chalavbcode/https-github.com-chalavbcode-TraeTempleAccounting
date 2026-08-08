@@ -892,9 +892,10 @@ Namespace TempleAccounting
             DrawDottedLine(g, leftBlockX + CInt((blockWidth - signLineWidth) / 2), signatureLineY, signLineWidth, dotSpacing, dotRadius)
 
             ' Name with fallback — ใต้เส้นประบรรทัดเดียว (ไม่มีเส้นประซ้อน) 
-            ' ถ้ายังไม่ได้ตั้งชื่อในระบบ: แสดง "( .................................... )" เป็นตัวสำรอง
+            ' แสดงชื่อจริงจาก TempleSetting/Personnel เป็น ( {ชื่อ} ) 
+            ' ถ้าและเฉพาะถ้าชื่อว่างเปล่า/Null จึงใช้ "( .................................... )" สำรอง — ห้าม hardcode จุดเมื่อมีชื่อจริง
             Dim leftDisplay As String = If(String.IsNullOrWhiteSpace(leftName), "( .................................... )",
-                                           "(" & leftName & ")")
+                                           "( " & leftName.Trim() & " )")
             Using nameFont As Font = CreateFittedFont(g, leftDisplay, New Font("Tahoma", 12.0!, FontStyle.Bold), blockWidth - 8, 10.0!, FontStyle.Bold)
                 g.DrawString(leftDisplay, nameFont, Brushes.Black,
                            New RectangleF(leftBlockX, signatureNameY, blockWidth, nameHeight), fmtTitle)
@@ -913,8 +914,9 @@ Namespace TempleAccounting
             DrawDottedLine(g, rightBlockX + CInt((blockWidth - signLineWidth) / 2), signatureLineY, signLineWidth, dotSpacing, dotRadius)
 
             ' Name with fallback — ใต้เส้นประบรรทัดเดียว
+            ' แสดงชื่อจริงจาก TempleSetting/Personnel เป็น ( {ชื่อ} ) — fallback เฉพาะเมื่อว่าง
             Dim rightDisplay As String = If(String.IsNullOrWhiteSpace(rightName), "( .................................... )",
-                                           "(" & rightName & ")")
+                                           "( " & rightName.Trim() & " )")
             Using nameFont As Font = CreateFittedFont(g, rightDisplay, New Font("Tahoma", 12.0!, FontStyle.Bold), blockWidth - 8, 10.0!, FontStyle.Bold)
                 g.DrawString(rightDisplay, nameFont, Brushes.Black,
                            New RectangleF(rightBlockX, signatureNameY, blockWidth, nameHeight), fmtTitle)

@@ -60,7 +60,7 @@ Namespace TempleAccounting
         Private _rowIndex As Integer = 0
 
         Private Const FinalSummaryRows As Integer = 3
-        Private Const FinalSignatureBlockHeight As Integer = 120  ' เท่ากับ totalSignatureHeight ใน DrawSignatures (24+36+4+26+6+24) เพื่อกันส่วนเซ็นต์ล้นขอบล่าง
+        Private Const FinalSignatureBlockHeight As Integer = 152  ' เท่ากับ ReportEngine.totalSignatureHeight (24+36+34+26+8+24) เพื่อกันส่วนเซ็นต์ล้นขอบล่าง
         Private Const FinalFooterGapHeight As Integer = 20       ' Increased from 8 to match the 20px shift-up in ReportEngine
         Private Const SectionGap As Integer = 12               ' Gap between left/right sections
 
@@ -644,110 +644,21 @@ Namespace TempleAccounting
         End Function
 
         ''' <summary>
-        ''' วาดบล็อกลายเซ็น (ซ้าย: เจ้าอาวาส / ขวา: ไวยาวัจกร) แบบไดนามิก
-        ''' ชื่อเจ้าอาวาส/ผู้ทำบัญชี อ่านจาก TempleSetting (ผ่าน _templateInfo) — ถ้าไม่มีชื่อในระบบ
-        ''' จะแสดง "(   ....................................   )" เป็นตัวสำรอง เพื่อไม่ให้ช่องว่าง
-        ''' วาดเส้นประลงนามเพียงเส้นเดียวต่อบล็อก และวางชื่อไว้ใต้เส้นโดยตรง
+        ''' วาดบล็อกลายเซ็น (ซ้าย: ตรวจถูกต้องแล้ว/เจ้าอาวาส — ขวา: ผู้จัดทำบัญชี/ไวยาวัจกร)
+        ''' ผ่าน ReportEngine.DrawSignatureBlock อย่างเดียว (ไม่มีการวาด inline หรือ layout ทับเอง)
+        ''' ชื่อเจ้าอาวาส/ไวยาวัจกร ดึงจาก ReportEngine.GetTemplateInfo() (อ่าน TempleSetting/Personnel จากฐานข้อมูล)
+        ''' เส้นประวาดเพียงเส้นเดียว และชื่อแสดงเป็น ( {ชื่อ} ) — fallback ( .................................... ) เฉพาะเมื่อชื่อว่าง
         ''' </summary>
         Private Sub DrawSignatures(g As Graphics, rowH As Integer, c1 As Integer, c2 As Integer, c3 As Integer, c4 As Integer, usableW As Integer)
-            Dim minimumTop = _pageY + 12
+            ' ใช้ data service ของ ReportEngine เพื่อโหลดชื่อผู้ลงนามจริงจาก TempleSetting (มี cache)
+            Dim info = ReportEngine.GetTemplateInfo()
 
-            ' === SHARED LAYOUT CALCULATION ===
-            ' Signature block dimensions - centered in each half of page
-            Const marginEachSide As Integer = 40
-            Dim blockWidth As Integer = Math.Max(usableW - (marginEachSide * 2), 180)
-
-            Dim leftBlockX As Integer = _leftX + CInt((usableW - blockWidth) / 2)
-            Dim rightBlockX As Integer = _rightX + CInt((usableW - blockWidth) / 2)
-
-            ' === SHARED SPACING CONSTANTS ===
-            Const labelHeight As Integer = 24           ' แถวหัวข้อ (ตรวจถูกต้องแล้ว / ผู้จัดทำบัญชี)
-            Const labelToSignLine As Integer = 36       ' ระยะหัวข้อ → เส้นประ
-            Const signLineToName As Integer = 4         ' เส้นประ → ชื่อ (ชื่ออยู่ใต้เส้นประโดยตรง แต่ไม่ทับเส้น)
-            Const nameHeight As Integer = 26            ' แถวชื่อ (   พระครู... / นาย...   )
-            Const nameToPosition As Integer = 6         ' ระยะชื่อ → ตำแหน่ง
-            Const positionHeight As Integer = 24        ' แถวตำแหน่ง (เจ้าอาวาส / ไวยาวัจกร)
-
-            ' 24 + 36 + 4 + 26 + 6 + 24 = 120px
-            Dim totalSignatureHeight = labelHeight + labelToSignLine + signLineToName + nameHeight + nameToPosition + positionHeight
-
-            ' Position the signature area - both blocks share same bottom Y
-            ' เลื่อนขึ้น 24px จากขอบล่างของพื้นที่พิมพ์ เพื่อให้ทุกบรรทัดอยู่ภายในหน้ากระดาษ
-            Dim blockBottom = _pageBottom - 24
-            If blockBottom - totalSignatureHeight < minimumTop Then
-                blockBottom = minimumTop + totalSignatureHeight + 8
-            End If
-
-            ' === SHARED Y COORDINATES ===
-            Dim signatureLabelY As Integer = blockBottom - totalSignatureHeight
-            Dim signatureLineY As Integer = signatureLabelY + labelHeight + labelToSignLine
-            Dim signatureNameY As Integer = signatureLineY + signLineToName
-            Dim signaturePositionY As Integer = signatureNameY + nameHeight + nameToPosition
-
-            ' Signature line: fixed 280px width, centered within block
-            Const signLineWidth As Integer = 280
-            Dim signLineLeftX As Integer = leftBlockX + CInt((blockWidth - signLineWidth) / 2)
-            Dim signLineRightX As Integer = rightBlockX + CInt((blockWidth - signLineWidth) / 2)
-
-            ' Title format
-            Dim fmtTitle As New StringFormat() With {
-                .Alignment = StringAlignment.Center,
-                .LineAlignment = StringAlignment.Center,
-                .FormatFlags = StringFormatFlags.NoWrap
-            }
-
-            ' === DRAW LEFT BLOCK (ABBOT) ===
-            ' หัวข้อ
-            g.DrawString("ตรวจถูกต้องแล้ว", _theme.BoldFont, Brushes.Black,
-                        New RectangleF(leftBlockX, signatureLabelY, blockWidth, labelHeight), fmtTitle)
-
-            ' เส้นประสำหรับลงนาม (เส้นเดียว)
-            DrawDottedSignatureLine(g, signLineLeftX, signatureLineY, signLineWidth)
-
-            ' ชื่อเจ้าอาวาส — ผูกชื่อจาก TempleSetting แบบไดนามิก ใต้เส้นประ
-            Dim abbotDisplay As String = FormatSignerName(_templateInfo.AbbotName)
-            Using nameFont As Font = CreateFittedBoldFont(g, abbotDisplay, New Font("Tahoma", 12.0!, FontStyle.Bold), blockWidth - 8, 10.0!)
-                g.DrawString(abbotDisplay, nameFont, Brushes.Black,
-                           New RectangleF(leftBlockX, signatureNameY, blockWidth, nameHeight), fmtTitle)
-            End Using
-
-            ' ตำแหน่ง
-            g.DrawString("เจ้าอาวาส", _theme.RowFont, Brushes.Black,
-                        New RectangleF(leftBlockX, signaturePositionY, blockWidth, positionHeight), fmtTitle)
-
-            ' === DRAW RIGHT BLOCK (WAIYAWAT / ACCOUNTANT) ===
-            ' หัวข้อ
-            g.DrawString("ผู้จัดทำบัญชี", _theme.BoldFont, Brushes.Black,
-                        New RectangleF(rightBlockX, signatureLabelY, blockWidth, labelHeight), fmtTitle)
-
-            ' เส้นประสำหรับลงนาม (เส้นเดียว)
-            DrawDottedSignatureLine(g, signLineRightX, signatureLineY, signLineWidth)
-
-            ' ชื่อไวยาวัจกร/ผู้ทำบัญชี — ผูกชื่อจาก TempleSetting แบบไดนามิก ใต้เส้นประ
-            Dim waiyawatDisplay As String = FormatSignerName(_templateInfo.AccountantName)
-            Using nameFont As Font = CreateFittedBoldFont(g, waiyawatDisplay, New Font("Tahoma", 12.0!, FontStyle.Bold), blockWidth - 8, 10.0!)
-                g.DrawString(waiyawatDisplay, nameFont, Brushes.Black,
-                           New RectangleF(rightBlockX, signatureNameY, blockWidth, nameHeight), fmtTitle)
-            End Using
-
-            ' ตำแหน่ง
-            g.DrawString("ไวยาวัจกร", _theme.RowFont, Brushes.Black,
-                        New RectangleF(rightBlockX, signaturePositionY, blockWidth, positionHeight), fmtTitle)
-
-            _pageY = signaturePositionY + positionHeight
+            _pageY = ReportEngine.DrawSignatureBlock(g,
+                "ตรวจถูกต้องแล้ว", info.AbbotName, "เจ้าอาวาส",
+                "ผู้จัดทำบัญชี", info.AccountantName, "ไวยาวัจกร",
+                _leftX, _rightX, _leftSectionWidth, _pageBottom, _pageY,
+                _theme.BoldFont, _theme.RowFont)
         End Sub
-
-        ''' <summary>
-        ''' จัดรูปแบบชื่อผู้ลงนาม: ( {ชื่อ} ) — จากข้อมูลจริงใน TempleSetting (ผ่าน _templateInfo)
-        ''' ถ้าและเฉพาะถ้าชื่อในระบบว่างเปล่า/เป็น NULL จึงใช้ ( .................................... ) สำรอง
-        ''' ห้าม hardcode จุดสำรองเมื่อมีชื่อจริงในฐานข้อมูล
-        ''' </summary>
-        Private Shared Function FormatSignerName(name As String) As String
-            If String.IsNullOrWhiteSpace(name) Then
-                Return "( .................................... )"
-            End If
-            Return "( " & name.Trim() & " )"
-        End Function
 
         ''' <summary>
         ''' Draws a dotted signature line (not a solid line)
