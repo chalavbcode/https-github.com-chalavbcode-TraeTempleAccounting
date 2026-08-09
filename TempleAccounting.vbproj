@@ -176,6 +176,9 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="TransferFormat.vb" />
+    <Compile Include="Services\ITransactionRepository.vb" />
+    <Compile Include="Services\AccessTransactionRepository.vb" />
+    <Compile Include="Services\TransactionService.vb" />
     <Compile Include="Forms\FrmReports.vb">
       <SubType>Form</SubType>
     </Compile>

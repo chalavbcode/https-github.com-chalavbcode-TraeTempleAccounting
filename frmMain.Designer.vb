@@ -399,7 +399,7 @@ Namespace TempleAccounting
             btnVip.Padding = New Padding(14, 0, 8, 0)
             btnVip.Size = New Size(227, 74)
             btnVip.TabIndex = 6
-            btnVip.Text = ChrW(55358) & ChrW(56647) & " พระ / อาวาส"
+            btnVip.Text = ChrW(55357) & ChrW(57045) & "พระ / อาวาส"
             btnVip.TextAlign = ContentAlignment.MiddleLeft
             btnVip.UseVisualStyleBackColor = False
             ' 

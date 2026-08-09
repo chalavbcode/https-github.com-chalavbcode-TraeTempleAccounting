@@ -19,6 +19,8 @@ Namespace TempleAccounting
         Private clipboardImage As Image = Nothing
         Private _editId As Integer = 0
 
+        Private ReadOnly _txnService As TransactionService = New TransactionService(New AccessTransactionRepository())
+
         Private ReadOnly _enterFlow As New List(Of Control)()
 
         Public Sub New()
@@ -66,6 +68,13 @@ Namespace TempleAccounting
                         txtRemark.Text = Convert.ToString(dr("Note"))
                         txtReceipt.Text = Convert.ToString(dr("ReceiptPath"))
                         
+                        ' Populate Income Channel fields
+                        Dim channel = Convert.ToString(dr("ReceiveChannel"))
+                        SetSelectedChannel(channel)
+                        If channel = "PromptPay" OrElse channel = "eDonation" Then
+                            txtReferenceNo.Text = Convert.ToString(dr("ReferenceNo"))
+                        End If
+
                         lblHeader.Text = "📝 แก้ไขรายการรายรับ (ID: " & id & ")"
                         btnSave.Text = "💾 บันทึกการแก้ไข"
                         btnImportExcel.Visible = False
@@ -140,6 +149,8 @@ Namespace TempleAccounting
             If cboCategory.Items.Count > 0 Then cboCategory.SelectedIndex = 0
             If cboFund.Items.Count > 0 Then cboFund.SelectedIndex = 0
             cboBank.SelectedIndex = 0
+            cboReceiveChannel.SelectedIndex = 0
+            txtReferenceNo.Clear()
             txtDescription.Clear()
             txtAmount.Clear()
             txtRemark.Clear()
@@ -163,10 +174,54 @@ Namespace TempleAccounting
             Return CInt(bankValue)
         End Function
 
+        Private Function GetSelectedBankValueNullable() As Integer?
+            If cboBank.SelectedValue Is Nothing OrElse cboBank.SelectedValue Is DBNull.Value Then Return Nothing
+            Dim bankId As Integer
+            If Integer.TryParse(cboBank.SelectedValue.ToString(), bankId) Then Return bankId
+            Return Nothing
+        End Function
+
+        ''' <summary>
+        ''' แปลงค่าจาก ComboBox Thai → English channel key สำหรับบันทึกลง DB
+        ''' </summary>
+        Private Function GetSelectedChannel() As String
+            If cboReceiveChannel.SelectedIndex < 0 Then Return ""
+            Select Case cboReceiveChannel.SelectedItem.ToString()
+                Case "เงินสด" : Return "Cash"
+                Case "โอนธนาคาร" : Return "BankTransfer"
+                Case "พร้อมเพย์" : Return "PromptPay"
+                Case "e-Donation" : Return "eDonation"
+                Case Else : Return ""
+            End Select
+        End Function
+
+        ''' <summary>
+        ''' Map English channel key → Thai ComboBox index
+        ''' </summary>
+        Private Sub SetSelectedChannel(channelKey As String)
+            Select Case channelKey
+                Case "Cash" : cboReceiveChannel.SelectedItem = "เงินสด"
+                Case "BankTransfer" : cboReceiveChannel.SelectedItem = "โอนธนาคาร"
+                Case "PromptPay" : cboReceiveChannel.SelectedItem = "พร้อมเพย์"
+                Case "eDonation" : cboReceiveChannel.SelectedItem = "e-Donation"
+                Case Else : cboReceiveChannel.SelectedIndex = 0
+            End Select
+        End Sub
+
+        ''' <summary>
+        ''' แสดง/ซ่อน ช่อง ReferenceNo เมื่อเลือก PromptPay หรือ e-Donation
+        ''' </summary>
+        Private Sub cboReceiveChannel_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboReceiveChannel.SelectedIndexChanged
+            Dim channel = GetSelectedChannel()
+            Dim isEDonation = (channel = "PromptPay" OrElse channel = "eDonation")
+            lblRefNo.Visible = isEDonation
+            txtReferenceNo.Visible = isEDonation
+        End Sub
+
         Private Sub SetupEnterNavigation()
             If _enterFlow.Count > 0 Then Return
 
-            _enterFlow.AddRange({dtpDate, cboCategory, cboFund, cboBank, txtDescription, txtAmount, txtRemark, btnBrowseReceipt, btnPasteReceipt, btnSave})
+            _enterFlow.AddRange({dtpDate, cboCategory, cboFund, cboBank, cboReceiveChannel, txtDescription, txtAmount, txtRemark, btnBrowseReceipt, btnPasteReceipt, btnSave})
 
             For Each ctrl In _enterFlow
                 AddHandler ctrl.KeyDown, AddressOf HandleEnterAdvance
@@ -232,42 +287,29 @@ Namespace TempleAccounting
             End If
             Dim keepDate = dtpDate.Value.Date
             Dim bankValue = GetSelectedBankValue()
+            Dim channel As String = GetSelectedChannel()
+            Dim refNo As String = If(channel = "PromptPay" OrElse channel = "eDonation", txtReferenceNo.Text.Trim, "")
             Try
                 Using conn = Db.OpenConn()
                     Dim targetID As Integer = _editId
 
                     If _editId > 0 Then
-                        ' โหมดแก้ไข: UPDATE
-                        Db.ExecuteNonQuery(conn, "UPDATE Transactions SET TranDate=" & Db.AccessDateLiteral(dtpDate.Value.Date) & ", CategoryID=@c, FundID=@f, BankID=@b, [Detail]=@de, Amount=@a, [Note]=@n WHERE ID=@id",
-                            New Tuple(Of String, Object)("@c", CInt(cboCategory.SelectedValue)),
-                            New Tuple(Of String, Object)("@f", CInt(cboFund.SelectedValue)),
-                            New Tuple(Of String, Object)("@b", bankValue),
-                            New Tuple(Of String, Object)("@de", txtDescription.Text.Trim),
-                            New Tuple(Of String, Object)("@a", amt),
-                            New Tuple(Of String, Object)("@n", txtRemark.Text.Trim),
-                            New Tuple(Of String, Object)("@id", _editId))
+                        ' โหมดแก้ไข: UPDATE ผ่าน Service
+                        _txnService.UpdateIncome(_editId, dtpDate.Value.Date, CInt(cboCategory.SelectedValue),
+                            CInt(cboFund.SelectedValue), GetSelectedBankValueNullable(), txtDescription.Text.Trim,
+                            amt, txtRemark.Text.Trim, channel, refNo)
                     Else
-                        ' โหมดเพิ่มใหม่: INSERT (สร้าง TransactionGUID ทันทีตอนบันทึก — ใช้ระบุตัวตน/กันซ้ำข้ามเครื่อง)
-                        targetID = Db.InsertAndGetId(conn, "INSERT INTO Transactions (TranDate, TranType, CategoryID, FundID, BankID, [Detail], Amount, [Note], TransactionGUID) VALUES (" & Db.AccessDateLiteral(dtpDate.Value.Date) & ",'Income',@c,@f,@b,@de,@a,@n,@g)",
-                            New Tuple(Of String, Object)("@c", CInt(cboCategory.SelectedValue)),
-                            New Tuple(Of String, Object)("@f", CInt(cboFund.SelectedValue)),
-                            New Tuple(Of String, Object)("@b", bankValue),
-                            New Tuple(Of String, Object)("@de", txtDescription.Text.Trim),
-                            New Tuple(Of String, Object)("@a", amt),
-                            New Tuple(Of String, Object)("@n", txtRemark.Text.Trim),
-                            New Tuple(Of String, Object)("@g", Guid.NewGuid().ToString("D")))
+                        ' โหมดเพิ่มใหม่: INSERT ผ่าน Service
+                        targetID = _txnService.SaveIncome(dtpDate.Value.Date, CInt(cboCategory.SelectedValue),
+                            CInt(cboFund.SelectedValue), GetSelectedBankValueNullable(), txtDescription.Text.Trim,
+                            amt, txtRemark.Text.Trim, channel, refNo)
                     End If
 
                     ' 2. จัดการรูปภาพใบเสร็จ (ถ้ามีการเลือกใหม่ หรือวางจากคลิปบอร์ด)
                     If Not String.IsNullOrEmpty(selectedSourceReceiptPath) Then
                         Dim savedFileName As String = SaveReceiptFile(targetID)
                         If Not String.IsNullOrEmpty(savedFileName) Then
-                            Using cmd = conn.CreateCommand()
-                                cmd.CommandText = "UPDATE Transactions SET ReceiptPath = @rp WHERE ID = @id"
-                                cmd.Parameters.AddWithValue("@rp", savedFileName)
-                                cmd.Parameters.AddWithValue("@id", targetID)
-                                cmd.ExecuteNonQuery()
-                            End Using
+                            _txnService.UpdateReceiptPath(targetID, savedFileName)
                         End If
                     End If
 

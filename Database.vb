@@ -177,6 +177,29 @@ Namespace TempleAccounting
                         End Using
                     End If
 
+                    ' Migration: Add ReceiveChannel + ReferenceNo columns for multi-channel income support
+                    Dim hasReceiveChannel As Boolean = False
+                    Dim hasReferenceNo As Boolean = False
+                    For Each row As DataRow In columns.Rows
+                        Dim colName = Convert.ToString(row("COLUMN_NAME"))
+                        If colName.Equals("ReceiveChannel", StringComparison.OrdinalIgnoreCase) Then hasReceiveChannel = True
+                        If colName.Equals("ReferenceNo", StringComparison.OrdinalIgnoreCase) Then hasReferenceNo = True
+                    Next
+
+                    If Not hasReceiveChannel Then
+                        Using cmd = conn.CreateCommand()
+                            cmd.CommandText = "ALTER TABLE Transactions ADD COLUMN ReceiveChannel TEXT(20)"
+                            cmd.ExecuteNonQuery()
+                        End Using
+                    End If
+
+                    If Not hasReferenceNo Then
+                        Using cmd = conn.CreateCommand()
+                            cmd.CommandText = "ALTER TABLE Transactions ADD COLUMN ReferenceNo TEXT(50)"
+                            cmd.ExecuteNonQuery()
+                        End Using
+                    End If
+
                 Catch ex As Exception
                     AppPaths.LogCrash(ex, "Db.EnsureSchema.Migration")
                 End Try

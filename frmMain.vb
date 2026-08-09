@@ -6,7 +6,7 @@ Imports System.IO
 Imports WinTimer = System.Windows.Forms.Timer
 
 Namespace TempleAccounting
-    Public Partial Class frmMain
+    Partial Public Class frmMain
         Inherits Form
 
         Private _currentActiveButton As Button
