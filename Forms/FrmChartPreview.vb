@@ -30,8 +30,13 @@ Namespace TempleAccounting
 
         ' ====================== Constructor ======================
         Public Sub New()
-            Me.WindowState = FormWindowState.Maximized
+            Me.WindowState = FormWindowState.Normal
             Me.StartPosition = FormStartPosition.CenterScreen
+            Me.FormBorderStyle = FormBorderStyle.Sizable
+            Me.MaximizeBox = True
+            Me.MinimizeBox = True
+            Me.Width = 1200
+            Me.Height = 750
             Me.Text = "📊 ดูกราฟเต็มจอ — Temple Accounting"
             Me.Font = New Font("Tahoma", 10.0F)
             Me.BackColor = Color.FromArgb(254, 249, 235)
@@ -42,9 +47,10 @@ Namespace TempleAccounting
 
         ' ====================== สร้าง UI ด้วยโค้ด ======================
         Private Sub BuildUI()
-            ' --- Top Panel ---
+            ' --- Top Panel (AutoSize เพื่อให้ปุ่มปรับความสูงตามเนื้อหา) ---
             panelTop = New Panel() With {
                 .Dock = DockStyle.Top,
+                .AutoSize = True,
                 .Height = 48,
                 .Padding = New Padding(12, 6, 12, 6),
                 .BackColor = Color.FromArgb(52, 73, 94)
@@ -70,7 +76,7 @@ Namespace TempleAccounting
             chartPreview = New Chart() With {
                 .Dock = DockStyle.Fill,
                 .BackColor = Color.White,
-                .Padding = New Padding(10, 15, 10, 10),
+                .Padding = New Padding(12, 12, 12, 12),
                 .BorderlineColor = Color.FromArgb(200, 200, 200),
                 .BorderlineDashStyle = ChartDashStyle.Solid,
                 .BorderlineWidth = 1,

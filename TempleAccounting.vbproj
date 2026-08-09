@@ -57,6 +57,7 @@
     <Compile Include="frmMain.UiHelpers.vb">
       <DependentUpon>frmMain.vb</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="Forms\FrmChartPreview.resx" />
     <EmbeddedResource Include="Forms\FrmMasterData.resx" />
     <EmbeddedResource Include="frmMain.resx">
       <DependentUpon>frmMain.vb</DependentUpon>
