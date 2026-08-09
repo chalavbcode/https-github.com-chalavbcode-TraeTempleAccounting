@@ -40,6 +40,7 @@ Namespace TempleAccounting
             Me.Text = "📊 ดูกราฟเต็มจอ — Temple Accounting"
             Me.Font = New Font("Tahoma", 10.0F)
             Me.BackColor = Color.FromArgb(254, 249, 235)
+            Me.AutoScaleMode = AutoScaleMode.Dpi
             Me.KeyPreview = True
 
             BuildUI()
@@ -47,11 +48,10 @@ Namespace TempleAccounting
 
         ' ====================== สร้าง UI ด้วยโค้ด ======================
         Private Sub BuildUI()
-            ' --- Top Panel (AutoSize เพื่อให้ปุ่มปรับความสูงตามเนื้อหา) ---
+            ' --- Top Panel (Dock=Top, สูง 45px — ไม่มี AutoSize ให้ความสูงคงที่) ---
             panelTop = New Panel() With {
                 .Dock = DockStyle.Top,
-                .AutoSize = True,
-                .Height = 48,
+                .Height = 45,
                 .Padding = New Padding(12, 6, 12, 6),
                 .BackColor = Color.FromArgb(52, 73, 94)
             }
@@ -85,6 +85,7 @@ Namespace TempleAccounting
                 }
             }
             Me.Controls.Add(chartPreview)
+            chartPreview.BringToFront()
 
             ' --- PrintDocument ---
             _doc = New PrintDocument()

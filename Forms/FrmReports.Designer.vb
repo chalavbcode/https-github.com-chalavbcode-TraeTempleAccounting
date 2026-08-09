@@ -123,7 +123,7 @@ Namespace TempleAccounting
             ' lbl1
             ' 
             lbl1.AutoSize = True
-            lbl1.Font = New Font("Tahoma", 9F, FontStyle.Bold)
+            lbl1.Font = New Font("Tahoma", 9.0F, FontStyle.Bold)
             lbl1.ForeColor = Color.FromArgb(CByte(69), CByte(26), CByte(3))
             lbl1.Location = New Point(15, 5)
             lbl1.Name = "lbl1"
@@ -133,7 +133,7 @@ Namespace TempleAccounting
             ' 
             ' dtpFrom
             ' 
-            dtpFrom.Font = New Font("Tahoma", 9F)
+            dtpFrom.Font = New Font("Tahoma", 9.0F)
             dtpFrom.Location = New Point(138, 3)
             dtpFrom.Name = "dtpFrom"
             dtpFrom.Size = New Size(140, 29)
@@ -143,7 +143,7 @@ Namespace TempleAccounting
             ' lbl2
             ' 
             lbl2.AutoSize = True
-            lbl2.Font = New Font("Tahoma", 9F, FontStyle.Bold)
+            lbl2.Font = New Font("Tahoma", 9.0F, FontStyle.Bold)
             lbl2.ForeColor = Color.FromArgb(CByte(69), CByte(26), CByte(3))
             lbl2.Location = New Point(349, 5)
             lbl2.Name = "lbl2"
@@ -153,7 +153,7 @@ Namespace TempleAccounting
             ' 
             ' dtpTo
             ' 
-            dtpTo.Font = New Font("Tahoma", 9F)
+            dtpTo.Font = New Font("Tahoma", 9.0F)
             dtpTo.Location = New Point(444, 3)
             dtpTo.Name = "dtpTo"
             dtpTo.Size = New Size(140, 29)
@@ -163,7 +163,7 @@ Namespace TempleAccounting
             ' lbl3
             ' 
             lbl3.AutoSize = True
-            lbl3.Font = New Font("Tahoma", 9F, FontStyle.Bold)
+            lbl3.Font = New Font("Tahoma", 9.0F, FontStyle.Bold)
             lbl3.ForeColor = Color.FromArgb(CByte(69), CByte(26), CByte(3))
             lbl3.Location = New Point(649, 5)
             lbl3.Name = "lbl3"
@@ -174,7 +174,7 @@ Namespace TempleAccounting
             ' cboType
             ' 
             cboType.DropDownStyle = ComboBoxStyle.DropDownList
-            cboType.Font = New Font("Tahoma", 9F)
+            cboType.Font = New Font("Tahoma", 9.0F)
             cboType.Items.AddRange(New Object() {"ทั้งหมด", "รายรับ", "รายจ่าย", "โอนภายใน"})
             cboType.Location = New Point(775, 3)
             cboType.Name = "cboType"
@@ -184,7 +184,7 @@ Namespace TempleAccounting
             ' lbl4
             ' 
             lbl4.AutoSize = True
-            lbl4.Font = New Font("Tahoma", 9F, FontStyle.Bold)
+            lbl4.Font = New Font("Tahoma", 9.0F, FontStyle.Bold)
             lbl4.ForeColor = Color.FromArgb(CByte(69), CByte(26), CByte(3))
             lbl4.Location = New Point(12, 48)
             lbl4.Name = "lbl4"
@@ -195,7 +195,7 @@ Namespace TempleAccounting
             ' cboFund
             ' 
             cboFund.DropDownStyle = ComboBoxStyle.DropDownList
-            cboFund.Font = New Font("Tahoma", 9F)
+            cboFund.Font = New Font("Tahoma", 9.0F)
             cboFund.Location = New Point(93, 45)
             cboFund.Name = "cboFund"
             cboFund.Size = New Size(160, 30)
@@ -204,7 +204,7 @@ Namespace TempleAccounting
             ' lbl5
             ' 
             lbl5.AutoSize = True
-            lbl5.Font = New Font("Tahoma", 9F, FontStyle.Bold)
+            lbl5.Font = New Font("Tahoma", 9.0F, FontStyle.Bold)
             lbl5.ForeColor = Color.FromArgb(CByte(69), CByte(26), CByte(3))
             lbl5.Location = New Point(281, 48)
             lbl5.Name = "lbl5"
@@ -215,7 +215,7 @@ Namespace TempleAccounting
             ' cboBank
             ' 
             cboBank.DropDownStyle = ComboBoxStyle.DropDownList
-            cboBank.Font = New Font("Tahoma", 9F)
+            cboBank.Font = New Font("Tahoma", 9.0F)
             cboBank.Location = New Point(368, 45)
             cboBank.Name = "cboBank"
             cboBank.Size = New Size(160, 30)
@@ -224,7 +224,7 @@ Namespace TempleAccounting
             ' lblBalance
             ' 
             lblBalance.AutoSize = True
-            lblBalance.Font = New Font("Tahoma", 9F, FontStyle.Bold)
+            lblBalance.Font = New Font("Tahoma", 9.0F, FontStyle.Bold)
             lblBalance.ForeColor = Color.FromArgb(CByte(69), CByte(26), CByte(3))
             lblBalance.Location = New Point(544, 47)
             lblBalance.Name = "lblBalance"
@@ -234,7 +234,7 @@ Namespace TempleAccounting
             ' 
             ' txtBalance
             ' 
-            txtBalance.Font = New Font("Tahoma", 9F)
+            txtBalance.Font = New Font("Tahoma", 9.0F)
             txtBalance.Location = New Point(648, 45)
             txtBalance.Name = "txtBalance"
             txtBalance.Size = New Size(80, 29)
@@ -246,7 +246,7 @@ Namespace TempleAccounting
             ' 
             btnCalcBalance.BackColor = Color.FromArgb(CByte(107), CByte(114), CByte(128))
             btnCalcBalance.FlatStyle = FlatStyle.Flat
-            btnCalcBalance.Font = New Font("Tahoma", 9F, FontStyle.Bold)
+            btnCalcBalance.Font = New Font("Tahoma", 9.0F, FontStyle.Bold)
             btnCalcBalance.ForeColor = Color.White
             btnCalcBalance.Location = New Point(746, 45)
             btnCalcBalance.Name = "btnCalcBalance"
@@ -259,7 +259,7 @@ Namespace TempleAccounting
             ' 
             btnRefresh.BackColor = Color.FromArgb(CByte(37), CByte(99), CByte(235))
             btnRefresh.FlatStyle = FlatStyle.Flat
-            btnRefresh.Font = New Font("Tahoma", 9F, FontStyle.Bold)
+            btnRefresh.Font = New Font("Tahoma", 9.0F, FontStyle.Bold)
             btnRefresh.ForeColor = Color.White
             btnRefresh.Location = New Point(831, 45)
             btnRefresh.Name = "btnRefresh"
@@ -298,7 +298,7 @@ Namespace TempleAccounting
             btnPrintDetail.Cursor = Cursors.Hand
             btnPrintDetail.FlatAppearance.BorderSize = 0
             btnPrintDetail.FlatStyle = FlatStyle.Flat
-            btnPrintDetail.Font = New Font("Tahoma", 9F, FontStyle.Bold)
+            btnPrintDetail.Font = New Font("Tahoma", 9.0F, FontStyle.Bold)
             btnPrintDetail.ForeColor = Color.White
             btnPrintDetail.Location = New Point(11, 8)
             btnPrintDetail.Margin = New Padding(3, 2, 3, 2)
@@ -317,7 +317,7 @@ Namespace TempleAccounting
             btnPrintSummary.Cursor = Cursors.Hand
             btnPrintSummary.FlatAppearance.BorderSize = 0
             btnPrintSummary.FlatStyle = FlatStyle.Flat
-            btnPrintSummary.Font = New Font("Tahoma", 9F, FontStyle.Bold)
+            btnPrintSummary.Font = New Font("Tahoma", 9.0F, FontStyle.Bold)
             btnPrintSummary.ForeColor = Color.White
             btnPrintSummary.Location = New Point(214, 8)
             btnPrintSummary.Margin = New Padding(3, 2, 3, 2)
@@ -336,7 +336,7 @@ Namespace TempleAccounting
             btnSummaryIncome.Cursor = Cursors.Hand
             btnSummaryIncome.FlatAppearance.BorderSize = 0
             btnSummaryIncome.FlatStyle = FlatStyle.Flat
-            btnSummaryIncome.Font = New Font("Tahoma", 9F, FontStyle.Bold)
+            btnSummaryIncome.Font = New Font("Tahoma", 9.0F, FontStyle.Bold)
             btnSummaryIncome.ForeColor = Color.White
             btnSummaryIncome.Location = New Point(376, 8)
             btnSummaryIncome.Margin = New Padding(3, 2, 3, 2)
@@ -355,7 +355,7 @@ Namespace TempleAccounting
             btnSummaryExpense.Cursor = Cursors.Hand
             btnSummaryExpense.FlatAppearance.BorderSize = 0
             btnSummaryExpense.FlatStyle = FlatStyle.Flat
-            btnSummaryExpense.Font = New Font("Tahoma", 9F, FontStyle.Bold)
+            btnSummaryExpense.Font = New Font("Tahoma", 9.0F, FontStyle.Bold)
             btnSummaryExpense.ForeColor = Color.White
             btnSummaryExpense.Location = New Point(539, 8)
             btnSummaryExpense.Margin = New Padding(3, 2, 3, 2)
@@ -374,7 +374,7 @@ Namespace TempleAccounting
             btnShowChart.Cursor = Cursors.Hand
             btnShowChart.FlatAppearance.BorderSize = 0
             btnShowChart.FlatStyle = FlatStyle.Flat
-            btnShowChart.Font = New Font("Tahoma", 9F, FontStyle.Bold)
+            btnShowChart.Font = New Font("Tahoma", 9.0F, FontStyle.Bold)
             btnShowChart.ForeColor = Color.White
             btnShowChart.Location = New Point(712, 8)
             btnShowChart.Margin = New Padding(3, 2, 3, 2)
@@ -393,7 +393,7 @@ Namespace TempleAccounting
             btnMonthly.Cursor = Cursors.Hand
             btnMonthly.FlatAppearance.BorderSize = 0
             btnMonthly.FlatStyle = FlatStyle.Flat
-            btnMonthly.Font = New Font("Tahoma", 9F, FontStyle.Bold)
+            btnMonthly.Font = New Font("Tahoma", 9.0F, FontStyle.Bold)
             btnMonthly.ForeColor = Color.White
             btnMonthly.Location = New Point(939, 8)
             btnMonthly.Margin = New Padding(3, 2, 3, 2)
@@ -412,7 +412,7 @@ Namespace TempleAccounting
             btnLedger.Cursor = Cursors.Hand
             btnLedger.FlatAppearance.BorderSize = 0
             btnLedger.FlatStyle = FlatStyle.Flat
-            btnLedger.Font = New Font("Tahoma", 9F, FontStyle.Bold)
+            btnLedger.Font = New Font("Tahoma", 9.0F, FontStyle.Bold)
             btnLedger.ForeColor = Color.White
             btnLedger.Location = New Point(1088, 8)
             btnLedger.Margin = New Padding(3, 2, 3, 2)
@@ -431,7 +431,7 @@ Namespace TempleAccounting
             btnSavePdf.Cursor = Cursors.Hand
             btnSavePdf.FlatAppearance.BorderSize = 0
             btnSavePdf.FlatStyle = FlatStyle.Flat
-            btnSavePdf.Font = New Font("Tahoma", 9F, FontStyle.Bold)
+            btnSavePdf.Font = New Font("Tahoma", 9.0F, FontStyle.Bold)
             btnSavePdf.ForeColor = Color.White
             btnSavePdf.Location = New Point(1252, 8)
             btnSavePdf.Margin = New Padding(3, 2, 3, 2)
@@ -450,7 +450,7 @@ Namespace TempleAccounting
             btnPrintReport.Cursor = Cursors.Hand
             btnPrintReport.FlatAppearance.BorderSize = 0
             btnPrintReport.FlatStyle = FlatStyle.Flat
-            btnPrintReport.Font = New Font("Tahoma", 9F, FontStyle.Bold)
+            btnPrintReport.Font = New Font("Tahoma", 9.0F, FontStyle.Bold)
             btnPrintReport.ForeColor = Color.White
             btnPrintReport.Location = New Point(11, 52)
             btnPrintReport.Margin = New Padding(3, 2, 3, 2)
@@ -469,7 +469,7 @@ Namespace TempleAccounting
             btnPrint.Cursor = Cursors.Hand
             btnPrint.FlatAppearance.BorderSize = 0
             btnPrint.FlatStyle = FlatStyle.Flat
-            btnPrint.Font = New Font("Tahoma", 9F, FontStyle.Bold)
+            btnPrint.Font = New Font("Tahoma", 9.0F, FontStyle.Bold)
             btnPrint.ForeColor = Color.White
             btnPrint.Location = New Point(177, 52)
             btnPrint.Margin = New Padding(3, 2, 3, 2)
@@ -484,7 +484,7 @@ Namespace TempleAccounting
             ' 
             lblSummary.BackColor = Color.FromArgb(CByte(253), CByte(224), CByte(71))
             lblSummary.Dock = DockStyle.Top
-            lblSummary.Font = New Font("Tahoma", 10F, FontStyle.Bold)
+            lblSummary.Font = New Font("Tahoma", 10.0F, FontStyle.Bold)
             lblSummary.ForeColor = Color.FromArgb(CByte(69), CByte(26), CByte(3))
             lblSummary.Location = New Point(0, 190)
             lblSummary.Name = "lblSummary"
@@ -502,7 +502,7 @@ Namespace TempleAccounting
             dgvReport.BorderStyle = BorderStyle.None
             dgvReport.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize
             dgvReport.Dock = DockStyle.Fill
-            dgvReport.Font = New Font("Tahoma", 9F)
+            dgvReport.Font = New Font("Tahoma", 9.0F)
             dgvReport.Location = New Point(0, 235)
             dgvReport.Name = "dgvReport"
             dgvReport.ReadOnly = True
@@ -524,7 +524,7 @@ Namespace TempleAccounting
             ' 
             ' FrmReports
             ' 
-            AutoScaleDimensions = New SizeF(10F, 22F)
+            AutoScaleDimensions = New SizeF(10.0F, 22.0F)
             AutoScaleMode = AutoScaleMode.Font
             BackColor = Color.FromArgb(CByte(254), CByte(249), CByte(235))
             ClientSize = New Size(1478, 1000)
@@ -533,7 +533,7 @@ Namespace TempleAccounting
             Controls.Add(lblSummary)
             Controls.Add(pa)
             Controls.Add(p)
-            Font = New Font("Tahoma", 9F)
+            Font = New Font("Tahoma", 9.0F)
             MinimumSize = New Size(1000, 800)
             Name = "FrmReports"
             StartPosition = FormStartPosition.CenterScreen
