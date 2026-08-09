@@ -156,14 +156,20 @@ Namespace TempleAccounting
                 dstArea.CursorY.IsUserSelectionEnabled = True
                 dstArea.CursorY.IsUserEnabled = True
 
+                ' ดัน ChartArea ลงล่างให้ Legend ด้านบน (นอก ChartArea) มีพื้นที่หายใจ ~8%
+                dstArea.Position.Y = 8
+
                 chartPreview.ChartAreas.Add(dstArea)
             Next
 
-            ' --- Clone Legends ---
+            ' --- Clone Legends (อยู่นอก ChartArea — ชิดบนของ Chart Control) ---
             For Each srcLegend As Legend In source.Legends
                 Dim dstLegend As New Legend(srcLegend.Name) With {
-                    .Docking = srcLegend.Docking,
-                    .Font = CloneFont(srcLegend.Font)
+                    .Docking = Docking.Top,
+                    .Font = CloneFont(srcLegend.Font),
+                    .Alignment = StringAlignment.Near,
+                    .IsDockedInsideChartArea = False,
+                    .BackColor = Color.Transparent
                 }
                 chartPreview.Legends.Add(dstLegend)
             Next
