@@ -70,6 +70,7 @@ Namespace TempleAccounting
             chartPreview = New Chart() With {
                 .Dock = DockStyle.Fill,
                 .BackColor = Color.White,
+                .Padding = New Padding(10, 15, 10, 10),
                 .BorderlineColor = Color.FromArgb(200, 200, 200),
                 .BorderlineDashStyle = ChartDashStyle.Solid,
                 .BorderlineWidth = 1,
@@ -156,8 +157,9 @@ Namespace TempleAccounting
                 dstArea.CursorY.IsUserSelectionEnabled = True
                 dstArea.CursorY.IsUserEnabled = True
 
-                ' ดัน ChartArea ลงล่างให้ Legend ด้านบน (นอก ChartArea) มีพื้นที่หายใจ ~8%
-                dstArea.Position.Y = 8
+                ' ใช้ AutoLayout ของ Chart — ไม่ override Position/InnerPlotPosition ด้วยตนเอง
+                dstArea.Position.Auto = True
+                dstArea.InnerPlotPosition.Auto = True
 
                 chartPreview.ChartAreas.Add(dstArea)
             Next
@@ -226,6 +228,12 @@ Namespace TempleAccounting
             AddHandler chartPreview.MouseWheel, AddressOf ChartPreview_MouseWheel
             AddHandler chartPreview.MouseDoubleClick, AddressOf ChartPreview_MouseDoubleClick
             AddHandler chartPreview.MouseEnter, AddressOf ChartPreview_MouseEnter
+
+            ' บังคับให้นำข้อมูลชุดใหม่ไปใช้และวาดใหม่ทันที
+            If chartPreview.ChartAreas.Count > 0 Then
+                chartPreview.ChartAreas(0).RecalculateAxesScale()
+            End If
+            chartPreview.Update()
         End Sub
 
         ''' <summary>
