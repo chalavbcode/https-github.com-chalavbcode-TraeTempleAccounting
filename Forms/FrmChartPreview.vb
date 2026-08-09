@@ -22,11 +22,17 @@ Namespace TempleAccounting
         ' ====================== Controls ======================
         Private WithEvents btnPrintChart As Button
         Private WithEvents btnSaveImage As Button
+        Private WithEvents btnToggleTotals As Button
         Private WithEvents btnClose As Button
         Private WithEvents chartPreview As Chart
         Private panelTop As Panel
         Private _doc As PrintDocument
         Private _chartBitmap As Bitmap   ' bitmap ล่าสุดของกราฟ (สร้างก่อนพิมพ์)
+
+        ' ====================== Toggle Totals State ======================
+        Private _totalsVisible As Boolean = True
+        ' เก็บสีเดิมของแท่ง "รวม" (key = "SeriesName|PointIndex") สำหรับ restore
+        Private _totalPointColors As New Dictionary(Of String, Color)()
 
         ' ====================== Constructor ======================
         Public Sub New()
@@ -61,6 +67,15 @@ Namespace TempleAccounting
             btnClose = CreateToolButton("❌ ปิดหน้าต่าง", Color.FromArgb(231, 76, 60), DockStyle.Right)
             btnClose.Width = 140
             panelTop.Controls.Add(btnClose)
+
+            ' --- ปุ่ม Toggle Totals (ซ่อน/แสดงแท่งสรุปรวม) ---
+            btnToggleTotals = CreateToolButton("📊 ซ่อน/แสดง ยอดรวม", Color.FromArgb(142, 68, 173), DockStyle.Right)
+            btnToggleTotals.Width = 170
+            panelTop.Controls.Add(btnToggleTotals)
+
+            ' ToolTip สำหรับปุ่ม Toggle (ยังไม่มี ToolTip control ใน Preview form — ใช้ Text เป็นฮินท์ก็พอ)
+            btnToggleTotals.Text = "📊 ซ่อน/แสดง ยอดรวม"
+            btnToggleTotals.BackColor = Color.FromArgb(142, 68, 173)
 
             ' --- ปุ่ม Save Image ---
             btnSaveImage = CreateToolButton("💾 บันทึกรูปภาพ", Color.FromArgb(39, 174, 96), DockStyle.Right)
@@ -322,6 +337,60 @@ Namespace TempleAccounting
         ' ====================== Toolbar Actions ======================
         Private Sub btnClose_Click(sender As Object, e As EventArgs) Handles btnClose.Click
             Me.Close()
+        End Sub
+
+        ' ====================== Toggle Totals ======================
+        Private Sub btnToggleTotals_Click(sender As Object, e As EventArgs) Handles btnToggleTotals.Click
+            ToggleTotalBars()
+        End Sub
+
+        Private Sub ToggleTotalBars()
+            If chartPreview.Series.Count = 0 Then Return
+
+            If _totalsVisible Then
+                ' --- ซ่อนแท่ง "รวม" ---
+                _totalPointColors.Clear()
+                For Each s As Series In chartPreview.Series
+                    For i As Integer = s.Points.Count - 1 To 0 Step -1
+                        If s.Points(i).AxisLabel IsNot Nothing AndAlso s.Points(i).AxisLabel.IndexOf("รวม", StringComparison.OrdinalIgnoreCase) >= 0 Then
+                            ' เก็บสีเดิมไว้
+                            Dim key = s.Name & "|" & i.ToString()
+                            _totalPointColors(key) = s.Points(i).Color
+                            ' ทำให้แท่งโปร่งแสง + แกนไม่แสดงค่าศูนย์
+                            s.Points(i).Color = Color.Transparent
+                            s.Points(i).IsEmpty = True
+                        End If
+                    Next
+                Next
+                _totalsVisible = False
+                btnToggleTotals.Text = "📊 แสดง ยอดรวม"
+                btnToggleTotals.BackColor = Color.FromArgb(100, 30, 130)
+            Else
+                ' --- แสดงแท่ง "รวม" กลับ ---
+                For Each s As Series In chartPreview.Series
+                    For i As Integer = s.Points.Count - 1 To 0 Step -1
+                        If s.Points(i).AxisLabel IsNot Nothing AndAlso s.Points(i).AxisLabel.IndexOf("รวม", StringComparison.OrdinalIgnoreCase) >= 0 Then
+                            Dim key = s.Name & "|" & i.ToString()
+                            If _totalPointColors.ContainsKey(key) Then
+                                s.Points(i).Color = _totalPointColors(key)
+                                s.Points(i).IsEmpty = False
+                            End If
+                        End If
+                    Next
+                Next
+                _totalPointColors.Clear()
+                _totalsVisible = True
+                btnToggleTotals.Text = "📊 ซ่อน/แสดง ยอดรวม"
+                btnToggleTotals.BackColor = Color.FromArgb(142, 68, 173)
+            End If
+
+            ' รีเซ็ตแกนและวาดใหม่ — ให้กราฟรายเดือนปรับสเกลใหญ่ขึ้นเมื่อซ่อนแท่งรวม
+            If chartPreview.ChartAreas.Count > 0 Then
+                chartPreview.ChartAreas(0).AxisY.Minimum = Double.NaN
+                chartPreview.ChartAreas(0).AxisY.Maximum = Double.NaN
+                chartPreview.ChartAreas(0).RecalculateAxesScale()
+            End If
+            chartPreview.Update()
         End Sub
 
         Private Sub btnSaveImage_Click(sender As Object, e As EventArgs) Handles btnSaveImage.Click

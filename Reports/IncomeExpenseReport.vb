@@ -59,9 +59,15 @@ Namespace TempleAccounting
         Private _pageIndex As Integer = 0
         Private _rowIndex As Integer = 0
 
+        ' Dynamic Page Row Balancing: ป้องกันหน้าสุดท้ายที่มีแต่ยอดรวม+เซ็นต์ (orphan summary page)
+        ' โดยคำนวณจุดแบ่งหน้าไว้ล่วงหน้า และปรับให้มีแถวข้อมูล 5-6 แถวในหน้าสุดท้ายเสมอ
+        Private _pageBreakIndices As List(Of Integer)    ' จุด _rowIndex ที่จะแบ่งหน้า
+        Private _preCalcDone As Boolean = False
+        Private _estimatedHeaderHeight As Integer = 0   ' เก็บค่าจริงหลัง DrawHeader รอบแรก
+
         Private Const FinalSummaryRows As Integer = 3
         Private Const FinalSignatureBlockHeight As Integer = 148  ' เท่ากับ ReportEngine.totalSignatureHeight (24+52+14+26+8+24) เพื่อกันส่วนเซ็นต์ล้นขอบล่าง
-        Private Const FinalFooterGapHeight As Integer = 12       ' ตรงกับระยะ Layout Box ล่างสุดของบล็อกเซ็นต์จากขอบล่าง (8px gap + ชดเชยกึ่งกลางกล่อง ~4px) — glyph จริง ≈8px (≈2 มม.)
+        Private Const FinalFooterGapHeight As Integer = 8        ' ตรงกับระยะกล่องล่างสุดของ block เซ็นต์จากขอบล่าง (4px gap + ชดเชยกึ่งกลาง ~4px) — glyph จริง ≈8px (≈0.2 ซม.)
         Private Const SectionGap As Integer = 12               ' Gap between left/right sections
 
         ''' <summary>
@@ -263,11 +269,18 @@ Namespace TempleAccounting
             ' We pass _fromDate and _toDate explicitly to ensure the header matches the selected range.
             DrawHeader(g, pageW, _pageIndex + 1, _totalPages, _fromDate, _toDate)
 
+            ' Dynamic Page Row Balancing: หลัง DrawHeader หน้าแรก เก็บ header height จริง
+            ' แล้วคำนวณจุดแบ่งหน้าใหม่ (ป้องกัน orphan summary page)
+            Dim rowH = 28
+            If Not _preCalcDone Then
+                _estimatedHeaderHeight = _pageY
+                PreCalculatePageBreaks(rowH, _pageBottom)
+            End If
+
             Dim colW1 = CInt(usableW * 0.16)
             Dim colW2 = CInt(usableW * 0.1)
             Dim colW3 = usableW - colW1 - colW2 - CInt(usableW * 0.24)
             Dim colW4 = CInt(usableW * 0.24)
-            Dim rowH = 28
 
             ' Only draw table headers if we have transactions to print on THIS page
             If _rowIndex < totalRows Then
@@ -289,10 +302,21 @@ Namespace TempleAccounting
                 
                 ' Use standard row height as minimum, and max of both sides for dynamic height
                 Dim currentRowH = Math.Max(rowH, Math.Max(leftH, rightH))
-                
-                ' Check if this row fits in the current page
-                If _pageY + currentRowH > _pageBottom Then
-                    ' No space for this row - trigger new page
+
+                ' --- Dynamic Page Row Balancing ---
+                ' ตรวจสอบว่าถึงจุดแบ่งหน้าที่ pre-calculate ไว้หรือยัง
+                ' ถ้ามี break index: break เมื่อ _rowIndex ครบตามแผน (ให้มีแถวในหน้าสุดท้าย)
+                ' ถ้าไม่มี break index (fallback): break เฉพาะเมื่อพื้นที่เต็ม
+                Dim forcePageBreak As Boolean = False
+                If _pageBreakIndices IsNot Nothing AndAlso _pageBreakIndices.Count > 0 AndAlso
+                   _pageIndex < _pageBreakIndices.Count Then
+                    If _rowIndex >= _pageBreakIndices(_pageIndex) Then
+                        forcePageBreak = True
+                    End If
+                End If
+
+                ' Check if this row fits in the current page, or if we've reached a planned break point
+                If _pageY + currentRowH > _pageBottom OrElse forcePageBreak Then
                     e.HasMorePages = True
                     _pageIndex += 1
                     Return
@@ -379,7 +403,110 @@ Namespace TempleAccounting
         End Sub
 
         ''' <summary>
-        ''' Calculate the total height required for final summary section and signatures
+        ''' Pre-calculate page break indices to prevent orphan last pages (zero data rows).
+        ''' Called once on the first page after DrawHeader has set _pageY.
+        ''' Algorithm:
+        ''' 1. Simulate natural page filling
+        ''' 2. If last page has &lt; 5 data rows, pull rows from previous page(s) by reducing
+        '''    their max rows by ~3 rows each
+        ''' 3. Store break indices for use in OnPrintPage
+        ''' </summary>
+        Private Sub PreCalculatePageBreaks(rowH As Integer, pageBottom As Integer)
+            If _preCalcDone Then Return
+            _preCalcDone = True
+
+            Dim totalRows = Math.Max(_incomeRows.Count, _expenseRows.Count)
+            If totalRows = 0 Then
+                _totalPages = 1
+                _pageBreakIndices = New List(Of Integer)()
+                Return
+            End If
+
+            ' พื้นที่ว่างสำหรับแถวข้อมูล ต่อหน้า (ไม่รวม header/table header/mid-summary/เซ็นต์)
+            Dim tableHeaderH As Integer = rowH * 2   ' DrawTableHeader = 2 * rowH
+            Dim midSummaryH As Integer = rowH        ' DrawMidSummary = 1 row
+            Dim finalReserveH As Integer = CalculateFinalContentHeight(rowH)
+
+            Dim headerH As Integer = _estimatedHeaderHeight - 50  ' 50 = top margin
+            Dim usableH = pageBottom - (50 + headerH)  ' total usable after margins + header
+
+            ' H_perPage (non-last) = table_header + rows + mid_summary
+            ' H_perPage (last) = table_header + rows + final_summary + signature
+            Dim nonLastAvailableH = usableH - tableHeaderH - midSummaryH
+            Dim lastAvailableH = usableH - tableHeaderH - finalReserveH
+
+            If nonLastAvailableH < rowH OrElse lastAvailableH < rowH Then
+                ' หน้ากระดาษเล็กผิดปกติ — ใช้วิธีเดิม (fill-to-bottom)
+                _totalPages = CInt(Math.Ceiling(totalRows / 2.0))
+                _pageBreakIndices = New List(Of Integer)()
+                Return
+            End If
+
+            ' Estimate max rows per non-last and last page
+            Dim maxRowsNonLast As Integer = CInt(Math.Floor(nonLastAvailableH / rowH))
+            Dim maxRowsLast As Integer = CInt(Math.Floor(lastAvailableH / rowH))
+
+            If maxRowsNonLast <= 0 Then maxRowsNonLast = 1
+
+            ' Simulate fill: naturally distribute rows
+            Dim breaks As New List(Of Integer)()
+            Dim remaining As Integer = totalRows
+
+            While remaining > maxRowsLast
+                ' Take a full page of non-last rows
+                Dim take = Math.Min(maxRowsNonLast, remaining - maxRowsLast)
+                If take <= 0 Then take = maxRowsNonLast
+                If breaks.Count = 0 Then
+                    breaks.Add(take)
+                Else
+                    breaks.Add(breaks(breaks.Count - 1) + take)
+                End If
+                remaining -= take
+            End While
+
+            ' remaining = rows for the last page
+            Dim orphanDetected As Boolean = (remaining <= 0)
+
+            If orphanDetected Then
+                ' Last page has zero data rows → redistribute from previous pages
+                ' Target: ดึง ~5-6 rows เข้าหน้าสุดท้าย
+                Const targetLastPageRows As Integer = 5
+                Dim deficit = targetLastPageRows
+
+                ' ลด maxRowsNonLast ลง 3 rows เพื่อให้มีแถวมากขึ้นในหน้าสุดท้าย
+                maxRowsNonLast = Math.Max(1, maxRowsNonLast - 3)
+
+                ' Recalculate distribution
+                breaks.Clear()
+                remaining = totalRows
+
+                While remaining > maxRowsLast
+                    Dim take = Math.Min(maxRowsNonLast, remaining - maxRowsLast)
+                    If take <= 0 Then take = maxRowsNonLast
+                    If breaks.Count = 0 Then
+                        breaks.Add(take)
+                    Else
+                        breaks.Add(breaks(breaks.Count - 1) + take)
+                    End If
+                    remaining -= take
+                End While
+            End If
+
+            _pageBreakIndices = breaks
+            _totalPages = breaks.Count + 1  ' +1 for the last page
+
+            System.Diagnostics.Debug.WriteLine(String.Format(
+                "[PAGE BALANCING] TotalRows={0}, maxRowsNonLast={1}, maxRowsLast={2}, Pages={3}",
+                totalRows, maxRowsNonLast, maxRowsLast, _totalPages))
+            For i As Integer = 0 To breaks.Count - 1
+                System.Diagnostics.Debug.WriteLine(String.Format(
+                    "  Page {0} break at row index {1}", i + 1, breaks(i)))
+            Next
+            System.Diagnostics.Debug.WriteLine(String.Format(
+                "  Last page rows: {0}{1}", remaining, If(orphanDetected, " (REDISTRIBUTED)", "")))
+        End Sub
+
+
         ''' H_sig = H_summary + H_signature + H_footerGap + H_topGap
         ''' </summary>
         Private Function CalculateFinalContentHeight(rowH As Integer) As Integer
@@ -392,7 +519,7 @@ Namespace TempleAccounting
             ' Minimum top gap = 4px
             Dim topGap = 4
 
-            ' Total: 88 + 148 + 12 + 4 = 252px (กันส่วนสรุป+เซ็นต์ล้นหน้าสุดท้าย — ชิดขอบล่าง 2 มม.)
+            ' Total: 88 + 148 + 8 + 4 = 248px (กันส่วนสรุป+เซ็นต์ล้นหน้าสุดท้าย — ชิดขอบล่าง ~0.2 ซม.)
             Return summaryHeight + signatureHeight + footerGap + topGap
         End Function
 

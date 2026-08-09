@@ -1037,15 +1037,17 @@ Namespace TempleAccounting
 
             ' Position signature block - both blocks share same bottom Y
             ' ดันบล็อกเซ็นต์ชิดขอบล่างสูงสุด: glyph ล่างสุดของบรรทัดตำแหน่ง (เจ้าอาวาส/ไวยาวัจกร)
-            ' ห่างจากขอบล่างที่พิมพ์ได้ ~2-3 มม. (≈8-10px @ 96 DPI) — เพิ่มพื้นที่แถวข้อมูลด้านบนสูงสุด
+            ' ห่างจากขอบล่างที่พิมพ์ได้ ~0.2 ซม. (≈8px @ 96 DPI) — ขยายพื้นที่แถวข้อมูลบนสุด
             ' บรรทัดตำแหน่งวางกึ่งกลางกล่อง 24px → ชดเชยช่องว่างใต้ glyph (positionHeight - ความสูงฟอนต์)/2
-            Const bottomGapPx As Integer = 8    ' 2 มม. = 2 * 96 / 25.4 ≈ 7.6px → ปัด 8px (ขั้นต่ำก่อนเนื้อหาถูกตัด)
+            Const bottomGapPx As Integer = 4    ' 0.1 ซม. จากกล่องถึงขอบล่าง + ชดเชย ~4px = glyph ~8px ≈ 0.2 ซม.
             Dim posCenterOffset As Integer = CInt((positionHeight - safeRowFont.Height) / 2)
             Dim blockBottom = pageBottom - bottomGapPx - posCenterOffset
-            Dim minimumTop = currentY + 12
-            If blockBottom - totalSignatureHeight < minimumTop Then
-                blockBottom = minimumTop + totalSignatureHeight + 8
-            End If
+            ' บายพาส minimumTop safety — ปล่อยให้ signature block ขยายเข้าไปในพื้นที่ที่เหลือโดยไม่ถูกบังคับขึ้นหน้าถัดไป
+            Dim minimumTop = currentY + 4
+            ' หมายเหตุ: เลิกใช้ safety push-up (blockBottom = minimumTop + totalSignatureHeight + 8)
+            ' — ให้ blockBottom อยู่ชิดขอบล่างจาก pageBottom เสมอ ต่อให้ทับซ้อนกับพื้นที่ข้อมูลก็ตาม
+            ' (IncomeExpenseReport.OnPrintPage เป็นผู้ตัดสินใจสร้างหน้าใหม่กรณีจำเป็น)
+            ' blockBottom = pageBottom - bottomGapPx - posCenterOffset (คำนวณแล้ว)
 
             ' Shared Y coordinates for both blocks
             Dim signatureLabelY As Integer = blockBottom - totalSignatureHeight
