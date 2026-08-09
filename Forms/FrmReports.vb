@@ -359,9 +359,12 @@ Namespace TempleAccounting
                 chartMonthly.Series("เงินคงเหลือสุทธิ").Points(idxTotalNet).Font =
                     New Font("Tahoma", 8.5F, FontStyle.Bold)
 
-                ' Render ใหม่ แล้วสลับไปมุมมองกราฟ
+                ' Render ใหม่ แล้วเปิดหน้าต่างดูกราฟเต็มจอ (FrmChartPreview) โดย clone ข้อมูลจาก chartMonthly
                 chartMonthly.Refresh()
-                ShowChartView()
+                Using frm As New FrmChartPreview()
+                    frm.LoadChart(chartMonthly)
+                    frm.ShowDialog(Me)
+                End Using
                 lblSummary.Text = "รายงานกราฟสรุปรายรับ-รายจ่ายรายเดือน (ช่วงเวลาที่เลือก)"
             Catch ex As Exception
                 MessageBox.Show("แสดงกราฟรายเดือนไม่ได้: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)

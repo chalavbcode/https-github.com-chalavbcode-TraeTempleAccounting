@@ -172,6 +172,9 @@
     <EmbeddedResource Include="Forms\FrmExportForTransfer.resx">
       <DependentUpon>FrmExportForTransfer.vb</DependentUpon>
     </EmbeddedResource>
+    <Compile Include="Forms\FrmChartPreview.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="TransferFormat.vb" />
     <Compile Include="Forms\FrmReports.vb">
       <SubType>Form</SubType>
