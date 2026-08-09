@@ -227,17 +227,18 @@ Namespace TempleAccounting
                     folderName &= "_" & DateTime.Now.ToString("ss")
                     exportFolder = Path.Combine(fbd.SelectedPath, folderName)
                 End If
-                Directory.CreateDirectory(exportFolder)
 
                 btnExportForTransfer.Enabled = False
                 prgExport.Value = 0
                 prgExport.Maximum = Math.Max(rows.Count, 1)
                 Try
+                    Directory.CreateDirectory(exportFolder)
                     WriteExportFile(exportFolder, rangeFrom, rangeTo, rows, rangeDesc)
                 Catch ex As Exception
                     AppPaths.LogCrash(ex, "FrmExportForTransfer.Write")
                     Log("❌ ส่งออกไม่สำเร็จ: " & ex.Message)
-                    MessageBox.Show("ส่งออกไม่สำเร็จ: " & ex.Message & vbCrLf & "โฟลเดอร์ที่สร้างไว้จะถูกลบ (ข้อมูลต้นทางไม่ถูกแตะต้อง)", "ข้อผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                    MessageBox.Show(FormatUserError(ex, "การส่งออก") & vbCrLf & "โฟลเดอร์ที่สร้างไว้จะถูกลบ (ข้อมูลต้นทางไม่ถูกแตะต้อง)",
+                                    "ข้อผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
                     Try
                         If Directory.Exists(exportFolder) Then Directory.Delete(exportFolder, True)
                     Catch
@@ -589,5 +590,21 @@ Namespace TempleAccounting
             Catch
             End Try
         End Sub
+
+        ''' <summary>
+        ''' แปลง Exception เป็นข้อความภาษาไทยที่ผู้ใช้เข้าใจได้ โดย log เต็มแยกไว้ใน AppPaths.LogCrash แล้ว
+        ''' </summary>
+        Private Shared Function FormatUserError(ex As Exception, operationThai As String) As String
+            Select Case True
+                Case TypeOf ex Is OleDbException
+                    Return "ไม่สามารถเชื่อมต่อกับฐานข้อมูลได้ — ไฟล์ฐานข้อมูลอาจเปิดอยู่ในโปรแกรมอื่นหรือเสียหาย รหัสอ้างอิง: " & DateTime.Now.ToString("yyyyMMddHHmmss")
+                Case TypeOf ex Is IOException
+                    Return "ไม่สามารถอ่านหรือเขียนไฟล์ได้ — อุปกรณ์จัดเก็บข้อมูลอาจเต็ม ถูกถอดออก หรือไม่มีสิทธิ์เข้าถึง รหัสอ้างอิง: " & DateTime.Now.ToString("yyyyMMddHHmmss")
+                Case TypeOf ex Is InvalidOperationException
+                    Return "การทำงานของ " & operationThai & " ไม่สมบูรณ์ — ข้อมูลอาจถูกใช้โดยอีกกระบวนการหนึ่ง รหัสอ้างอิง: " & DateTime.Now.ToString("yyyyMMddHHmmss")
+                Case Else
+                    Return "เกิดข้อผิดพลาดระหว่าง" & operationThai & " — หากพบปัญหาซ้ำ กรุณาติดต่อผู้ดูแลระบบ รหัสอ้างอิง: " & DateTime.Now.ToString("yyyyMMddHHmmss")
+            End Select
+        End Function
     End Class
 End Namespace

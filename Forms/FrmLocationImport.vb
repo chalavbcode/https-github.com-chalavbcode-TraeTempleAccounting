@@ -26,7 +26,7 @@ Namespace TempleAccounting
             End If
             rtbLog.AppendText($"[{DateTime.Now:HH:mm:ss}] {msg}" & Environment.NewLine)
             rtbLog.ScrollToCaret()
-            Application.DoEvents()
+            rtbLog.Update()
         End Sub
 
         Private Sub SetProgress(cur As Integer, tot As Integer, Optional msg As String = "")
@@ -37,7 +37,8 @@ Namespace TempleAccounting
             prgImport.Maximum = Math.Max(1, tot)
             prgImport.Value = Math.Max(0, Math.Min(tot, cur))
             If Not String.IsNullOrEmpty(msg) Then lblProgress.Text = msg
-            Application.DoEvents()
+            lblProgress.Update()
+            prgImport.Update()
         End Sub
 
         Private Sub FrmLocationImport_Load(sender As Object, e As EventArgs) Handles MyBase.Load

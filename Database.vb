@@ -26,14 +26,14 @@ Namespace TempleAccounting
 
         Public Sub EnsureSchema()
             If _schemaChecked Then Return
-            _schemaChecked = True
 
-            If Not File.Exists(AppPaths.DatabaseFile) Then
-                Throw New FileNotFoundException("ไม่พบไฟล์ฐานข้อมูล TempleAccounting.accdb")
-            End If
+            Try
+                If Not File.Exists(AppPaths.DatabaseFile) Then
+                    Throw New FileNotFoundException("ไม่พบไฟล์ฐานข้อมูล TempleAccounting.accdb")
+                End If
 
-            Using conn = OpenConn()
-                TryCreateTable(conn, "Province", "CREATE TABLE Province (ProvinceID INTEGER PRIMARY KEY, ProvinceName TEXT(100) NOT NULL)")
+                Using conn = OpenConn()
+                    TryCreateTable(conn, "Province", "CREATE TABLE Province (ProvinceID INTEGER PRIMARY KEY, ProvinceName TEXT(100) NOT NULL)")
                 TryCreateTable(conn, "District", "CREATE TABLE District (DistrictID INTEGER PRIMARY KEY, ProvinceID INTEGER NOT NULL, DistrictName TEXT(100) NOT NULL)")
                 TryCreateTable(conn, "SubDistrict", "CREATE TABLE SubDistrict (SubDistrictID INTEGER PRIMARY KEY, DistrictID INTEGER NOT NULL, SubDistrictName TEXT(100) NOT NULL, ZipCode TEXT(10))")
 
@@ -186,7 +186,12 @@ Namespace TempleAccounting
                 SeedBankAccounts(conn)
                 SeedPositions(conn)
                 SeedPersonnel(conn)
-            End Using
+                End Using
+                _schemaChecked = True
+            Catch ex As Exception
+                _schemaChecked = False
+                Throw
+            End Try
         End Sub
 
         Private Sub SeedPositions(conn As OleDbConnection)

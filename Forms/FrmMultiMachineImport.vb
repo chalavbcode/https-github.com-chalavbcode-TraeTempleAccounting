@@ -119,6 +119,7 @@ Namespace TempleAccounting
         End Sub
 
         Private Sub btnSelectFiles_Click(sender As Object, e As EventArgs) Handles btnSelectFiles.Click
+            If _isMerging Then Return
             Using ofd As New OpenFileDialog()
                 ofd.Title = "เลือกไฟล์ส่งออกจากหลายเครื่อง / แฟลชไดรฟ์ (เลือกได้หลายไฟล์)"
                 ofd.Filter = "ไฟล์ข้อมูลส่งออก (*.xlsx;*.xlsm;*.xlsb;*.xls)|*.xlsx;*.xlsm;*.xlsb;*.xls|ไฟล์ทั้งหมด (*.*)|*.*"
@@ -153,6 +154,7 @@ Namespace TempleAccounting
         End Sub
 
         Private Sub btnClearFiles_Click(sender As Object, e As EventArgs) Handles btnClearFiles.Click
+            If _isMerging Then Return
             _files.Clear()
             RefreshPreviewGrid()
             Log("🗑️ ล้างรายการไฟล์แล้ว")
@@ -236,7 +238,8 @@ Namespace TempleAccounting
                 AppPaths.LogCrash(ex, "FrmMultiMachineImport.Merge")
                 LogMergeOutcome("Failed")
                 Log("❌ เกิดข้อผิดพลาดระหว่างรวมข้อมูล: " & ex.Message)
-                MessageBox.Show("เกิดข้อผิดพลาดระหว่างการรวมข้อมูล: " & ex.Message & vbCrLf & "ระบบได้ยกเลิกการบันทึกข้อมูลทั้งหมดแล้ว", "ข้อผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                MessageBox.Show(FormatUserError(ex, "การรวมข้อมูล") & vbCrLf & "ระบบได้ยกเลิกการบันทึกข้อมูลทั้งหมดแล้ว",
+                                "ข้อผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
             Finally
                 btnConfirmMerge.Enabled = True
                 _isMerging = False
@@ -244,6 +247,7 @@ Namespace TempleAccounting
         End Sub
 
         Private Sub btnClose_Click(sender As Object, e As EventArgs) Handles btnClose.Click
+            If _isMerging Then Return
             ' ฟอร์มนี้เปิดแบบ Modal Dialog (.ShowDialog()) — ปิดแค่ dialog ตัวเอง ฟอร์มหลักที่ฝังใน panel ไม่ถูกแตะต้อง
             Me.Close()
         End Sub
@@ -381,6 +385,24 @@ Namespace TempleAccounting
         Private Function ParseExcelFile(filePath As String) As FileAnalysis
             Dim analysis As New FileAnalysis()
             analysis.FilePath = filePath
+
+            ' ตรวจสอบขนาดไฟล์ — ป้องกัน OOM จากไฟล์ขนาดใหญ่ผิดปกติ
+            Const MaxFileSizeMB As Integer = 50
+            Const MaxFileSizeBytes As Long = MaxFileSizeMB * 1024L * 1024L
+            Try
+                Dim fi As New FileInfo(filePath)
+                If fi.Length > MaxFileSizeBytes Then
+                    analysis.SchemaError = "ไฟล์ใหญ่เกินไป (ขนาดเกิน " & MaxFileSizeMB & " MB) — ไม่ปลอดภัยที่จะอ่าน กรุณาแบ่งไฟล์ก่อนนำเข้า"
+                    Return analysis
+                End If
+                If fi.Length = 0 Then
+                    analysis.SchemaError = "ไฟล์ว่างเปล่า (0 bytes) — ไม่สามารถนำเข้าได้"
+                    Return analysis
+                End If
+            Catch ex As Exception
+                analysis.SchemaError = "ไม่สามารถอ่านข้อมูลไฟล์ได้: " & ex.Message
+                Return analysis
+            End Try
 
             Dim ext = Path.GetExtension(filePath).ToLowerInvariant()
             Dim connStr As String
@@ -562,11 +584,15 @@ Namespace TempleAccounting
         End Function
 
         Private Function LoadWorksheet(excelConn As OleDbConnection, sheetName As String) As DataTable
+            ' ป้องกัน SQL Injection ผ่านชื่อชีต: escape วงเล็บเหลี่ยมใน names ด้วย OLE DB convention (]] แทน ])
+            Dim safeName = sheetName.Replace("]", "]]")
             Using cmd = excelConn.CreateCommand()
-                cmd.CommandText = "SELECT * FROM [" & sheetName & "]"
+                cmd.CommandText = "SELECT * FROM [" & safeName & "]"
                 Using da As New OleDbDataAdapter(cmd)
+                    ' จำกัดแถวสูงสุด — ป้องกัน OOM จากไฟล์ที่มีข้อมูลมหาศาล (200K แถว)
+                    Const MaxRows As Integer = 200000
                     Dim dt As New DataTable()
-                    da.Fill(dt)
+                    da.Fill(0, MaxRows, dt)
                     Return dt
                 End Using
             End Using
@@ -1293,7 +1319,7 @@ Namespace TempleAccounting
             End If
             rtbLog.AppendText("[" & DateTime.Now.ToString("HH:mm:ss") & "] " & msg & Environment.NewLine)
             rtbLog.ScrollToCaret()
-            Application.DoEvents()
+            rtbLog.Update()
         End Sub
 
         Private Sub SetProgress(cur As Integer, tot As Integer, Optional msg As String = "")
@@ -1304,7 +1330,24 @@ Namespace TempleAccounting
             prgImport.Maximum = Math.Max(1, tot)
             prgImport.Value = Math.Max(0, Math.Min(tot, cur))
             If Not String.IsNullOrEmpty(msg) Then lblProgress.Text = msg
-            Application.DoEvents()
+            lblProgress.Update()
+            prgImport.Update()
         End Sub
+
+        ''' <summary>
+        ''' แปลง Exception เป็นข้อความภาษาไทยที่ผู้ใช้เข้าใจได้ โดย log เต็มแยกไว้ใน AppPaths.LogCrash แล้ว
+        ''' </summary>
+        Private Shared Function FormatUserError(ex As Exception, operationThai As String) As String
+            Select Case True
+                Case TypeOf ex Is OleDbException
+                    Return "ไม่สามารถเชื่อมต่อกับฐานข้อมูลได้ — ไฟล์ฐานข้อมูลอาจเปิดอยู่ในโปรแกรมอื่นหรือเสียหาย รหัสอ้างอิง: " & DateTime.Now.ToString("yyyyMMddHHmmss")
+                Case TypeOf ex Is IOException
+                    Return "ไม่สามารถอ่านหรือเขียนไฟล์ได้ — อุปกรณ์จัดเก็บข้อมูลอาจเต็ม ถูกถอดออก หรือไม่มีสิทธิ์เข้าถึง รหัสอ้างอิง: " & DateTime.Now.ToString("yyyyMMddHHmmss")
+                Case TypeOf ex Is InvalidOperationException
+                    Return "การทำงานของ " & operationThai & " ไม่สมบูรณ์ — ข้อมูลอาจถูกใช้โดยอีกกระบวนการหนึ่ง รหัสอ้างอิง: " & DateTime.Now.ToString("yyyyMMddHHmmss")
+                Case Else
+                    Return "เกิดข้อผิดพลาดระหว่าง" & operationThai & " — หากพบปัญหาซ้ำ กรุณาติดต่อผู้ดูแลระบบ รหัสอ้างอิง: " & DateTime.Now.ToString("yyyyMMddHHmmss")
+            End Select
+        End Function
     End Class
 End Namespace

@@ -301,7 +301,9 @@ Namespace TempleAccounting
                 Dim rightH = ReportEngine.MeasureTextHeight(g, rightDesc, _theme.RowFont, colW3 - 6)
                 
                 ' Use standard row height as minimum, and max of both sides for dynamic height
-                Dim currentRowH = Math.Max(rowH, Math.Max(leftH, rightH))
+                ' Cap the row height to prevent infinite page loop: a single row cannot exceed the printable page area
+                Dim maxRowH As Integer = (_pageBottom - e.MarginBounds.Top) - 10
+                Dim currentRowH = Math.Min(maxRowH, Math.Max(rowH, Math.Max(leftH, rightH)))
 
                 ' --- Dynamic Page Row Balancing ---
                 ' ตรวจสอบว่าถึงจุดแบ่งหน้าที่ pre-calculate ไว้หรือยัง
@@ -975,6 +977,14 @@ Namespace TempleAccounting
                                     "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
                 End Try
             End Using
+        End Sub
+
+        Protected Overrides Sub Dispose(disposing As Boolean)
+            If disposing AndAlso _theme IsNot Nothing Then
+                _theme.Dispose()
+                _theme = Nothing
+            End If
+            MyBase.Dispose(disposing)
         End Sub
     End Class
 End Namespace
