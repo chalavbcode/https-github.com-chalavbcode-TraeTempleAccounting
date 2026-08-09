@@ -1236,8 +1236,9 @@ Namespace TempleAccounting
         Private Sub EnsureImportSchema()
             Try
                 Using conn = Db.OpenConn()
+                    Dim oledbConn = TryCast(conn, OleDbConnection)
                     Dim hasImportHistory As Boolean = False
-                    Dim tables = conn.GetSchema("Tables")
+                    Dim tables = oledbConn.GetSchema("Tables")
                     For Each r As DataRow In tables.Rows
                         If Convert.ToString(r("TABLE_NAME")).Equals("ImportHistory", StringComparison.OrdinalIgnoreCase) Then
                             hasImportHistory = True
@@ -1251,7 +1252,7 @@ Namespace TempleAccounting
                     Else
                         ' non-breaking: เพิ่มคอลัมน์ ReceiptCountImported ถ้ายังไม่มี (ตารางเดิมจากเวอร์ชันแรก)
                         Dim ihCols As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase)
-                        Dim ihColTable = conn.GetSchema("Columns", New String() {Nothing, Nothing, "ImportHistory", Nothing})
+                        Dim ihColTable = oledbConn.GetSchema("Columns", New String() {Nothing, Nothing, "ImportHistory", Nothing})
                         For Each r As DataRow In ihColTable.Rows
                             ihCols.Add(Convert.ToString(r("COLUMN_NAME")))
                         Next
@@ -1262,7 +1263,7 @@ Namespace TempleAccounting
                     End If
 
                     Dim colNames As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase)
-                    Dim cols = conn.GetSchema("Columns", New String() {Nothing, Nothing, "Transactions", Nothing})
+                    Dim cols = oledbConn.GetSchema("Columns", New String() {Nothing, Nothing, "Transactions", Nothing})
                     For Each r As DataRow In cols.Rows
                         colNames.Add(Convert.ToString(r("COLUMN_NAME")))
                     Next

@@ -531,8 +531,9 @@ Namespace TempleAccounting
                     Using trans = conn.BeginTransaction()
                         Try
                             For Each id In ids
-                                Using cmd = conn.CreateCommand()
-                                    cmd.Transaction = trans
+                                Dim oledbConn = TryCast(conn, OleDbConnection)
+                                Using cmd = oledbConn.CreateCommand()
+                                    cmd.Transaction = TryCast(trans, OleDbTransaction)
                                     cmd.CommandText = "DELETE FROM Transactions WHERE ID = @id"
                                     cmd.Parameters.AddWithValue("@id", id)
                                     cmd.ExecuteNonQuery()

@@ -60,12 +60,9 @@ Namespace TempleAccounting
 
         Public Sub UpdateReceiptPath(transactionID As Integer, receiptPath As String) Implements ITransactionRepository.UpdateReceiptPath
             Using conn = Db.OpenConn()
-                Using cmd = conn.CreateCommand()
-                    cmd.CommandText = "UPDATE Transactions SET ReceiptPath = @rp WHERE ID = @id"
-                    cmd.Parameters.AddWithValue("@rp", receiptPath)
-                    cmd.Parameters.AddWithValue("@id", transactionID)
-                    cmd.ExecuteNonQuery()
-                End Using
+                Db.ExecuteNonQuery(conn, "UPDATE Transactions SET ReceiptPath = @rp WHERE ID = @id",
+                    New Tuple(Of String, Object)("@rp", receiptPath),
+                    New Tuple(Of String, Object)("@id", transactionID))
             End Using
         End Sub
     End Class

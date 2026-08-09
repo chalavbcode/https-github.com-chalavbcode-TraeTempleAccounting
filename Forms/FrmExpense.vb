@@ -260,13 +260,14 @@ Namespace TempleAccounting
                     If Not String.IsNullOrEmpty(selectedSourceReceiptPath) Then
                         Dim savedFileName As String = SaveReceiptFile(targetID)
                         If Not String.IsNullOrEmpty(savedFileName) Then
-                            Using cmd = conn.CreateCommand()
-                                cmd.CommandText = "UPDATE Transactions SET ReceiptPath = @rp WHERE ID = @id"
-                                cmd.Parameters.AddWithValue("@rp", savedFileName)
-                                cmd.Parameters.AddWithValue("@id", targetID)
-                                cmd.ExecuteNonQuery()
-                            End Using
-                        End If
+                                Dim oledbConn = TryCast(conn, OleDbConnection)
+                                Using cmd = oledbConn.CreateCommand()
+                                    cmd.CommandText = "UPDATE Transactions SET ReceiptPath = @rp WHERE ID = @id"
+                                    cmd.Parameters.AddWithValue("@rp", savedFileName)
+                                    cmd.Parameters.AddWithValue("@id", targetID)
+                                    cmd.ExecuteNonQuery()
+                                End Using
+                            End If
                     End If
 
                     MessageBox.Show("✅ บันทึกข้อมูลเรียบร้อยแล้ว!", "สำเร็จ", MessageBoxButtons.OK, MessageBoxIcon.Information)

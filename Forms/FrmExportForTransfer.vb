@@ -421,7 +421,8 @@ Namespace TempleAccounting
             ' บันทึก ExportHistory เฉพาะเมื่อเขียนไฟล์สำเร็จแล้วเท่านั้น (resume point ของโหมด "เฉพาะรายการใหม่")
             Dim batchId As Guid = Guid.NewGuid()
             Using conn = Db.OpenConn()
-                Using cmd = conn.CreateCommand()
+                Dim oledbConn = TryCast(conn, OleDbConnection)
+                Using cmd = oledbConn.CreateCommand()
                     cmd.CommandText = "INSERT INTO ExportHistory (ExportBatchID, ExportDateTime, DateRangeFrom, DateRangeTo, RowCount, FileNameGenerated, MachineID) VALUES (@b, @dt, @f, @t, @n, @fn, @m)"
                     Dim gp = cmd.CreateParameter()
                     gp.ParameterName = "@b"
@@ -480,7 +481,8 @@ Namespace TempleAccounting
         Private Sub EnsureExportSchema()
             Try
                 Using conn = Db.OpenConn()
-                    Dim tables = conn.GetSchema("Tables")
+                    Dim oledbConn = TryCast(conn, OleDbConnection)
+                    Dim tables = oledbConn.GetSchema("Tables")
 
                     Dim hasLocal As Boolean = False
                     Dim hasExport As Boolean = False
@@ -502,7 +504,7 @@ Namespace TempleAccounting
 
                     ' กันกรณีฐานข้อมูลเก่าที่คอลัมน์ TransactionGUID ยังไม่มี (ปกติ Db.EnsureSchema สร้างให้แล้ว)
                     Dim colNames As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase)
-                    Dim cols = conn.GetSchema("Columns", New String() {Nothing, Nothing, "Transactions", Nothing})
+                    Dim cols = oledbConn.GetSchema("Columns", New String() {Nothing, Nothing, "Transactions", Nothing})
                     For Each r As DataRow In cols.Rows
                         colNames.Add(Convert.ToString(r("COLUMN_NAME")))
                     Next
