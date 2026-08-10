@@ -56,6 +56,50 @@ Namespace TempleAccounting
                 e.SuppressKeyPress = True
                 HelpSystem.ShowManual("FrmMain", Me)
             End If
+
+            If e.Control AndAlso e.Shift AndAlso e.KeyCode = Keys.D Then
+                e.Handled = True
+                e.SuppressKeyPress = True
+                ShowDeveloperCredit()
+            End If
+        End Sub
+
+        ' ------- Secret Developer Credit Trigger -------
+        Private _logoClickCount As Integer = 0
+        Private _logoClickTimer As WinTimer
+
+        ''' <summary>ตรวจจับ Triple-Click บนโลโก้วัด (คลิก 3 ครั้งใน 500ms)</summary>
+        Private Sub Logo_TripleClickDetect(sender As Object, e As MouseEventArgs)
+            If _logoClickTimer Is Nothing Then
+                _logoClickTimer = New WinTimer() With {.Interval = 500}
+                AddHandler _logoClickTimer.Tick, Sub()
+                    _logoClickCount = 0
+                    _logoClickTimer.Stop()
+                End Sub
+            End If
+
+            _logoClickCount += 1
+            _logoClickTimer.Stop()
+            _logoClickTimer.Start()
+
+            If _logoClickCount >= 3 Then
+                _logoClickCount = 0
+                _logoClickTimer.Stop()
+                ShowDeveloperCredit()
+            End If
+        End Sub
+
+        ''' <summary>แสดงข้อความสิทธิ์และรายละเอียดผู้พัฒนา (Secret Trigger)</summary>
+        Private Sub ShowDeveloperCredit()
+            MessageBox.Show(
+                "ระบบบัญชีวัดแหลมยาง (Temple Accounting System)" & vbCrLf & vbCrLf &
+                "พัฒนาและถือสิทธิ์สร้างสรรค์โดย: พระบุญส่ง โสภณจิตฺโต" & vbCrLf & vbCrLf &
+                "สงวนลิขสิทธิ์ © 2026 พระบุญส่ง โสภณจิตฺโต." & vbCrLf & vbCrLf &
+                "อนุญาตให้ใช้งานเฉพาะงานกิจการของวัดแหลมยาง" & vbCrLf &
+                "ห้ามทำซ้ำ ดัดแปลง หรือนำส่วนหนึ่งส่วนใดไปใช้ในเชิงพาณิชย์โดยไม่ได้รับอนุญาต",
+                "ข้อความสิทธิ์และรายละเอียดผู้พัฒนา",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information)
         End Sub
 
         Private Sub StatusCenter_DoubleClick(sender As Object, e As EventArgs)

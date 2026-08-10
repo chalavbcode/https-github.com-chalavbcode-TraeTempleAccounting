@@ -8,7 +8,8 @@
     <StartupObject>TempleAccounting.Program</StartupObject>
     <RootNamespace>TempleAccounting</RootNamespace>
     <AssemblyName>TempleAccounting</AssemblyName>
-    <ApplicationIcon />
+    <ApplicationIcon>app_icon.ico</ApplicationIcon>
+    <Copyright>© 2026 พระบุญส่ง โสภณจิตฺโต. All Rights Reserved.</Copyright>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <OptionExplicit>On</OptionExplicit>
     <OptionCompare>Binary</OptionCompare>
@@ -193,6 +194,12 @@
     <EmbeddedResource Include="Forms\FrmReports.resx">
       <DependentUpon>FrmReports.vb</DependentUpon>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Reflection.AssemblyTrademarkAttribute">
+      <_Parameter1>พระบุญส่ง โสภณจิตฺโต</_Parameter1>
+    </AssemblyAttribute>
   </ItemGroup>
 
   <ItemGroup>

@@ -31,6 +31,7 @@ Namespace TempleAccounting
             AddHandler btnLogout.Click, AddressOf BtnLogout_Click
             AddHandler lblStatusCenter.DoubleClick, AddressOf StatusCenter_DoubleClick
             AddHandler lblStatusCenter.MouseClick, AddressOf StatusCenter_MouseClick
+            AddHandler picLogo.MouseClick, AddressOf Logo_TripleClickDetect
 
             AddHandler Me.Load, AddressOf FrmMain_Load
             AddHandler Me.FormClosing, AddressOf FrmMain_FormClosing
