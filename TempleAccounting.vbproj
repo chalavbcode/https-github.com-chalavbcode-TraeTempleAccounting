@@ -31,6 +31,7 @@
     <!-- ===== Helpers / Startup ===== -->
     <Compile Include="Database.vb" />
     <Compile Include="DatabaseBackupHelper.vb" />
+    <Compile Include="DesktopShortcutHelper.vb" />
     <Compile Include="AppPaths.vb" />
     <Compile Include="HelpSystem.vb" />
     <Compile Include="UiFitter.vb" />

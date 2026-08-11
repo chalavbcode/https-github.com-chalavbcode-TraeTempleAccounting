@@ -45,6 +45,8 @@ Namespace TempleAccounting
                 tt.SetToolTip(lblStatusCenter, "ดับเบิ้ลคลิก: เปิดโฟลเดอร์ฐานข้อมูล" & vbCrLf & "คลิกขวา: คัดลอกที่อยู่ไฟล์ฐานข้อมูล" & vbCrLf & "ไฟล์: " & AppPaths.DatabaseFile)
                 ShowHomeLogo()
                 UiFitter.AutoFitFormButtons(Me)
+                ' สร้างไอคอนลัด Desktop อัตโนมัติเมื่อเปิดครั้งแรก (ถ้ายังไม่มี)
+                DesktopShortcutHelper.CreateDesktopShortcutIfMissing()
             Catch
             End Try
             ShowDashboard()
