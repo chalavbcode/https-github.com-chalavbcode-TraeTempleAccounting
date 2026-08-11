@@ -9,6 +9,7 @@ Imports System.Windows.Forms
 Namespace TempleAccounting
     Partial Class frmMain
         Private components As System.ComponentModel.IContainer = Nothing
+        Private resources As ComponentResourceManager
 
         Private pnlHeader As Panel
         Private lblTitle As Label
@@ -74,6 +75,7 @@ Namespace TempleAccounting
 
         Private Sub InitializeComponent()
             components = New Container()
+            Dim resources As ComponentResourceManager = New ComponentResourceManager(GetType(frmMain))
             ttMain = New ToolTip(components)
             ilIcons = New ImageList(components)
             pnlHeader = New Panel()
@@ -903,6 +905,7 @@ Namespace TempleAccounting
             Font = New Font("Tahoma", 10.5F, FontStyle.Regular, GraphicsUnit.Point, CByte(222))
             ForeColor = Color.FromArgb(CByte(60), CByte(40), CByte(20))
             FormBorderStyle = FormBorderStyle.None
+            Icon = CType(resources.GetObject("$this.Icon"), Icon)
             MinimumSize = New Size(940, 620)
             Name = "frmMain"
             StartPosition = FormStartPosition.CenterScreen
