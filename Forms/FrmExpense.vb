@@ -6,6 +6,7 @@ Imports System.Collections.Generic
 Imports System.ComponentModel
 Imports System.Drawing
 Imports System.Windows.Forms
+Imports System.Data
 Imports System.Data.OleDb
 
 Namespace TempleAccounting
@@ -114,6 +115,7 @@ Namespace TempleAccounting
                 cboCategory.DisplayMember = "CategoryName"
                 cboCategory.ValueMember = "ID"
                 cboCategory.DataSource = cats
+                FillAutoCompleteSource(cboCategory, cats, "CategoryName")
 
                 Dim funds = Db.GetTable(conn, "SELECT ID, FundName FROM Funds ORDER BY FundName")
                 cboFund.DisplayMember = "FundName"
@@ -164,14 +166,33 @@ Namespace TempleAccounting
         Private Sub SetupEnterNavigation()
             If _enterFlow.Count > 0 Then Return
 
-            _enterFlow.AddRange({dtpDate, cboCategory, cboFund, cboBank, txtDescription, txtAmount, txtRemark, btnBrowseReceipt, btnPasteReceipt, btnSave})
+            _enterFlow.AddRange({dtpDate, cboCategory, txtDescription, txtAmount, btnSave})
 
             For Each ctrl In _enterFlow
                 AddHandler ctrl.KeyDown, AddressOf HandleEnterAdvance
             Next
         End Sub
 
+        ''' <summary>
+        ''' เติม AutoCompleteCustomSource จากตารางข้อมูลหลัก เพื่อให้พิมพ์ค้นหาแบบ SuggestAppend ทำงาน
+        ''' </summary>
+        Private Shared Sub FillAutoCompleteSource(cbo As ComboBox, dt As DataTable, colName As String)
+            cbo.AutoCompleteCustomSource.Clear()
+            For Each row As DataRow In dt.Rows
+                Dim v = Convert.ToString(row(colName))
+                If Not String.IsNullOrWhiteSpace(v) Then
+                    cbo.AutoCompleteCustomSource.Add(v.Trim())
+                End If
+            Next
+        End Sub
+
         Private Sub MoveNextFrom(current As Control)
+            ' แก้ข้อความที่พิมพ์ใน ComboBox แบบ DropDown ให้ตรงกับรายการจริงก่อนเลื่อนฟิลด์ (Enter)
+            Dim curCb = TryCast(current, ComboBox)
+            If curCb IsNot Nothing AndAlso curCb.DropDownStyle = ComboBoxStyle.DropDown Then
+                ResolveComboTextSelection(curCb)
+            End If
+
             Dim idx = _enterFlow.IndexOf(current)
             If idx < 0 Then Return
 
@@ -192,6 +213,20 @@ Namespace TempleAccounting
             If tb IsNot Nothing Then
                 tb.SelectAll()
             End If
+        End Sub
+
+        ''' <summary>
+        ''' เลือก item ที่ตรงกับข้อความที่พิมพ์ใน ComboBox (ให้ Enter เลือกรายการจริง ไม่ใช่แค่พิมพ์ข้อความ)
+        ''' </summary>
+        Private Sub ResolveComboTextSelection(cb As ComboBox)
+            Dim typed = cb.Text.Trim()
+            If typed = "" Then Return
+            For Each item In cb.Items
+                If String.Equals(cb.GetItemText(item).Trim(), typed, StringComparison.OrdinalIgnoreCase) Then
+                    cb.SelectedItem = item
+                    Return
+                End If
+            Next
         End Sub
 
         Private Sub HandleEnterAdvance(sender As Object, e As KeyEventArgs)

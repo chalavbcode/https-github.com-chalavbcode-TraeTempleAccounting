@@ -169,17 +169,19 @@ Namespace TempleAccounting
             dtpDate.Location = New Point(240, 110)
             dtpDate.Name = "dtpDate"
             dtpDate.Size = New Size(520, 33)
-            dtpDate.TabIndex = 8
+            dtpDate.TabIndex = 0
             dtpDate.Value = New Date(2026, 8, 1, 0, 0, 0, 0)
             ' 
             ' cboCategory
             ' 
-            cboCategory.DropDownStyle = ComboBoxStyle.DropDownList
+            cboCategory.DropDownStyle = ComboBoxStyle.DropDown
+            cboCategory.AutoCompleteSource = AutoCompleteSource.CustomSource
+            cboCategory.AutoCompleteMode = AutoCompleteMode.SuggestAppend
             cboCategory.Font = New Font("Tahoma", 10.5F)
             cboCategory.Location = New Point(240, 172)
             cboCategory.Name = "cboCategory"
             cboCategory.Size = New Size(520, 33)
-            cboCategory.TabIndex = 9
+            cboCategory.TabIndex = 1
             ' 
             ' cboFund
             ' 
@@ -188,7 +190,7 @@ Namespace TempleAccounting
             cboFund.Location = New Point(240, 234)
             cboFund.Name = "cboFund"
             cboFund.Size = New Size(520, 33)
-            cboFund.TabIndex = 10
+            cboFund.TabIndex = 5
             ' 
             ' cboBank
             ' 
@@ -197,7 +199,7 @@ Namespace TempleAccounting
             cboBank.Location = New Point(240, 296)
             cboBank.Name = "cboBank"
             cboBank.Size = New Size(520, 33)
-            cboBank.TabIndex = 11
+            cboBank.TabIndex = 6
             ' 
             ' txtDescription
             ' 
@@ -205,7 +207,7 @@ Namespace TempleAccounting
             txtDescription.Location = New Point(240, 358)
             txtDescription.Name = "txtDescription"
             txtDescription.Size = New Size(520, 33)
-            txtDescription.TabIndex = 12
+            txtDescription.TabIndex = 2
             ' 
             ' txtAmount
             ' 
@@ -214,7 +216,7 @@ Namespace TempleAccounting
             txtAmount.Location = New Point(240, 420)
             txtAmount.Name = "txtAmount"
             txtAmount.Size = New Size(260, 35)
-            txtAmount.TabIndex = 13
+            txtAmount.TabIndex = 3
             txtAmount.TextAlign = HorizontalAlignment.Right
             ' 
             ' txtRemark
@@ -225,7 +227,7 @@ Namespace TempleAccounting
             txtRemark.Name = "txtRemark"
             txtRemark.ScrollBars = ScrollBars.Vertical
             txtRemark.Size = New Size(520, 100)
-            txtRemark.TabIndex = 14
+            txtRemark.TabIndex = 7
             ' 
             ' txtReceipt
             ' 
@@ -235,7 +237,7 @@ Namespace TempleAccounting
             txtReceipt.Name = "txtReceipt"
             txtReceipt.ReadOnly = True
             txtReceipt.Size = New Size(300, 33)
-            txtReceipt.TabIndex = 15
+            txtReceipt.TabIndex = 8
             ' 
             ' btnBrowseReceipt
             ' 
@@ -247,7 +249,7 @@ Namespace TempleAccounting
             btnBrowseReceipt.Location = New Point(550, 594)
             btnBrowseReceipt.Name = "btnBrowseReceipt"
             btnBrowseReceipt.Size = New Size(157, 40)
-            btnBrowseReceipt.TabIndex = 16
+            btnBrowseReceipt.TabIndex = 9
             btnBrowseReceipt.Text = "📂 เลือกรูปภาพ"
             btnBrowseReceipt.UseVisualStyleBackColor = False
             ' 
@@ -261,7 +263,7 @@ Namespace TempleAccounting
             btnPasteReceipt.Location = New Point(713, 595)
             btnPasteReceipt.Name = "btnPasteReceipt"
             btnPasteReceipt.Size = New Size(169, 40)
-            btnPasteReceipt.TabIndex = 17
+            btnPasteReceipt.TabIndex = 10
             btnPasteReceipt.Text = "📋 วางจาก LINE"
             btnPasteReceipt.UseVisualStyleBackColor = False
             ' 
@@ -275,7 +277,7 @@ Namespace TempleAccounting
             btnClearReceipt.Location = New Point(888, 594)
             btnClearReceipt.Name = "btnClearReceipt"
             btnClearReceipt.Size = New Size(50, 40)
-            btnClearReceipt.TabIndex = 18
+            btnClearReceipt.TabIndex = 11
             btnClearReceipt.Text = "🗑️"
             btnClearReceipt.UseVisualStyleBackColor = False
             ' 
@@ -289,7 +291,7 @@ Namespace TempleAccounting
             btnSave.Location = New Point(240, 662)
             btnSave.Name = "btnSave"
             btnSave.Size = New Size(240, 56)
-            btnSave.TabIndex = 19
+            btnSave.TabIndex = 4
             btnSave.Text = "💾 บันทึกรายการ"
             btnSave.UseVisualStyleBackColor = False
             ' 
@@ -303,7 +305,7 @@ Namespace TempleAccounting
             btnCancel.Location = New Point(500, 662)
             btnCancel.Name = "btnCancel"
             btnCancel.Size = New Size(180, 56)
-            btnCancel.TabIndex = 20
+            btnCancel.TabIndex = 12
             btnCancel.Text = "❌ เคลียร์"
             btnCancel.UseVisualStyleBackColor = False
             ' 
@@ -317,7 +319,7 @@ Namespace TempleAccounting
             btnImportExcel.Location = New Point(750, 662)
             btnImportExcel.Name = "btnImportExcel"
             btnImportExcel.Size = New Size(240, 56)
-            btnImportExcel.TabIndex = 21
+            btnImportExcel.TabIndex = 13
             btnImportExcel.Text = "📥 นำเข้าจาก Excel"
             btnImportExcel.UseVisualStyleBackColor = False
             ' 
