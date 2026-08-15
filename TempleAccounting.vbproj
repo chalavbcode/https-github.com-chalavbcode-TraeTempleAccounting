@@ -34,6 +34,7 @@
     <Compile Include="DesktopShortcutHelper.vb" />
     <Compile Include="AppPaths.vb" />
     <Compile Include="HelpSystem.vb" />
+    <Compile Include="SaddhiviharikaDb.vb" />
     <Compile Include="UiFitter.vb" />
     <Compile Include="Program.vb" />
     <Compile Include="ReceiptImageHelper.vb" />
@@ -205,6 +206,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.2" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.11" />
     <PackageReference Include="System.Data.OleDb" Version="10.0.10" />
     <PackageReference Include="WinForms.DataVisualization" Version="1.10.2" />
   </ItemGroup>

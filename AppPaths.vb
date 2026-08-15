@@ -10,6 +10,7 @@ Namespace TempleAccounting
     Public Module AppPaths
         Private _appRoot As String
         Private _databaseFile As String
+        Private _saddhiviharikaDbFile As String
         Private _importFolder As String
         Private _backupFolder As String
         Private _exportFolder As String
@@ -80,6 +81,18 @@ Namespace TempleAccounting
                     End If
                 End If
                 Return _databaseFile
+            End Get
+        End Property
+
+        ''' <summary>SQLite database for Saddhiviharika ordination registry system.</summary>
+        Public ReadOnly Property SaddhiviharikaDbFile As String
+            Get
+                If String.IsNullOrEmpty(_saddhiviharikaDbFile) Then
+                    Dim dbDir = Path.Combine(AppRoot, "Database")
+                    If Not Directory.Exists(dbDir) Then Directory.CreateDirectory(dbDir)
+                    _saddhiviharikaDbFile = Path.Combine(dbDir, "Saddhiviharika.db")
+                End If
+                Return _saddhiviharikaDbFile
             End Get
         End Property
 

@@ -123,6 +123,14 @@ Module Program
             BootCrash(ex, "Step 4 outer")
         End Try
 
+        ' --- Initialize Saddhiviharika SQLite database (ordination registry) ---
+        Try
+            TempleAccounting.SaddhiviharikaDb.EnsureSchema()
+            BootLog("SaddhiviharikaDb initialized successfully")
+        Catch ex As Exception
+            BootCrash(ex, "Step 4c - SaddhiviharikaDb.EnsureSchema")
+        End Try
+
         ' --- Migrate existing receipt images to permanent master directory (survives VS Rebuild) ---
         Try
             TempleAccounting.AppPaths.MigrateReceiptsToMaster()
