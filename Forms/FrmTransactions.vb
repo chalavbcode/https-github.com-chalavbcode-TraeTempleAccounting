@@ -389,7 +389,7 @@ Namespace TempleAccounting
                 {"ReceiptPath", "เอกสารแนบ"}
             }
 
-            dgvTransactions.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells
+            dgvTransactions.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCellsExceptHeader
             dgvTransactions.AllowUserToResizeColumns = True
             dgvTransactions.DefaultCellStyle.WrapMode = DataGridViewTriState.True
             dgvTransactions.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells
@@ -402,8 +402,9 @@ Namespace TempleAccounting
                 End If
             Next
 
-            ' เรียงลำดับคอลัมน์ (วันที่, ชนิด, ประเภท, กองทุน, รายละเอียด, จำนวนเงิน, ใบเสร็จ, ID, แล้วคอลัมน์อื่น ๆ ต่อท้าย)
+            ' เรียงลำดับคอลัมน์ (ID, วันที่, ชนิด, ประเภท, กองทุน, รายละเอียด, จำนวนเงิน, ใบเสร็จ, แล้วคอลัมน์อื่น ๆ ต่อท้าย)
             Dim displayOrder As String() = New String() {
+                "ID",
                 "TranDate",
                 "TranTypeDisplay",
                 "CategoryName",
@@ -411,7 +412,6 @@ Namespace TempleAccounting
                 "Detail",
                 "Amount",
                 "HasReceiptDisplay",
-                "ID",
                 "BankName",
                 "Note",
                 "ToFundName",
