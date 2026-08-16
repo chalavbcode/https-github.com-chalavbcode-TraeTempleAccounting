@@ -36,6 +36,8 @@ Namespace TempleAccounting
         Friend WithEvents lbl6 As Label
         Friend WithEvents lbl7 As Label
         Friend WithEvents lbl8 As Label
+        Friend WithEvents dgvRecentTransactions As DataGridView
+        Friend lblRecentHeader As Label
 
         <DebuggerNonUserCode()>
         Protected Overrides Sub Dispose(disposing As Boolean)
@@ -75,6 +77,9 @@ Namespace TempleAccounting
             btnSave = New Button()
             btnCancel = New Button()
             btnImportExcel = New Button()
+            lblRecentHeader = New Label()
+            dgvRecentTransactions = New DataGridView()
+            CType(dgvRecentTransactions, ISupportInitialize).BeginInit()
             SuspendLayout()
             ' 
             ' lblHeader
@@ -323,11 +328,80 @@ Namespace TempleAccounting
             btnImportExcel.Text = "📥 นำเข้าจาก Excel"
             btnImportExcel.UseVisualStyleBackColor = False
             ' 
+            ' lblRecentHeader
+            ' 
+            lblRecentHeader.BackColor = Color.FromArgb(CByte(253), CByte(224), CByte(71))
+            lblRecentHeader.Font = New Font("Tahoma", 11.0F, FontStyle.Bold)
+            lblRecentHeader.ForeColor = Color.FromArgb(CByte(120), CByte(53), CByte(15))
+            lblRecentHeader.Location = New Point(770, 110)
+            lblRecentHeader.Name = "lblRecentHeader"
+            lblRecentHeader.Size = New Size(768, 40)
+            lblRecentHeader.TabIndex = 25
+            lblRecentHeader.Text = "📋 รายการรายจ่ายล่าสุด 10 รายการ"
+            lblRecentHeader.TextAlign = ContentAlignment.MiddleCenter
+            ' 
+            ' dgvRecentTransactions
+            ' 
+            dgvRecentTransactions.AllowUserToAddRows = False
+            dgvRecentTransactions.AllowUserToDeleteRows = False
+            dgvRecentTransactions.AllowUserToResizeRows = False
+            dgvRecentTransactions.AutoGenerateColumns = False
+            dgvRecentTransactions.BackgroundColor = Color.White
+            dgvRecentTransactions.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize
+            dgvRecentTransactions.Location = New Point(770, 150)
+            dgvRecentTransactions.MultiSelect = False
+            dgvRecentTransactions.Name = "dgvRecentTransactions"
+            dgvRecentTransactions.ReadOnly = True
+            dgvRecentTransactions.RowHeadersVisible = False
+            dgvRecentTransactions.RowHeadersWidth = 62
+            dgvRecentTransactions.ScrollBars = ScrollBars.Both
+            dgvRecentTransactions.SelectionMode = DataGridViewSelectionMode.FullRowSelect
+            dgvRecentTransactions.Size = New Size(857, 560)
+            dgvRecentTransactions.TabIndex = 26
+            ' 
+            ' dgvRecentTransactions columns
+            ' 
+            Dim colDate As New DataGridViewTextBoxColumn()
+            colDate.DataPropertyName = "TransactionDate"
+            colDate.HeaderText = "วันที่ทำรายการ"
+            colDate.Name = "colDate"
+            colDate.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells
+            colDate.DefaultCellStyle.Format = "dd/MM/yyyy"
+
+            Dim colCategory As New DataGridViewTextBoxColumn()
+            colCategory.DataPropertyName = "CategoryName"
+            colCategory.HeaderText = "ประเภท"
+            colCategory.Name = "colCategory"
+            colCategory.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells
+
+            Dim colFund As New DataGridViewTextBoxColumn()
+            colFund.DataPropertyName = "FundName"
+            colFund.HeaderText = "กองทุน"
+            colFund.Name = "colFund"
+            colFund.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells
+
+            Dim colAmount As New DataGridViewTextBoxColumn()
+            colAmount.DataPropertyName = "Amount"
+            colAmount.HeaderText = "จำนวนเงิน"
+            colAmount.Name = "colAmount"
+            colAmount.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells
+            colAmount.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight
+            colAmount.DefaultCellStyle.Format = "#,##0.00"
+
+            Dim colDescription As New DataGridViewTextBoxColumn()
+            colDescription.DataPropertyName = "Description"
+            colDescription.HeaderText = "รายละเอียด"
+            colDescription.Name = "colDescription"
+            colDescription.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+            colDescription.MinimumWidth = 200
+
+            dgvRecentTransactions.Columns.AddRange(New DataGridViewColumn() {colDate, colCategory, colFund, colAmount, colDescription})
+            ' 
             ' FrmExpense
             ' 
             AutoScroll = True
             BackColor = Color.FromArgb(CByte(254), CByte(249), CByte(235))
-            ClientSize = New Size(1280, 820)
+            ClientSize = New Size(1639, 900)
             Controls.Add(lbl1)
             Controls.Add(lbl2)
             Controls.Add(lbl3)
@@ -350,13 +424,16 @@ Namespace TempleAccounting
             Controls.Add(btnSave)
             Controls.Add(btnCancel)
             Controls.Add(btnImportExcel)
+            Controls.Add(lblRecentHeader)
+            Controls.Add(dgvRecentTransactions)
             Controls.Add(lblHeader)
             Font = New Font("Tahoma", 10.5F)
-            MinimumSize = New Size(1100, 720)
+            MinimumSize = New Size(1100, 900)
             Name = "FrmExpense"
             StartPosition = FormStartPosition.CenterScreen
             Text = "บันทึกรายจ่าย"
             WindowState = FormWindowState.Maximized
+            CType(dgvRecentTransactions, ISupportInitialize).EndInit()
             ResumeLayout(False)
             PerformLayout()
         End Sub

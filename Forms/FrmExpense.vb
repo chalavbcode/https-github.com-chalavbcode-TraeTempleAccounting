@@ -80,6 +80,7 @@ Namespace TempleAccounting
             HelpSystem.SetupHelp(Me, "FrmExpense")
             Db.EnsureSchema()
             LoadMasters()
+            LoadRecentExpenses()
             SetupToolTips()
             SetupEnterNavigation()
             UiFitter.AutoFitFormButtons(Me)
@@ -131,6 +132,28 @@ Namespace TempleAccounting
                 cboBank.ValueMember = "ID"
                 cboBank.DataSource = banks
             End Using
+        End Sub
+
+        ''' <summary>
+        ''' โหลดรายการรายจ่ายล่าสุด 10 รายการมาแสดงในแผงตัวอย่างด้านขวา
+        ''' </summary>
+        Private Sub LoadRecentExpenses()
+            Try
+                dgvRecentTransactions.DataSource = Nothing
+                Using conn = Db.OpenConn()
+                    Dim dtRecent = Db.GetTable(conn,
+                        "SELECT TOP 10 t.TranDate AS TransactionDate, c.CategoryName, f.FundName, t.Amount, t.[Detail] AS [Description] " &
+                        "FROM ((Transactions t " &
+                        "LEFT JOIN Categories c ON t.CategoryID = c.ID) " &
+                        "LEFT JOIN Funds f ON t.FundID = f.ID) " &
+                        "WHERE t.TranType = 'Expense' " &
+                        "ORDER BY t.ID DESC")
+                    dgvRecentTransactions.DataSource = dtRecent
+                End Using
+            Catch ex As Exception
+                dgvRecentTransactions.DataSource = Nothing
+                AppPaths.LogCrash(ex, "FrmExpense.LoadRecentExpenses")
+            End Try
         End Sub
 
         Private Sub ResetEntry(resetToToday As Boolean)
@@ -328,6 +351,9 @@ Namespace TempleAccounting
 
                         dtpDate.Value = keepDate
                         dtpDate.Focus()
+
+                        ' รีเฟรชรายการล่าสุดทันที หลังบันทึกและเคลียร์ฟอร์มเรียบร้อยแล้ว
+                        LoadRecentExpenses()
                     End If
                 End Using
             Catch ex As Exception
