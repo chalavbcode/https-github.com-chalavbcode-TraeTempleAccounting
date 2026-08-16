@@ -176,9 +176,9 @@ Namespace TempleAccounting
             lblRecentHeader.BackColor = Color.FromArgb(CByte(253), CByte(224), CByte(71))
             lblRecentHeader.Font = New Font("Tahoma", 11F, FontStyle.Bold)
             lblRecentHeader.ForeColor = Color.FromArgb(CByte(120), CByte(53), CByte(15))
-            lblRecentHeader.Location = New Point(780, 110)
+            lblRecentHeader.Location = New Point(770, 110)
             lblRecentHeader.Name = "lblRecentHeader"
-            lblRecentHeader.Size = New Size(470, 40)
+            lblRecentHeader.Size = New Size(490, 40)
             lblRecentHeader.TabIndex = 25
             lblRecentHeader.Text = "📋 รายการรายรับล่าสุด 10 รายการ"
             lblRecentHeader.TextAlign = ContentAlignment.MiddleCenter
@@ -192,19 +192,20 @@ Namespace TempleAccounting
             dgvRecentTransactions.BackgroundColor = Color.White
             dgvRecentTransactions.BorderStyle = BorderStyle.FixedSingle
             dgvRecentTransactions.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize
-            dgvRecentTransactions.Location = New Point(780, 150)
+            dgvRecentTransactions.Location = New Point(770, 150)
             dgvRecentTransactions.MultiSelect = False
             dgvRecentTransactions.Name = "dgvRecentTransactions"
             dgvRecentTransactions.ReadOnly = True
             dgvRecentTransactions.RowHeadersVisible = False
+            dgvRecentTransactions.ScrollBars = ScrollBars.Both
             dgvRecentTransactions.SelectionMode = DataGridViewSelectionMode.FullRowSelect
-            dgvRecentTransactions.Size = New Size(470, 620)
+            dgvRecentTransactions.Size = New Size(490, 620)
             dgvRecentTransactions.TabIndex = 26
             ' 
             ' colRecentDate
             ' 
             colRecentDate.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells
-            colRecentDate.DataPropertyName = "TranDate"
+            colRecentDate.DataPropertyName = "TransactionDate"
             colRecentDate.DefaultCellStyle.Format = "dd/MM/yyyy"
             colRecentDate.HeaderText = "วันที่ทำรายการ"
             colRecentDate.Name = "colRecentDate"
@@ -241,6 +242,7 @@ Namespace TempleAccounting
             colRecentDescription.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
             colRecentDescription.DataPropertyName = "Detail"
             colRecentDescription.HeaderText = "รายละเอียด"
+            colRecentDescription.MinimumWidth = 150
             colRecentDescription.Name = "colRecentDescription"
             colRecentDescription.ReadOnly = True
             ' 

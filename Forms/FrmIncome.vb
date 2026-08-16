@@ -153,7 +153,7 @@ Namespace TempleAccounting
             Try
                 Using conn = Db.OpenConn()
                     Dim dt = Db.GetTable(conn,
-                        "SELECT TOP 10 t.TranDate, c.CategoryName, f.FundName, t.Amount, t.Detail " &
+                        "SELECT TOP 10 t.TranDate AS TransactionDate, c.CategoryName, f.FundName, t.Amount, t.[Detail] AS Detail " &
                         "FROM Transactions t " &
                         "LEFT JOIN Categories c ON t.CategoryID = c.ID " &
                         "LEFT JOIN Funds f ON t.FundID = f.ID " &
