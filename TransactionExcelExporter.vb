@@ -13,16 +13,20 @@ Namespace TempleAccounting
     Public Module TransactionExcelExporter
 
         ''' <summary>
-        ''' สร้างชื่อไฟล์เริ่มต้นตามช่วงวันที่ เช่น สมุดรายวัน_สิงหาคม_2569.xlsx
-        ''' หรือ สมุดรายวัน_01-31_ส.ค._2569.xlsx เมื่อวันที่เริ่ม/สิ้นสุดอยู่คนละเดือน
+        ''' สร้างชื่อไฟล์เริ่มต้นแบบวันที่เต็ม (วัน เดือน ปี พ.ศ.) ทั้งวันเริ่มต้นและวันสิ้นสุด
+        ''' เช่น สมุดรายวัน_วันที่_1_สิงหาคม_2569_ถึง_31_สิงหาคม_2569.xlsx
         ''' </summary>
         Public Function BuildDefaultFileName(fromDate As Date, toDate As Date) As String
-            Dim bYear = BuddhistYear(toDate)
-            If fromDate.Year = toDate.Year AndAlso fromDate.Month = toDate.Month Then
-                Return "สมุดรายวัน_" & ReportEngine.ThaiMonthFull(toDate.Month) & "_" & bYear.ToString() & ".xlsx"
-            End If
-            Return "สมุดรายวัน_" & fromDate.Day.ToString("00") & "-" & toDate.Day.ToString("00") & "_" &
-                   ReportEngine.ThaiMonthAbbr(toDate.Month) & "_" & bYear.ToString() & ".xlsx"
+            Dim fromDay = SanitizeFileNamePart(fromDate.Day.ToString())
+            Dim fromMonth = SanitizeFileNamePart(ReportEngine.ThaiMonthFull(fromDate.Month))
+            Dim fromYear = SanitizeFileNamePart(BuddhistYear(fromDate).ToString())
+
+            Dim toDay = SanitizeFileNamePart(toDate.Day.ToString())
+            Dim toMonth = SanitizeFileNamePart(ReportEngine.ThaiMonthFull(toDate.Month))
+            Dim toYear = SanitizeFileNamePart(BuddhistYear(toDate).ToString())
+
+            Return "สมุดรายวัน_วันที่_" & fromDay & "_" & fromMonth & "_" & fromYear & "_ถึง_" &
+                   toDay & "_" & toMonth & "_" & toYear & ".xlsx"
         End Function
 
         ''' <summary>
@@ -170,6 +174,18 @@ Namespace TempleAccounting
 
         Private Function FormatBuddhistDate(d As Date) As String
             Return d.Day.ToString() & " " & ReportEngine.ThaiMonthFull(d.Month) & " " & BuddhistYear(d).ToString()
+        End Function
+
+        ''' <summary>
+        ''' ลบอักขระที่ไม่สามารถใช้ในชื่อไฟล์ได้ เพื่อความปลอดภัยในการตั้งชื่อไฟล์
+        ''' </summary>
+        Private Function SanitizeFileNamePart(value As String) As String
+            If String.IsNullOrEmpty(value) Then Return ""
+            Dim result = value
+            For Each ch As Char In Path.GetInvalidFileNameChars()
+                result = result.Replace(ch.ToString(), "")
+            Next
+            Return result
         End Function
 
     End Module
