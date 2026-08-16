@@ -365,26 +365,28 @@ Namespace TempleAccounting
             colDate.DataPropertyName = "TransactionDate"
             colDate.HeaderText = "วันที่ทำรายการ"
             colDate.Name = "colDate"
-            colDate.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells
+            colDate.AutoSizeMode = DataGridViewAutoSizeColumnMode.None
+            colDate.Width = 85
             colDate.DefaultCellStyle.Format = "dd/MM/yyyy"
 
             Dim colCategory As New DataGridViewTextBoxColumn()
             colCategory.DataPropertyName = "CategoryName"
             colCategory.HeaderText = "ประเภท"
             colCategory.Name = "colCategory"
-            colCategory.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells
+            colCategory.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells
 
             Dim colFund As New DataGridViewTextBoxColumn()
             colFund.DataPropertyName = "FundName"
             colFund.HeaderText = "กองทุน"
             colFund.Name = "colFund"
-            colFund.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells
+            colFund.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells
 
             Dim colAmount As New DataGridViewTextBoxColumn()
             colAmount.DataPropertyName = "Amount"
             colAmount.HeaderText = "จำนวนเงิน"
             colAmount.Name = "colAmount"
-            colAmount.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells
+            colAmount.AutoSizeMode = DataGridViewAutoSizeColumnMode.None
+            colAmount.Width = 80
             colAmount.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight
             colAmount.DefaultCellStyle.Format = "#,##0.00"
 
@@ -393,7 +395,7 @@ Namespace TempleAccounting
             colDescription.HeaderText = "รายละเอียด"
             colDescription.Name = "colDescription"
             colDescription.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
-            colDescription.MinimumWidth = 200
+            colDescription.MinimumWidth = 180
 
             dgvRecentTransactions.Columns.AddRange(New DataGridViewColumn() {colDate, colCategory, colFund, colAmount, colDescription})
             ' 
