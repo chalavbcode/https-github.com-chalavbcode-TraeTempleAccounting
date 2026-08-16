@@ -396,7 +396,7 @@ Namespace TempleAccounting
             dgvTransactions.ScrollBars = ScrollBars.Both
 
             ' Hide technical columns but keep them for logic
-            For Each colName In New String() {"TranType", "CategoryID", "FundID", "BankID", "ToFundID", "ToBankID", "ReceiptPath"}
+            For Each colName In New String() {"TranType", "CategoryID", "FundID", "BankID", "ToFundID", "ToBankID", "ReceiptPath", "CreateDate"}
                 If dgvTransactions.Columns.Contains(colName) Then
                     dgvTransactions.Columns(colName).Visible = False
                 End If
@@ -414,7 +414,6 @@ Namespace TempleAccounting
                 "ID",
                 "BankName",
                 "Note",
-                "CreateDate",
                 "ToFundName",
                 "ToBankName"
             }
