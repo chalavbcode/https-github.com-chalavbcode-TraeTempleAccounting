@@ -409,8 +409,8 @@ Namespace TempleAccounting
             colDate.DataPropertyName = "TransactionDate"
             colDate.HeaderText = "วันที่ทำรายการ"
             colDate.Name = "colDate"
-            colDate.AutoSizeMode = DataGridViewAutoSizeColumnMode.None
-            colDate.Width = 85
+            colDate.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCellsExceptHeader
+            colDate.HeaderCell.Style.WrapMode = DataGridViewTriState.True
 
             Dim colCategory As New DataGridViewTextBoxColumn()
             colCategory.DataPropertyName = "CategoryName"
@@ -428,8 +428,8 @@ Namespace TempleAccounting
             colAmount.DataPropertyName = "Amount"
             colAmount.HeaderText = "จำนวนเงิน"
             colAmount.Name = "colAmount"
-            colAmount.AutoSizeMode = DataGridViewAutoSizeColumnMode.None
-            colAmount.Width = 80
+            colAmount.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCellsExceptHeader
+            colAmount.HeaderCell.Style.WrapMode = DataGridViewTriState.True
             colAmount.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight
             colAmount.DefaultCellStyle.Format = "#,##0.00"
 
