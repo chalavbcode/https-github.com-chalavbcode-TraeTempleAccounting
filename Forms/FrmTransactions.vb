@@ -124,6 +124,7 @@ Namespace TempleAccounting
             ttMain.SetToolTip(txtSearch, "พิมพ์คำค้นหาแล้วกด Enter หรือกดปุ่มค้นหา (ค้นหาคำบางส่วนในรายละเอียด, หมายเหตุ, ประเภท, กองทุน, ธนาคาร) ล้างช่องนี้เพื่อแสดงข้อมูลทั้งหมด")
             ttMain.SetToolTip(btnSearch, "ค้นหารายการตามช่วงวันที่ ประเภท และคำค้นหาที่ระบุ (กด Enter ได้เช่นกัน)")
             ttMain.SetToolTip(btnRefresh, "ล้างการค้นหาและดึงข้อมูลใหม่ทั้งหมด")
+            ttMain.SetToolTip(btnExportExcel, "ส่งออกข้อมูลสมุดรายวันที่กรอง/แสดงอยู่ในตารางเป็นไฟล์ Excel (.xlsx) พร้อมยอดรวมรายรับ-รายจ่าย")
             ttMain.SetToolTip(btnAddInc, "เปิดหน้าจอสำหรับบันทึกรายรับใหม่")
             ttMain.SetToolTip(btnAddExp, "เปิดหน้าจอสำหรับบันทึกรายจ่ายใหม่")
             ttMain.SetToolTip(btnAddTrans, "เปิดหน้าจอสำหรับบันทึกการโอนเงินภายใน")
@@ -494,6 +495,35 @@ Namespace TempleAccounting
                 ExitEditMode()
             End If
             LoadData()
+        End Sub
+
+        Private Sub btnExportExcel_Click(sender As Object, e As EventArgs) Handles btnExportExcel.Click
+            Try
+                Dim dt = TryCast(dgvTransactions.DataSource, DataTable)
+                If dt Is Nothing OrElse dt.Rows.Count = 0 Then
+                    MessageBox.Show("ไม่มีข้อมูลในตารางที่จะส่งออก กรุณาตรวจสอบช่วงวันที่และตัวกรองก่อน", "แจ้งเตือน", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                    Return
+                End If
+
+                Dim fromDate = dtpFrom.Value.Date
+                Dim toDate = dtpTo.Value.Date
+
+                Using sfd As New SaveFileDialog()
+                    sfd.Title = "บันทึกสมุดรายวันเป็นไฟล์ Excel"
+                    sfd.Filter = "Excel Workbook (*.xlsx)|*.xlsx"
+                    sfd.FileName = TransactionExcelExporter.BuildDefaultFileName(fromDate, toDate)
+                    sfd.DefaultExt = "xlsx"
+                    sfd.AddExtension = True
+                    If sfd.ShowDialog(Me) <> DialogResult.OK Then Return
+
+                    TransactionExcelExporter.ExportTransactionsToExcel(dt, fromDate, toDate, sfd.FileName)
+                End Using
+
+                MessageBox.Show("ส่งออกข้อมูลสมุดรายวันเป็นไฟล์ Excel เรียบร้อยแล้ว", "สำเร็จ", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            Catch ex As Exception
+                AppPaths.LogCrash(ex, "btnExportExcel_Click")
+                MessageBox.Show("ไม่สามารถส่งออก Excel ได้: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            End Try
         End Sub
 
         Private Sub btnDelete_Click(sender As Object, e As EventArgs) Handles btnDelete.Click

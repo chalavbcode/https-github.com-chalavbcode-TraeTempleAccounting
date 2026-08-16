@@ -27,6 +27,7 @@ Namespace TempleAccounting
         Friend WithEvents txtSearch As TextBox
         Friend WithEvents btnSearch As Button
         Friend WithEvents btnRefresh As Button
+        Friend WithEvents btnExportExcel As Button
         Friend WithEvents lblSummary As Label
         Friend WithEvents dgvTransactions As DataGridView
         Friend WithEvents pActions As Panel
@@ -59,6 +60,7 @@ Namespace TempleAccounting
             Dim DataGridViewCellStyle1 As DataGridViewCellStyle = New DataGridViewCellStyle()
             ttMain = New ToolTip(components)
             pFilter = New Panel()
+            btnExportExcel = New Button()
             btnRefresh = New Button()
             btnSearch = New Button()
             txtSearch = New TextBox()
@@ -92,6 +94,7 @@ Namespace TempleAccounting
             ' pFilter
             ' 
             pFilter.BackColor = Color.White
+            pFilter.Controls.Add(btnExportExcel)
             pFilter.Controls.Add(btnRefresh)
             pFilter.Controls.Add(btnSearch)
             pFilter.Controls.Add(txtSearch)
@@ -122,6 +125,20 @@ Namespace TempleAccounting
             btnRefresh.TabIndex = 11
             btnRefresh.Text = "🔄 รีเฟรช"
             btnRefresh.UseVisualStyleBackColor = False
+            ' 
+            ' btnExportExcel
+            ' 
+            btnExportExcel.BackColor = Color.FromArgb(CByte(30), CByte(136), CByte(229))
+            btnExportExcel.Cursor = Cursors.Hand
+            btnExportExcel.FlatStyle = FlatStyle.Flat
+            btnExportExcel.Font = New Font("Tahoma", 10F, FontStyle.Bold)
+            btnExportExcel.ForeColor = Color.White
+            btnExportExcel.Location = New Point(583, 65)
+            btnExportExcel.Name = "btnExportExcel"
+            btnExportExcel.Size = New Size(145, 33)
+            btnExportExcel.TabIndex = 12
+            btnExportExcel.Text = "ส่งออก Excel"
+            btnExportExcel.UseVisualStyleBackColor = False
             ' 
             ' btnSearch
             ' 
