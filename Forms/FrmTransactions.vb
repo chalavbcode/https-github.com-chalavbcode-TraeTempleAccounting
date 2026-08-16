@@ -323,7 +323,7 @@ Namespace TempleAccounting
                             AppPaths.LogCrash(ex, "FrmTransactions.Search")
                         End Try
                     End If
-                    sql &= " ORDER BY " & tranDateExpr & " DESC, t.ID DESC"
+                    sql &= " ORDER BY " & tranDateExpr & " ASC, t.ID ASC"
 
                     Dim dt = Db.GetTable(conn, sql, ps.ToArray())
 

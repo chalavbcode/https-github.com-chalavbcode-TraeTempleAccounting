@@ -49,9 +49,9 @@ Namespace TempleAccounting
                 ws.Cell(2, 1).Value = "สมุดรายวันรับ-จ่าย"
                 ws.Cell(3, 1).Value = "ช่วงวันที่ " & FormatBuddhistDate(fromDate) & " ถึง " & FormatBuddhistDate(toDate)
 
-                ws.Range("A1:G1").Merge()
-                ws.Range("A2:G2").Merge()
-                ws.Range("A3:G3").Merge()
+                ws.Range("A1:H1").Merge()
+                ws.Range("A2:H2").Merge()
+                ws.Range("A3:H3").Merge()
 
                 ws.Cell(1, 1).Style.Font.FontName = fontName
                 ws.Cell(1, 1).Style.Font.FontSize = 16
@@ -69,7 +69,7 @@ Namespace TempleAccounting
 
                 ' --- หัวตาราง (แถว 5) ---
                 Const headerRow As Integer = 5
-                Dim headers = {"ลำดับ", "วันที่ทำรายการ", "ชนิด", "หมวดหมู่/ประเภท", "กองทุน", "รายละเอียดรายการ", "จำนวนเงิน"}
+                Dim headers = {"ลำดับ", "วันที่ทำรายการ", "ชนิด", "หมวดหมู่/ประเภท", "กองทุน", "รายละเอียดรายการ", "จำนวนเงินรับ", "จำนวนเงินจ่าย"}
                 For c As Integer = 0 To headers.Length - 1
                     Dim cell = ws.Cell(headerRow, c + 1)
                     cell.Value = headers(c)
@@ -83,8 +83,6 @@ Namespace TempleAccounting
                 ' --- ข้อมูล (แถว 6 เป็นต้นไป) ---
                 Dim dataStart = headerRow + 1
                 Dim r = dataStart
-                Dim totalIncome As Decimal = 0D
-                Dim totalExpense As Decimal = 0D
 
                 If rows IsNot Nothing Then
                     For Each row As DataRow In rows.Rows
@@ -100,52 +98,58 @@ Namespace TempleAccounting
                         ws.Cell(r, 4).Value = SafeStr(row, "CategoryName")
                         ws.Cell(r, 5).Value = SafeStr(row, "FundName")
                         ws.Cell(r, 6).Value = SafeStr(row, "Detail")
-                        ws.Cell(r, 7).Value = amount
-                        ws.Cell(r, 7).Style.NumberFormat.Format = "#,##0.00"
-                        ws.Cell(r, 7).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right
 
-                        If tranType = "Income" Then totalIncome += amount
-                        If tranType = "Expense" Then totalExpense += amount
+                        If tranType = "Income" Then
+                            ws.Cell(r, 7).Value = amount
+                        ElseIf tranType = "Expense" Then
+                            ws.Cell(r, 8).Value = amount
+                        End If
+                        ws.Cell(r, 7).Style.NumberFormat.Format = "#,##0.00"
+                        ws.Cell(r, 8).Style.NumberFormat.Format = "#,##0.00"
+                        ws.Cell(r, 7).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right
+                        ws.Cell(r, 8).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right
 
                         r += 1
                     Next
                 End If
 
                 Dim lastDataRow = r - 1
+                Dim lastRow = Math.Max(dataStart, lastDataRow)
 
-                ' --- ยอดสรุปท้ายตาราง ---
-                Dim netBalance = totalIncome - totalExpense
+                ' --- ยอดสรุปท้ายตาราง (สูตร SUM แยกคอลัมน์รายรับ/รายจ่าย) ---
                 Dim sumStart = r + 1
 
                 ws.Cell(sumStart, 6).Value = "ยอดรวมรายรับทั้งหมด"
-                ws.Cell(sumStart, 7).Value = totalIncome
+                ws.Cell(sumStart, 7).FormulaA1 = "=SUM(G" & dataStart & ":G" & lastRow & ")"
                 ws.Cell(sumStart, 7).Style.NumberFormat.Format = "#,##0.00"
 
                 ws.Cell(sumStart + 1, 6).Value = "ยอดรวมรายจ่ายทั้งหมด"
-                ws.Cell(sumStart + 1, 7).Value = totalExpense
-                ws.Cell(sumStart + 1, 7).Style.NumberFormat.Format = "#,##0.00"
+                ws.Cell(sumStart + 1, 8).FormulaA1 = "=SUM(H" & dataStart & ":H" & lastRow & ")"
+                ws.Cell(sumStart + 1, 8).Style.NumberFormat.Format = "#,##0.00"
 
                 ws.Cell(sumStart + 2, 6).Value = "ยอดคงเหลือสุทธิ"
-                ws.Cell(sumStart + 2, 7).Value = netBalance
+                ws.Cell(sumStart + 2, 7).FormulaA1 = "=SUM(G" & dataStart & ":G" & lastRow & ")-SUM(H" & dataStart & ":H" & lastRow & ")"
                 ws.Cell(sumStart + 2, 7).Style.NumberFormat.Format = "#,##0.00"
 
                 For i As Integer = 0 To 2
                     ws.Cell(sumStart + i, 6).Style.Font.Bold = True
                     ws.Cell(sumStart + i, 7).Style.Font.Bold = True
+                    ws.Cell(sumStart + i, 8).Style.Font.Bold = True
                     ws.Cell(sumStart + i, 7).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right
+                    ws.Cell(sumStart + i, 8).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right
                 Next
 
                 ' --- เส้นตาราง (เส้นบาง) ---
-                Dim tableRange = ws.Range(headerRow, 1, Math.Max(headerRow, lastDataRow), 7)
+                Dim tableRange = ws.Range(headerRow, 1, Math.Max(headerRow, lastDataRow), 8)
                 tableRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin
                 tableRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin
 
-                Dim summaryRange = ws.Range(sumStart, 6, sumStart + 2, 7)
+                Dim summaryRange = ws.Range(sumStart, 6, sumStart + 2, 8)
                 summaryRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin
                 summaryRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin
 
                 ' --- ปรับความกว้างคอลัมน์อัตโนมัติ (ตามหัวตาราง/ข้อมูล/สรุป) ---
-                ws.Columns(1, 7).AdjustToContents(headerRow, sumStart + 2)
+                ws.Columns(1, 8).AdjustToContents(headerRow, sumStart + 2)
                 ' จำกัดความกว้างคอลัมน์รายละเอียดให้ไม่กว้างเกินไป
                 If ws.Column(6).Width > 60 Then
                     ws.Column(6).Width = 60
