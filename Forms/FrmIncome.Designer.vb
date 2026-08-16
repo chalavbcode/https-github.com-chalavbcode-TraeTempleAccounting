@@ -87,11 +87,6 @@ Namespace TempleAccounting
             lblRefNo = New Label()
             lblRecentHeader = New Label()
             dgvRecentTransactions = New DataGridView()
-            Dim colDate As New DataGridViewTextBoxColumn()
-            Dim colCategory As New DataGridViewTextBoxColumn()
-            Dim colFund As New DataGridViewTextBoxColumn()
-            Dim colAmount As New DataGridViewTextBoxColumn()
-            Dim colDescription As New DataGridViewTextBoxColumn()
             CType(dgvRecentTransactions, ISupportInitialize).BeginInit()
             SuspendLayout()
             ' 
@@ -104,7 +99,7 @@ Namespace TempleAccounting
             lblHeader.Location = New Point(0, 0)
             lblHeader.Name = "lblHeader"
             lblHeader.Padding = New Padding(0, 8, 0, 8)
-            lblHeader.Size = New Size(1603, 70)
+            lblHeader.Size = New Size(1639, 70)
             lblHeader.TabIndex = 22
             lblHeader.Text = "💰 บันทึกรายรับเงินเข้าวัด"
             lblHeader.TextAlign = ContentAlignment.MiddleCenter
@@ -402,62 +397,54 @@ Namespace TempleAccounting
             dgvRecentTransactions.Name = "dgvRecentTransactions"
             dgvRecentTransactions.ReadOnly = True
             dgvRecentTransactions.RowHeadersVisible = False
+            dgvRecentTransactions.RowHeadersWidth = 62
             dgvRecentTransactions.ScrollBars = ScrollBars.Both
             dgvRecentTransactions.SelectionMode = DataGridViewSelectionMode.FullRowSelect
-            dgvRecentTransactions.Size = New Size(768, 560)
+            dgvRecentTransactions.Size = New Size(857, 560)
             dgvRecentTransactions.TabIndex = 26
             ' 
-            ' colDate
+            ' dgvRecentTransactions columns
             ' 
-            colDate.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells
+            Dim colDate As New DataGridViewTextBoxColumn()
             colDate.DataPropertyName = "TransactionDate"
-            colDate.DefaultCellStyle.Format = "dd/MM/yyyy"
             colDate.HeaderText = "วันที่ทำรายการ"
             colDate.Name = "colDate"
-            colDate.ReadOnly = True
-            ' 
-            ' colCategory
-            ' 
-            colCategory.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells
+            colDate.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells
+
+            Dim colCategory As New DataGridViewTextBoxColumn()
             colCategory.DataPropertyName = "CategoryName"
             colCategory.HeaderText = "ประเภท"
             colCategory.Name = "colCategory"
-            colCategory.ReadOnly = True
-            ' 
-            ' colFund
-            ' 
-            colFund.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells
+            colCategory.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells
+
+            Dim colFund As New DataGridViewTextBoxColumn()
             colFund.DataPropertyName = "FundName"
             colFund.HeaderText = "กองทุน"
             colFund.Name = "colFund"
-            colFund.ReadOnly = True
-            ' 
-            ' colAmount
-            ' 
-            colAmount.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells
+            colFund.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells
+
+            Dim colAmount As New DataGridViewTextBoxColumn()
             colAmount.DataPropertyName = "Amount"
-            colAmount.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight
-            colAmount.DefaultCellStyle.Format = "#,##0.00"
             colAmount.HeaderText = "จำนวนเงิน"
             colAmount.Name = "colAmount"
-            colAmount.ReadOnly = True
-            ' 
-            ' colDescription
-            ' 
-            colDescription.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+            colAmount.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells
+            colAmount.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight
+            colAmount.DefaultCellStyle.Format = "#,##0.00"
+
+            Dim colDescription As New DataGridViewTextBoxColumn()
             colDescription.DataPropertyName = "Description"
             colDescription.HeaderText = "รายละเอียด"
-            colDescription.MinimumWidth = 150
             colDescription.Name = "colDescription"
-            colDescription.ReadOnly = True
-            ' 
+            colDescription.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+            colDescription.MinimumWidth = 200
+
             dgvRecentTransactions.Columns.AddRange(New DataGridViewColumn() {colDate, colCategory, colFund, colAmount, colDescription})
             ' 
             ' FrmIncome
             ' 
             AutoScroll = True
             BackColor = Color.FromArgb(CByte(254), CByte(249), CByte(235))
-            ClientSize = New Size(1603, 900)
+            ClientSize = New Size(1639, 900)
             Controls.Add(lbl1)
             Controls.Add(lbl2)
             Controls.Add(lbl3)
