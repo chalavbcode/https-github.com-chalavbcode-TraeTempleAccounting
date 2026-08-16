@@ -113,6 +113,14 @@ Namespace TempleAccounting
                         ws.Cell(r, 7).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right
                         ws.Cell(r, 8).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right
 
+                        ' ใส่สีพื้นหลังแถวตามชนิดรายการ (รายรับ = เขียวอ่อน, รายจ่าย = แดงอ่อน)
+                        Select Case tranType
+                            Case "Income"
+                                ws.Range(r, 1, r, 8).Style.Fill.BackgroundColor = XLColor.FromArgb(217, 234, 211)
+                            Case "Expense"
+                                ws.Range(r, 1, r, 8).Style.Fill.BackgroundColor = XLColor.FromArgb(244, 204, 204)
+                        End Select
+
                         r += 1
                     Next
                 End If
