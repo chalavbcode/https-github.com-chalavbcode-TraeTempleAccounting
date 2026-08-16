@@ -87,6 +87,11 @@ Namespace TempleAccounting
             lblRefNo = New Label()
             lblRecentHeader = New Label()
             dgvRecentTransactions = New DataGridView()
+            Dim colDate As New DataGridViewTextBoxColumn()
+            Dim colCategory As New DataGridViewTextBoxColumn()
+            Dim colFund As New DataGridViewTextBoxColumn()
+            Dim colAmount As New DataGridViewTextBoxColumn()
+            Dim colDescription As New DataGridViewTextBoxColumn()
             CType(dgvRecentTransactions, ISupportInitialize).BeginInit()
             SuspendLayout()
             ' 
@@ -379,7 +384,7 @@ Namespace TempleAccounting
             lblRecentHeader.ForeColor = Color.FromArgb(CByte(120), CByte(53), CByte(15))
             lblRecentHeader.Location = New Point(770, 110)
             lblRecentHeader.Name = "lblRecentHeader"
-            lblRecentHeader.Size = New Size(490, 40)
+            lblRecentHeader.Size = New Size(768, 40)
             lblRecentHeader.TabIndex = 25
             lblRecentHeader.Text = "📋 รายการรายรับล่าสุด 10 รายการ"
             lblRecentHeader.TextAlign = ContentAlignment.MiddleCenter
@@ -389,6 +394,7 @@ Namespace TempleAccounting
             dgvRecentTransactions.AllowUserToAddRows = False
             dgvRecentTransactions.AllowUserToDeleteRows = False
             dgvRecentTransactions.AllowUserToResizeRows = False
+            dgvRecentTransactions.AutoGenerateColumns = False
             dgvRecentTransactions.BackgroundColor = Color.White
             dgvRecentTransactions.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize
             dgvRecentTransactions.Location = New Point(770, 150)
@@ -396,10 +402,56 @@ Namespace TempleAccounting
             dgvRecentTransactions.Name = "dgvRecentTransactions"
             dgvRecentTransactions.ReadOnly = True
             dgvRecentTransactions.RowHeadersVisible = False
-            dgvRecentTransactions.RowHeadersWidth = 62
+            dgvRecentTransactions.ScrollBars = ScrollBars.Both
             dgvRecentTransactions.SelectionMode = DataGridViewSelectionMode.FullRowSelect
-            dgvRecentTransactions.Size = New Size(768, 620)
+            dgvRecentTransactions.Size = New Size(768, 560)
             dgvRecentTransactions.TabIndex = 26
+            ' 
+            ' colDate
+            ' 
+            colDate.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells
+            colDate.DataPropertyName = "TransactionDate"
+            colDate.DefaultCellStyle.Format = "dd/MM/yyyy"
+            colDate.HeaderText = "วันที่ทำรายการ"
+            colDate.Name = "colDate"
+            colDate.ReadOnly = True
+            ' 
+            ' colCategory
+            ' 
+            colCategory.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells
+            colCategory.DataPropertyName = "CategoryName"
+            colCategory.HeaderText = "ประเภท"
+            colCategory.Name = "colCategory"
+            colCategory.ReadOnly = True
+            ' 
+            ' colFund
+            ' 
+            colFund.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells
+            colFund.DataPropertyName = "FundName"
+            colFund.HeaderText = "กองทุน"
+            colFund.Name = "colFund"
+            colFund.ReadOnly = True
+            ' 
+            ' colAmount
+            ' 
+            colAmount.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells
+            colAmount.DataPropertyName = "Amount"
+            colAmount.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight
+            colAmount.DefaultCellStyle.Format = "#,##0.00"
+            colAmount.HeaderText = "จำนวนเงิน"
+            colAmount.Name = "colAmount"
+            colAmount.ReadOnly = True
+            ' 
+            ' colDescription
+            ' 
+            colDescription.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+            colDescription.DataPropertyName = "Description"
+            colDescription.HeaderText = "รายละเอียด"
+            colDescription.MinimumWidth = 150
+            colDescription.Name = "colDescription"
+            colDescription.ReadOnly = True
+            ' 
+            dgvRecentTransactions.Columns.AddRange(New DataGridViewColumn() {colDate, colCategory, colFund, colAmount, colDescription})
             ' 
             ' FrmIncome
             ' 

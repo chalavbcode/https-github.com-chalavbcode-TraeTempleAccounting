@@ -151,15 +151,16 @@ Namespace TempleAccounting
         ''' </summary>
         Private Sub LoadRecentTransactions()
             Try
+                dgvRecentTransactions.DataSource = Nothing
                 Using conn = Db.OpenConn()
-                    Dim dt = Db.GetTable(conn,
-                        "SELECT TOP 10 t.TranDate AS TransactionDate, c.CategoryName, f.FundName, t.Amount, t.[Detail] AS Detail " &
-                        "FROM Transactions t " &
-                        "LEFT JOIN Categories c ON t.CategoryID = c.ID " &
-                        "LEFT JOIN Funds f ON t.FundID = f.ID " &
+                    Dim dtRecent = Db.GetTable(conn,
+                        "SELECT TOP 10 t.TranDate AS TransactionDate, c.CategoryName, f.FundName, t.Amount, t.[Detail] AS [Description] " &
+                        "FROM ((Transactions t " &
+                        "LEFT JOIN Categories c ON t.CategoryID = c.ID) " &
+                        "LEFT JOIN Funds f ON t.FundID = f.ID) " &
                         "WHERE t.TranType = 'Income' " &
                         "ORDER BY t.ID DESC")
-                    dgvRecentTransactions.DataSource = dt
+                    dgvRecentTransactions.DataSource = dtRecent
                 End Using
             Catch ex As Exception
                 dgvRecentTransactions.DataSource = Nothing
@@ -373,8 +374,6 @@ Namespace TempleAccounting
 
                     MessageBox.Show("✅ บันทึกข้อมูลเรียบร้อยแล้ว!", "สำเร็จ", MessageBoxButtons.OK, MessageBoxIcon.Information)
 
-                    LoadRecentTransactions()
-
                     If _editId > 0 Then
                         ' ถ้าเป็นการแก้ไข ให้ปิดหน้าจอนี้และกลับไปหน้า Transactions
                         Dim f = TryCast(Me.ParentForm, frmMain)
@@ -396,6 +395,9 @@ Namespace TempleAccounting
 
                         dtpDate.Value = keepDate
                         dtpDate.Focus()
+
+                        ' รีเฟรชรายการล่าสุดทันที หลังบันทึกและเคลียร์ฟอร์มเรียบร้อยแล้ว
+                        LoadRecentTransactions()
                     End If
                 End Using
             Catch ex As Exception
