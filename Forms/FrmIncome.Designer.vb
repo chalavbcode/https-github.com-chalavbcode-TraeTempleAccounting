@@ -40,6 +40,8 @@ Namespace TempleAccounting
         Friend WithEvents lblChannel As Label
         Friend WithEvents txtReferenceNo As TextBox
         Friend WithEvents lblRefNo As Label
+        Friend WithEvents dgvRecentTransactions As DataGridView
+        Friend lblRecentHeader As Label
 
         <DebuggerNonUserCode()>
         Protected Overrides Sub Dispose(disposing As Boolean)
@@ -83,6 +85,13 @@ Namespace TempleAccounting
             lblChannel = New Label()
             txtReferenceNo = New TextBox()
             lblRefNo = New Label()
+            lblRecentHeader = New Label()
+            dgvRecentTransactions = New DataGridView()
+            Dim colRecentDate As New DataGridViewTextBoxColumn()
+            Dim colRecentCategory As New DataGridViewTextBoxColumn()
+            Dim colRecentFund As New DataGridViewTextBoxColumn()
+            Dim colRecentAmount As New DataGridViewTextBoxColumn()
+            Dim colRecentDescription As New DataGridViewTextBoxColumn()
             SuspendLayout()
             ' 
             ' lblHeader
@@ -161,6 +170,81 @@ Namespace TempleAccounting
             lblRefNo.TabIndex = 24
             lblRefNo.Text = "เลขอ้างอิง (ถ้ามี):"
             lblRefNo.TextAlign = ContentAlignment.MiddleRight
+            ' 
+            ' lblRecentHeader
+            ' 
+            lblRecentHeader.BackColor = Color.FromArgb(CByte(253), CByte(224), CByte(71))
+            lblRecentHeader.Font = New Font("Tahoma", 11F, FontStyle.Bold)
+            lblRecentHeader.ForeColor = Color.FromArgb(CByte(120), CByte(53), CByte(15))
+            lblRecentHeader.Location = New Point(780, 110)
+            lblRecentHeader.Name = "lblRecentHeader"
+            lblRecentHeader.Size = New Size(470, 40)
+            lblRecentHeader.TabIndex = 25
+            lblRecentHeader.Text = "📋 รายการรายรับล่าสุด 10 รายการ"
+            lblRecentHeader.TextAlign = ContentAlignment.MiddleCenter
+            ' 
+            ' dgvRecentTransactions
+            ' 
+            dgvRecentTransactions.AllowUserToAddRows = False
+            dgvRecentTransactions.AllowUserToDeleteRows = False
+            dgvRecentTransactions.AllowUserToResizeRows = False
+            dgvRecentTransactions.AutoGenerateColumns = False
+            dgvRecentTransactions.BackgroundColor = Color.White
+            dgvRecentTransactions.BorderStyle = BorderStyle.FixedSingle
+            dgvRecentTransactions.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize
+            dgvRecentTransactions.Location = New Point(780, 150)
+            dgvRecentTransactions.MultiSelect = False
+            dgvRecentTransactions.Name = "dgvRecentTransactions"
+            dgvRecentTransactions.ReadOnly = True
+            dgvRecentTransactions.RowHeadersVisible = False
+            dgvRecentTransactions.SelectionMode = DataGridViewSelectionMode.FullRowSelect
+            dgvRecentTransactions.Size = New Size(470, 620)
+            dgvRecentTransactions.TabIndex = 26
+            ' 
+            ' colRecentDate
+            ' 
+            colRecentDate.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells
+            colRecentDate.DataPropertyName = "TranDate"
+            colRecentDate.DefaultCellStyle.Format = "dd/MM/yyyy"
+            colRecentDate.HeaderText = "วันที่ทำรายการ"
+            colRecentDate.Name = "colRecentDate"
+            colRecentDate.ReadOnly = True
+            ' 
+            ' colRecentCategory
+            ' 
+            colRecentCategory.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells
+            colRecentCategory.DataPropertyName = "CategoryName"
+            colRecentCategory.HeaderText = "ประเภท"
+            colRecentCategory.Name = "colRecentCategory"
+            colRecentCategory.ReadOnly = True
+            ' 
+            ' colRecentFund
+            ' 
+            colRecentFund.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells
+            colRecentFund.DataPropertyName = "FundName"
+            colRecentFund.HeaderText = "กองทุน"
+            colRecentFund.Name = "colRecentFund"
+            colRecentFund.ReadOnly = True
+            ' 
+            ' colRecentAmount
+            ' 
+            colRecentAmount.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells
+            colRecentAmount.DataPropertyName = "Amount"
+            colRecentAmount.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight
+            colRecentAmount.DefaultCellStyle.Format = "#,##0.00"
+            colRecentAmount.HeaderText = "จำนวนเงิน"
+            colRecentAmount.Name = "colRecentAmount"
+            colRecentAmount.ReadOnly = True
+            ' 
+            ' colRecentDescription
+            ' 
+            colRecentDescription.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+            colRecentDescription.DataPropertyName = "Detail"
+            colRecentDescription.HeaderText = "รายละเอียด"
+            colRecentDescription.Name = "colRecentDescription"
+            colRecentDescription.ReadOnly = True
+            ' 
+            dgvRecentTransactions.Columns.AddRange(New DataGridViewColumn() {colRecentDate, colRecentCategory, colRecentFund, colRecentAmount, colRecentDescription})
             ' 
             ' lbl6
             ' 
@@ -400,6 +484,8 @@ Namespace TempleAccounting
             Controls.Add(btnSave)
             Controls.Add(btnCancel)
             Controls.Add(btnImportExcel)
+            Controls.Add(lblRecentHeader)
+            Controls.Add(dgvRecentTransactions)
             Controls.Add(lblHeader)
             Font = New Font("Tahoma", 10.5F)
             MinimumSize = New Size(1100, 900)

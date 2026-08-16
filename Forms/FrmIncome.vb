@@ -91,6 +91,7 @@ Namespace TempleAccounting
             HelpSystem.SetupHelp(Me, "FrmIncome")
             Db.EnsureSchema()
             LoadMasters()
+            LoadRecentTransactions()
             SetupToolTips()
             SetupEnterNavigation()
             UiFitter.AutoFitFormButtons(Me)
@@ -143,6 +144,27 @@ Namespace TempleAccounting
                 cboBank.ValueMember = "ID"
                 cboBank.DataSource = banks
             End Using
+        End Sub
+
+        ''' <summary>
+        ''' โหลดรายการรายรับล่าสุด 10 รายการมาแสดงในแผงตัวอย่างด้านขวา
+        ''' </summary>
+        Private Sub LoadRecentTransactions()
+            Try
+                Using conn = Db.OpenConn()
+                    Dim dt = Db.GetTable(conn,
+                        "SELECT TOP 10 t.TranDate, c.CategoryName, f.FundName, t.Amount, t.Detail " &
+                        "FROM Transactions t " &
+                        "LEFT JOIN Categories c ON t.CategoryID = c.ID " &
+                        "LEFT JOIN Funds f ON t.FundID = f.ID " &
+                        "WHERE t.TranType = 'Income' " &
+                        "ORDER BY t.ID DESC")
+                    dgvRecentTransactions.DataSource = dt
+                End Using
+            Catch ex As Exception
+                dgvRecentTransactions.DataSource = Nothing
+                AppPaths.LogCrash(ex, "FrmIncome.LoadRecentTransactions")
+            End Try
         End Sub
 
         Private Sub ResetEntry(resetToToday As Boolean)
@@ -350,6 +372,8 @@ Namespace TempleAccounting
                     End If
 
                     MessageBox.Show("✅ บันทึกข้อมูลเรียบร้อยแล้ว!", "สำเร็จ", MessageBoxButtons.OK, MessageBoxIcon.Information)
+
+                    LoadRecentTransactions()
 
                     If _editId > 0 Then
                         ' ถ้าเป็นการแก้ไข ให้ปิดหน้าจอนี้และกลับไปหน้า Transactions
