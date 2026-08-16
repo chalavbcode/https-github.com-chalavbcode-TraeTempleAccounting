@@ -87,23 +87,19 @@ Namespace TempleAccounting
             lblRefNo = New Label()
             lblRecentHeader = New Label()
             dgvRecentTransactions = New DataGridView()
-            Dim colRecentDate As New DataGridViewTextBoxColumn()
-            Dim colRecentCategory As New DataGridViewTextBoxColumn()
-            Dim colRecentFund As New DataGridViewTextBoxColumn()
-            Dim colRecentAmount As New DataGridViewTextBoxColumn()
-            Dim colRecentDescription As New DataGridViewTextBoxColumn()
+            CType(dgvRecentTransactions, ISupportInitialize).BeginInit()
             SuspendLayout()
             ' 
             ' lblHeader
             ' 
             lblHeader.BackColor = Color.FromArgb(CByte(253), CByte(230), CByte(138))
             lblHeader.Dock = DockStyle.Top
-            lblHeader.Font = New Font("Tahoma", 15F, FontStyle.Bold)
+            lblHeader.Font = New Font("Tahoma", 15.0F, FontStyle.Bold)
             lblHeader.ForeColor = Color.FromArgb(CByte(120), CByte(53), CByte(15))
             lblHeader.Location = New Point(0, 0)
             lblHeader.Name = "lblHeader"
             lblHeader.Padding = New Padding(0, 8, 0, 8)
-            lblHeader.Size = New Size(1280, 70)
+            lblHeader.Size = New Size(1603, 70)
             lblHeader.TabIndex = 22
             lblHeader.Text = "💰 บันทึกรายรับเงินเข้าวัด"
             lblHeader.TextAlign = ContentAlignment.MiddleCenter
@@ -144,15 +140,6 @@ Namespace TempleAccounting
             lbl4.Text = "บัญชีธนาคาร (ถ้ามี):"
             lbl4.TextAlign = ContentAlignment.MiddleRight
             ' 
-            ' lblChannel
-            ' 
-            lblChannel.Location = New Point(40, 358)
-            lblChannel.Name = "lblChannel"
-            lblChannel.Size = New Size(190, 40)
-            lblChannel.TabIndex = 22
-            lblChannel.Text = "ช่องทางรับเงิน:"
-            lblChannel.TextAlign = ContentAlignment.MiddleRight
-            ' 
             ' lbl5
             ' 
             lbl5.Location = New Point(40, 420)
@@ -161,92 +148,6 @@ Namespace TempleAccounting
             lbl5.TabIndex = 4
             lbl5.Text = "รายละเอียดรายการ:"
             lbl5.TextAlign = ContentAlignment.MiddleRight
-            ' 
-            ' lblRefNo
-            ' 
-            lblRefNo.Location = New Point(40, 482)
-            lblRefNo.Name = "lblRefNo"
-            lblRefNo.Size = New Size(190, 40)
-            lblRefNo.TabIndex = 24
-            lblRefNo.Text = "เลขอ้างอิง (ถ้ามี):"
-            lblRefNo.TextAlign = ContentAlignment.MiddleRight
-            ' 
-            ' lblRecentHeader
-            ' 
-            lblRecentHeader.BackColor = Color.FromArgb(CByte(253), CByte(224), CByte(71))
-            lblRecentHeader.Font = New Font("Tahoma", 11F, FontStyle.Bold)
-            lblRecentHeader.ForeColor = Color.FromArgb(CByte(120), CByte(53), CByte(15))
-            lblRecentHeader.Location = New Point(770, 110)
-            lblRecentHeader.Name = "lblRecentHeader"
-            lblRecentHeader.Size = New Size(490, 40)
-            lblRecentHeader.TabIndex = 25
-            lblRecentHeader.Text = "📋 รายการรายรับล่าสุด 10 รายการ"
-            lblRecentHeader.TextAlign = ContentAlignment.MiddleCenter
-            ' 
-            ' dgvRecentTransactions
-            ' 
-            dgvRecentTransactions.AllowUserToAddRows = False
-            dgvRecentTransactions.AllowUserToDeleteRows = False
-            dgvRecentTransactions.AllowUserToResizeRows = False
-            dgvRecentTransactions.AutoGenerateColumns = False
-            dgvRecentTransactions.BackgroundColor = Color.White
-            dgvRecentTransactions.BorderStyle = BorderStyle.FixedSingle
-            dgvRecentTransactions.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize
-            dgvRecentTransactions.Location = New Point(770, 150)
-            dgvRecentTransactions.MultiSelect = False
-            dgvRecentTransactions.Name = "dgvRecentTransactions"
-            dgvRecentTransactions.ReadOnly = True
-            dgvRecentTransactions.RowHeadersVisible = False
-            dgvRecentTransactions.ScrollBars = ScrollBars.Both
-            dgvRecentTransactions.SelectionMode = DataGridViewSelectionMode.FullRowSelect
-            dgvRecentTransactions.Size = New Size(490, 620)
-            dgvRecentTransactions.TabIndex = 26
-            ' 
-            ' colRecentDate
-            ' 
-            colRecentDate.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells
-            colRecentDate.DataPropertyName = "TransactionDate"
-            colRecentDate.DefaultCellStyle.Format = "dd/MM/yyyy"
-            colRecentDate.HeaderText = "วันที่ทำรายการ"
-            colRecentDate.Name = "colRecentDate"
-            colRecentDate.ReadOnly = True
-            ' 
-            ' colRecentCategory
-            ' 
-            colRecentCategory.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells
-            colRecentCategory.DataPropertyName = "CategoryName"
-            colRecentCategory.HeaderText = "ประเภท"
-            colRecentCategory.Name = "colRecentCategory"
-            colRecentCategory.ReadOnly = True
-            ' 
-            ' colRecentFund
-            ' 
-            colRecentFund.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells
-            colRecentFund.DataPropertyName = "FundName"
-            colRecentFund.HeaderText = "กองทุน"
-            colRecentFund.Name = "colRecentFund"
-            colRecentFund.ReadOnly = True
-            ' 
-            ' colRecentAmount
-            ' 
-            colRecentAmount.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells
-            colRecentAmount.DataPropertyName = "Amount"
-            colRecentAmount.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight
-            colRecentAmount.DefaultCellStyle.Format = "#,##0.00"
-            colRecentAmount.HeaderText = "จำนวนเงิน"
-            colRecentAmount.Name = "colRecentAmount"
-            colRecentAmount.ReadOnly = True
-            ' 
-            ' colRecentDescription
-            ' 
-            colRecentDescription.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
-            colRecentDescription.DataPropertyName = "Detail"
-            colRecentDescription.HeaderText = "รายละเอียด"
-            colRecentDescription.MinimumWidth = 150
-            colRecentDescription.Name = "colRecentDescription"
-            colRecentDescription.ReadOnly = True
-            ' 
-            dgvRecentTransactions.Columns.AddRange(New DataGridViewColumn() {colRecentDate, colRecentCategory, colRecentFund, colRecentAmount, colRecentDescription})
             ' 
             ' lbl6
             ' 
@@ -286,9 +187,8 @@ Namespace TempleAccounting
             ' 
             ' cboCategory
             ' 
-            cboCategory.DropDownStyle = ComboBoxStyle.DropDown
-            cboCategory.AutoCompleteSource = AutoCompleteSource.CustomSource
             cboCategory.AutoCompleteMode = AutoCompleteMode.SuggestAppend
+            cboCategory.AutoCompleteSource = AutoCompleteSource.CustomSource
             cboCategory.Font = New Font("Tahoma", 10.5F)
             cboCategory.Location = New Point(240, 172)
             cboCategory.Name = "cboCategory"
@@ -297,9 +197,8 @@ Namespace TempleAccounting
             ' 
             ' cboFund
             ' 
-            cboFund.DropDownStyle = ComboBoxStyle.DropDown
-            cboFund.AutoCompleteSource = AutoCompleteSource.CustomSource
             cboFund.AutoCompleteMode = AutoCompleteMode.SuggestAppend
+            cboFund.AutoCompleteSource = AutoCompleteSource.CustomSource
             cboFund.Font = New Font("Tahoma", 10.5F)
             cboFund.Location = New Point(240, 234)
             cboFund.Name = "cboFund"
@@ -315,16 +214,6 @@ Namespace TempleAccounting
             cboBank.Size = New Size(520, 33)
             cboBank.TabIndex = 7
             ' 
-            ' cboReceiveChannel
-            ' 
-            cboReceiveChannel.DropDownStyle = ComboBoxStyle.DropDownList
-            cboReceiveChannel.Font = New Font("Tahoma", 10.5F)
-            cboReceiveChannel.Items.AddRange(New String() {"เงินสด", "โอนธนาคาร", "พร้อมเพย์", "e-Donation"})
-            cboReceiveChannel.Location = New Point(240, 358)
-            cboReceiveChannel.Name = "cboReceiveChannel"
-            cboReceiveChannel.Size = New Size(520, 33)
-            cboReceiveChannel.TabIndex = 2
-            ' 
             ' txtDescription
             ' 
             txtDescription.Font = New Font("Tahoma", 10.5F)
@@ -332,14 +221,6 @@ Namespace TempleAccounting
             txtDescription.Name = "txtDescription"
             txtDescription.Size = New Size(520, 33)
             txtDescription.TabIndex = 3
-            ' 
-            ' txtReferenceNo
-            ' 
-            txtReferenceNo.Font = New Font("Tahoma", 10.5F)
-            txtReferenceNo.Location = New Point(240, 482)
-            txtReferenceNo.Name = "txtReferenceNo"
-            txtReferenceNo.Size = New Size(520, 33)
-            txtReferenceNo.TabIndex = 8
             ' 
             ' txtAmount
             ' 
@@ -418,7 +299,7 @@ Namespace TempleAccounting
             btnSave.BackColor = Color.FromArgb(CByte(22), CByte(163), CByte(74))
             btnSave.Cursor = Cursors.Hand
             btnSave.FlatStyle = FlatStyle.Flat
-            btnSave.Font = New Font("Tahoma", 11F, FontStyle.Bold)
+            btnSave.Font = New Font("Tahoma", 11.0F, FontStyle.Bold)
             btnSave.ForeColor = Color.White
             btnSave.Location = New Point(240, 786)
             btnSave.Name = "btnSave"
@@ -432,7 +313,7 @@ Namespace TempleAccounting
             btnCancel.BackColor = Color.FromArgb(CByte(180), CByte(83), CByte(9))
             btnCancel.Cursor = Cursors.Hand
             btnCancel.FlatStyle = FlatStyle.Flat
-            btnCancel.Font = New Font("Tahoma", 11F, FontStyle.Bold)
+            btnCancel.Font = New Font("Tahoma", 11.0F, FontStyle.Bold)
             btnCancel.ForeColor = Color.White
             btnCancel.Location = New Point(500, 786)
             btnCancel.Name = "btnCancel"
@@ -446,7 +327,7 @@ Namespace TempleAccounting
             btnImportExcel.BackColor = Color.FromArgb(CByte(37), CByte(99), CByte(235))
             btnImportExcel.Cursor = Cursors.Hand
             btnImportExcel.FlatStyle = FlatStyle.Flat
-            btnImportExcel.Font = New Font("Tahoma", 11F, FontStyle.Bold)
+            btnImportExcel.Font = New Font("Tahoma", 11.0F, FontStyle.Bold)
             btnImportExcel.ForeColor = Color.White
             btnImportExcel.Location = New Point(750, 786)
             btnImportExcel.Name = "btnImportExcel"
@@ -455,11 +336,76 @@ Namespace TempleAccounting
             btnImportExcel.Text = "📥 นำเข้าจาก Excel"
             btnImportExcel.UseVisualStyleBackColor = False
             ' 
+            ' cboReceiveChannel
+            ' 
+            cboReceiveChannel.DropDownStyle = ComboBoxStyle.DropDownList
+            cboReceiveChannel.Font = New Font("Tahoma", 10.5F)
+            cboReceiveChannel.Items.AddRange(New Object() {"เงินสด", "โอนธนาคาร", "พร้อมเพย์", "e-Donation"})
+            cboReceiveChannel.Location = New Point(240, 358)
+            cboReceiveChannel.Name = "cboReceiveChannel"
+            cboReceiveChannel.Size = New Size(520, 33)
+            cboReceiveChannel.TabIndex = 2
+            ' 
+            ' lblChannel
+            ' 
+            lblChannel.Location = New Point(40, 358)
+            lblChannel.Name = "lblChannel"
+            lblChannel.Size = New Size(190, 40)
+            lblChannel.TabIndex = 22
+            lblChannel.Text = "ช่องทางรับเงิน:"
+            lblChannel.TextAlign = ContentAlignment.MiddleRight
+            ' 
+            ' txtReferenceNo
+            ' 
+            txtReferenceNo.Font = New Font("Tahoma", 10.5F)
+            txtReferenceNo.Location = New Point(240, 482)
+            txtReferenceNo.Name = "txtReferenceNo"
+            txtReferenceNo.Size = New Size(520, 33)
+            txtReferenceNo.TabIndex = 8
+            ' 
+            ' lblRefNo
+            ' 
+            lblRefNo.Location = New Point(40, 482)
+            lblRefNo.Name = "lblRefNo"
+            lblRefNo.Size = New Size(190, 40)
+            lblRefNo.TabIndex = 24
+            lblRefNo.Text = "เลขอ้างอิง (ถ้ามี):"
+            lblRefNo.TextAlign = ContentAlignment.MiddleRight
+            ' 
+            ' lblRecentHeader
+            ' 
+            lblRecentHeader.BackColor = Color.FromArgb(CByte(253), CByte(224), CByte(71))
+            lblRecentHeader.Font = New Font("Tahoma", 11.0F, FontStyle.Bold)
+            lblRecentHeader.ForeColor = Color.FromArgb(CByte(120), CByte(53), CByte(15))
+            lblRecentHeader.Location = New Point(770, 110)
+            lblRecentHeader.Name = "lblRecentHeader"
+            lblRecentHeader.Size = New Size(490, 40)
+            lblRecentHeader.TabIndex = 25
+            lblRecentHeader.Text = "📋 รายการรายรับล่าสุด 10 รายการ"
+            lblRecentHeader.TextAlign = ContentAlignment.MiddleCenter
+            ' 
+            ' dgvRecentTransactions
+            ' 
+            dgvRecentTransactions.AllowUserToAddRows = False
+            dgvRecentTransactions.AllowUserToDeleteRows = False
+            dgvRecentTransactions.AllowUserToResizeRows = False
+            dgvRecentTransactions.BackgroundColor = Color.White
+            dgvRecentTransactions.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize
+            dgvRecentTransactions.Location = New Point(770, 150)
+            dgvRecentTransactions.MultiSelect = False
+            dgvRecentTransactions.Name = "dgvRecentTransactions"
+            dgvRecentTransactions.ReadOnly = True
+            dgvRecentTransactions.RowHeadersVisible = False
+            dgvRecentTransactions.RowHeadersWidth = 62
+            dgvRecentTransactions.SelectionMode = DataGridViewSelectionMode.FullRowSelect
+            dgvRecentTransactions.Size = New Size(768, 620)
+            dgvRecentTransactions.TabIndex = 26
+            ' 
             ' FrmIncome
             ' 
             AutoScroll = True
             BackColor = Color.FromArgb(CByte(254), CByte(249), CByte(235))
-            ClientSize = New Size(1280, 900)
+            ClientSize = New Size(1603, 900)
             Controls.Add(lbl1)
             Controls.Add(lbl2)
             Controls.Add(lbl3)
@@ -495,6 +441,7 @@ Namespace TempleAccounting
             StartPosition = FormStartPosition.CenterScreen
             Text = "บันทึกรายรับ"
             WindowState = FormWindowState.Maximized
+            CType(dgvRecentTransactions, ISupportInitialize).EndInit()
             ResumeLayout(False)
             PerformLayout()
         End Sub
