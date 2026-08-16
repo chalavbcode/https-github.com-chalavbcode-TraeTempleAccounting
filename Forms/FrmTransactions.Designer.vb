@@ -270,6 +270,7 @@ Namespace TempleAccounting
             dgvTransactions.Location = New Point(0, 160)
             dgvTransactions.Name = "dgvTransactions"
             dgvTransactions.ReadOnly = True
+            dgvTransactions.RowHeadersVisible = False
             dgvTransactions.RowHeadersWidth = 50
             dgvTransactions.RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.DisableResizing
             dgvTransactions.RowTemplate.Height = 34

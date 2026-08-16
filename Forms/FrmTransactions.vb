@@ -402,17 +402,16 @@ Namespace TempleAccounting
                 End If
             Next
 
-            ' เรียงลำดับคอลัมน์ตามความสำคัญ (ใบเสร็จไว้ด้านหน้า ส่วนคอลัมน์โอนเงินไว้ท้ายสุด)
-            ' ลำดับ: ID, ใบเสร็จ, วันที่, ชนิด, ประเภท, รายละเอียด, จำนวนเงิน, กองทุน, ธนาคาร, หมายเหตุ, วันที่บันทึก, ไปยังกองทุน, ไปยังธนาคาร
+            ' เรียงลำดับคอลัมน์ (วันที่, ชนิด, ประเภท, กองทุน, รายละเอียด, จำนวนเงิน, ใบเสร็จ, ID, แล้วคอลัมน์อื่น ๆ ต่อท้าย)
             Dim displayOrder As String() = New String() {
-                "ID",
-                "HasReceiptDisplay",
                 "TranDate",
                 "TranTypeDisplay",
                 "CategoryName",
+                "FundName",
                 "Detail",
                 "Amount",
-                "FundName",
+                "HasReceiptDisplay",
+                "ID",
                 "BankName",
                 "Note",
                 "CreateDate",
