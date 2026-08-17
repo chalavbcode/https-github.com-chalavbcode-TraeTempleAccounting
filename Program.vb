@@ -9,6 +9,10 @@ Imports System.Windows.Forms
 Module Program
     Private _logPath As String = ""
 
+    <System.Runtime.InteropServices.DllImport("shell32.dll", SetLastError:=True)>
+    Private Function SetCurrentProcessExplicitAppUserModelID(<System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.LPWStr)> appId As String) As Integer
+    End Function
+
     Private Sub C(msg As String)
         Try
             Console.WriteLine("[" & DateTime.Now.ToString("HH:mm:ss.fff") & "]  " & msg)
@@ -95,6 +99,15 @@ Module Program
             MessageBox.Show("❌ ขั้นตอนที่ 3 ล้มเหลว: ไม่สามารถเปิดระบบหน้าต่างของโปรแกรมได้:" & vbCrLf & ex.Message,
                             "เปิดระบบหน้าต่างไม่สำเร็จ", MessageBoxButtons.OK, MessageBoxIcon.Stop)
             Return
+        End Try
+
+        Try
+            ' ตั้ง AppUserModelID ที่ไม่ซ้ำกัน เพื่อให้ Windows จัดกลุ่มไอคอน Taskbar ตามแอปนี้
+            ' และไม่ไปรวมกับ Shortcut เก่าที่ถูกแคชไว้
+            SetCurrentProcessExplicitAppUserModelID("LamyangIE.TempleAccounting.App.v1")
+            BootLog("AppUserModelID set: LamyangIE.TempleAccounting.App.v1")
+        Catch ex As Exception
+            BootCrash(ex, "Step 2b - AppUserModelID")
         End Try
 
         Try
