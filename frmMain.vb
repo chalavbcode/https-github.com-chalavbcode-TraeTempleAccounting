@@ -130,18 +130,46 @@ Namespace TempleAccounting
         Private Sub ShowHomeLogo()
             If picHomeLogo Is Nothing Then
                 picHomeLogo = New PictureBox()
-                picHomeLogo.Image = Image.FromFile(Path.Combine(Application.StartupPath, "Resources\logo_baanchee_wat.png"))
+                picHomeLogo.Image = Image.FromFile(Path.Combine(Application.StartupPath, "Lamyang I&Emain.png"))
                 picHomeLogo.SizeMode = PictureBoxSizeMode.Zoom
-                picHomeLogo.Size = New Size(600, 600)
                 picHomeLogo.BackColor = Color.Transparent
             End If
-            picHomeLogo.Location = New Point(
-                (pnlFormHostBody.ClientSize.Width - picHomeLogo.Width) \ 2,
-                (pnlFormHostBody.ClientSize.Height - picHomeLogo.Height) \ 2)
-            picHomeLogo.Anchor = AnchorStyles.None
             ' โลโก้เป็นองค์ประกอบของหน้าหลักเท่านั้น: แสดงเฉพาะเมื่ออยู่หน้า Dashboard
             picHomeLogo.Visible = True
             pnlFormHostBody.Controls.Add(picHomeLogo)
+            ' ขยายโลโก้ให้เกือบชิดขอบบน-ล่าง และกึ่งกลางแนวนอน พร้อมปรับตามขนาดหน้าต่าง
+            AddHandler pnlFormHostBody.Resize, AddressOf PositionHomeLogo
+            PositionHomeLogo()
+        End Sub
+
+        Private Sub PositionHomeLogo()
+            If picHomeLogo Is Nothing OrElse pnlFormHostBody Is Nothing Then Return
+            Try
+                Const gap As Integer = 5
+                Dim hostW As Integer = pnlFormHostBody.ClientSize.Width
+                Dim hostH As Integer = pnlFormHostBody.ClientSize.Height
+
+                ' ให้สูงเกือบเต็มความสูง (เว้นช่องบน/ล่าง ~5 px)
+                Dim newH As Integer = Math.Max(1, hostH - (gap * 2))
+
+                ' คงอัตราส่วนจริงของรูป (Zoom) โดยขยายตามความสูงที่คำนวณได้
+                Dim ratio As Double = 1.0
+                If picHomeLogo.Image IsNot Nothing AndAlso picHomeLogo.Image.Height > 0 Then
+                    ratio = picHomeLogo.Image.Width / picHomeLogo.Image.Height
+                End If
+
+                Dim newW As Integer = CInt(Math.Round(newH * ratio))
+                ' ถ้าความกว้างเกินพื้นที่ ให้ย่อตามความกว้างแทน (กันล้นขอบซ้าย-ขวา)
+                If newW > hostW - (gap * 2) Then
+                    newW = Math.Max(1, hostW - (gap * 2))
+                    newH = CInt(Math.Round(newW / ratio))
+                End If
+
+                picHomeLogo.Anchor = AnchorStyles.Top Or AnchorStyles.Bottom
+                picHomeLogo.Size = New Size(newW, newH)
+                picHomeLogo.Location = New Point((hostW - newW) \ 2, gap)
+            Catch
+            End Try
         End Sub
 
         Public Sub ShowDashboard()

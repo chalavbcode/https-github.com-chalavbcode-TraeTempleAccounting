@@ -904,9 +904,6 @@ Namespace TempleAccounting
             Font = New Font("Tahoma", 10.5F, FontStyle.Regular, GraphicsUnit.Point, CByte(222))
             ForeColor = Color.FromArgb(CByte(60), CByte(40), CByte(20))
             FormBorderStyle = FormBorderStyle.None
-            Icon = New Icon(Path.Combine(Application.StartupPath, "lamYangI&E.ico"))
-            ShowIcon = True
-            ShowInTaskbar = True
             MinimumSize = New Size(940, 620)
             Name = "frmMain"
             StartPosition = FormStartPosition.CenterScreen

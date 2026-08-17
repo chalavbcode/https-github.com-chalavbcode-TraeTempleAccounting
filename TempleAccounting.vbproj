@@ -224,8 +224,8 @@
     <None Include="USER_MANUAL_TH.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <!-- โลโก้หน้าหลัก: ต้องถูกคัดลอกไปยังโฟลเดอร์ output\Resources เพื่อให้ frmMain แสดงผล -->
-    <None Include="Resources\logo_baanchee_wat.png">
+    <!-- โลโก้/แบนเนอร์หน้าหลัก: ต้องถูกคัดลอกไปยังโฟลเดอร์ output เพื่อให้ frmMain แสดงผล -->
+    <None Include="Lamyang I&amp;Emain.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <!-- ไอคอนโปรแกรม: ต้องถูกคัดลอกไปยังโฟลเดอร์ output เพื่อให้ frmMain ใช้เป็นไอคอน Taskbar -->
