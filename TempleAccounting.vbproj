@@ -7,8 +7,8 @@
     <UseWindowsForms>true</UseWindowsForms>
     <StartupObject>TempleAccounting.Program</StartupObject>
     <RootNamespace>TempleAccounting</RootNamespace>
-    <AssemblyName>TempleAccounting</AssemblyName>
-    <ApplicationIcon>app_icon.ico</ApplicationIcon>
+    <AssemblyName>lamYangI&amp;E</AssemblyName>
+    <ApplicationIcon>lamYangI&amp;E.ico</ApplicationIcon>
     <Copyright>© 2026 พระบุญส่ง โสภณจิตฺโต. All Rights Reserved.</Copyright>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <OptionExplicit>On</OptionExplicit>

@@ -45,7 +45,7 @@ Namespace TempleAccounting
             Try
                 Dim exePath = Application.ExecutablePath
                 If String.IsNullOrEmpty(exePath) OrElse Not File.Exists(exePath) Then
-                    exePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TempleAccounting.exe")
+                    exePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "lamYangI&E.exe")
                 End If
                 If Not File.Exists(exePath) Then
                     Throw New FileNotFoundException("ไม่พบไฟล์ TempleAccounting.exe สำหรับสร้าง Shortcut")
