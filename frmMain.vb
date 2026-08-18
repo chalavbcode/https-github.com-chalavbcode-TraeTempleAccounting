@@ -292,35 +292,94 @@ Namespace TempleAccounting
 
         Private Sub LoadActualDashboardFromDb()
             Db.EnsureSchema()
+            lblOverviewTitle.Text = "🏁 ภาพรวมวันนี้ (คลิกการ์ดเพื่อไปหน้าโดยตรง) — ข้อมูลอัปเดตจากฐานข้อมูลจริง"
+
+            ' กำหนดหัวข้อการ์ดหลัก 4 ใบ (โหลดเดอร์จะอ่านข้อความหัวข้อเหล่านี้เพื่อแมปไปยัง SQL ที่ตรงกัน)
+            lblCard1Title.Text = "ผู้บริจาคเดือนนี้"
+            lblCard2Title.Text = "ยอดรับเดือนนี้"
+            lblCard3Title.Text = "ยอดจ่ายเดือนนี้"
+            lblCard4Title.Text = "ยอดคงเหลือปัจจุบัน"
+
+            LoadOverviewCardsDynamically()
+        End Sub
+
+        ''' <summary>เมตริกที่การ์ดภาพรวมรองรับ (แมปจากข้อความหัวข้อการ์ด)</summary>
+        Private Enum OverviewMetric
+            Unknown
+            DonorCount
+            IncomeMonth
+            ExpenseMonth
+            Balance
+        End Enum
+
+        ''' <summary>
+        ''' ตรวจสอบการ์ดทั้งหมดภายใน pnlOverview แบบไดนามิก:
+        ''' อ่าน Name/Text ของ Label หัวข้อเพื่อหาเมตริกที่ต้องการ แล้วคำนวณจากฐานข้อมูลจริงผูกกลับไปยัง Label ค่า
+        ''' </summary>
+        Private Sub LoadOverviewCardsDynamically()
+            If pnlCards Is Nothing Then Return
             Dim monthStart As New Date(Today.Year, Today.Month, 1)
             Dim monthEnd = monthStart.AddMonths(1).AddSeconds(-1)
+
             Using conn = Db.OpenConn()
-                Dim trCount As Object = Db.DbScalar(conn, "SELECT COUNT(*) FROM Transactions WHERE TranType='Income' AND TranDate BETWEEN @d1 AND @d2",
-                                                    New Tuple(Of String, Object)("@d1", monthStart),
-                                                    New Tuple(Of String, Object)("@d2", monthEnd))
-                Dim trIn As Object = Db.DbScalar(conn, "SELECT SUM(Amount) FROM Transactions WHERE TranType='Income' AND TranDate BETWEEN @d1 AND @d2",
-                                                    New Tuple(Of String, Object)("@d1", monthStart),
-                                                    New Tuple(Of String, Object)("@d2", monthEnd))
-                Dim trOut As Object = Db.DbScalar(conn, "SELECT SUM(Amount) FROM Transactions WHERE TranType='Expense' AND TranDate BETWEEN @d1 AND @d2",
-                                                    New Tuple(Of String, Object)("@d1", monthStart),
-                                                    New Tuple(Of String, Object)("@d2", monthEnd))
-                Dim bal As Object = Db.DbScalar(conn, "SELECT SUM(IIF(TranType='Income',Amount,0))-SUM(IIF(TranType='Expense',Amount,0)) FROM Transactions")
+                For Each card As Control In pnlCards.Controls
+                    Dim pnl = TryCast(card, Panel)
+                    If pnl Is Nothing Then Continue For
 
-                lblOverviewTitle.Text = "🏁 ภาพรวมวันนี้ (คลิกการ์ดเพื่อไปหน้าโดยตรง) — ข้อมูลอัปเดตจากฐานข้อมูลจริง"
-                lblCard1Title.Text = "รายการเงินรับ เดือนนี้"
-                lblCard1Value.Text = Db.ToIntOrZero(trCount).ToString("#,##0") & " รายการ"
+                    Dim titleLbl As Label = Nothing
+                    Dim valueLbl As Label = Nothing
+                    For Each c As Control In pnl.Controls
+                        Dim lbl = TryCast(c, Label)
+                        If lbl Is Nothing Then Continue For
+                        If lbl.Name.EndsWith("Title") Then titleLbl = lbl
+                        If lbl.Name.EndsWith("Value") Then valueLbl = lbl
+                    Next
 
-                lblCard2Title.Text = "ยอดเงินรับ เดือนนี้"
-                lblCard2Value.Text = Db.ToDecimalOrZero(trIn).ToString("#,##0.00")
+                    If titleLbl Is Nothing OrElse valueLbl Is Nothing Then Continue For
 
-                lblCard3Title.Text = "ยอดเงินจ่าย เดือนนี้"
-                lblCard3Value.Text = Db.ToDecimalOrZero(trOut).ToString("#,##0.00")
-
-                lblCard4Title.Text = "ยอดคงเหลือทั้งหมด"
-                lblCard4Value.Text = Db.ToDecimalOrZero(bal).ToString("#,##0.00")
-                RefreshOverviewLayout()
+                    Select Case ResolveOverviewMetric(titleLbl.Text)
+                        Case OverviewMetric.DonorCount
+                            Dim cnt = Db.ToIntOrZero(Db.DbScalar(conn,
+                                "SELECT COUNT(*) FROM Transactions WHERE TranType='Income' AND TranDate BETWEEN @d1 AND @d2",
+                                New Tuple(Of String, Object)("@d1", monthStart),
+                                New Tuple(Of String, Object)("@d2", monthEnd)))
+                            valueLbl.Text = cnt.ToString("#,##0")
+                        Case OverviewMetric.IncomeMonth
+                            Dim total = Db.ToDecimalOrZero(Db.DbScalar(conn,
+                                "SELECT SUM(Amount) FROM Transactions WHERE TranType='Income' AND TranDate BETWEEN @d1 AND @d2",
+                                New Tuple(Of String, Object)("@d1", monthStart),
+                                New Tuple(Of String, Object)("@d2", monthEnd)))
+                            valueLbl.Text = total.ToString("#,##0.00")
+                        Case OverviewMetric.ExpenseMonth
+                            Dim total = Db.ToDecimalOrZero(Db.DbScalar(conn,
+                                "SELECT SUM(Amount) FROM Transactions WHERE TranType='Expense' AND TranDate BETWEEN @d1 AND @d2",
+                                New Tuple(Of String, Object)("@d1", monthStart),
+                                New Tuple(Of String, Object)("@d2", monthEnd)))
+                            valueLbl.Text = total.ToString("#,##0.00")
+                        Case OverviewMetric.Balance
+                            Dim bal = Db.ToDecimalOrZero(Db.DbScalar(conn,
+                                "SELECT SUM(IIF(TranType='Income',Amount,0)) - SUM(IIF(TranType='Expense',Amount,0)) FROM Transactions"))
+                            valueLbl.Text = bal.ToString("#,##0.00")
+                        Case Else
+                            valueLbl.Text = "0"
+                    End Select
+                Next
             End Using
+
+            RefreshOverviewLayout()
         End Sub
+
+        ''' <summary>แมปข้อความหัวข้อการ์ดไปยังเมตริก (อ่านจาก Text property แบบไดนามิก)</summary>
+        Private Function ResolveOverviewMetric(titleText As String) As OverviewMetric
+            Dim t = If(titleText, "").Trim()
+            If t.IndexOf("ผู้บริจาค", StringComparison.OrdinalIgnoreCase) >= 0 Then Return OverviewMetric.DonorCount
+            If t.IndexOf("คงเหลือ", StringComparison.OrdinalIgnoreCase) >= 0 Then Return OverviewMetric.Balance
+            If t.IndexOf("ยอดรับ", StringComparison.OrdinalIgnoreCase) >= 0 OrElse
+               t.IndexOf("รายรับ", StringComparison.OrdinalIgnoreCase) >= 0 Then Return OverviewMetric.IncomeMonth
+            If t.IndexOf("ยอดจ่าย", StringComparison.OrdinalIgnoreCase) >= 0 OrElse
+               t.IndexOf("รายจ่าย", StringComparison.OrdinalIgnoreCase) >= 0 Then Return OverviewMetric.ExpenseMonth
+            Return OverviewMetric.Unknown
+        End Function
 
         Private Sub LoadActualDonationOverviewFromDb()
             Db.EnsureSchema()
