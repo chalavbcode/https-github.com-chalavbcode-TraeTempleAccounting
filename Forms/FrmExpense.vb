@@ -182,10 +182,10 @@ Namespace TempleAccounting
                         Dim avgAmount = Db.ToDecimalOrZero(dr("AvgAmount"))
                         Dim totalAmount = Db.ToDecimalOrZero(dr("TotalAmount"))
 
-                        lblReceiptCount.Text = totalCount & " ใบ"
-                        lblMaxAmount.Text = Format(maxAmount, "#,##0.00")
-                        lblAvgAmount.Text = Format(avgAmount, "#,##0.00")
-                        lblTotalMonthlyIncome.Text = Format(totalAmount, "#,##0.00")
+                        lblReceiptCount.Text = "จำนวน " & totalCount & " ใบ"
+                        lblMaxAmount.Text = "สูงสุด " & Format(maxAmount, "#,##0.00")
+                        lblAvgAmount.Text = "เฉลี่ย " & Format(avgAmount, "#,##0.00")
+                        lblTotalMonthlyIncome.Text = "รวมรายจ่าย " & Format(totalAmount, "#,##0.00")
                     End If
                 End Using
             Catch ex As Exception
