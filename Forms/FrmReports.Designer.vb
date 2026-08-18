@@ -38,6 +38,7 @@ Namespace TempleAccounting
         Friend WithEvents btnPrintSummary As Button
         Friend WithEvents btnSavePdf As Button
         Friend WithEvents btnPrintReport As Button
+        Friend WithEvents btnClose As Button
         Friend WithEvents dgvReport As DataGridView
         Friend WithEvents lblSummary As Label
         Friend WithEvents p As Panel
@@ -87,6 +88,7 @@ Namespace TempleAccounting
             btnSavePdf = New Button()
             btnPrintReport = New Button()
             btnPrint = New Button()
+            btnClose = New Button()
             lblSummary = New Label()
             dgvReport = New DataGridView()
             chartMonthly = New Chart()
@@ -113,6 +115,7 @@ Namespace TempleAccounting
             p.Controls.Add(txtBalance)
             p.Controls.Add(btnCalcBalance)
             p.Controls.Add(btnRefresh)
+            p.Controls.Add(btnClose)
             p.Dock = DockStyle.Top
             p.Location = New Point(0, 0)
             p.Name = "p"
@@ -267,6 +270,19 @@ Namespace TempleAccounting
             btnRefresh.TabIndex = 13
             btnRefresh.Text = "🔍 ดูรายงาน"
             btnRefresh.UseVisualStyleBackColor = False
+            ' 
+            ' btnClose
+            ' 
+            btnClose.BackColor = Color.FromArgb(CByte(64), CByte(64), CByte(64))
+            btnClose.FlatStyle = FlatStyle.Flat
+            btnClose.Font = New Font("Tahoma", 9.75F, FontStyle.Bold)
+            btnClose.ForeColor = Color.White
+            btnClose.Location = New Point(950, 45)
+            btnClose.Name = "btnClose"
+            btnClose.Size = New Size(100, 30)
+            btnClose.TabIndex = 14
+            btnClose.Text = "❌ ปิด"
+            btnClose.UseVisualStyleBackColor = False
             ' 
             ' pa
             ' 

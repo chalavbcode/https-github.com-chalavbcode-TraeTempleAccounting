@@ -27,6 +27,7 @@ Namespace TempleAccounting
         Friend WithEvents pFundTop As Panel
         Friend WithEvents pBankTop As Panel
         Friend WithEvents ttMain As ToolTip
+        Friend WithEvents btnClose As Button
 
         <DebuggerNonUserCode()>
         Protected Overrides Sub Dispose(disposing As Boolean)
@@ -76,6 +77,7 @@ Namespace TempleAccounting
             txtBankAccountName = New TextBox()
             btnBankAdd = New Button()
             btnBankDel = New Button()
+            btnClose = New Button()
             TabControl1.SuspendLayout()
             tpCategory.SuspendLayout()
             CType(dgvCategory, ISupportInitialize).BeginInit()
@@ -461,6 +463,20 @@ Namespace TempleAccounting
             btnBankDel.Text = "🗑️ ลบที่เลือก"
             btnBankDel.UseVisualStyleBackColor = False
             ' 
+            ' btnClose
+            ' 
+            btnClose.Anchor = AnchorStyles.Top Or AnchorStyles.Right
+            btnClose.BackColor = Color.FromArgb(CByte(64), CByte(64), CByte(64))
+            btnClose.FlatStyle = FlatStyle.Flat
+            btnClose.Font = New Font("Tahoma", 9.75F, FontStyle.Bold)
+            btnClose.ForeColor = Color.White
+            btnClose.Location = New Point(1020, 5)
+            btnClose.Name = "btnClose"
+            btnClose.Size = New Size(140, 32)
+            btnClose.TabIndex = 100
+            btnClose.Text = "❌ ปิด"
+            btnClose.UseVisualStyleBackColor = False
+            ' 
             ' FrmMasterData
             ' 
             AutoScroll = False
@@ -468,6 +484,7 @@ Namespace TempleAccounting
             ClientSize = New Size(1178, 672)
             Controls.Add(TabControl1)
             Controls.Add(lblHeader)
+            Controls.Add(btnClose)
             Font = New Font("Tahoma", 10.5F)
             FormBorderStyle = FormBorderStyle.Sizable
             MinimumSize = New Size(1000, 700)

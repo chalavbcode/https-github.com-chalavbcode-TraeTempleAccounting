@@ -22,6 +22,7 @@ Namespace TempleAccounting
         Friend WithEvents txtRemark As TextBox
         Friend WithEvents btnSave As Button
         Friend WithEvents btnCancel As Button
+        Friend WithEvents btnClose As Button
         Friend WithEvents ttMain As ToolTip
         Friend WithEvents lblHeader As Label
         Friend WithEvents l1 As Label
@@ -57,6 +58,7 @@ Namespace TempleAccounting
             txtRemark = New TextBox()
             btnSave = New Button()
             btnCancel = New Button()
+            btnClose = New Button()
             l1 = New Label()
             l2 = New Label()
             l3 = New Label()
@@ -161,6 +163,17 @@ Namespace TempleAccounting
             btnCancel.Cursor = Cursors.Hand
             btnCancel.Location = New Point(540, 612)
             '
+            ' btnClose
+            '
+            btnClose.Text = "❌ ปิด"
+            btnClose.ForeColor = Color.White
+            btnClose.BackColor = Color.FromArgb(64, 64, 64)
+            btnClose.FlatStyle = FlatStyle.Flat
+            btnClose.Size = New Size(140, 56)
+            btnClose.Font = New Font("Tahoma", 9.75!, FontStyle.Bold)
+            btnClose.Cursor = Cursors.Hand
+            btnClose.Location = New Point(740, 612)
+            '
             ' labels
             '
             l1.Text = "วันที่โอน:"
@@ -222,6 +235,7 @@ Namespace TempleAccounting
             Controls.Add(txtRemark)
             Controls.Add(btnSave)
             Controls.Add(btnCancel)
+            Controls.Add(btnClose)
             ResumeLayout(False)
         End Sub
     End Class

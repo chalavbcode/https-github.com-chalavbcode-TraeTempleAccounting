@@ -809,5 +809,13 @@ Namespace TempleAccounting
 
 
         End Sub
+
+        Private Sub btnClose_Click(sender As Object, e As EventArgs) Handles btnClose.Click
+            Dim f = TryCast(Me.ParentForm, frmMain)
+            If f IsNot Nothing Then
+                f.CloseActiveForm()
+                f.ShowDashboard()
+            End If
+        End Sub
     End Class
 End Namespace

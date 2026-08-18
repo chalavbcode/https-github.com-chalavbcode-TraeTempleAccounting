@@ -320,7 +320,8 @@ Namespace TempleAccounting
             btnClose.FlatStyle = FlatStyle.Flat
             btnClose.Font = New Font("Tahoma", 9.75F, FontStyle.Bold)
             btnClose.ForeColor = Color.White
-            btnClose.Location = New Point(1010, 592)
+            btnClose.Anchor = AnchorStyles.Top Or AnchorStyles.Left
+            btnClose.Location = New Point(998, 592)
             btnClose.Name = "btnClose"
             btnClose.Size = New Size(140, 56)
             btnClose.TabIndex = 14

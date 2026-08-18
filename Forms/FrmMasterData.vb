@@ -239,5 +239,13 @@ Namespace TempleAccounting
             txtBankAccountNo.Text = dgvBank.Rows(e.RowIndex).Cells("AccountNo").Value.ToString()
             txtBankAccountName.Text = dgvBank.Rows(e.RowIndex).Cells("AccountName").Value.ToString()
         End Sub
+
+        Private Sub btnClose_Click(sender As Object, e As EventArgs) Handles btnClose.Click
+            Dim f = TryCast(Me.ParentForm, frmMain)
+            If f IsNot Nothing Then
+                f.CloseActiveForm()
+                f.ShowDashboard()
+            End If
+        End Sub
     End Class
 End Namespace
