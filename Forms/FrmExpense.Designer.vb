@@ -74,14 +74,14 @@ Namespace TempleAccounting
             txtReceipt = New TextBox()
             btnBrowseReceipt = New Button()
             btnPasteReceipt = New Button()
-            btnClearReceipt = New Button()
-            btnSave = New Button()
-            btnCancel = New Button()
-            btnImportExcel = New Button()
             lblReceiptCount = New Label()
             lblMaxAmount = New Label()
             lblAvgAmount = New Label()
             lblTotalMonthlyIncome = New Label()
+            btnClearReceipt = New Button()
+            btnSave = New Button()
+            btnCancel = New Button()
+            btnImportExcel = New Button()
             dgvRecentTransactions = New DataGridView()
             CType(dgvRecentTransactions, ISupportInitialize).BeginInit()
             SuspendLayout()
@@ -309,23 +309,15 @@ Namespace TempleAccounting
             btnImportExcel.Cursor = Cursors.Hand
             btnImportExcel.FlatStyle = FlatStyle.Flat
             btnImportExcel.Font = New Font("Tahoma", 11F, FontStyle.Bold)
-            btnImportExcel.ForeColor = Color.White
-            btnImportExcel.Location = New Point(750, 552)
-            btnImportExcel.Name = "btnImportExcel"
-            btnImportExcel.Size = New Size(240, 56)
-            btnImportExcel.TabIndex = 13
-            btnImportExcel.Text = "📥 นำเข้าจาก Excel"
-            btnImportExcel.UseVisualStyleBackColor = False
-            ' 
             ' lblReceiptCount
             ' 
             lblReceiptCount.Anchor = AnchorStyles.Top Or AnchorStyles.Right
             lblReceiptCount.BackColor = Color.FromArgb(CByte(254), CByte(249), CByte(235))
-            lblReceiptCount.Font = New Font("Tahoma", 9.5F, FontStyle.Bold)
+            lblReceiptCount.Font = New Font("Tahoma", 14.0!, FontStyle.Bold)
             lblReceiptCount.ForeColor = Color.FromArgb(CByte(120), CByte(53), CByte(15))
             lblReceiptCount.Location = New Point(643, 0)
             lblReceiptCount.Name = "lblReceiptCount"
-            lblReceiptCount.Size = New Size(240, 24)
+            lblReceiptCount.Size = New Size(250, 28)
             lblReceiptCount.TabIndex = 31
             lblReceiptCount.Text = "จำนวน 0 ใบ"
             lblReceiptCount.TextAlign = ContentAlignment.MiddleRight
@@ -334,11 +326,11 @@ Namespace TempleAccounting
             ' 
             lblMaxAmount.Anchor = AnchorStyles.Top Or AnchorStyles.Right
             lblMaxAmount.BackColor = Color.FromArgb(CByte(254), CByte(249), CByte(235))
-            lblMaxAmount.Font = New Font("Tahoma", 9.5F, FontStyle.Bold)
+            lblMaxAmount.Font = New Font("Tahoma", 14.0!, FontStyle.Bold)
             lblMaxAmount.ForeColor = Color.FromArgb(CByte(120), CByte(53), CByte(15))
             lblMaxAmount.Location = New Point(891, 0)
             lblMaxAmount.Name = "lblMaxAmount"
-            lblMaxAmount.Size = New Size(240, 24)
+            lblMaxAmount.Size = New Size(250, 28)
             lblMaxAmount.TabIndex = 33
             lblMaxAmount.Text = "สูงสุด 0.00"
             lblMaxAmount.TextAlign = ContentAlignment.MiddleRight
@@ -347,11 +339,11 @@ Namespace TempleAccounting
             ' 
             lblAvgAmount.Anchor = AnchorStyles.Top Or AnchorStyles.Right
             lblAvgAmount.BackColor = Color.FromArgb(CByte(254), CByte(249), CByte(235))
-            lblAvgAmount.Font = New Font("Tahoma", 9.5F, FontStyle.Bold)
+            lblAvgAmount.Font = New Font("Tahoma", 14.0!, FontStyle.Bold)
             lblAvgAmount.ForeColor = Color.FromArgb(CByte(120), CByte(53), CByte(15))
             lblAvgAmount.Location = New Point(1139, 0)
             lblAvgAmount.Name = "lblAvgAmount"
-            lblAvgAmount.Size = New Size(240, 24)
+            lblAvgAmount.Size = New Size(250, 28)
             lblAvgAmount.TabIndex = 35
             lblAvgAmount.Text = "เฉลี่ย 0.00"
             lblAvgAmount.TextAlign = ContentAlignment.MiddleRight
@@ -360,14 +352,24 @@ Namespace TempleAccounting
             ' 
             lblTotalMonthlyIncome.Anchor = AnchorStyles.Top Or AnchorStyles.Right
             lblTotalMonthlyIncome.BackColor = Color.FromArgb(CByte(254), CByte(249), CByte(235))
-            lblTotalMonthlyIncome.Font = New Font("Tahoma", 9.5F, FontStyle.Bold)
+            lblTotalMonthlyIncome.Font = New Font("Tahoma", 14.0!, FontStyle.Bold)
             lblTotalMonthlyIncome.ForeColor = Color.FromArgb(CByte(120), CByte(53), CByte(15))
             lblTotalMonthlyIncome.Location = New Point(1387, 0)
             lblTotalMonthlyIncome.Name = "lblTotalMonthlyIncome"
-            lblTotalMonthlyIncome.Size = New Size(240, 24)
+            lblTotalMonthlyIncome.Size = New Size(250, 28)
             lblTotalMonthlyIncome.TabIndex = 37
             lblTotalMonthlyIncome.Text = "รวมรายจ่าย 0.00"
             lblTotalMonthlyIncome.TextAlign = ContentAlignment.MiddleRight
+            ' 
+            btnImportExcel.ForeColor = Color.White
+            btnImportExcel.Location = New Point(750, 552)
+            btnImportExcel.Name = "btnImportExcel"
+            btnImportExcel.Size = New Size(240, 56)
+            btnImportExcel.TabIndex = 13
+            btnImportExcel.Text = "📥 นำเข้าจาก Excel"
+            btnImportExcel.UseVisualStyleBackColor = False
+            ' 
+            dgvRecentTransactions.Location = New Point(770, 28)
             ' 
             ' dgvRecentTransactions
             ' 

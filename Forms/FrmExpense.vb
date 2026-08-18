@@ -201,7 +201,6 @@ Namespace TempleAccounting
                 End Select
             Next
         End Sub
-
         ''' <summary>
         ''' คำนวณยอดสรุปประจำเดือน (จำนวนใบ / ยอดสูงสุด / ยอดเฉลี่ย / ยอดรวม) สำหรับรายจ่าย
         ''' </summary>
@@ -470,6 +469,7 @@ Namespace TempleAccounting
                         dtpDate.Focus()
 
                         ' รีเฟรชรายการล่าสุดทันที หลังบันทึกและเคลียร์ฟอร์มเรียบร้อยแล้ว
+                        CalculateMonthlySummary()
                         LoadRecentExpenses()
                     End If
                 End Using

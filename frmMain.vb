@@ -195,6 +195,9 @@ Namespace TempleAccounting
             CloseActiveForm()
             ' กลับสู่หน้าหลัก: แสดงโลโก้ประจำหน้าหลักอีกครั้ง
             If picHomeLogo IsNot Nothing Then picHomeLogo.Visible = True
+            ' แสดงแถบภาพรวม (pnlOverview) และหัวข้อฟอร์ม (pnlFormHostHeader) เฉพาะหน้า Dashboard เท่านั้น
+            pnlOverview.Visible = True
+            pnlFormHostHeader.Visible = True
             SetActiveButton(btnDashboard)
             lblFormHostTitle.Text = "🪟 หน้าหลัก - ภาพรวมงานประจำวัน"
             lblFormHostHint.Visible = True
@@ -463,6 +466,9 @@ Namespace TempleAccounting
             CloseActiveForm()
             ' ซ่อนโลโก้หน้าหลักทุกครั้งที่เปิดฟอร์มลูก เพื่อไม่ให้โลโก้ทับซ้อนกับฟอร์มงาน
             If picHomeLogo IsNot Nothing Then picHomeLogo.Visible = False
+            ' ซ่อนแถบภาพรวม (pnlOverview) และหัวข้อฟอร์ม (pnlFormHostHeader) เพื่อให้ฟอร์มลูกเต็มความสูง
+            pnlOverview.Visible = False
+            pnlFormHostHeader.Visible = False
             _currentChildForm = childForm
             Dim hostContainer = If(pnlFormHostBody, pnlFormHost)
 
