@@ -223,10 +223,7 @@ Namespace TempleAccounting
                         Dim avgAmount = Db.ToDecimalOrZero(dr("AvgAmount"))
                         Dim totalAmount = Db.ToDecimalOrZero(dr("TotalAmount"))
 
-                        lblReceiptCount.Text = "จำนวน " & totalCount & " ใบ"
-                        lblMaxAmount.Text = "สูงสุด " & Format(maxAmount, "#,##0.00")
-                        lblAvgAmount.Text = "เฉลี่ย " & Format(avgAmount, "#,##0.00")
-                        lblTotalMonthlyIncome.Text = "รวมรายจ่าย " & Format(totalAmount, "#,##0.00")
+                        lblSummary.Text = $"รายจ่ายเดือนนี้: {totalCount} ครั้ง  |  สูงสุด: {maxAmount:n2} บาท  |  เฉลี่ย: {avgAmount:n2} บาท  |  รวมรายจ่าย: {totalAmount:n2} บาท"
                     End If
                 End Using
             Catch ex As Exception
@@ -386,6 +383,14 @@ Namespace TempleAccounting
                 ' ถ้าเป็นโหมดเพิ่มใหม่ ให้ล้างข้อมูล
                 ResetEntry(True)
                 dtpDate.Focus()
+            End If
+        End Sub
+
+        Private Sub btnClose_Click(sender As Object, e As EventArgs) Handles btnClose.Click
+            Dim f = TryCast(Me.ParentForm, frmMain)
+            If f IsNot Nothing Then
+                f.CloseActiveForm()
+                f.ShowDashboard()
             End If
         End Sub
 

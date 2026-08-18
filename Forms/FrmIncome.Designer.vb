@@ -26,6 +26,7 @@ Namespace TempleAccounting
         Friend WithEvents btnSave As Button
         Friend WithEvents btnCancel As Button
         Friend WithEvents btnImportExcel As Button
+        Friend WithEvents btnClose As Button
         Friend WithEvents ttMain As ToolTip
         Friend WithEvents lbl1 As Label
         Friend WithEvents lbl2 As Label
@@ -40,10 +41,7 @@ Namespace TempleAccounting
         Friend WithEvents txtReferenceNo As TextBox
         Friend WithEvents lblRefNo As Label
         Friend WithEvents dgvRecentTransactions As DataGridView
-        Friend WithEvents lblReceiptCount As Label
-        Friend WithEvents lblMaxAmount As Label
-        Friend WithEvents lblAvgAmount As Label
-        Friend WithEvents lblTotalMonthlyIncome As Label
+        Friend WithEvents lblSummary As Label
 
         <DebuggerNonUserCode()>
         Protected Overrides Sub Dispose(disposing As Boolean)
@@ -82,14 +80,12 @@ Namespace TempleAccounting
             btnSave = New Button()
             btnCancel = New Button()
             btnImportExcel = New Button()
+            btnClose = New Button()
             cboReceiveChannel = New ComboBox()
             lblChannel = New Label()
             txtReferenceNo = New TextBox()
             lblRefNo = New Label()
-            lblReceiptCount = New Label()
-            lblMaxAmount = New Label()
-            lblAvgAmount = New Label()
-            lblTotalMonthlyIncome = New Label()
+            lblSummary = New Label()
             dgvRecentTransactions = New DataGridView()
             CType(dgvRecentTransactions, ISupportInitialize).BeginInit()
             SuspendLayout()
@@ -326,6 +322,20 @@ Namespace TempleAccounting
             btnImportExcel.Text = "📥 นำเข้าจาก Excel"
             btnImportExcel.UseVisualStyleBackColor = False
             ' 
+            ' btnClose
+            ' 
+            btnClose.BackColor = Color.FromArgb(CByte(64), CByte(64), CByte(64))
+            btnClose.Cursor = Cursors.Hand
+            btnClose.FlatStyle = FlatStyle.Flat
+            btnClose.Font = New Font("Tahoma", 9.75F, FontStyle.Bold)
+            btnClose.ForeColor = Color.White
+            btnClose.Location = New Point(1010, 654)
+            btnClose.Name = "btnClose"
+            btnClose.Size = New Size(140, 56)
+            btnClose.TabIndex = 16
+            btnClose.Text = "❌ ปิด"
+            btnClose.UseVisualStyleBackColor = False
+            ' 
             ' cboReceiveChannel
             ' 
             cboReceiveChannel.DropDownStyle = ComboBoxStyle.DropDownList
@@ -362,57 +372,18 @@ Namespace TempleAccounting
             lblRefNo.Text = "เลขอ้างอิง (ถ้ามี):"
             lblRefNo.TextAlign = ContentAlignment.MiddleRight
             ' 
-            ' lblReceiptCount
+            ' lblSummary
             ' 
-            lblReceiptCount.Anchor = AnchorStyles.Top Or AnchorStyles.Right
-            lblReceiptCount.BackColor = Color.FromArgb(CByte(254), CByte(249), CByte(235))
-            lblReceiptCount.Font = New Font("Tahoma", 12.0!, FontStyle.Bold)
-            lblReceiptCount.ForeColor = Color.FromArgb(CByte(120), CByte(53), CByte(15))
-            lblReceiptCount.Location = New Point(40, 8)
-            lblReceiptCount.Name = "lblReceiptCount"
-            lblReceiptCount.Size = New Size(250, 26)
-            lblReceiptCount.TabIndex = 31
-            lblReceiptCount.Text = "จำนวน 0 ใบ"
-            lblReceiptCount.TextAlign = ContentAlignment.MiddleRight
-            ' 
-            ' lblMaxAmount
-            ' 
-            lblMaxAmount.Anchor = AnchorStyles.Top Or AnchorStyles.Right
-            lblMaxAmount.BackColor = Color.FromArgb(CByte(254), CByte(249), CByte(235))
-            lblMaxAmount.Font = New Font("Tahoma", 12.0!, FontStyle.Bold)
-            lblMaxAmount.ForeColor = Color.FromArgb(CByte(120), CByte(53), CByte(15))
-            lblMaxAmount.Location = New Point(470, 8)
-            lblMaxAmount.Name = "lblMaxAmount"
-            lblMaxAmount.Size = New Size(250, 26)
-            lblMaxAmount.TabIndex = 33
-            lblMaxAmount.Text = "สูงสุด 0.00"
-            lblMaxAmount.TextAlign = ContentAlignment.MiddleRight
-            ' 
-            ' lblAvgAmount
-            ' 
-            lblAvgAmount.Anchor = AnchorStyles.Top Or AnchorStyles.Right
-            lblAvgAmount.BackColor = Color.FromArgb(CByte(254), CByte(249), CByte(235))
-            lblAvgAmount.Font = New Font("Tahoma", 12.0!, FontStyle.Bold)
-            lblAvgAmount.ForeColor = Color.FromArgb(CByte(120), CByte(53), CByte(15))
-            lblAvgAmount.Location = New Point(900, 8)
-            lblAvgAmount.Name = "lblAvgAmount"
-            lblAvgAmount.Size = New Size(250, 26)
-            lblAvgAmount.TabIndex = 35
-            lblAvgAmount.Text = "เฉลี่ย 0.00"
-            lblAvgAmount.TextAlign = ContentAlignment.MiddleRight
-            ' 
-            ' lblTotalMonthlyIncome
-            ' 
-            lblTotalMonthlyIncome.Anchor = AnchorStyles.Top Or AnchorStyles.Right
-            lblTotalMonthlyIncome.BackColor = Color.FromArgb(CByte(254), CByte(249), CByte(235))
-            lblTotalMonthlyIncome.Font = New Font("Tahoma", 12.0!, FontStyle.Bold)
-            lblTotalMonthlyIncome.ForeColor = Color.FromArgb(CByte(120), CByte(53), CByte(15))
-            lblTotalMonthlyIncome.Location = New Point(1330, 8)
-            lblTotalMonthlyIncome.Name = "lblTotalMonthlyIncome"
-            lblTotalMonthlyIncome.Size = New Size(250, 26)
-            lblTotalMonthlyIncome.TabIndex = 37
-            lblTotalMonthlyIncome.Text = "รวมรายรับ 0.00"
-            lblTotalMonthlyIncome.TextAlign = ContentAlignment.MiddleRight
+            lblSummary.BackColor = Color.FromArgb(CByte(254), CByte(240), CByte(138))
+            lblSummary.Dock = DockStyle.Top
+            lblSummary.Font = New Font("Tahoma", 11F, FontStyle.Bold)
+            lblSummary.ForeColor = Color.FromArgb(CByte(69), CByte(26), CByte(3))
+            lblSummary.Location = New Point(0, 0)
+            lblSummary.Name = "lblSummary"
+            lblSummary.Size = New Size(1773, 36)
+            lblSummary.TabIndex = 0
+            lblSummary.Text = "รายรับเดือนนี้: 0 ครั้ง  |  สูงสุด: 0.00 บาท  |  เฉลี่ย: 0.00 บาท  |  รวมรายรับ: 0.00 บาท"
+            lblSummary.TextAlign = ContentAlignment.MiddleCenter
             ' 
             ' dgvRecentTransactions
             ' 
@@ -463,11 +434,9 @@ Namespace TempleAccounting
             Controls.Add(btnSave)
             Controls.Add(btnCancel)
             Controls.Add(btnImportExcel)
+            Controls.Add(btnClose)
             Controls.Add(dgvRecentTransactions)
-            Controls.Add(lblReceiptCount)
-            Controls.Add(lblMaxAmount)
-            Controls.Add(lblAvgAmount)
-            Controls.Add(lblTotalMonthlyIncome)
+            Controls.Add(lblSummary)
             Font = New Font("Tahoma", 10.5F)
             MinimumSize = New Size(1100, 900)
             Name = "FrmIncome"
