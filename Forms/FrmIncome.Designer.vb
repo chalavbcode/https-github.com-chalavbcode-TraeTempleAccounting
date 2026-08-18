@@ -94,12 +94,12 @@ Namespace TempleAccounting
             ' 
             lblHeader.BackColor = Color.FromArgb(CByte(253), CByte(230), CByte(138))
             lblHeader.Dock = DockStyle.Top
-            lblHeader.Font = New Font("Tahoma", 15.0F, FontStyle.Bold)
+            lblHeader.Font = New Font("Tahoma", 15F, FontStyle.Bold)
             lblHeader.ForeColor = Color.FromArgb(CByte(120), CByte(53), CByte(15))
             lblHeader.Location = New Point(0, 0)
             lblHeader.Name = "lblHeader"
             lblHeader.Padding = New Padding(0, 8, 0, 8)
-            lblHeader.Size = New Size(1639, 70)
+            lblHeader.Size = New Size(1773, 70)
             lblHeader.TabIndex = 22
             lblHeader.Text = "💰 บันทึกรายรับเงินเข้าวัด"
             lblHeader.TextAlign = ContentAlignment.MiddleCenter
@@ -151,7 +151,7 @@ Namespace TempleAccounting
             ' 
             ' lbl6
             ' 
-            lbl6.Location = New Point(40, 544)
+            lbl6.Location = New Point(40, 482)
             lbl6.Name = "lbl6"
             lbl6.Size = New Size(190, 40)
             lbl6.TabIndex = 5
@@ -226,7 +226,7 @@ Namespace TempleAccounting
             ' 
             txtAmount.Font = New Font("Tahoma", 11.5F, FontStyle.Bold)
             txtAmount.ForeColor = Color.FromArgb(CByte(22), CByte(101), CByte(52))
-            txtAmount.Location = New Point(240, 544)
+            txtAmount.Location = New Point(240, 482)
             txtAmount.Name = "txtAmount"
             txtAmount.Size = New Size(260, 35)
             txtAmount.TabIndex = 4
@@ -299,7 +299,7 @@ Namespace TempleAccounting
             btnSave.BackColor = Color.FromArgb(CByte(22), CByte(163), CByte(74))
             btnSave.Cursor = Cursors.Hand
             btnSave.FlatStyle = FlatStyle.Flat
-            btnSave.Font = New Font("Tahoma", 11.0F, FontStyle.Bold)
+            btnSave.Font = New Font("Tahoma", 11F, FontStyle.Bold)
             btnSave.ForeColor = Color.White
             btnSave.Location = New Point(240, 786)
             btnSave.Name = "btnSave"
@@ -313,7 +313,7 @@ Namespace TempleAccounting
             btnCancel.BackColor = Color.FromArgb(CByte(180), CByte(83), CByte(9))
             btnCancel.Cursor = Cursors.Hand
             btnCancel.FlatStyle = FlatStyle.Flat
-            btnCancel.Font = New Font("Tahoma", 11.0F, FontStyle.Bold)
+            btnCancel.Font = New Font("Tahoma", 11F, FontStyle.Bold)
             btnCancel.ForeColor = Color.White
             btnCancel.Location = New Point(500, 786)
             btnCancel.Name = "btnCancel"
@@ -327,7 +327,7 @@ Namespace TempleAccounting
             btnImportExcel.BackColor = Color.FromArgb(CByte(37), CByte(99), CByte(235))
             btnImportExcel.Cursor = Cursors.Hand
             btnImportExcel.FlatStyle = FlatStyle.Flat
-            btnImportExcel.Font = New Font("Tahoma", 11.0F, FontStyle.Bold)
+            btnImportExcel.Font = New Font("Tahoma", 11F, FontStyle.Bold)
             btnImportExcel.ForeColor = Color.White
             btnImportExcel.Location = New Point(750, 786)
             btnImportExcel.Name = "btnImportExcel"
@@ -358,14 +358,14 @@ Namespace TempleAccounting
             ' txtReferenceNo
             ' 
             txtReferenceNo.Font = New Font("Tahoma", 10.5F)
-            txtReferenceNo.Location = New Point(240, 482)
+            txtReferenceNo.Location = New Point(240, 544)
             txtReferenceNo.Name = "txtReferenceNo"
             txtReferenceNo.Size = New Size(520, 33)
             txtReferenceNo.TabIndex = 8
             ' 
             ' lblRefNo
             ' 
-            lblRefNo.Location = New Point(40, 482)
+            lblRefNo.Location = New Point(40, 544)
             lblRefNo.Name = "lblRefNo"
             lblRefNo.Size = New Size(190, 40)
             lblRefNo.TabIndex = 24
@@ -375,7 +375,7 @@ Namespace TempleAccounting
             ' lblRecentHeader
             ' 
             lblRecentHeader.BackColor = Color.FromArgb(CByte(253), CByte(224), CByte(71))
-            lblRecentHeader.Font = New Font("Tahoma", 11.0F, FontStyle.Bold)
+            lblRecentHeader.Font = New Font("Tahoma", 11F, FontStyle.Bold)
             lblRecentHeader.ForeColor = Color.FromArgb(CByte(120), CByte(53), CByte(15))
             lblRecentHeader.Location = New Point(770, 110)
             lblRecentHeader.Name = "lblRecentHeader"
@@ -411,6 +411,7 @@ Namespace TempleAccounting
             colDate.Name = "colDate"
             colDate.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCellsExceptHeader
             colDate.HeaderCell.Style.WrapMode = DataGridViewTriState.True
+            colDate.DefaultCellStyle.Format = "dd/MM/yyyy"
 
             Dim colCategory As New DataGridViewTextBoxColumn()
             colCategory.DataPropertyName = "CategoryName"
@@ -438,7 +439,7 @@ Namespace TempleAccounting
             colDescription.HeaderText = "รายละเอียด"
             colDescription.Name = "colDescription"
             colDescription.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
-            colDescription.MinimumWidth = 180
+            colDescription.MinimumWidth = 200
 
             dgvRecentTransactions.Columns.AddRange(New DataGridViewColumn() {colDate, colCategory, colFund, colAmount, colDescription})
             ' 
@@ -446,7 +447,7 @@ Namespace TempleAccounting
             ' 
             AutoScroll = True
             BackColor = Color.FromArgb(CByte(254), CByte(249), CByte(235))
-            ClientSize = New Size(1639, 900)
+            ClientSize = New Size(1773, 900)
             Controls.Add(lbl1)
             Controls.Add(lbl2)
             Controls.Add(lbl3)
