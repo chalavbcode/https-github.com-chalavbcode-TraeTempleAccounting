@@ -64,8 +64,7 @@ Namespace TempleAccounting
                         txtAmount.Text = Convert.ToDecimal(dr("Amount")).ToString("N2")
                         txtRemark.Text = Convert.ToString(dr("Note"))
                         txtReceipt.Text = Convert.ToString(dr("ReceiptPath"))
-                        
-                        lblHeader.Text = "📝 แก้ไขรายการรายจ่าย (ID: " & id & ")"
+
                         btnSave.Text = "💾 บันทึกการแก้ไข"
                         btnImportExcel.Visible = False
                     End If
@@ -151,11 +150,56 @@ Namespace TempleAccounting
                         "WHERE t.TranType = 'Expense' " &
                         "ORDER BY t.TranDate DESC, t.ID DESC")
                     dgvRecentTransactions.DataSource = dtRecent
+                    ConfigureRecentGridColumns()
                 End Using
             Catch ex As Exception
                 dgvRecentTransactions.DataSource = Nothing
                 AppPaths.LogCrash(ex, "FrmExpense.LoadRecentExpenses")
             End Try
+        End Sub
+
+        ''' <summary>ตั้งความกว้างคอลัมน์ตาราง: คอลัมน์สั้น DisplayedCells, Description Fill เต็มพื้นที่ที่เหลือ</summary>
+        Private Sub ConfigureRecentGridColumns()
+            If dgvRecentTransactions Is Nothing Then Return
+            dgvRecentTransactions.ScrollBars = ScrollBars.Both
+
+            If dgvRecentTransactions.Columns.Contains("TransactionDate") Then
+                dgvRecentTransactions.Columns("TransactionDate").HeaderText = "วันที่ทำรายการ"
+                dgvRecentTransactions.Columns("TransactionDate").DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
+            End If
+            If dgvRecentTransactions.Columns.Contains("CategoryName") Then
+                dgvRecentTransactions.Columns("CategoryName").HeaderText = "ประเภท"
+            End If
+            If dgvRecentTransactions.Columns.Contains("FundName") Then
+                dgvRecentTransactions.Columns("FundName").HeaderText = "กองทุน"
+            End If
+            If dgvRecentTransactions.Columns.Contains("Amount") Then
+                dgvRecentTransactions.Columns("Amount").HeaderText = "จำนวนเงิน"
+                dgvRecentTransactions.Columns("Amount").DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight
+            End If
+            If dgvRecentTransactions.Columns.Contains("Description") Then
+                dgvRecentTransactions.Columns("Description").HeaderText = "รายละเอียด"
+            End If
+
+            For Each col As DataGridViewColumn In dgvRecentTransactions.Columns
+                Select Case col.Name
+                    Case "TransactionDate"
+                        col.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells
+                        col.MinimumWidth = 90
+                    Case "CategoryName"
+                        col.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells
+                        col.MinimumWidth = 110
+                    Case "FundName"
+                        col.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells
+                        col.MinimumWidth = 120
+                    Case "Amount"
+                        col.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells
+                        col.MinimumWidth = 90
+                    Case "Description"
+                        col.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+                        col.MinimumWidth = 350
+                End Select
+            Next
         End Sub
 
         ''' <summary>
