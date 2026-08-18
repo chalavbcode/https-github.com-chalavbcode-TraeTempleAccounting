@@ -95,9 +95,42 @@ Namespace TempleAccounting
             SetupToolTips()
             SetupEnterNavigation()
             UiFitter.AutoFitFormButtons(Me)
+            ApplyFixedVerticalLayout()
             UiFitter.DisableComboBoxWheel(Me)
             ResetEntry(True)
             FocusStartField()
+        End Sub
+
+        Private Sub ApplyFixedVerticalLayout()
+            ' บังคับ Anchor = Top, Left เท่านั้น (ห้ามใช้ Bottom เพื่อกันการยืด/เว้นช่องอัตโนมัติ)
+            lbl7.Anchor = AnchorStyles.Top Or AnchorStyles.Left
+            txtRemark.Anchor = AnchorStyles.Top Or AnchorStyles.Left
+            lbl8.Anchor = AnchorStyles.Top Or AnchorStyles.Left
+            txtReceipt.Anchor = AnchorStyles.Top Or AnchorStyles.Left
+            btnBrowseReceipt.Anchor = AnchorStyles.Top Or AnchorStyles.Left
+            btnPasteReceipt.Anchor = AnchorStyles.Top Or AnchorStyles.Left
+            btnClearReceipt.Anchor = AnchorStyles.Top Or AnchorStyles.Left
+            btnSave.Anchor = AnchorStyles.Top Or AnchorStyles.Left
+            btnCancel.Anchor = AnchorStyles.Top Or AnchorStyles.Left
+            btnImportExcel.Anchor = AnchorStyles.Top Or AnchorStyles.Left
+
+            ' ความสูงช่องหมายเหตุคงที่
+            txtRemark.Height = 55
+
+            ' จัดตำแหน่ง Y แบบเด็ดขาด 8px ตามสเปค
+            lbl7.Top = txtAmount.Bottom + 8
+            txtRemark.Top = lbl7.Top
+
+            lbl8.Top = txtRemark.Bottom + 8
+            txtReceipt.Top = lbl8.Top
+
+            btnBrowseReceipt.Top = txtReceipt.Top
+            btnPasteReceipt.Top = txtReceipt.Top
+            btnClearReceipt.Top = txtReceipt.Top
+
+            btnSave.Top = txtReceipt.Bottom + 12
+            btnCancel.Top = btnSave.Top
+            btnImportExcel.Top = btnSave.Top
         End Sub
 
         Private Sub FrmIncome_KeyDown(sender As Object, e As KeyEventArgs) Handles Me.KeyDown
