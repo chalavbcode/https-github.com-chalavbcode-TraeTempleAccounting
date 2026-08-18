@@ -13,6 +13,21 @@ Namespace TempleAccounting
         Private _currentChildForm As Form
         Private _compactOverviewMode As Boolean = False
         Private picHomeLogo As PictureBox
+        Private Shared _appIcon As Icon
+
+        ''' <summary>ไอคอนแอปพลิเคชัน (lamYangI&E.ico) ที่ใช้ร่วมกันทั้งหน้าหลักและฟอร์มลูก/ป็อปอัป</summary>
+        Public Shared ReadOnly Property AppIcon As Icon
+            Get
+                If _appIcon Is Nothing Then
+                    Try
+                        _appIcon = New Icon(Path.Combine(Application.StartupPath, "lamYangI&E.ico"))
+                    Catch
+                        _appIcon = SystemIcons.Application
+                    End Try
+                End If
+                Return _appIcon
+            End Get
+        End Property
 
         Public Sub New()
             Try
@@ -24,6 +39,9 @@ Namespace TempleAccounting
 
             Try
                 InitializeComponent()
+                Me.Icon = AppIcon
+                Me.ShowIcon = True
+                Me.ShowInTaskbar = True
                 SetupIconsAndImages()
                 SetupEventHandlers()
                 SetupCardHoverEffects()
@@ -39,6 +57,7 @@ Namespace TempleAccounting
 
         Private Sub FrmMain_Load(sender As Object, e As EventArgs)
             Try
+                Me.Icon = AppIcon
                 Me.KeyPreview = True
                 HelpSystem.SetupHelp(Me, "FrmMain")
                 Dim tt As New ToolTip()
@@ -235,12 +254,14 @@ Namespace TempleAccounting
                     SetOverviewCompactMode(False)
                     ' เปิดแบบ Modal Dialog ตามสเปค (ห้ามผ่าน ShowFormInPanel — กันฟอร์มถูก Dispose กลางคันระหว่าง merge ไฟล์แนบ)
                     Dim importDlg As New FrmMultiMachineImport()
+                    importDlg.Icon = Me.Icon
                     importDlg.ShowDialog()
 
                 Case "btnExportTransfer"
                     SetOverviewCompactMode(False)
                     ' เปิดแบบ Modal Dialog ตามสเปค (ห้ามผ่าน ShowFormInPanel — กันฟอร์มถูก Dispose กลางคันระหว่าง export ไฟล์แนบ)
                     Dim exportDlg As New FrmExportForTransfer()
+                    exportDlg.Icon = Me.Icon
                     exportDlg.ShowDialog()
 
                 Case "btnVip"
@@ -386,6 +407,7 @@ Namespace TempleAccounting
             Dim hostContainer = If(pnlFormHostBody, pnlFormHost)
 
             childForm.TopLevel = False
+            childForm.Icon = Me.Icon
             childForm.FormBorderStyle = FormBorderStyle.None
             childForm.Dock = DockStyle.Fill
             childForm.BackColor = Color.FromArgb(255, 253, 244)

@@ -905,6 +905,7 @@ New Tuple(Of String, Object)("@id", id))
                 ' 4. พบไฟล์ -> เปิดหน้าต่างดูใบเสร็จ (โหลดผ่าน MemoryStream เพื่อไม่ให้ไฟล์ถูกล็อค)
                 If Not String.IsNullOrEmpty(fullPath) Then
                     Using viewer As New FrmReceiptViewer(fullPath)
+                        viewer.Icon = frmMain.AppIcon
                         viewer.ShowDialog(Me)
                     End Using
                 Else

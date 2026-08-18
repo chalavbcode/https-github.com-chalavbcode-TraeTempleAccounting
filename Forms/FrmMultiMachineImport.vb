@@ -881,6 +881,7 @@ Namespace TempleAccounting
             Next
 
             Dim dlg As New Form()
+            dlg.Icon = frmMain.AppIcon
             dlg.Text = "รายการที่ตรวจพบว่าซ้ำ / สงสัยซ้ำ (" & rows.Count.ToString("#,##0") & " รายการ)"
             dlg.StartPosition = FormStartPosition.CenterParent
             dlg.Size = New Size(1080, 560)

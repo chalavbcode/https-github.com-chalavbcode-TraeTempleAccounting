@@ -362,6 +362,7 @@ Namespace TempleAccounting
                 ' Render ใหม่ แล้วเปิดหน้าต่างดูกราฟเต็มจอ (FrmChartPreview) โดย clone ข้อมูลจาก chartMonthly
                 chartMonthly.Refresh()
                 Using frm As New FrmChartPreview()
+                    frm.Icon = frmMain.AppIcon
                     frm.LoadChart(chartMonthly)
                     frm.ShowDialog(Me)
                 End Using

@@ -91,6 +91,7 @@ Namespace TempleAccounting
 
                 ' แสดง Modal Dialog สำหรับ Help
                 Using dlg As New FrmHelpDialog(formName)
+                    dlg.Icon = frmMain.AppIcon
                     If owner IsNot Nothing Then
                         dlg.ShowDialog(owner)
                     Else

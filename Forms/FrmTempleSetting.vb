@@ -351,6 +351,7 @@ Namespace TempleAccounting
 
         Private Sub btnManagePersonnel_Click(sender As Object, e As EventArgs) Handles btnManagePersonnel.Click
             Using f As New FrmPersonnelManagement()
+                f.Icon = frmMain.AppIcon
                 f.ShowDialog(Me)
             End Using
             LoadPersonnel() ' Refresh ComboBoxes after management
@@ -367,6 +368,7 @@ Namespace TempleAccounting
                 f.ShowFormInPanel(New FrmLocationImport(), "📍 นำเข้าข้อมูลจังหวัด/อำเภอ/ตำบล")
             Else
                 Using g As New FrmLocationImport()
+                    g.Icon = frmMain.AppIcon
                     g.ShowDialog(Me)
                 End Using
                 LoadLocations()
