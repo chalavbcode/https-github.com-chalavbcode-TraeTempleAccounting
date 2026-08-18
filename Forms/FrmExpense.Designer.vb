@@ -38,6 +38,14 @@ Namespace TempleAccounting
         Friend WithEvents lbl8 As Label
         Friend WithEvents dgvRecentTransactions As DataGridView
         Friend lblRecentHeader As Label
+        Friend WithEvents lblReceiptCount As Label
+        Friend WithEvents lblMaxAmount As Label
+        Friend WithEvents lblAvgAmount As Label
+        Friend WithEvents lblTotalMonthlyIncome As Label
+        Friend WithEvents lblSummaryCountTitle As Label
+        Friend WithEvents lblSummaryMaxTitle As Label
+        Friend WithEvents lblSummaryAvgTitle As Label
+        Friend WithEvents lblSummaryTotalTitle As Label
 
         <DebuggerNonUserCode()>
         Protected Overrides Sub Dispose(disposing As Boolean)
@@ -78,6 +86,14 @@ Namespace TempleAccounting
             btnCancel = New Button()
             btnImportExcel = New Button()
             lblRecentHeader = New Label()
+            lblReceiptCount = New Label()
+            lblMaxAmount = New Label()
+            lblAvgAmount = New Label()
+            lblTotalMonthlyIncome = New Label()
+            lblSummaryCountTitle = New Label()
+            lblSummaryMaxTitle = New Label()
+            lblSummaryAvgTitle = New Label()
+            lblSummaryTotalTitle = New Label()
             dgvRecentTransactions = New DataGridView()
             CType(dgvRecentTransactions, ISupportInitialize).BeginInit()
             SuspendLayout()
@@ -96,9 +112,105 @@ Namespace TempleAccounting
             lblHeader.Text = "💸 บันทึกรายจ่ายของวัด"
             lblHeader.TextAlign = ContentAlignment.MiddleCenter
             ' 
+            ' lblSummaryCountTitle
+            ' 
+            lblSummaryCountTitle.BackColor = Color.FromArgb(CByte(219), CByte(234), CByte(254))
+            lblSummaryCountTitle.Font = New Font("Tahoma", 8.5F)
+            lblSummaryCountTitle.ForeColor = Color.FromArgb(CByte(30), CByte(64), CByte(175))
+            lblSummaryCountTitle.Location = New Point(40, 78)
+            lblSummaryCountTitle.Name = "lblSummaryCountTitle"
+            lblSummaryCountTitle.Size = New Size(380, 22)
+            lblSummaryCountTitle.TabIndex = 30
+            lblSummaryCountTitle.Text = "จำนวนใบ (เดือนนี้)"
+            lblSummaryCountTitle.TextAlign = ContentAlignment.MiddleCenter
+            ' 
+            ' lblReceiptCount
+            ' 
+            lblReceiptCount.BackColor = Color.FromArgb(CByte(219), CByte(234), CByte(254))
+            lblReceiptCount.Font = New Font("Tahoma", 11F, FontStyle.Bold)
+            lblReceiptCount.ForeColor = Color.FromArgb(CByte(30), CByte(58), CByte(138))
+            lblReceiptCount.Location = New Point(40, 100)
+            lblReceiptCount.Name = "lblReceiptCount"
+            lblReceiptCount.Size = New Size(380, 38)
+            lblReceiptCount.TabIndex = 31
+            lblReceiptCount.Text = "0 ใบ"
+            lblReceiptCount.TextAlign = ContentAlignment.MiddleCenter
+            ' 
+            ' lblSummaryMaxTitle
+            ' 
+            lblSummaryMaxTitle.BackColor = Color.FromArgb(CByte(209), CByte(250), CByte(229))
+            lblSummaryMaxTitle.Font = New Font("Tahoma", 8.5F)
+            lblSummaryMaxTitle.ForeColor = Color.FromArgb(CByte(4), CByte(120), CByte(87))
+            lblSummaryMaxTitle.Location = New Point(435, 78)
+            lblSummaryMaxTitle.Name = "lblSummaryMaxTitle"
+            lblSummaryMaxTitle.Size = New Size(380, 22)
+            lblSummaryMaxTitle.TabIndex = 32
+            lblSummaryMaxTitle.Text = "ยอดสูงสุด"
+            lblSummaryMaxTitle.TextAlign = ContentAlignment.MiddleCenter
+            ' 
+            ' lblMaxAmount
+            ' 
+            lblMaxAmount.BackColor = Color.FromArgb(CByte(209), CByte(250), CByte(229))
+            lblMaxAmount.Font = New Font("Tahoma", 11F, FontStyle.Bold)
+            lblMaxAmount.ForeColor = Color.FromArgb(CByte(6), CByte(95), CByte(70))
+            lblMaxAmount.Location = New Point(435, 100)
+            lblMaxAmount.Name = "lblMaxAmount"
+            lblMaxAmount.Size = New Size(380, 38)
+            lblMaxAmount.TabIndex = 33
+            lblMaxAmount.Text = "0.00"
+            lblMaxAmount.TextAlign = ContentAlignment.MiddleCenter
+            ' 
+            ' lblSummaryAvgTitle
+            ' 
+            lblSummaryAvgTitle.BackColor = Color.FromArgb(CByte(254), CByte(243), CByte(199))
+            lblSummaryAvgTitle.Font = New Font("Tahoma", 8.5F)
+            lblSummaryAvgTitle.ForeColor = Color.FromArgb(CByte(180), CByte(83), CByte(9))
+            lblSummaryAvgTitle.Location = New Point(830, 78)
+            lblSummaryAvgTitle.Name = "lblSummaryAvgTitle"
+            lblSummaryAvgTitle.Size = New Size(380, 22)
+            lblSummaryAvgTitle.TabIndex = 34
+            lblSummaryAvgTitle.Text = "ยอดเฉลี่ย"
+            lblSummaryAvgTitle.TextAlign = ContentAlignment.MiddleCenter
+            ' 
+            ' lblAvgAmount
+            ' 
+            lblAvgAmount.BackColor = Color.FromArgb(CByte(254), CByte(243), CByte(199))
+            lblAvgAmount.Font = New Font("Tahoma", 11F, FontStyle.Bold)
+            lblAvgAmount.ForeColor = Color.FromArgb(CByte(146), CByte(64), CByte(14))
+            lblAvgAmount.Location = New Point(830, 100)
+            lblAvgAmount.Name = "lblAvgAmount"
+            lblAvgAmount.Size = New Size(380, 38)
+            lblAvgAmount.TabIndex = 35
+            lblAvgAmount.Text = "0.00"
+            lblAvgAmount.TextAlign = ContentAlignment.MiddleCenter
+            ' 
+            ' lblSummaryTotalTitle
+            ' 
+            lblSummaryTotalTitle.BackColor = Color.FromArgb(CByte(237), CByte(233), CByte(254))
+            lblSummaryTotalTitle.Font = New Font("Tahoma", 8.5F)
+            lblSummaryTotalTitle.ForeColor = Color.FromArgb(CByte(109), CByte(40), CByte(217))
+            lblSummaryTotalTitle.Location = New Point(1225, 78)
+            lblSummaryTotalTitle.Name = "lblSummaryTotalTitle"
+            lblSummaryTotalTitle.Size = New Size(380, 22)
+            lblSummaryTotalTitle.TabIndex = 36
+            lblSummaryTotalTitle.Text = "ยอดรวมรายจ่ายเดือนนี้"
+            lblSummaryTotalTitle.TextAlign = ContentAlignment.MiddleCenter
+            ' 
+            ' lblTotalMonthlyIncome
+            ' 
+            lblTotalMonthlyIncome.BackColor = Color.FromArgb(CByte(237), CByte(233), CByte(254))
+            lblTotalMonthlyIncome.Font = New Font("Tahoma", 11F, FontStyle.Bold)
+            lblTotalMonthlyIncome.ForeColor = Color.FromArgb(CByte(91), CByte(33), CByte(182))
+            lblTotalMonthlyIncome.Location = New Point(1225, 100)
+            lblTotalMonthlyIncome.Name = "lblTotalMonthlyIncome"
+            lblTotalMonthlyIncome.Size = New Size(380, 38)
+            lblTotalMonthlyIncome.TabIndex = 37
+            lblTotalMonthlyIncome.Text = "0.00"
+            lblTotalMonthlyIncome.TextAlign = ContentAlignment.MiddleCenter
+            ' 
             ' lbl1
             ' 
-            lbl1.Location = New Point(40, 110)
+            lbl1.Location = New Point(40, 150)
             lbl1.Name = "lbl1"
             lbl1.Size = New Size(190, 40)
             lbl1.TabIndex = 0
@@ -107,7 +219,7 @@ Namespace TempleAccounting
             ' 
             ' lbl2
             ' 
-            lbl2.Location = New Point(40, 172)
+            lbl2.Location = New Point(40, 212)
             lbl2.Name = "lbl2"
             lbl2.Size = New Size(190, 40)
             lbl2.TabIndex = 1
@@ -116,7 +228,7 @@ Namespace TempleAccounting
             ' 
             ' lbl3
             ' 
-            lbl3.Location = New Point(40, 234)
+            lbl3.Location = New Point(40, 274)
             lbl3.Name = "lbl3"
             lbl3.Size = New Size(190, 40)
             lbl3.TabIndex = 2
@@ -125,7 +237,7 @@ Namespace TempleAccounting
             ' 
             ' lbl4
             ' 
-            lbl4.Location = New Point(40, 296)
+            lbl4.Location = New Point(40, 336)
             lbl4.Name = "lbl4"
             lbl4.Size = New Size(190, 40)
             lbl4.TabIndex = 3
@@ -134,7 +246,7 @@ Namespace TempleAccounting
             ' 
             ' lbl5
             ' 
-            lbl5.Location = New Point(40, 358)
+            lbl5.Location = New Point(40, 398)
             lbl5.Name = "lbl5"
             lbl5.Size = New Size(190, 40)
             lbl5.TabIndex = 4
@@ -143,7 +255,7 @@ Namespace TempleAccounting
             ' 
             ' lbl6
             ' 
-            lbl6.Location = New Point(40, 420)
+            lbl6.Location = New Point(40, 460)
             lbl6.Name = "lbl6"
             lbl6.Size = New Size(190, 40)
             lbl6.TabIndex = 5
@@ -152,7 +264,7 @@ Namespace TempleAccounting
             ' 
             ' lbl7
             ' 
-            lbl7.Location = New Point(40, 482)
+            lbl7.Location = New Point(40, 522)
             lbl7.Name = "lbl7"
             lbl7.Size = New Size(190, 40)
             lbl7.TabIndex = 6
@@ -161,7 +273,7 @@ Namespace TempleAccounting
             ' 
             ' lbl8
             ' 
-            lbl8.Location = New Point(40, 594)
+            lbl8.Location = New Point(40, 634)
             lbl8.Name = "lbl8"
             lbl8.Size = New Size(190, 40)
             lbl8.TabIndex = 7
@@ -171,7 +283,7 @@ Namespace TempleAccounting
             ' dtpDate
             ' 
             dtpDate.Font = New Font("Tahoma", 10.5F)
-            dtpDate.Location = New Point(240, 110)
+            dtpDate.Location = New Point(240, 150)
             dtpDate.Name = "dtpDate"
             dtpDate.Size = New Size(520, 33)
             dtpDate.TabIndex = 0
@@ -182,7 +294,7 @@ Namespace TempleAccounting
             cboCategory.AutoCompleteMode = AutoCompleteMode.SuggestAppend
             cboCategory.AutoCompleteSource = AutoCompleteSource.CustomSource
             cboCategory.Font = New Font("Tahoma", 10.5F)
-            cboCategory.Location = New Point(240, 172)
+            cboCategory.Location = New Point(240, 212)
             cboCategory.Name = "cboCategory"
             cboCategory.Size = New Size(520, 33)
             cboCategory.TabIndex = 1
@@ -191,7 +303,7 @@ Namespace TempleAccounting
             ' 
             cboFund.DropDownStyle = ComboBoxStyle.DropDownList
             cboFund.Font = New Font("Tahoma", 10.5F)
-            cboFund.Location = New Point(240, 234)
+            cboFund.Location = New Point(240, 274)
             cboFund.Name = "cboFund"
             cboFund.Size = New Size(520, 33)
             cboFund.TabIndex = 5
@@ -200,7 +312,7 @@ Namespace TempleAccounting
             ' 
             cboBank.DropDownStyle = ComboBoxStyle.DropDownList
             cboBank.Font = New Font("Tahoma", 10.5F)
-            cboBank.Location = New Point(240, 296)
+            cboBank.Location = New Point(240, 336)
             cboBank.Name = "cboBank"
             cboBank.Size = New Size(520, 33)
             cboBank.TabIndex = 6
@@ -208,7 +320,7 @@ Namespace TempleAccounting
             ' txtDescription
             ' 
             txtDescription.Font = New Font("Tahoma", 10.5F)
-            txtDescription.Location = New Point(240, 358)
+            txtDescription.Location = New Point(240, 398)
             txtDescription.Name = "txtDescription"
             txtDescription.Size = New Size(520, 33)
             txtDescription.TabIndex = 2
@@ -217,7 +329,7 @@ Namespace TempleAccounting
             ' 
             txtAmount.Font = New Font("Tahoma", 11.5F, FontStyle.Bold)
             txtAmount.ForeColor = Color.FromArgb(CByte(153), CByte(27), CByte(27))
-            txtAmount.Location = New Point(240, 420)
+            txtAmount.Location = New Point(240, 460)
             txtAmount.Name = "txtAmount"
             txtAmount.Size = New Size(260, 35)
             txtAmount.TabIndex = 3
@@ -226,7 +338,7 @@ Namespace TempleAccounting
             ' txtRemark
             ' 
             txtRemark.Font = New Font("Tahoma", 10.5F)
-            txtRemark.Location = New Point(240, 482)
+            txtRemark.Location = New Point(240, 522)
             txtRemark.Multiline = True
             txtRemark.Name = "txtRemark"
             txtRemark.ScrollBars = ScrollBars.Vertical
@@ -237,7 +349,7 @@ Namespace TempleAccounting
             ' 
             txtReceipt.BackColor = Color.White
             txtReceipt.Font = New Font("Tahoma", 10.5F)
-            txtReceipt.Location = New Point(240, 594)
+            txtReceipt.Location = New Point(240, 634)
             txtReceipt.Name = "txtReceipt"
             txtReceipt.ReadOnly = True
             txtReceipt.Size = New Size(300, 33)
@@ -250,7 +362,7 @@ Namespace TempleAccounting
             btnBrowseReceipt.FlatStyle = FlatStyle.Flat
             btnBrowseReceipt.Font = New Font("Tahoma", 9.5F, FontStyle.Bold)
             btnBrowseReceipt.ForeColor = Color.White
-            btnBrowseReceipt.Location = New Point(550, 594)
+            btnBrowseReceipt.Location = New Point(550, 634)
             btnBrowseReceipt.Name = "btnBrowseReceipt"
             btnBrowseReceipt.Size = New Size(157, 40)
             btnBrowseReceipt.TabIndex = 9
@@ -264,7 +376,7 @@ Namespace TempleAccounting
             btnPasteReceipt.FlatStyle = FlatStyle.Flat
             btnPasteReceipt.Font = New Font("Tahoma", 9.5F, FontStyle.Bold)
             btnPasteReceipt.ForeColor = Color.White
-            btnPasteReceipt.Location = New Point(713, 595)
+            btnPasteReceipt.Location = New Point(713, 635)
             btnPasteReceipt.Name = "btnPasteReceipt"
             btnPasteReceipt.Size = New Size(169, 40)
             btnPasteReceipt.TabIndex = 10
@@ -278,7 +390,7 @@ Namespace TempleAccounting
             btnClearReceipt.FlatStyle = FlatStyle.Flat
             btnClearReceipt.Font = New Font("Tahoma", 9.5F, FontStyle.Bold)
             btnClearReceipt.ForeColor = Color.White
-            btnClearReceipt.Location = New Point(888, 594)
+            btnClearReceipt.Location = New Point(888, 634)
             btnClearReceipt.Name = "btnClearReceipt"
             btnClearReceipt.Size = New Size(50, 40)
             btnClearReceipt.TabIndex = 11
@@ -292,7 +404,7 @@ Namespace TempleAccounting
             btnSave.FlatStyle = FlatStyle.Flat
             btnSave.Font = New Font("Tahoma", 11F, FontStyle.Bold)
             btnSave.ForeColor = Color.White
-            btnSave.Location = New Point(240, 662)
+            btnSave.Location = New Point(240, 702)
             btnSave.Name = "btnSave"
             btnSave.Size = New Size(240, 56)
             btnSave.TabIndex = 4
@@ -306,7 +418,7 @@ Namespace TempleAccounting
             btnCancel.FlatStyle = FlatStyle.Flat
             btnCancel.Font = New Font("Tahoma", 11F, FontStyle.Bold)
             btnCancel.ForeColor = Color.White
-            btnCancel.Location = New Point(500, 662)
+            btnCancel.Location = New Point(500, 702)
             btnCancel.Name = "btnCancel"
             btnCancel.Size = New Size(180, 56)
             btnCancel.TabIndex = 12
@@ -320,7 +432,7 @@ Namespace TempleAccounting
             btnImportExcel.FlatStyle = FlatStyle.Flat
             btnImportExcel.Font = New Font("Tahoma", 11F, FontStyle.Bold)
             btnImportExcel.ForeColor = Color.White
-            btnImportExcel.Location = New Point(750, 662)
+            btnImportExcel.Location = New Point(750, 702)
             btnImportExcel.Name = "btnImportExcel"
             btnImportExcel.Size = New Size(240, 56)
             btnImportExcel.TabIndex = 13
@@ -332,7 +444,7 @@ Namespace TempleAccounting
             lblRecentHeader.BackColor = Color.FromArgb(CByte(253), CByte(224), CByte(71))
             lblRecentHeader.Font = New Font("Tahoma", 11F, FontStyle.Bold)
             lblRecentHeader.ForeColor = Color.FromArgb(CByte(120), CByte(53), CByte(15))
-            lblRecentHeader.Location = New Point(770, 110)
+            lblRecentHeader.Location = New Point(770, 150)
             lblRecentHeader.Name = "lblRecentHeader"
             lblRecentHeader.Size = New Size(768, 40)
             lblRecentHeader.TabIndex = 25
@@ -346,7 +458,7 @@ Namespace TempleAccounting
             dgvRecentTransactions.AllowUserToResizeRows = False
             dgvRecentTransactions.BackgroundColor = Color.White
             dgvRecentTransactions.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize
-            dgvRecentTransactions.Location = New Point(770, 150)
+            dgvRecentTransactions.Location = New Point(770, 190)
             dgvRecentTransactions.MultiSelect = False
             dgvRecentTransactions.Name = "dgvRecentTransactions"
             dgvRecentTransactions.ReadOnly = True
@@ -361,6 +473,14 @@ Namespace TempleAccounting
             AutoScroll = True
             BackColor = Color.FromArgb(CByte(254), CByte(249), CByte(235))
             ClientSize = New Size(1639, 900)
+            Controls.Add(lblSummaryCountTitle)
+            Controls.Add(lblReceiptCount)
+            Controls.Add(lblSummaryMaxTitle)
+            Controls.Add(lblMaxAmount)
+            Controls.Add(lblSummaryAvgTitle)
+            Controls.Add(lblAvgAmount)
+            Controls.Add(lblSummaryTotalTitle)
+            Controls.Add(lblTotalMonthlyIncome)
             Controls.Add(lbl1)
             Controls.Add(lbl2)
             Controls.Add(lbl3)
@@ -398,4 +518,3 @@ Namespace TempleAccounting
         End Sub
     End Class
 End Namespace
-

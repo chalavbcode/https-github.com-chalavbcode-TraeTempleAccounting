@@ -81,6 +81,7 @@ Namespace TempleAccounting
             Db.EnsureSchema()
             LoadMasters()
             LoadRecentExpenses()
+            CalculateMonthlySummary()
             SetupToolTips()
             SetupEnterNavigation()
             UiFitter.AutoFitFormButtons(Me)
@@ -154,6 +155,41 @@ Namespace TempleAccounting
             Catch ex As Exception
                 dgvRecentTransactions.DataSource = Nothing
                 AppPaths.LogCrash(ex, "FrmExpense.LoadRecentExpenses")
+            End Try
+        End Sub
+
+        ''' <summary>
+        ''' คำนวณยอดสรุปประจำเดือน (จำนวนใบ / ยอดสูงสุด / ยอดเฉลี่ย / ยอดรวม) สำหรับรายจ่าย
+        ''' </summary>
+        Private Sub CalculateMonthlySummary()
+            Try
+                Dim monthStart As New Date(Today.Year, Today.Month, 1)
+                Dim monthEnd = monthStart.AddMonths(1).AddSeconds(-1)
+                Using conn = Db.OpenConn()
+                    Dim dt = Db.GetTable(conn,
+                        "SELECT COUNT(*) AS TotalCount, " &
+                        "IIF(ISNULL(MAX(Amount)),0,MAX(Amount)) AS MaxAmount, " &
+                        "IIF(ISNULL(AVG(Amount)),0,AVG(Amount)) AS AvgAmount, " &
+                        "IIF(ISNULL(SUM(Amount)),0,SUM(Amount)) AS TotalAmount " &
+                        "FROM Transactions " &
+                        "WHERE TranType='Expense' AND TranDate BETWEEN @m1 AND @m2",
+                        New Tuple(Of String, Object)("@m1", monthStart),
+                        New Tuple(Of String, Object)("@m2", monthEnd))
+                    If dt.Rows.Count > 0 Then
+                        Dim dr = dt.Rows(0)
+                        Dim totalCount = Db.ToIntOrZero(dr("TotalCount"))
+                        Dim maxAmount = Db.ToDecimalOrZero(dr("MaxAmount"))
+                        Dim avgAmount = Db.ToDecimalOrZero(dr("AvgAmount"))
+                        Dim totalAmount = Db.ToDecimalOrZero(dr("TotalAmount"))
+
+                        lblReceiptCount.Text = totalCount & " ใบ"
+                        lblMaxAmount.Text = Format(maxAmount, "#,##0.00")
+                        lblAvgAmount.Text = Format(avgAmount, "#,##0.00")
+                        lblTotalMonthlyIncome.Text = Format(totalAmount, "#,##0.00")
+                    End If
+                End Using
+            Catch ex As Exception
+                AppPaths.LogCrash(ex, "FrmExpense.CalculateMonthlySummary")
             End Try
         End Sub
 
@@ -366,6 +402,9 @@ Namespace TempleAccounting
                     ' จดจำประเภท/กองทุนที่เลือกครั้งล่าสุด เพื่อคืนค่าให้อัตโนมัติเมื่อเปิดฟอร์มใหม่
                     RememberSelections()
 
+                    ' รีเฟรชยอดสรุปประจำเดือนทันที หลังบันทึก/แก้ไขรายการ
+                    CalculateMonthlySummary()
+
                     If _editId > 0 Then
                         ' ถ้าเป็นการแก้ไข ให้ปิดหน้าจอนี้และกลับไปหน้า Transactions
                         Dim f = TryCast(Me.ParentForm, frmMain)
@@ -426,6 +465,7 @@ Namespace TempleAccounting
                     Dim defaultBankId = GetSelectedBankIdOrNothing()
                     Dim result = ImportTransactionsFromExcel(ofd.FileName, "Expense", CInt(cboCategory.SelectedValue), CInt(cboFund.SelectedValue), defaultBankId)
                     LoadMasters()
+                    CalculateMonthlySummary()
                     ResetEntry(False)
                     dtpDate.Focus()
                     MessageBox.Show(result.BuildSummaryMessage("รายจ่าย"), "นำเข้าข้อมูลสำเร็จ", MessageBoxButtons.OK, MessageBoxIcon.Information)
