@@ -40,7 +40,6 @@ Namespace TempleAccounting
         Friend WithEvents txtReferenceNo As TextBox
         Friend WithEvents lblRefNo As Label
         Friend WithEvents dgvRecentTransactions As DataGridView
-        Friend lblRecentHeader As Label
         Friend WithEvents lblReceiptCount As Label
         Friend WithEvents lblMaxAmount As Label
         Friend WithEvents lblAvgAmount As Label
@@ -87,7 +86,6 @@ Namespace TempleAccounting
             lblChannel = New Label()
             txtReferenceNo = New TextBox()
             lblRefNo = New Label()
-            lblRecentHeader = New Label()
             lblReceiptCount = New Label()
             lblMaxAmount = New Label()
             lblAvgAmount = New Label()
@@ -98,7 +96,7 @@ Namespace TempleAccounting
             ' 
             ' lbl1
             ' 
-            lbl1.Location = New Point(40, 28)
+            lbl1.Location = New Point(40, 0)
             lbl1.Name = "lbl1"
             lbl1.Size = New Size(190, 40)
             lbl1.TabIndex = 0
@@ -107,7 +105,7 @@ Namespace TempleAccounting
             ' 
             ' lbl2
             ' 
-            lbl2.Location = New Point(40, 90)
+            lbl2.Location = New Point(40, 62)
             lbl2.Name = "lbl2"
             lbl2.Size = New Size(190, 40)
             lbl2.TabIndex = 1
@@ -116,7 +114,7 @@ Namespace TempleAccounting
             ' 
             ' lbl3
             ' 
-            lbl3.Location = New Point(40, 152)
+            lbl3.Location = New Point(40, 124)
             lbl3.Name = "lbl3"
             lbl3.Size = New Size(190, 40)
             lbl3.TabIndex = 2
@@ -125,7 +123,7 @@ Namespace TempleAccounting
             ' 
             ' lbl4
             ' 
-            lbl4.Location = New Point(40, 214)
+            lbl4.Location = New Point(40, 186)
             lbl4.Name = "lbl4"
             lbl4.Size = New Size(190, 40)
             lbl4.TabIndex = 3
@@ -134,7 +132,7 @@ Namespace TempleAccounting
             ' 
             ' lbl5
             ' 
-            lbl5.Location = New Point(40, 338)
+            lbl5.Location = New Point(40, 310)
             lbl5.Name = "lbl5"
             lbl5.Size = New Size(190, 40)
             lbl5.TabIndex = 4
@@ -143,7 +141,7 @@ Namespace TempleAccounting
             ' 
             ' lbl6
             ' 
-            lbl6.Location = New Point(40, 400)
+            lbl6.Location = New Point(40, 372)
             lbl6.Name = "lbl6"
             lbl6.Size = New Size(190, 40)
             lbl6.TabIndex = 5
@@ -152,7 +150,7 @@ Namespace TempleAccounting
             ' 
             ' lbl7
             ' 
-            lbl7.Location = New Point(40, 462)
+            lbl7.Location = New Point(40, 434)
             lbl7.Name = "lbl7"
             lbl7.Size = New Size(190, 40)
             lbl7.TabIndex = 6
@@ -161,7 +159,7 @@ Namespace TempleAccounting
             ' 
             ' lbl8
             ' 
-            lbl8.Location = New Point(40, 574)
+            lbl8.Location = New Point(40, 546)
             lbl8.Name = "lbl8"
             lbl8.Size = New Size(190, 40)
             lbl8.TabIndex = 7
@@ -171,7 +169,7 @@ Namespace TempleAccounting
             ' dtpDate
             ' 
             dtpDate.Font = New Font("Tahoma", 10.5F)
-            dtpDate.Location = New Point(240, 28)
+            dtpDate.Location = New Point(240, 0)
             dtpDate.Name = "dtpDate"
             dtpDate.Size = New Size(520, 33)
             dtpDate.TabIndex = 0
@@ -182,7 +180,7 @@ Namespace TempleAccounting
             cboCategory.AutoCompleteMode = AutoCompleteMode.SuggestAppend
             cboCategory.AutoCompleteSource = AutoCompleteSource.CustomSource
             cboCategory.Font = New Font("Tahoma", 10.5F)
-            cboCategory.Location = New Point(240, 90)
+            cboCategory.Location = New Point(240, 62)
             cboCategory.Name = "cboCategory"
             cboCategory.Size = New Size(520, 33)
             cboCategory.TabIndex = 1
@@ -192,7 +190,7 @@ Namespace TempleAccounting
             cboFund.AutoCompleteMode = AutoCompleteMode.SuggestAppend
             cboFund.AutoCompleteSource = AutoCompleteSource.CustomSource
             cboFund.Font = New Font("Tahoma", 10.5F)
-            cboFund.Location = New Point(240, 152)
+            cboFund.Location = New Point(240, 124)
             cboFund.Name = "cboFund"
             cboFund.Size = New Size(520, 33)
             cboFund.TabIndex = 6
@@ -201,7 +199,7 @@ Namespace TempleAccounting
             ' 
             cboBank.DropDownStyle = ComboBoxStyle.DropDownList
             cboBank.Font = New Font("Tahoma", 10.5F)
-            cboBank.Location = New Point(240, 214)
+            cboBank.Location = New Point(240, 186)
             cboBank.Name = "cboBank"
             cboBank.Size = New Size(520, 33)
             cboBank.TabIndex = 7
@@ -209,7 +207,7 @@ Namespace TempleAccounting
             ' txtDescription
             ' 
             txtDescription.Font = New Font("Tahoma", 10.5F)
-            txtDescription.Location = New Point(240, 338)
+            txtDescription.Location = New Point(240, 310)
             txtDescription.Name = "txtDescription"
             txtDescription.Size = New Size(520, 33)
             txtDescription.TabIndex = 3
@@ -218,7 +216,7 @@ Namespace TempleAccounting
             ' 
             txtAmount.Font = New Font("Tahoma", 11.5F, FontStyle.Bold)
             txtAmount.ForeColor = Color.FromArgb(CByte(22), CByte(101), CByte(52))
-            txtAmount.Location = New Point(240, 400)
+            txtAmount.Location = New Point(240, 372)
             txtAmount.Name = "txtAmount"
             txtAmount.Size = New Size(260, 35)
             txtAmount.TabIndex = 4
@@ -227,7 +225,7 @@ Namespace TempleAccounting
             ' txtRemark
             ' 
             txtRemark.Font = New Font("Tahoma", 10.5F)
-            txtRemark.Location = New Point(240, 462)
+            txtRemark.Location = New Point(240, 434)
             txtRemark.Multiline = True
             txtRemark.Name = "txtRemark"
             txtRemark.ScrollBars = ScrollBars.Vertical
@@ -238,7 +236,7 @@ Namespace TempleAccounting
             ' 
             txtReceipt.BackColor = Color.White
             txtReceipt.Font = New Font("Tahoma", 10.5F)
-            txtReceipt.Location = New Point(240, 574)
+            txtReceipt.Location = New Point(240, 546)
             txtReceipt.Name = "txtReceipt"
             txtReceipt.ReadOnly = True
             txtReceipt.Size = New Size(300, 33)
@@ -251,7 +249,7 @@ Namespace TempleAccounting
             btnBrowseReceipt.FlatStyle = FlatStyle.Flat
             btnBrowseReceipt.Font = New Font("Tahoma", 9.5F, FontStyle.Bold)
             btnBrowseReceipt.ForeColor = Color.White
-            btnBrowseReceipt.Location = New Point(550, 574)
+            btnBrowseReceipt.Location = New Point(550, 546)
             btnBrowseReceipt.Name = "btnBrowseReceipt"
             btnBrowseReceipt.Size = New Size(160, 40)
             btnBrowseReceipt.TabIndex = 11
@@ -265,7 +263,7 @@ Namespace TempleAccounting
             btnPasteReceipt.FlatStyle = FlatStyle.Flat
             btnPasteReceipt.Font = New Font("Tahoma", 9.5F, FontStyle.Bold)
             btnPasteReceipt.ForeColor = Color.White
-            btnPasteReceipt.Location = New Point(716, 574)
+            btnPasteReceipt.Location = New Point(716, 546)
             btnPasteReceipt.Name = "btnPasteReceipt"
             btnPasteReceipt.Size = New Size(166, 40)
             btnPasteReceipt.TabIndex = 12
@@ -279,7 +277,7 @@ Namespace TempleAccounting
             btnClearReceipt.FlatStyle = FlatStyle.Flat
             btnClearReceipt.Font = New Font("Tahoma", 9.5F, FontStyle.Bold)
             btnClearReceipt.ForeColor = Color.White
-            btnClearReceipt.Location = New Point(888, 574)
+            btnClearReceipt.Location = New Point(888, 546)
             btnClearReceipt.Name = "btnClearReceipt"
             btnClearReceipt.Size = New Size(50, 40)
             btnClearReceipt.TabIndex = 13
@@ -293,7 +291,7 @@ Namespace TempleAccounting
             btnSave.FlatStyle = FlatStyle.Flat
             btnSave.Font = New Font("Tahoma", 11F, FontStyle.Bold)
             btnSave.ForeColor = Color.White
-            btnSave.Location = New Point(240, 642)
+            btnSave.Location = New Point(240, 614)
             btnSave.Name = "btnSave"
             btnSave.Size = New Size(240, 56)
             btnSave.TabIndex = 5
@@ -307,7 +305,7 @@ Namespace TempleAccounting
             btnCancel.FlatStyle = FlatStyle.Flat
             btnCancel.Font = New Font("Tahoma", 11F, FontStyle.Bold)
             btnCancel.ForeColor = Color.White
-            btnCancel.Location = New Point(500, 642)
+            btnCancel.Location = New Point(500, 614)
             btnCancel.Name = "btnCancel"
             btnCancel.Size = New Size(180, 56)
             btnCancel.TabIndex = 14
@@ -321,7 +319,7 @@ Namespace TempleAccounting
             btnImportExcel.FlatStyle = FlatStyle.Flat
             btnImportExcel.Font = New Font("Tahoma", 11F, FontStyle.Bold)
             btnImportExcel.ForeColor = Color.White
-            btnImportExcel.Location = New Point(750, 642)
+            btnImportExcel.Location = New Point(750, 614)
             btnImportExcel.Name = "btnImportExcel"
             btnImportExcel.Size = New Size(240, 56)
             btnImportExcel.TabIndex = 15
@@ -333,14 +331,14 @@ Namespace TempleAccounting
             cboReceiveChannel.DropDownStyle = ComboBoxStyle.DropDownList
             cboReceiveChannel.Font = New Font("Tahoma", 10.5F)
             cboReceiveChannel.Items.AddRange(New Object() {"เงินสด", "โอนธนาคาร", "พร้อมเพย์", "e-Donation"})
-            cboReceiveChannel.Location = New Point(240, 276)
+            cboReceiveChannel.Location = New Point(240, 248)
             cboReceiveChannel.Name = "cboReceiveChannel"
             cboReceiveChannel.Size = New Size(280, 33)
             cboReceiveChannel.TabIndex = 2
             ' 
             ' lblChannel
             ' 
-            lblChannel.Location = New Point(40, 276)
+            lblChannel.Location = New Point(40, 248)
             lblChannel.Name = "lblChannel"
             lblChannel.Size = New Size(190, 40)
             lblChannel.TabIndex = 22
@@ -350,31 +348,19 @@ Namespace TempleAccounting
             ' txtReferenceNo
             ' 
             txtReferenceNo.Font = New Font("Tahoma", 10.5F)
-            txtReferenceNo.Location = New Point(670, 276)
+            txtReferenceNo.Location = New Point(670, 248)
             txtReferenceNo.Name = "txtReferenceNo"
             txtReferenceNo.Size = New Size(90, 33)
             txtReferenceNo.TabIndex = 8
             ' 
             ' lblRefNo
             ' 
-            lblRefNo.Location = New Point(530, 276)
+            lblRefNo.Location = New Point(530, 248)
             lblRefNo.Name = "lblRefNo"
             lblRefNo.Size = New Size(140, 40)
             lblRefNo.TabIndex = 24
             lblRefNo.Text = "เลขอ้างอิง (ถ้ามี):"
             lblRefNo.TextAlign = ContentAlignment.MiddleRight
-            ' 
-            ' lblRecentHeader
-            ' 
-            lblRecentHeader.BackColor = Color.FromArgb(CByte(253), CByte(224), CByte(71))
-            lblRecentHeader.Font = New Font("Tahoma", 11F, FontStyle.Bold)
-            lblRecentHeader.ForeColor = Color.FromArgb(CByte(120), CByte(53), CByte(15))
-            lblRecentHeader.Location = New Point(770, 28)
-            lblRecentHeader.Name = "lblRecentHeader"
-            lblRecentHeader.Size = New Size(768, 40)
-            lblRecentHeader.TabIndex = 25
-            lblRecentHeader.Text = "📋 รายการรายรับล่าสุด 10 รายการ"
-            lblRecentHeader.TextAlign = ContentAlignment.MiddleCenter
             ' 
             ' lblReceiptCount
             ' 
@@ -436,14 +422,14 @@ Namespace TempleAccounting
             dgvRecentTransactions.Anchor = AnchorStyles.Top Or AnchorStyles.Bottom Or AnchorStyles.Left Or AnchorStyles.Right
             dgvRecentTransactions.BackgroundColor = Color.White
             dgvRecentTransactions.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize
-            dgvRecentTransactions.Location = New Point(770, 68)
+            dgvRecentTransactions.Location = New Point(770, 28)
             dgvRecentTransactions.MultiSelect = False
             dgvRecentTransactions.Name = "dgvRecentTransactions"
             dgvRecentTransactions.ReadOnly = True
             dgvRecentTransactions.RowHeadersVisible = False
             dgvRecentTransactions.RowHeadersWidth = 62
             dgvRecentTransactions.SelectionMode = DataGridViewSelectionMode.FullRowSelect
-            dgvRecentTransactions.Size = New Size(991, 642)
+            dgvRecentTransactions.Size = New Size(991, 682)
             dgvRecentTransactions.TabIndex = 26
             ' 
             ' FrmIncome
@@ -477,7 +463,6 @@ Namespace TempleAccounting
             Controls.Add(btnSave)
             Controls.Add(btnCancel)
             Controls.Add(btnImportExcel)
-            Controls.Add(lblRecentHeader)
             Controls.Add(dgvRecentTransactions)
             Controls.Add(lblReceiptCount)
             Controls.Add(lblMaxAmount)
