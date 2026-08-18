@@ -95,9 +95,39 @@ Namespace TempleAccounting
             SetupToolTips()
             SetupEnterNavigation()
             UiFitter.AutoFitFormButtons(Me)
+            ApplyCompactLayout()
             UiFitter.DisableComboBoxWheel(Me)
             ResetEntry(True)
             FocusStartField()
+        End Sub
+
+        Private Sub ApplyCompactLayout()
+            ' ยึดตำแหน่ง Top, Left เท่านั้น (กันการยืดตามแนวดิ่งเมื่อขยายหน้าจอ)
+            lbl7.Anchor = AnchorStyles.Top Or AnchorStyles.Left
+            txtRemark.Anchor = AnchorStyles.Top Or AnchorStyles.Left
+            lbl8.Anchor = AnchorStyles.Top Or AnchorStyles.Left
+            txtReceipt.Anchor = AnchorStyles.Top Or AnchorStyles.Left
+            btnBrowseReceipt.Anchor = AnchorStyles.Top Or AnchorStyles.Left
+            btnPasteReceipt.Anchor = AnchorStyles.Top Or AnchorStyles.Left
+            btnClearReceipt.Anchor = AnchorStyles.Top Or AnchorStyles.Left
+            btnSave.Anchor = AnchorStyles.Top Or AnchorStyles.Left
+            btnCancel.Anchor = AnchorStyles.Top Or AnchorStyles.Left
+            btnImportExcel.Anchor = AnchorStyles.Top Or AnchorStyles.Left
+
+            ' กำหนดความสูงช่องหมายเหตุแบบคงที่ (กันการยืดตามแนวดิ่ง)
+            txtRemark.Height = 60
+
+            ' จัดตำแหน่ง Y แบบชัดเจนตามสูตร: หมายเหตุชิดใต้จำนวนเงิน, ใบเสร็จชิดใต้หมายเหตุ, ปุ่มชิดใต้ใบเสร็จ
+            lbl7.Top = txtAmount.Bottom + 10
+            txtRemark.Top = lbl7.Top
+            lbl8.Top = txtRemark.Bottom + 10
+            txtReceipt.Top = lbl8.Top
+            btnBrowseReceipt.Top = txtReceipt.Top
+            btnPasteReceipt.Top = txtReceipt.Top
+            btnClearReceipt.Top = txtReceipt.Top
+            btnSave.Top = txtReceipt.Bottom + 15
+            btnCancel.Top = txtReceipt.Bottom + 15
+            btnImportExcel.Top = txtReceipt.Bottom + 15
         End Sub
 
         Private Sub FrmIncome_KeyDown(sender As Object, e As KeyEventArgs) Handles Me.KeyDown
