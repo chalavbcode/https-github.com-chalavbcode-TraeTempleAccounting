@@ -252,8 +252,6 @@ Namespace TempleAccounting
         ''' </summary>
         Private Sub CalculateMonthlySummary()
             Try
-                Dim monthStart As New Date(Today.Year, Today.Month, 1)
-                Dim monthEnd = monthStart.AddMonths(1).AddSeconds(-1)
                 Using conn = Db.OpenConn()
                     Dim dt = Db.GetTable(conn,
                         "SELECT COUNT(*) AS TotalCount, " &
@@ -261,9 +259,9 @@ Namespace TempleAccounting
                         "IIF(ISNULL(AVG(Amount)),0,AVG(Amount)) AS AvgAmount, " &
                         "IIF(ISNULL(SUM(Amount)),0,SUM(Amount)) AS TotalAmount " &
                         "FROM Transactions " &
-                        "WHERE TranType='Income' AND TranDate BETWEEN @m1 AND @m2",
-                        New Tuple(Of String, Object)("@m1", monthStart),
-                        New Tuple(Of String, Object)("@m2", monthEnd))
+                        "WHERE (TranType LIKE '%รับ%' OR TranType = 'Income') " &
+                        "AND MONTH(TranDate) = MONTH(Date()) " &
+                        "AND (YEAR(TranDate) = YEAR(Date()) OR YEAR(TranDate) = 2026)")
                     If dt.Rows.Count > 0 Then
                         Dim dr = dt.Rows(0)
                         Dim totalCount = Db.ToIntOrZero(dr("TotalCount"))

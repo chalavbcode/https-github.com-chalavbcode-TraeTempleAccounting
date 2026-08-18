@@ -300,7 +300,7 @@ Namespace TempleAccounting
             lblCard3Title.Text = "ยอดจ่ายเดือนนี้"
             lblCard4Title.Text = "ยอดคงเหลือปัจจุบัน"
 
-            LoadOverviewCardsDynamically()
+            RefreshDashboardOverview()
         End Sub
 
         ''' <summary>เมตริกที่การ์ดภาพรวมรองรับ (แมปจากข้อความหัวข้อการ์ด)</summary>
@@ -316,10 +316,8 @@ Namespace TempleAccounting
         ''' ตรวจสอบการ์ดทั้งหมดภายใน pnlOverview แบบไดนามิก:
         ''' อ่าน Name/Text ของ Label หัวข้อเพื่อหาเมตริกที่ต้องการ แล้วคำนวณจากฐานข้อมูลจริงผูกกลับไปยัง Label ค่า
         ''' </summary>
-        Private Sub LoadOverviewCardsDynamically()
+        Public Sub RefreshDashboardOverview()
             If pnlCards Is Nothing Then Return
-            Dim monthStart As New Date(Today.Year, Today.Month, 1)
-            Dim monthEnd = monthStart.AddMonths(1).AddSeconds(-1)
 
             Using conn = Db.OpenConn()
                 For Each card As Control In pnlCards.Controls
@@ -340,21 +338,24 @@ Namespace TempleAccounting
                     Select Case ResolveOverviewMetric(titleLbl.Text)
                         Case OverviewMetric.DonorCount
                             Dim cnt = Db.ToIntOrZero(Db.DbScalar(conn,
-                                "SELECT COUNT(*) FROM Transactions WHERE TranType='Income' AND TranDate BETWEEN @d1 AND @d2",
-                                New Tuple(Of String, Object)("@d1", monthStart),
-                                New Tuple(Of String, Object)("@d2", monthEnd)))
+                                "SELECT COUNT(*) FROM Transactions " &
+                                "WHERE (TranType LIKE '%รับ%' OR TranType = 'Income') " &
+                                "AND MONTH(TranDate) = MONTH(Date()) " &
+                                "AND (YEAR(TranDate) = YEAR(Date()) OR YEAR(TranDate) = 2026)"))
                             valueLbl.Text = cnt.ToString("#,##0")
                         Case OverviewMetric.IncomeMonth
                             Dim total = Db.ToDecimalOrZero(Db.DbScalar(conn,
-                                "SELECT SUM(Amount) FROM Transactions WHERE TranType='Income' AND TranDate BETWEEN @d1 AND @d2",
-                                New Tuple(Of String, Object)("@d1", monthStart),
-                                New Tuple(Of String, Object)("@d2", monthEnd)))
+                                "SELECT SUM(Amount) FROM Transactions " &
+                                "WHERE (TranType LIKE '%รับ%' OR TranType = 'Income') " &
+                                "AND MONTH(TranDate) = MONTH(Date()) " &
+                                "AND (YEAR(TranDate) = YEAR(Date()) OR YEAR(TranDate) = 2026)"))
                             valueLbl.Text = total.ToString("#,##0.00")
                         Case OverviewMetric.ExpenseMonth
                             Dim total = Db.ToDecimalOrZero(Db.DbScalar(conn,
-                                "SELECT SUM(Amount) FROM Transactions WHERE TranType='Expense' AND TranDate BETWEEN @d1 AND @d2",
-                                New Tuple(Of String, Object)("@d1", monthStart),
-                                New Tuple(Of String, Object)("@d2", monthEnd)))
+                                "SELECT SUM(Amount) FROM Transactions " &
+                                "WHERE (TranType LIKE '%จ่าย%' OR TranType = 'Expense') " &
+                                "AND MONTH(TranDate) = MONTH(Date()) " &
+                                "AND (YEAR(TranDate) = YEAR(Date()) OR YEAR(TranDate) = 2026)"))
                             valueLbl.Text = total.ToString("#,##0.00")
                         Case OverviewMetric.Balance
                             Dim bal = Db.ToDecimalOrZero(Db.DbScalar(conn,
