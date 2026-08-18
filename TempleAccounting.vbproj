@@ -33,6 +33,7 @@
     <Compile Include="DatabaseBackupHelper.vb" />
     <Compile Include="DesktopShortcutHelper.vb" />
     <Compile Include="AppPaths.vb" />
+    <Compile Include="AppPreferences.vb" />
     <Compile Include="HelpSystem.vb" />
     <Compile Include="SaddhiviharikaDb.vb" />
     <Compile Include="UiFitter.vb" />

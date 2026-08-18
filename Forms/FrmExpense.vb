@@ -132,6 +132,7 @@ Namespace TempleAccounting
                 cboBank.ValueMember = "ID"
                 cboBank.DataSource = banks
             End Using
+            RestoreLastSelections()
         End Sub
 
         ''' <summary>
@@ -160,14 +161,46 @@ Namespace TempleAccounting
             If resetToToday Then
                 dtpDate.Value = Today
             End If
-            If cboCategory.Items.Count > 0 Then cboCategory.SelectedIndex = 0
-            If cboFund.Items.Count > 0 Then cboFund.SelectedIndex = 0
+            ' หมายเหตุ: ไม่ reset cboCategory / cboFund เพื่อคงค่า "ประเภท/กองทุน" ที่เลือกครั้งล่าสุดไว้
             cboBank.SelectedIndex = 0
             txtDescription.Clear()
             txtAmount.Clear()
             txtRemark.Clear()
             txtReceipt.Clear()
         End Sub
+
+        ''' <summary>คืนค่า "ประเภท/กองทุน" กลับเป็นค่าที่ผู้ใช้เลือกครั้งล่าสุด (ถ้าไม่มีให้เลือกตัวแรก)</summary>
+        Private Sub RestoreLastSelections()
+            SetComboValue(cboCategory, AppPreferences.LastExpenseCategoryID)
+            SetComboValue(cboFund, AppPreferences.LastExpenseFundID)
+        End Sub
+
+        ''' <summary>จดจำค่า "ประเภท/กองทุน" ที่เลือกอยู่ปัจจุบันลงใน AppPreferences</summary>
+        Private Sub RememberSelections()
+            AppPreferences.LastExpenseCategoryID = GetSelectedId(cboCategory)
+            AppPreferences.LastExpenseFundID = GetSelectedId(cboFund)
+            AppPreferences.Save()
+        End Sub
+
+        Private Shared Sub SetComboValue(cbo As ComboBox, value As Integer)
+            If cbo Is Nothing OrElse cbo.Items.Count = 0 Then Return
+            If value > 0 Then
+                Try
+                    cbo.SelectedValue = value
+                Catch
+                End Try
+            End If
+            If cbo.SelectedIndex < 0 Then
+                cbo.SelectedIndex = 0
+            End If
+        End Sub
+
+        Private Shared Function GetSelectedId(cbo As ComboBox) As Integer
+            If cbo Is Nothing OrElse cbo.SelectedValue Is Nothing OrElse cbo.SelectedValue Is DBNull.Value Then Return 0
+            Dim id As Integer
+            If Integer.TryParse(cbo.SelectedValue.ToString(), id) Then Return id
+            Return 0
+        End Function
 
         Private Function GetSelectedBankValue() As Object
             If cboBank.SelectedValue Is Nothing OrElse cboBank.SelectedValue Is DBNull.Value Then
@@ -329,6 +362,9 @@ Namespace TempleAccounting
                     End If
 
                     MessageBox.Show("✅ บันทึกข้อมูลเรียบร้อยแล้ว!", "สำเร็จ", MessageBoxButtons.OK, MessageBoxIcon.Information)
+
+                    ' จดจำประเภท/กองทุนที่เลือกครั้งล่าสุด เพื่อคืนค่าให้อัตโนมัติเมื่อเปิดฟอร์มใหม่
+                    RememberSelections()
 
                     If _editId > 0 Then
                         ' ถ้าเป็นการแก้ไข ให้ปิดหน้าจอนี้และกลับไปหน้า Transactions
