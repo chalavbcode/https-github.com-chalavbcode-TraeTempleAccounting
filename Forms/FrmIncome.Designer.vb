@@ -142,7 +142,7 @@ Namespace TempleAccounting
             ' 
             ' lbl5
             ' 
-            lbl5.Location = New Point(40, 482)
+            lbl5.Location = New Point(40, 420)
             lbl5.Name = "lbl5"
             lbl5.Size = New Size(190, 40)
             lbl5.TabIndex = 4
@@ -151,7 +151,7 @@ Namespace TempleAccounting
             ' 
             ' lbl6
             ' 
-            lbl6.Location = New Point(40, 544)
+            lbl6.Location = New Point(40, 482)
             lbl6.Name = "lbl6"
             lbl6.Size = New Size(190, 40)
             lbl6.TabIndex = 5
@@ -160,7 +160,7 @@ Namespace TempleAccounting
             ' 
             ' lbl7
             ' 
-            lbl7.Location = New Point(40, 606)
+            lbl7.Location = New Point(40, 544)
             lbl7.Name = "lbl7"
             lbl7.Size = New Size(190, 40)
             lbl7.TabIndex = 6
@@ -169,7 +169,7 @@ Namespace TempleAccounting
             ' 
             ' lbl8
             ' 
-            lbl8.Location = New Point(40, 718)
+            lbl8.Location = New Point(40, 656)
             lbl8.Name = "lbl8"
             lbl8.Size = New Size(190, 40)
             lbl8.TabIndex = 7
@@ -217,7 +217,7 @@ Namespace TempleAccounting
             ' txtDescription
             ' 
             txtDescription.Font = New Font("Tahoma", 10.5F)
-            txtDescription.Location = New Point(240, 482)
+            txtDescription.Location = New Point(240, 420)
             txtDescription.Name = "txtDescription"
             txtDescription.Size = New Size(520, 33)
             txtDescription.TabIndex = 3
@@ -226,7 +226,7 @@ Namespace TempleAccounting
             ' 
             txtAmount.Font = New Font("Tahoma", 11.5F, FontStyle.Bold)
             txtAmount.ForeColor = Color.FromArgb(CByte(22), CByte(101), CByte(52))
-            txtAmount.Location = New Point(240, 544)
+            txtAmount.Location = New Point(240, 482)
             txtAmount.Name = "txtAmount"
             txtAmount.Size = New Size(260, 35)
             txtAmount.TabIndex = 4
@@ -236,7 +236,7 @@ Namespace TempleAccounting
             ' 
             txtRemark.Anchor = AnchorStyles.Top Or AnchorStyles.Left
             txtRemark.Font = New Font("Tahoma", 10.5F)
-            txtRemark.Location = New Point(240, 606)
+            txtRemark.Location = New Point(240, 544)
             txtRemark.Multiline = True
             txtRemark.Name = "txtRemark"
             txtRemark.ScrollBars = ScrollBars.Vertical
@@ -248,7 +248,7 @@ Namespace TempleAccounting
             txtReceipt.Anchor = AnchorStyles.Top Or AnchorStyles.Left
             txtReceipt.BackColor = Color.White
             txtReceipt.Font = New Font("Tahoma", 10.5F)
-            txtReceipt.Location = New Point(240, 718)
+            txtReceipt.Location = New Point(240, 656)
             txtReceipt.Name = "txtReceipt"
             txtReceipt.ReadOnly = True
             txtReceipt.Size = New Size(300, 33)
@@ -262,7 +262,7 @@ Namespace TempleAccounting
             btnBrowseReceipt.FlatStyle = FlatStyle.Flat
             btnBrowseReceipt.Font = New Font("Tahoma", 9.5F, FontStyle.Bold)
             btnBrowseReceipt.ForeColor = Color.White
-            btnBrowseReceipt.Location = New Point(550, 718)
+            btnBrowseReceipt.Location = New Point(550, 656)
             btnBrowseReceipt.Name = "btnBrowseReceipt"
             btnBrowseReceipt.Size = New Size(160, 40)
             btnBrowseReceipt.TabIndex = 11
@@ -277,7 +277,7 @@ Namespace TempleAccounting
             btnPasteReceipt.FlatStyle = FlatStyle.Flat
             btnPasteReceipt.Font = New Font("Tahoma", 9.5F, FontStyle.Bold)
             btnPasteReceipt.ForeColor = Color.White
-            btnPasteReceipt.Location = New Point(716, 718)
+            btnPasteReceipt.Location = New Point(716, 656)
             btnPasteReceipt.Name = "btnPasteReceipt"
             btnPasteReceipt.Size = New Size(166, 40)
             btnPasteReceipt.TabIndex = 12
@@ -292,7 +292,7 @@ Namespace TempleAccounting
             btnClearReceipt.FlatStyle = FlatStyle.Flat
             btnClearReceipt.Font = New Font("Tahoma", 9.5F, FontStyle.Bold)
             btnClearReceipt.ForeColor = Color.White
-            btnClearReceipt.Location = New Point(888, 719)
+            btnClearReceipt.Location = New Point(888, 656)
             btnClearReceipt.Name = "btnClearReceipt"
             btnClearReceipt.Size = New Size(50, 40)
             btnClearReceipt.TabIndex = 13
@@ -307,7 +307,7 @@ Namespace TempleAccounting
             btnSave.FlatStyle = FlatStyle.Flat
             btnSave.Font = New Font("Tahoma", 11F, FontStyle.Bold)
             btnSave.ForeColor = Color.White
-            btnSave.Location = New Point(240, 786)
+            btnSave.Location = New Point(240, 724)
             btnSave.Name = "btnSave"
             btnSave.Size = New Size(240, 56)
             btnSave.TabIndex = 5
@@ -322,7 +322,7 @@ Namespace TempleAccounting
             btnCancel.FlatStyle = FlatStyle.Flat
             btnCancel.Font = New Font("Tahoma", 11F, FontStyle.Bold)
             btnCancel.ForeColor = Color.White
-            btnCancel.Location = New Point(500, 786)
+            btnCancel.Location = New Point(500, 724)
             btnCancel.Name = "btnCancel"
             btnCancel.Size = New Size(180, 56)
             btnCancel.TabIndex = 14
@@ -337,7 +337,7 @@ Namespace TempleAccounting
             btnImportExcel.FlatStyle = FlatStyle.Flat
             btnImportExcel.Font = New Font("Tahoma", 11F, FontStyle.Bold)
             btnImportExcel.ForeColor = Color.White
-            btnImportExcel.Location = New Point(750, 786)
+            btnImportExcel.Location = New Point(750, 724)
             btnImportExcel.Name = "btnImportExcel"
             btnImportExcel.Size = New Size(240, 56)
             btnImportExcel.TabIndex = 15
@@ -351,7 +351,7 @@ Namespace TempleAccounting
             cboReceiveChannel.Items.AddRange(New Object() {"เงินสด", "โอนธนาคาร", "พร้อมเพย์", "e-Donation"})
             cboReceiveChannel.Location = New Point(240, 358)
             cboReceiveChannel.Name = "cboReceiveChannel"
-            cboReceiveChannel.Size = New Size(520, 33)
+            cboReceiveChannel.Size = New Size(280, 33)
             cboReceiveChannel.TabIndex = 2
             ' 
             ' lblChannel
@@ -366,16 +366,16 @@ Namespace TempleAccounting
             ' txtReferenceNo
             ' 
             txtReferenceNo.Font = New Font("Tahoma", 10.5F)
-            txtReferenceNo.Location = New Point(240, 420)
+            txtReferenceNo.Location = New Point(670, 358)
             txtReferenceNo.Name = "txtReferenceNo"
-            txtReferenceNo.Size = New Size(520, 33)
+            txtReferenceNo.Size = New Size(90, 33)
             txtReferenceNo.TabIndex = 8
             ' 
             ' lblRefNo
             ' 
-            lblRefNo.Location = New Point(40, 420)
+            lblRefNo.Location = New Point(530, 358)
             lblRefNo.Name = "lblRefNo"
-            lblRefNo.Size = New Size(190, 40)
+            lblRefNo.Size = New Size(140, 40)
             lblRefNo.TabIndex = 24
             lblRefNo.Text = "เลขอ้างอิง (ถ้ามี):"
             lblRefNo.TextAlign = ContentAlignment.MiddleRight
@@ -397,6 +397,7 @@ Namespace TempleAccounting
             dgvRecentTransactions.AllowUserToAddRows = False
             dgvRecentTransactions.AllowUserToDeleteRows = False
             dgvRecentTransactions.AllowUserToResizeRows = False
+            dgvRecentTransactions.AutoGenerateColumns = False
             dgvRecentTransactions.BackgroundColor = Color.White
             dgvRecentTransactions.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize
             dgvRecentTransactions.Location = New Point(770, 150)
@@ -405,9 +406,50 @@ Namespace TempleAccounting
             dgvRecentTransactions.ReadOnly = True
             dgvRecentTransactions.RowHeadersVisible = False
             dgvRecentTransactions.RowHeadersWidth = 62
+            dgvRecentTransactions.ScrollBars = ScrollBars.Both
             dgvRecentTransactions.SelectionMode = DataGridViewSelectionMode.FullRowSelect
             dgvRecentTransactions.Size = New Size(857, 560)
             dgvRecentTransactions.TabIndex = 26
+            ' 
+            ' dgvRecentTransactions columns
+            ' 
+            Dim colDate As New DataGridViewTextBoxColumn()
+            colDate.DataPropertyName = "TransactionDate"
+            colDate.HeaderText = "วันที่ทำรายการ"
+            colDate.Name = "colDate"
+            colDate.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCellsExceptHeader
+            colDate.HeaderCell.Style.WrapMode = DataGridViewTriState.True
+            colDate.DefaultCellStyle.Format = "dd/MM/yyyy"
+
+            Dim colCategory As New DataGridViewTextBoxColumn()
+            colCategory.DataPropertyName = "CategoryName"
+            colCategory.HeaderText = "ประเภท"
+            colCategory.Name = "colCategory"
+            colCategory.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells
+
+            Dim colFund As New DataGridViewTextBoxColumn()
+            colFund.DataPropertyName = "FundName"
+            colFund.HeaderText = "กองทุน"
+            colFund.Name = "colFund"
+            colFund.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells
+
+            Dim colAmount As New DataGridViewTextBoxColumn()
+            colAmount.DataPropertyName = "Amount"
+            colAmount.HeaderText = "จำนวนเงิน"
+            colAmount.Name = "colAmount"
+            colAmount.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCellsExceptHeader
+            colAmount.HeaderCell.Style.WrapMode = DataGridViewTriState.True
+            colAmount.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight
+            colAmount.DefaultCellStyle.Format = "#,##0.00"
+
+            Dim colDescription As New DataGridViewTextBoxColumn()
+            colDescription.DataPropertyName = "Description"
+            colDescription.HeaderText = "รายละเอียด"
+            colDescription.Name = "colDescription"
+            colDescription.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+            colDescription.MinimumWidth = 200
+
+            dgvRecentTransactions.Columns.AddRange(New DataGridViewColumn() {colDate, colCategory, colFund, colAmount, colDescription})
             ' 
             ' FrmIncome
             ' 
