@@ -193,7 +193,7 @@ Namespace TempleAccounting
                         "LEFT JOIN Categories c ON t.CategoryID = c.ID) " &
                         "LEFT JOIN Funds f ON t.FundID = f.ID) " &
                         "WHERE t.TranType = 'Income' " &
-                        "ORDER BY t.ID DESC")
+                        "ORDER BY t.TranDate DESC, t.ID DESC")
                     dgvRecentTransactions.DataSource = dtRecent
                 End Using
             Catch ex As Exception

@@ -261,71 +261,8 @@ Namespace TempleAccounting
                     })
 #End Region
 
-                    Dim sql = "SELECT t.ID, t.TranDate, t.TranType, IIF(t.TranType='Income','รายรับ',IIF(t.TranType='Expense','รายจ่าย','โอนภายใน')) AS TranTypeDisplay, t.CategoryID, IIF(c.CategoryName IS NULL,'',c.CategoryName) AS CategoryName, " &
-                              "t.FundID, IIF(f.FundName IS NULL,'',f.FundName) AS FundName, " &
-                              "t.BankID, IIF(b.BankName IS NULL,'',b.BankName & IIF(b.AccountNo IS NULL,'',' ' & b.AccountNo)) AS BankName, " &
-                              "t.Detail, t.Amount, t.Note, t.CreateDate, t.ToFundID, IIF(f2.FundName IS NULL,'',f2.FundName) AS ToFundName, " &
-                              "t.ToBankID, IIF(b2.BankName IS NULL,'',b2.BankName & IIF(b2.AccountNo IS NULL,'',' ' & b2.AccountNo)) AS ToBankName, " &
-                              "t.ReceiptPath, IIf(t.ReceiptPath IS NOT NULL AND t.ReceiptPath <> '', '📷 มีรูป', '-') AS HasReceiptDisplay " &
-                              "FROM ((((Transactions t " &
-                              "LEFT JOIN Categories c ON t.CategoryID=c.ID) " &
-                              "LEFT JOIN Funds f ON t.FundID=f.ID) " &
-                              "LEFT JOIN BankAccounts b ON t.BankID=b.ID) " &
-                              "LEFT JOIN Funds f2 ON t.ToFundID=f2.ID) " &
-                              "LEFT JOIN BankAccounts b2 ON t.ToBankID=b2.ID " &
-                              "WHERE " & tranDateExpr & " BETWEEN " & d1Literal & " AND " & d2Literal & " "
-
-                    Dim ps As New List(Of Tuple(Of String, Object))
-
-                    If cboCategory.SelectedValue IsNot Nothing AndAlso CInt(cboCategory.SelectedValue) <> 0 Then
-                        sql &= " AND t.CategoryID=@cat "
-                        ps.Add(New Tuple(Of String, Object)("@cat", CInt(cboCategory.SelectedValue)))
-                    End If
-                    If cboType.SelectedIndex = 1 Then
-                        sql &= " AND t.TranType='Income'"
-                    ElseIf cboType.SelectedIndex = 2 Then
-                        sql &= " AND t.TranType='Expense'"
-                    ElseIf cboType.SelectedIndex = 3 Then
-                        sql &= " AND t.TranType='Transfer'"
-                    End If
-
-                    ' --- ค้นหาแบบ Partial Match หลายฟิลด์ ---
-                    Dim searchText = txtSearch.Text?.Trim()
-                    If Not String.IsNullOrWhiteSpace(searchText) Then
-                        ' ครอบ Try-Catch เพื่อป้องกันการค้นหาที่พังจากตัวอักษรพิเศษ
-                        Try
-                            ' Escape ตัวอักษรพิเศษสำหรับ LIKE patterns
-                            ' แยก Escape ตัวที่มีความหมายใน LIKE patterns: [ ] ? #
-                            Dim safeSearch = searchText.Replace("[", "[[]").Replace("?", "[?]").Replace("#", "[#]")
-                            
-                            ' OleDb provider (Access) ใช้ % เป็น wildcard (ไม่ใช่ * ที่ใช้ใน Access DAO)
-                            Dim likePattern = "%" & safeSearch & "%"
-
-                            ' ค้นหาหลายฟิลด์พร้อมกัน
-                            ' ใน OleDb ต้องใส่พารามิเตอร์ตามลำดับที่ปรากฏใน SQL แม้จะเป็นชื่อเดียวกันก็ตาม
-                            ' ดังนั้นเราจะใช้ชื่อพารามิเตอร์แยกกันเพื่อให้ชัดเจน
-                            sql &= " AND (" &
-                                   "t.Detail LIKE @s1 OR " &
-                                   "t.Note LIKE @s2 OR " &
-                                   "c.CategoryName LIKE @s3 OR " &
-                                   "f.FundName LIKE @s4 OR " &
-                                   "b.BankName LIKE @s5 OR " &
-                                   "f2.FundName LIKE @s6 OR " &
-                                   "b2.BankName LIKE @s7 OR " &
-                                   "IIF(f.FundName IS NULL,'',f.FundName & ' ' & IIF(b.BankName IS NULL,'',b.BankName)) LIKE @s8 OR " &
-                                   "IIF(f2.FundName IS NULL,'',f2.FundName & ' ' & IIF(b2.BankName IS NULL,'',b2.BankName)) LIKE @s9" &
-                                   ") "
-                            
-                            For i As Integer = 1 To 9
-                                ps.Add(New Tuple(Of String, Object)("@s" & i, likePattern))
-                            Next
-                        Catch ex As Exception
-                            AppPaths.LogCrash(ex, "FrmTransactions.Search")
-                        End Try
-                    End If
-                    sql &= " ORDER BY " & tranDateExpr & " DESC, t.ID DESC"
-
-                    Dim dt = Db.GetTable(conn, sql, ps.ToArray())
+                    Dim q = BuildLedgerQuery(ascending:=False)
+                    Dim dt = Db.GetTable(conn, q.Sql, q.Params)
 
 #Region "debug-point C:loaddata-result"
                     DebugReport("C", "LoadData", "query-result", New Dictionary(Of String, Object) From {
@@ -370,6 +307,89 @@ Namespace TempleAccounting
                 ApplyEditModeToGrid()
             End If
         End Sub
+
+        ''' <summary>
+        ''' สร้าง SQL และพารามิเตอร์สำหรับโหลดสมุดรายวันตามตัวกรองปัจจุบัน
+        ''' ascending = False: เรียงใหม่สุดก่อน (UI grid) / True: เรียงเก่าสุดก่อน (Export Excel)
+        ''' </summary>
+        Private Function BuildLedgerQuery(ascending As Boolean) As (Sql As String, Params As Tuple(Of String, Object)())
+            Dim tranDateExpr = "IIF(Year(t.TranDate)>2400, DateAdd('yyyy',-543,t.TranDate), t.TranDate)"
+            Dim d1 = dtpFrom.Value.Date
+            Dim d2 = dtpTo.Value.Date.AddDays(1).AddSeconds(-1)
+            Dim d1Literal = Db.AccessDateLiteral(d1)
+            Dim d2Literal = Db.AccessDateLiteral(d2)
+
+            Dim sql = "SELECT t.ID, t.TranDate, t.TranType, IIF(t.TranType='Income','รายรับ',IIF(t.TranType='Expense','รายจ่าย','โอนภายใน')) AS TranTypeDisplay, t.CategoryID, IIF(c.CategoryName IS NULL,'',c.CategoryName) AS CategoryName, " &
+                      "t.FundID, IIF(f.FundName IS NULL,'',f.FundName) AS FundName, " &
+                      "t.BankID, IIF(b.BankName IS NULL,'',b.BankName & IIF(b.AccountNo IS NULL,'',' ' & b.AccountNo)) AS BankName, " &
+                      "t.Detail, t.Amount, t.Note, t.CreateDate, t.ToFundID, IIF(f2.FundName IS NULL,'',f2.FundName) AS ToFundName, " &
+                      "t.ToBankID, IIF(b2.BankName IS NULL,'',b2.BankName & IIF(b2.AccountNo IS NULL,'',' ' & b2.AccountNo)) AS ToBankName, " &
+                      "t.ReceiptPath, IIf(t.ReceiptPath IS NOT NULL AND t.ReceiptPath <> '', '📷 มีรูป', '-') AS HasReceiptDisplay " &
+                      "FROM ((((Transactions t " &
+                      "LEFT JOIN Categories c ON t.CategoryID=c.ID) " &
+                      "LEFT JOIN Funds f ON t.FundID=f.ID) " &
+                      "LEFT JOIN BankAccounts b ON t.BankID=b.ID) " &
+                      "LEFT JOIN Funds f2 ON t.ToFundID=f2.ID) " &
+                      "LEFT JOIN BankAccounts b2 ON t.ToBankID=b2.ID " &
+                      "WHERE " & tranDateExpr & " BETWEEN " & d1Literal & " AND " & d2Literal & " "
+
+            Dim ps As New List(Of Tuple(Of String, Object))
+
+            If cboCategory.SelectedValue IsNot Nothing AndAlso CInt(cboCategory.SelectedValue) <> 0 Then
+                sql &= " AND t.CategoryID=@cat "
+                ps.Add(New Tuple(Of String, Object)("@cat", CInt(cboCategory.SelectedValue)))
+            End If
+            If cboType.SelectedIndex = 1 Then
+                sql &= " AND t.TranType='Income'"
+            ElseIf cboType.SelectedIndex = 2 Then
+                sql &= " AND t.TranType='Expense'"
+            ElseIf cboType.SelectedIndex = 3 Then
+                sql &= " AND t.TranType='Transfer'"
+            End If
+
+            ' --- ค้นหาแบบ Partial Match หลายฟิลด์ ---
+            Dim searchText = txtSearch.Text?.Trim()
+            If Not String.IsNullOrWhiteSpace(searchText) Then
+                ' ครอบ Try-Catch เพื่อป้องกันการค้นหาที่พังจากตัวอักษรพิเศษ
+                Try
+                    ' Escape ตัวอักษรพิเศษสำหรับ LIKE patterns
+                    ' แยก Escape ตัวที่มีความหมายใน LIKE patterns: [ ] ? #
+                    Dim safeSearch = searchText.Replace("[", "[[]").Replace("?", "[?]").Replace("#", "[#]")
+
+                    ' OleDb provider (Access) ใช้ % เป็น wildcard (ไม่ใช่ * ที่ใช้ใน Access DAO)
+                    Dim likePattern = "%" & safeSearch & "%"
+
+                    ' ค้นหาหลายฟิลด์พร้อมกัน
+                    ' ใน OleDb ต้องใส่พารามิเตอร์ตามลำดับที่ปรากฏใน SQL แม้จะเป็นชื่อเดียวกันก็ตาม
+                    ' ดังนั้นเราจะใช้ชื่อพารามิเตอร์แยกกันเพื่อให้ชัดเจน
+                    sql &= " AND (" &
+                           "t.Detail LIKE @s1 OR " &
+                           "t.Note LIKE @s2 OR " &
+                           "c.CategoryName LIKE @s3 OR " &
+                           "f.FundName LIKE @s4 OR " &
+                           "b.BankName LIKE @s5 OR " &
+                           "f2.FundName LIKE @s6 OR " &
+                           "b2.BankName LIKE @s7 OR " &
+                           "IIF(f.FundName IS NULL,'',f.FundName & ' ' & IIF(b.BankName IS NULL,'',b.BankName)) LIKE @s8 OR " &
+                           "IIF(f2.FundName IS NULL,'',f2.FundName & ' ' & IIF(b2.BankName IS NULL,'',b2.BankName)) LIKE @s9" &
+                           ") "
+
+                    For i As Integer = 1 To 9
+                        ps.Add(New Tuple(Of String, Object)("@s" & i, likePattern))
+                    Next
+                Catch ex As Exception
+                    AppPaths.LogCrash(ex, "FrmTransactions.Search")
+                End Try
+            End If
+
+            If ascending Then
+                sql &= " ORDER BY " & tranDateExpr & " ASC, t.ID ASC"
+            Else
+                sql &= " ORDER BY " & tranDateExpr & " DESC, t.ID DESC"
+            End If
+
+            Return (sql, ps.ToArray())
+        End Function
 
         Private Sub ConfigureGridColumns()
             Dim headers As New Dictionary(Of String, String) From {
@@ -497,14 +517,21 @@ Namespace TempleAccounting
 
         Private Sub btnExportExcel_Click(sender As Object, e As EventArgs) Handles btnExportExcel.Click
             Try
-                Dim dt = TryCast(dgvTransactions.DataSource, DataTable)
+                Dim fromDate = dtpFrom.Value.Date
+                Dim toDate = dtpTo.Value.Date
+
+                ' โหลดข้อมูลใหม่แบบเรียงเก่าสุดก่อน (ลำดับเวลา) สำหรับ Excel
+                ' (ไม่ใช้ข้อมูลจากกริดซึ่งเรียงใหม่สุดก่อน) เพื่อให้ลำดับที่ 1, 2, 3... ไล่ตามวันเวลา
+                Dim dt As DataTable = Nothing
+                Using conn = Db.OpenConn()
+                    Dim q = BuildLedgerQuery(ascending:=True)
+                    dt = Db.GetTable(conn, q.Sql, q.Params)
+                End Using
+
                 If dt Is Nothing OrElse dt.Rows.Count = 0 Then
                     MessageBox.Show("ไม่มีข้อมูลในตารางที่จะส่งออก กรุณาตรวจสอบช่วงวันที่และตัวกรองก่อน", "แจ้งเตือน", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                     Return
                 End If
-
-                Dim fromDate = dtpFrom.Value.Date
-                Dim toDate = dtpTo.Value.Date
 
                 Using sfd As New SaveFileDialog()
                     sfd.Title = "บันทึกสมุดรายวันเป็นไฟล์ Excel"
