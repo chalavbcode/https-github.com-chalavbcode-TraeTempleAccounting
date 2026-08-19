@@ -46,6 +46,10 @@ Namespace TempleAccounting
                 ' ปุ่มใน FlowLayoutPanel (pa) ใช้ AutoSize ขนาดตามข้อความ — ปุ่มอื่นให้ UiFitter ปรับฟอนต์ให้เต็มปุ่ม
                 UiFitter.AutoFitFormButtons(Me)
                 UiFitter.DisableComboBoxWheel(Me)
+                ' ตั้งค่าเดือนเริ่มต้นเป็นเดือนปัจจุบัน (แทน Designer default ที่ hardcode ปี 2026)
+                Dim todayMonthStart As New Date(Date.Today.Year, Date.Today.Month, 1)
+                dtpFrom.Value = todayMonthStart
+                dtpTo.Value = todayMonthStart.AddMonths(1).AddDays(-1)
                 btnLedger_Click(Nothing, EventArgs.Empty)
             Catch ex As Exception
                 Throw

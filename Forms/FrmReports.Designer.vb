@@ -141,7 +141,7 @@ Namespace TempleAccounting
             dtpFrom.Name = "dtpFrom"
             dtpFrom.Size = New Size(140, 29)
             dtpFrom.TabIndex = 1
-            dtpFrom.Value = New Date(2026, 7, 1, 0, 0, 0, 0)
+            dtpFrom.Value = New Date(Date.Today.Year, Date.Today.Month, 1, 0, 0, 0, 0)
             ' 
             ' lbl2
             ' 
@@ -161,7 +161,7 @@ Namespace TempleAccounting
             dtpTo.Name = "dtpTo"
             dtpTo.Size = New Size(140, 29)
             dtpTo.TabIndex = 3
-            dtpTo.Value = New Date(2026, 7, 31, 0, 0, 0, 0)
+            dtpTo.Value = New Date(Date.Today.Year, Date.Today.Month, DateTime.DaysInMonth(Date.Today.Year, Date.Today.Month), 0, 0, 0, 0)
             ' 
             ' lbl3
             ' 

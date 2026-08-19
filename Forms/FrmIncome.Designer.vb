@@ -171,7 +171,7 @@ Namespace TempleAccounting
             dtpDate.Name = "dtpDate"
             dtpDate.Size = New Size(520, 33)
             dtpDate.TabIndex = 0
-            dtpDate.Value = New Date(2026, 8, 1, 0, 0, 0, 0)
+            dtpDate.Value = New Date(Date.Today.Year, Date.Today.Month, 1, 0, 0, 0, 0)
             ' 
             ' cboCategory
             ' 

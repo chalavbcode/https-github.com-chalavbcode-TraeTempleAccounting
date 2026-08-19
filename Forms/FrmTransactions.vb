@@ -5,9 +5,6 @@ Imports System
 Imports System.Collections.Generic
 Imports System.Drawing
 Imports System.IO
-Imports System.Net.Http
-Imports System.Text
-Imports System.Text.Json
 Imports System.Globalization
 Imports System.Windows.Forms
 Imports System.Data
@@ -21,68 +18,6 @@ Namespace TempleAccounting
         Private _isEditing As Boolean = False
         Private _editingTransactionId As Integer = 0
 
-#Region "debug-point Z:debug-report"
-        Private Const DebugSessionId As String = "transactions-grid-empty"
-        Private Const DebugRunId As String = "post-fix"
-
-        Private Shared Function FindUpwards(startDir As String, relativePath As String) As String
-            Try
-                Dim dir = startDir
-                If String.IsNullOrWhiteSpace(dir) Then Return ""
-                For i As Integer = 0 To 12
-                    Dim candidate = Path.Combine(dir, relativePath)
-                    If File.Exists(candidate) Then Return candidate
-                    Dim parent = Directory.GetParent(dir)
-                    If parent Is Nothing Then Exit For
-                    dir = parent.FullName
-                Next
-            Catch
-            End Try
-            Return ""
-        End Function
-
-        Private Shared Function GetDebugServerUrl() As String
-            Dim fallback = "http://127.0.0.1:7777/event"
-            Try
-                Dim envPath = FindUpwards(AppDomain.CurrentDomain.BaseDirectory, Path.Combine(".dbg", DebugSessionId & ".env"))
-                If String.IsNullOrWhiteSpace(envPath) OrElse Not File.Exists(envPath) Then Return fallback
-                Dim lines = File.ReadAllLines(envPath, Encoding.UTF8)
-                For Each line In lines
-                    If line.StartsWith("DEBUG_SERVER_URL=", StringComparison.OrdinalIgnoreCase) Then
-                        Dim url = line.Substring("DEBUG_SERVER_URL=".Length).Trim()
-                        If url <> "" Then Return url
-                    End If
-                Next
-            Catch
-            End Try
-            Return fallback
-        End Function
-
-        Private Shared Sub DebugReport(hypothesisId As String, location As String, msg As String, data As Dictionary(Of String, Object))
-            Try
-                Dim url = GetDebugServerUrl()
-                Dim payload As New Dictionary(Of String, Object) From {
-                    {"sessionId", DebugSessionId},
-                    {"runId", DebugRunId},
-                    {"hypothesisId", hypothesisId},
-                    {"location", location},
-                    {"msg", "[DEBUG] " & msg},
-                    {"data", If(data, New Dictionary(Of String, Object)())},
-                    {"ts", DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}
-                }
-
-                Dim json = JsonSerializer.Serialize(payload)
-                Using client As New HttpClient()
-                    client.Timeout = TimeSpan.FromMilliseconds(500)
-                    Using content As New StringContent(json, Encoding.UTF8, "application/json")
-                        client.PostAsync(url, content).GetAwaiter().GetResult()
-                    End Using
-                End Using
-            Catch
-            End Try
-        End Sub
-#End Region
-
         Public Sub New()
             InitializeComponent()
         End Sub
@@ -93,20 +28,8 @@ Namespace TempleAccounting
             HelpSystem.SetupHelp(Me, "FrmTransactions")
             UiFitter.AutoFitFormButtons(Me)
             UiFitter.DisableComboBoxWheel(Me)
-#Region "debug-point A:form-load"
-            DebugReport("A", "FrmTransactions_Load", "load-start", New Dictionary(Of String, Object) From {
-                {"baseDir", AppDomain.CurrentDomain.BaseDirectory},
-                {"dbPath", AppPaths.DatabaseFile},
-                {"dbExists", File.Exists(AppPaths.DatabaseFile)}
-            })
-#End Region
+
             Db.EnsureSchema()
-#Region "debug-point A:ensure-schema"
-            DebugReport("A", "FrmTransactions_Load", "ensure-schema-ok", New Dictionary(Of String, Object) From {
-                {"dbPath", AppPaths.DatabaseFile},
-                {"dbExists", File.Exists(AppPaths.DatabaseFile)}
-            })
-#End Region
             LoadFilters()
             SetupSearchEnterNavigation()
             LoadData()
@@ -221,56 +144,9 @@ Namespace TempleAccounting
             Dim keepSelectedId As Integer = If(_editingTransactionId > 0, _editingTransactionId, GetSelectedTransactionId())
 
             Try
-#Region "debug-point B:loaddata-start"
-                DebugReport("B", "LoadData", "loaddata-start", New Dictionary(Of String, Object) From {
-                    {"dbPath", AppPaths.DatabaseFile},
-                    {"dbExists", File.Exists(AppPaths.DatabaseFile)},
-                    {"from", dtpFrom.Value.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)},
-                    {"to", dtpTo.Value.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)},
-                    {"fromYear", dtpFrom.Value.Year},
-                    {"toYear", dtpTo.Value.Year},
-                    {"categoryId", If(cboCategory.SelectedValue, 0)},
-                    {"typeIndex", cboType.SelectedIndex},
-                    {"search", txtSearch.Text}
-                })
-#End Region
-
                 Using conn = Db.OpenConn()
-                    Dim tranDateExpr = "IIF(Year(t.TranDate)>2400, DateAdd('yyyy',-543,t.TranDate), t.TranDate)"
-                    Dim d1 = dtpFrom.Value.Date
-                    Dim d2 = dtpTo.Value.Date.AddDays(1).AddSeconds(-1)
-                    Dim d1Literal = Db.AccessDateLiteral(d1)
-                    Dim d2Literal = Db.AccessDateLiteral(d2)
-
-#Region "debug-point B:db-stats"
-                    Dim totalCount = Db.DbScalar(conn, "SELECT COUNT(*) FROM Transactions")
-                    Dim minDb = Db.DbScalar(conn, "SELECT MIN(TranDate) FROM Transactions")
-                    Dim maxDb = Db.DbScalar(conn, "SELECT MAX(TranDate) FROM Transactions")
-                    Dim minYearDb = Db.DbScalar(conn, "SELECT MIN(Year(TranDate)) FROM Transactions")
-                    Dim maxYearDb = Db.DbScalar(conn, "SELECT MAX(Year(TranDate)) FROM Transactions")
-                    Dim rawBetweenCount = Db.DbScalar(conn, "SELECT COUNT(*) FROM Transactions WHERE TranDate BETWEEN " & d1Literal & " AND " & d2Literal)
-                    Dim exprBetweenCount = Db.DbScalar(conn, "SELECT COUNT(*) FROM Transactions t WHERE " & tranDateExpr & " BETWEEN " & d1Literal & " AND " & d2Literal)
-                    DebugReport("B", "LoadData", "db-stats", New Dictionary(Of String, Object) From {
-                        {"totalCount", totalCount},
-                        {"minDb", If(minDb, "")},
-                        {"maxDb", If(maxDb, "")},
-                        {"minYearDb", If(minYearDb, "")},
-                        {"maxYearDb", If(maxYearDb, "")},
-                        {"rawBetweenCount", rawBetweenCount},
-                        {"exprBetweenCount", exprBetweenCount}
-                    })
-#End Region
-
                     Dim q = BuildLedgerQuery(ascending:=False)
                     Dim dt = Db.GetTable(conn, q.Sql, q.Params)
-
-#Region "debug-point C:loaddata-result"
-                    DebugReport("C", "LoadData", "query-result", New Dictionary(Of String, Object) From {
-                        {"rowCount", dt.Rows.Count},
-                        {"colCount", dt.Columns.Count}
-                    })
-#End Region
-
                     dgvTransactions.DataSource = dt
                     If dgvTransactions.Columns.Count > 0 Then
                         ConfigureGridColumns()
@@ -293,12 +169,6 @@ Namespace TempleAccounting
                     lblSummary.Text = $"รายรับ: {sumInc:n2} บาท  |  รายจ่าย: {sumExp:n2} บาท  |  คงเหลือ: {(sumInc - sumExp):n2} บาท  |  โอนภายใน: {sumTrf:n2} บาท"
                 End Using
             Catch ex As Exception
-#Region "debug-point D:loaddata-ex"
-                DebugReport("D", "LoadData", "exception", New Dictionary(Of String, Object) From {
-                    {"type", ex.GetType().FullName},
-                    {"message", ex.Message}
-                })
-#End Region
                 Throw
             End Try
 
