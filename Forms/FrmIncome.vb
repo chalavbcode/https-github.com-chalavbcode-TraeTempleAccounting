@@ -252,6 +252,8 @@ Namespace TempleAccounting
         Private Sub CalculateMonthlySummary()
             Try
                 Using conn = Db.OpenConn()
+                    Dim firstOfMonth As Date = New Date(Date.Today.Year, Date.Today.Month, 1)
+                    Dim firstOfNextMonth As Date = firstOfMonth.AddMonths(1)
                     Dim dt = Db.GetTable(conn,
                         "SELECT COUNT(*) AS TotalCount, " &
                         "IIF(ISNULL(MAX(Amount)),0,MAX(Amount)) AS MaxAmount, " &
@@ -259,8 +261,8 @@ Namespace TempleAccounting
                         "IIF(ISNULL(SUM(Amount)),0,SUM(Amount)) AS TotalAmount " &
                         "FROM Transactions " &
                         "WHERE (TranType LIKE '%รับ%' OR TranType = 'Income') " &
-                        "AND MONTH(TranDate) = MONTH(Date()) " &
-                        "AND (YEAR(TranDate) = YEAR(Date()) OR YEAR(TranDate) = 2026)")
+                        "AND TranDate >= " & Db.AccessDateLiteral(firstOfMonth) & " " &
+                        "AND TranDate < " & Db.AccessDateLiteral(firstOfNextMonth))
                     If dt.Rows.Count > 0 Then
                         Dim dr = dt.Rows(0)
                         Dim totalCount = Db.ToIntOrZero(dr("TotalCount"))

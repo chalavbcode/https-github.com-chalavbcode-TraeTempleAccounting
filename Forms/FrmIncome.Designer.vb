@@ -42,6 +42,7 @@ Namespace TempleAccounting
         Friend WithEvents lblRefNo As Label
         Friend WithEvents dgvRecentTransactions As DataGridView
         Friend WithEvents lblSummary As Label
+        Friend WithEvents lblRecentHeader As Label
 
         <DebuggerNonUserCode()>
         Protected Overrides Sub Dispose(disposing As Boolean)
@@ -86,6 +87,7 @@ Namespace TempleAccounting
             txtReferenceNo = New TextBox()
             lblRefNo = New Label()
             lblSummary = New Label()
+            lblRecentHeader = New Label()
             dgvRecentTransactions = New DataGridView()
             CType(dgvRecentTransactions, ISupportInitialize).BeginInit()
             SuspendLayout()
@@ -110,7 +112,7 @@ Namespace TempleAccounting
             ' 
             ' lbl3
             ' 
-            lbl3.Location = New Point(40, 164)
+            lbl3.Location = New Point(75, 200)
             lbl3.Name = "lbl3"
             lbl3.Size = New Size(190, 40)
             lbl3.TabIndex = 2
@@ -329,7 +331,6 @@ Namespace TempleAccounting
             btnClose.FlatStyle = FlatStyle.Flat
             btnClose.Font = New Font("Tahoma", 11F, FontStyle.Bold)
             btnClose.ForeColor = Color.White
-            btnClose.Anchor = AnchorStyles.Top Or AnchorStyles.Left
             btnClose.Location = New Point(998, 654)
             btnClose.Name = "btnClose"
             btnClose.Size = New Size(140, 56)
@@ -386,22 +387,35 @@ Namespace TempleAccounting
             lblSummary.Text = "รายรับเดือนนี้: 0 ครั้ง  |  สูงสุด: 0.00 บาท  |  เฉลี่ย: 0.00 บาท  |  รวมรายรับ: 0.00 บาท"
             lblSummary.TextAlign = ContentAlignment.MiddleCenter
             ' 
+            ' lblRecentHeader
+            ' 
+            lblRecentHeader.Anchor = AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right
+            lblRecentHeader.BackColor = Color.FromArgb(CByte(241), CByte(196), CByte(15))
+            lblRecentHeader.Font = New Font("Tahoma", 10F, FontStyle.Bold)
+            lblRecentHeader.ForeColor = Color.Black
+            lblRecentHeader.Location = New Point(766, 85)
+            lblRecentHeader.Name = "lblRecentHeader"
+            lblRecentHeader.Size = New Size(991, 28)
+            lblRecentHeader.TabIndex = 27
+            lblRecentHeader.Text = "📋 รายการรายรับล่าสุด 10 รายการ"
+            lblRecentHeader.TextAlign = ContentAlignment.MiddleCenter
+            ' 
             ' dgvRecentTransactions
             ' 
             dgvRecentTransactions.AllowUserToAddRows = False
             dgvRecentTransactions.AllowUserToDeleteRows = False
             dgvRecentTransactions.AllowUserToResizeRows = False
-            dgvRecentTransactions.Anchor = AnchorStyles.Top Or AnchorStyles.Bottom Or AnchorStyles.Left Or AnchorStyles.Right
+            dgvRecentTransactions.Anchor = AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right
             dgvRecentTransactions.BackgroundColor = Color.White
             dgvRecentTransactions.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize
-            dgvRecentTransactions.Location = New Point(770, 40)
+            dgvRecentTransactions.Location = New Point(766, 113)
             dgvRecentTransactions.MultiSelect = False
             dgvRecentTransactions.Name = "dgvRecentTransactions"
             dgvRecentTransactions.ReadOnly = True
             dgvRecentTransactions.RowHeadersVisible = False
             dgvRecentTransactions.RowHeadersWidth = 62
             dgvRecentTransactions.SelectionMode = DataGridViewSelectionMode.FullRowSelect
-            dgvRecentTransactions.Size = New Size(991, 860)
+            dgvRecentTransactions.Size = New Size(991, 412)
             dgvRecentTransactions.TabIndex = 26
             ' 
             ' FrmIncome
@@ -437,6 +451,7 @@ Namespace TempleAccounting
             Controls.Add(btnImportExcel)
             Controls.Add(btnClose)
             Controls.Add(dgvRecentTransactions)
+            Controls.Add(lblRecentHeader)
             Controls.Add(lblSummary)
             Font = New Font("Tahoma", 10.5F)
             MinimumSize = New Size(1100, 900)

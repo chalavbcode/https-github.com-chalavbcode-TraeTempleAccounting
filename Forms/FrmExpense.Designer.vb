@@ -38,6 +38,7 @@ Namespace TempleAccounting
         Friend WithEvents lbl8 As Label
         Friend WithEvents dgvRecentTransactions As DataGridView
         Friend WithEvents lblSummary As Label
+        Friend WithEvents lblRecentHeader As Label
 
         <DebuggerNonUserCode()>
         Protected Overrides Sub Dispose(disposing As Boolean)
@@ -73,6 +74,7 @@ Namespace TempleAccounting
             btnBrowseReceipt = New Button()
             btnPasteReceipt = New Button()
             lblSummary = New Label()
+            lblRecentHeader = New Label()
             btnClearReceipt = New Button()
             btnSave = New Button()
             btnCancel = New Button()
@@ -257,6 +259,32 @@ Namespace TempleAccounting
             btnPasteReceipt.Text = "📋 วางจาก LINE"
             btnPasteReceipt.UseVisualStyleBackColor = False
             ' 
+            ' lblSummary
+            ' 
+            lblSummary.BackColor = Color.FromArgb(CByte(254), CByte(240), CByte(138))
+            lblSummary.Dock = DockStyle.Top
+            lblSummary.Font = New Font("Tahoma", 11F, FontStyle.Bold)
+            lblSummary.ForeColor = Color.FromArgb(CByte(69), CByte(26), CByte(3))
+            lblSummary.Location = New Point(0, 0)
+            lblSummary.Name = "lblSummary"
+            lblSummary.Size = New Size(1639, 36)
+            lblSummary.TabIndex = 0
+            lblSummary.Text = "รายจ่ายเดือนนี้: 0 ครั้ง  |  สูงสุด: 0.00 บาท  |  เฉลี่ย: 0.00 บาท  |  รวมรายจ่าย: 0.00 บาท"
+            lblSummary.TextAlign = ContentAlignment.MiddleCenter
+            ' 
+            ' lblRecentHeader
+            ' 
+            lblRecentHeader.Anchor = AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right
+            lblRecentHeader.BackColor = Color.FromArgb(CByte(241), CByte(196), CByte(15))
+            lblRecentHeader.Font = New Font("Tahoma", 10F, FontStyle.Bold)
+            lblRecentHeader.ForeColor = Color.Black
+            lblRecentHeader.Location = New Point(766, 74)
+            lblRecentHeader.Name = "lblRecentHeader"
+            lblRecentHeader.Size = New Size(857, 28)
+            lblRecentHeader.TabIndex = 27
+            lblRecentHeader.Text = "📋 รายการรายจ่ายล่าสุด 10 รายการ"
+            lblRecentHeader.TextAlign = ContentAlignment.MiddleCenter
+            ' 
             ' btnClearReceipt
             ' 
             btnClearReceipt.BackColor = Color.FromArgb(CByte(220), CByte(38), CByte(38))
@@ -318,9 +346,8 @@ Namespace TempleAccounting
             btnClose.BackColor = Color.FromArgb(CByte(64), CByte(64), CByte(64))
             btnClose.Cursor = Cursors.Hand
             btnClose.FlatStyle = FlatStyle.Flat
-            btnClose.Font = New Font("Tahoma", 9.75F, FontStyle.Bold)
+            btnClose.Font = New Font("Tahoma", 11F, FontStyle.Bold)
             btnClose.ForeColor = Color.White
-            btnClose.Anchor = AnchorStyles.Top Or AnchorStyles.Left
             btnClose.Location = New Point(998, 592)
             btnClose.Name = "btnClose"
             btnClose.Size = New Size(140, 56)
@@ -328,36 +355,22 @@ Namespace TempleAccounting
             btnClose.Text = "❌ ปิด"
             btnClose.UseVisualStyleBackColor = False
             ' 
-            ' lblSummary
-            ' 
-            lblSummary.BackColor = Color.FromArgb(CByte(254), CByte(240), CByte(138))
-            lblSummary.Dock = DockStyle.Top
-            lblSummary.Font = New Font("Tahoma", 11F, FontStyle.Bold)
-            lblSummary.ForeColor = Color.FromArgb(CByte(69), CByte(26), CByte(3))
-            lblSummary.Location = New Point(0, 0)
-            lblSummary.Name = "lblSummary"
-            lblSummary.Size = New Size(1639, 36)
-            lblSummary.TabIndex = 0
-            lblSummary.Text = "รายจ่ายเดือนนี้: 0 ครั้ง  |  สูงสุด: 0.00 บาท  |  เฉลี่ย: 0.00 บาท  |  รวมรายจ่าย: 0.00 บาท"
-            lblSummary.TextAlign = ContentAlignment.MiddleCenter
-            ' 
             ' dgvRecentTransactions
             ' 
             dgvRecentTransactions.AllowUserToAddRows = False
             dgvRecentTransactions.AllowUserToDeleteRows = False
             dgvRecentTransactions.AllowUserToResizeRows = False
-            dgvRecentTransactions.Anchor = AnchorStyles.Top Or AnchorStyles.Bottom Or AnchorStyles.Left Or AnchorStyles.Right
+            dgvRecentTransactions.Anchor = AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right
             dgvRecentTransactions.BackgroundColor = Color.White
             dgvRecentTransactions.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize
-            dgvRecentTransactions.Location = New Point(770, 40)
+            dgvRecentTransactions.Location = New Point(766, 102)
             dgvRecentTransactions.MultiSelect = False
             dgvRecentTransactions.Name = "dgvRecentTransactions"
             dgvRecentTransactions.ReadOnly = True
             dgvRecentTransactions.RowHeadersVisible = False
             dgvRecentTransactions.RowHeadersWidth = 62
-            dgvRecentTransactions.ScrollBars = ScrollBars.Both
             dgvRecentTransactions.SelectionMode = DataGridViewSelectionMode.FullRowSelect
-            dgvRecentTransactions.Size = New Size(857, 860)
+            dgvRecentTransactions.Size = New Size(857, 412)
             dgvRecentTransactions.TabIndex = 26
             ' 
             ' FrmExpense
@@ -389,6 +402,7 @@ Namespace TempleAccounting
             Controls.Add(btnImportExcel)
             Controls.Add(btnClose)
             Controls.Add(dgvRecentTransactions)
+            Controls.Add(lblRecentHeader)
             Controls.Add(lblSummary)
             Font = New Font("Tahoma", 10.5F)
             MinimumSize = New Size(1100, 900)

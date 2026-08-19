@@ -643,6 +643,11 @@ Namespace TempleAccounting
         End Sub
 
         Private Sub btnEdit_Click(sender As Object, e As EventArgs) Handles btnEdit.Click
+            If _isEditing Then
+                SaveSelectedRowEdits()
+                Return
+            End If
+
             If dgvTransactions.CurrentRow Is Nothing Then
                 MessageBox.Show("กรุณาเลือกรายการที่ต้องการแก้ไขก่อน", "แจ้งเตือน", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                 Return

@@ -323,6 +323,8 @@ Namespace TempleAccounting
             If pnlCards Is Nothing Then Return
 
             Using conn = Db.OpenConn()
+                Dim firstOfMonth As Date = New Date(Date.Today.Year, Date.Today.Month, 1)
+                Dim firstOfNextMonth As Date = firstOfMonth.AddMonths(1)
                 For Each card As Control In pnlCards.Controls
                     Dim pnl = TryCast(card, Panel)
                     If pnl Is Nothing Then Continue For
@@ -343,22 +345,22 @@ Namespace TempleAccounting
                             Dim cnt = Db.ToIntOrZero(Db.DbScalar(conn,
                                 "SELECT COUNT(*) FROM Transactions " &
                                 "WHERE (TranType LIKE '%รับ%' OR TranType = 'Income') " &
-                                "AND MONTH(TranDate) = MONTH(Date()) " &
-                                "AND (YEAR(TranDate) = YEAR(Date()) OR YEAR(TranDate) = 2026)"))
+                                "AND TranDate >= " & Db.AccessDateLiteral(firstOfMonth) & " " &
+                                "AND TranDate < " & Db.AccessDateLiteral(firstOfNextMonth)))
                             valueLbl.Text = cnt.ToString("#,##0")
                         Case OverviewMetric.IncomeMonth
                             Dim total = Db.ToDecimalOrZero(Db.DbScalar(conn,
                                 "SELECT SUM(Amount) FROM Transactions " &
                                 "WHERE (TranType LIKE '%รับ%' OR TranType = 'Income') " &
-                                "AND MONTH(TranDate) = MONTH(Date()) " &
-                                "AND (YEAR(TranDate) = YEAR(Date()) OR YEAR(TranDate) = 2026)"))
+                                "AND TranDate >= " & Db.AccessDateLiteral(firstOfMonth) & " " &
+                                "AND TranDate < " & Db.AccessDateLiteral(firstOfNextMonth)))
                             valueLbl.Text = total.ToString("#,##0.00")
                         Case OverviewMetric.ExpenseMonth
                             Dim total = Db.ToDecimalOrZero(Db.DbScalar(conn,
                                 "SELECT SUM(Amount) FROM Transactions " &
                                 "WHERE (TranType LIKE '%จ่าย%' OR TranType = 'Expense') " &
-                                "AND MONTH(TranDate) = MONTH(Date()) " &
-                                "AND (YEAR(TranDate) = YEAR(Date()) OR YEAR(TranDate) = 2026)"))
+                                "AND TranDate >= " & Db.AccessDateLiteral(firstOfMonth) & " " &
+                                "AND TranDate < " & Db.AccessDateLiteral(firstOfNextMonth)))
                             valueLbl.Text = total.ToString("#,##0.00")
                         Case OverviewMetric.Balance
                             Dim bal = Db.ToDecimalOrZero(Db.DbScalar(conn,
@@ -762,7 +764,14 @@ Namespace TempleAccounting
         Private Sub LoadMonkSample()
             Try
                 Using conn = Db.OpenConn()
-                    Dim row = Db.GetTable(conn, "SELECT TOP 1 TempleName, AbbotName, WaiyawatName, BookkeeperName FROM TempleSetting ORDER BY ID DESC")
+                    Dim row = Db.GetTable(conn,
+                        "SELECT TOP 1 ts.TempleName, " &
+                        "a.FullName AS AbbotName, w.FullName AS WaiyawatName, b.FullName AS BookkeeperName " &
+                        "FROM ((TempleSetting ts " &
+                        "LEFT JOIN Personnel a ON ts.AbbotPersonnelID = a.PersonnelID) " &
+                        "LEFT JOIN Personnel w ON ts.WaiyawatPersonnelID = w.PersonnelID) " &
+                        "LEFT JOIN Personnel b ON ts.BookkeeperPersonnelID = b.PersonnelID " &
+                        "ORDER BY ts.ID DESC")
                     If row.Rows.Count > 0 Then
                         Dim r = row.Rows(0)
                         lblOverviewTitle.Text = "🥇 ข้อมูลบุคลากรและวัด (ข้อมูลจริง)"
