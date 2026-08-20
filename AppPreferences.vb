@@ -83,7 +83,8 @@ Namespace TempleAccounting
                         Case "LastIncomeFundID" : _lastIncomeFundID = n
                     End Select
                 Next
-            Catch
+            Catch ex As Exception
+                ErrorLogHelper.LogSilentError("AppPreferences.EnsureLoaded", ex)
             End Try
         End Sub
 
@@ -100,7 +101,8 @@ Namespace TempleAccounting
                 sb.AppendLine("LastIncomeCategoryID=" & _lastIncomeCategoryID)
                 sb.AppendLine("LastIncomeFundID=" & _lastIncomeFundID)
                 File.WriteAllText(cfgPath, sb.ToString(), Encoding.UTF8)
-            Catch
+            Catch ex As Exception
+                ErrorLogHelper.LogSilentError("AppPreferences.Save", ex)
             End Try
         End Sub
     End Module

@@ -3,9 +3,11 @@ Option Explicit On
 
 Imports System
 Imports System.IO
+Imports System.Security.Cryptography
 Imports System.Collections.Generic
 Imports System.Data.OleDb
 Imports System.Windows.Forms
+Imports System.Globalization
 
 Namespace TempleAccounting
     Public Class DatabaseBackupHelper
@@ -46,12 +48,8 @@ Namespace TempleAccounting
                     If Not isAuto Then MessageBoxHelper.ShowError("ไม่พบไฟล์ฐานข้อมูลต้นทาง")
                 End If
 
-                ' 3. สำรองโฟลเดอร์รูปใบเสร็จ (Receipts)
-                Dim receiptsSource As String = AppPaths.ReceiptsDir
-                If Directory.Exists(receiptsSource) Then
-                    Dim receiptsDest As String = Path.Combine(backupPath, "Receipts")
-                    CopyDirectory(receiptsSource, receiptsDest)
-                End If
+                ' 3. สำรองรูปใบเสร็จไปโฟลเดอร์กลาง (Append-Only, Collision-Safe)
+                SyncReceiptsToBackup()
 
                 ' 4. แจ้งเตือน (เฉพาะ Manual)
                 If Not isAuto Then
@@ -167,12 +165,21 @@ Namespace TempleAccounting
                 ' ตรวจสอบทั้งในโฟลเดอร์ที่เลือก และโฟลเดอร์ย่อยชื่อ Receipts
                 Dim receiptsSourcePaths As New List(Of String)()
                 
-                ' กรณี 1: มีโฟลเดอร์ Receipts อยู่ข้างใน (โครงสร้างมาตรฐาน)
+                ' กรณี 1: มีโฟลเดอร์ Receipts อยู่ข้างใน (โครงสร้างมาตรฐาน — legacy backup)
                 Dim subDirReceipts = Path.Combine(backupFolder, "Receipts")
                 If Directory.Exists(subDirReceipts) Then receiptsSourcePaths.Add(subDirReceipts)
                 
                 ' กรณี 2: ผู้ใช้เลือกโฟลเดอร์ที่มีรูปอยู่โดยตรง
                 receiptsSourcePaths.Add(backupFolder)
+
+                ' กรณี 3: Backup ใหม่ (หลัง Fix 9) ไม่มี Receipts/ ข้างใน
+                '         → fallback ไปใช้โฟลเดอร์กลาง Backup/Receipts/ แทน
+                If receiptsSourcePaths.Count = 1 Then
+                    Dim centralizedReceipts = Path.Combine(AppPaths.BackupFolder, "Receipts")
+                    If centralizedReceipts <> subDirReceipts AndAlso Directory.Exists(centralizedReceipts) Then
+                        receiptsSourcePaths.Add(centralizedReceipts)
+                    End If
+                End If
 
                 ' ทำการคัดลอกไฟล์รูปภาพจากทุกแหล่งที่พบ
                 For Each srcPath In receiptsSourcePaths
@@ -182,7 +189,8 @@ Namespace TempleAccounting
                 ' ลบ Safety Backup เมื่อสำเร็จ
                 Try
                     Directory.Delete(safetyPath, True)
-                Catch
+                Catch ex As Exception
+                    ErrorLogHelper.LogSilentError("DatabaseBackupHelper.RestoreFullSystem.TempCleanup", ex)
                 End Try
 
                 Return True
@@ -237,6 +245,229 @@ Namespace TempleAccounting
                 Next
             Catch ex As Exception
                 AppPaths.LogCrash(ex, $"CopyImageFilesOnly.Error: {sourceDir}")
+            End Try
+        End Sub
+
+        ' ──────────────────────────────────────────────────────────────
+        ' Tiered Backup Retention (Weekly / Monthly / Yearly)
+        ' ──────────────────────────────────────────────────────────────
+
+        Private Const MaxWeeklyBackups As Integer = 8
+        Private Const MaxMonthlyBackups As Integer = 15
+        Private Const MaxYearlyBackups As Integer = 5
+
+        ''' <summary>
+        ''' สร้างโฟลเดอร์ย่อยสำหรับ Tiered Backup ทั้ง 3 ระดับ (ถ้ายังไม่มี)
+        ''' </summary>
+        Private Shared Sub EnsureBackupTierFolders()
+            Dim tiers = {"Weekly", "Monthly", "Yearly"}
+            For Each tier In tiers
+                Dim folder = Path.Combine(AppPaths.BackupFolder, tier)
+                If Not Directory.Exists(folder) Then Directory.CreateDirectory(folder)
+            Next
+        End Sub
+
+        ''' <summary>
+        ''' ทำการสำรองข้อมูลแบบ Tiered (Weekly + Monthly + Yearly) — เรียกตอนปิดโปรแกรม
+        ''' </summary>
+        ''' <param name="overrideDate">วันที่จำลองสำหรับทดสอบ (ถ้า Nothing ใช้ Date.Today)</param>
+        Public Shared Sub RunTieredBackup(Optional overrideDate As Date? = Nothing)
+            Dim d As Date = If(overrideDate, Date.Today)
+            Try
+                EnsureBackupTierFolders()
+                RunWeeklyBackup(d)
+                RunMonthlyBackup(d)
+                If d.Month = 12 Then RunYearlyBackup(d)
+
+                ' 4. คัดลอกใบเสร็จไปโฟลเดอร์กลาง (หลัง copy DB ทุก tier เสร็จแล้ว)
+                SyncReceiptsToBackup()
+            Catch ex As Exception
+                AppPaths.LogCrash(ex, "DatabaseBackupHelper.RunTieredBackup")
+            End Try
+        End Sub
+
+        ''' <summary>
+        ''' สำรองแบบ Weekly — ชื่อไฟล์ Backup_Weekly_{ISOYear}_W{weekNum:D2}.accdb
+        ''' เขียนทับไฟล์เดิมของสัปดาห์เดียวกันเสมอ (overwrite-in-place)
+        ''' </summary>
+        Public Shared Sub RunWeeklyBackup(d As Date)
+            Dim isoYear = ISOWeek.GetYear(d)
+            Dim weekNum = ISOWeek.GetWeekOfYear(d)
+            ' ใช้ isoYear (Integer จาก ISOWeek) ไม่ใช่ d:yyyy เพราะบนระบบ Thai locale
+            ' ตัว format specifier {d:yyyy} จะคืนค่าปี พ.ศ. (Buddhist Era) แทน ค.ศ.
+            Dim fileName = $"Backup_Weekly_{isoYear}_W{weekNum:D2}.accdb"
+            CopyDatabaseToTierFolder("Weekly", fileName)
+            CleanupWeeklyBackups()
+        End Sub
+
+        ''' <summary>
+        ''' สำรองแบบ Monthly — ชื่อไฟล์ Backup_Monthly_{yyyy}_{MM}.accdb
+        ''' เขียนทับไฟล์เดิมของเดือนเดียวกันเสมอ
+        ''' </summary>
+        Public Shared Sub RunMonthlyBackup(d As Date)
+            ' ใช้ d.Year / d.Month แทน d:yyyy / d:MM เพราะบนระบบ Thai locale
+            ' ตัว format specifier {d:yyyy} จะคืนค่าปี พ.ศ. (Buddhist Era) แทน ค.ศ.
+            Dim fileName = $"Backup_Monthly_{d.Year}_{d.Month:D2}.accdb"
+            CopyDatabaseToTierFolder("Monthly", fileName)
+            CleanupMonthlyBackups()
+        End Sub
+
+        ''' <summary>
+        ''' สำรองแบบ Yearly — ชื่อไฟล์ Backup_Yearly_{yyyy}.accdb
+        ''' เรียกเฉพาะเดือนธันวาคมเท่านั้น
+        ''' </summary>
+        Public Shared Sub RunYearlyBackup(d As Date)
+            ' ใช้ d.Year แทน d:yyyy เพราะบนระบบ Thai locale
+            ' ตัว format specifier {d:yyyy} จะคืนค่าปี พ.ศ. (Buddhist Era) แทน ค.ศ.
+            Dim fileName = $"Backup_Yearly_{d.Year}.accdb"
+            CopyDatabaseToTierFolder("Yearly", fileName)
+            CleanupYearlyBackups()
+        End Sub
+
+        ''' <summary>
+        ''' คัดลอกไฟล์ DB ไปยังโฟลเดอร์ tier ที่ระบุ (overwrite ถ้ามีอยู่แล้ว)
+        ''' </summary>
+        Private Shared Sub CopyDatabaseToTierFolder(tier As String, fileName As String)
+            Dim dbSource As String = AppPaths.DatabaseFile
+            If Not File.Exists(dbSource) Then Return
+
+            Dim destDir = Path.Combine(AppPaths.BackupFolder, tier)
+            Dim destPath = Path.Combine(destDir, fileName)
+
+            Try
+                ' Best-effort: ลอง collect ก่อน copy เพื่อลดโอกาส file lock
+                GC.Collect()
+                GC.WaitForPendingFinalizers()
+                File.Copy(dbSource, destPath, True)
+            Catch ex As Exception
+                AppPaths.LogCrash(ex, $"CopyDatabaseToTierFolder({tier}/{fileName})")
+            End Try
+        End Sub
+
+        ' ──────────────────────────────────────────────────────────────
+        ' Centralized Receipt Backup (Append-Only, Collision-Safe)
+        ' ──────────────────────────────────────────────────────────────
+
+        ''' <summary>
+        ''' คัดลอกใบเสร็จจากโฟลเดอร์ต้นทาง (Receipts/) ไปโฟลเดอร์กลาง (Backup/Receipts/) แบบ Append-Only
+        ''' • ไฟล์ที่ hash ตรงกัน → skip (ไม่ copy ซ้ำ)
+        ''' • ไฟล์ชื่อเดียวกันแต่เนื้อหาต่างกัน → เก็บด้วยชื่อใหม่แบบ deterministic (ไม่ overwrite)
+        ''' • ห้ามลบไฟล์ใดๆ ออกจาก Backup/Receipts/ (Append-Only)
+        ''' </summary>
+        Public Shared Sub SyncReceiptsToBackup()
+            Try
+                Dim sourceDir As String = AppPaths.ReceiptsDir
+                If Not Directory.Exists(sourceDir) Then Return
+
+                Dim destDir As String = Path.Combine(AppPaths.BackupFolder, "Receipts")
+                If Not Directory.Exists(destDir) Then Directory.CreateDirectory(destDir)
+
+                For Each srcFile In Directory.GetFiles(sourceDir)
+                    Try
+                        Dim fileName As String = Path.GetFileName(srcFile)
+                        Dim destFilePath As String = Path.Combine(destDir, fileName)
+
+                        If File.Exists(destFilePath) Then
+                            ' ไฟล์ปลายทางชื่อเดียวกันมีอยู่แล้ว → ตรวจสอบว่าเนื้อหาเดียวกันไหม
+                            Dim srcBytes As Byte() = File.ReadAllBytes(srcFile)
+                            Dim destBytes As Byte() = File.ReadAllBytes(destFilePath)
+                            Dim srcHash As String = ComputeMd5Hash(srcBytes)
+                            Dim destHash As String = ComputeMd5Hash(destBytes)
+
+                            If srcHash = destHash Then
+                                ' Hash ตรงกัน → ไฟล์เดียวกันจริง → skip (ไม่ copy ซ้ำ)
+                                Continue For
+                            Else
+                                ' Size หรือ hash ต่างกัน → ชื่อชนกัน คนละไฟล์ → ต้องเก็บทั้งคู่
+                                ' ตั้งชื่อไฟล์ collision ด้วย hash สั้นของเนื้อหา (deterministic)
+                                Dim shortHash As String = GetShortMd5Hash(srcBytes)
+                                Dim ext As String = Path.GetExtension(fileName)
+                                Dim nameNoExt As String = Path.GetFileNameWithoutExtension(fileName)
+                                Dim collisionName As String = $"{nameNoExt}_{shortHash}{ext}"
+                                Dim collisionPath As String = Path.Combine(destDir, collisionName)
+
+                                ' ป้องกันกรณี rare ที่ collision name ซ้ำอีก → เพิ่มตัวเลข
+                                Dim finalPath As String = collisionPath
+                                If File.Exists(finalPath) Then
+                                    Dim finalHash As String = ComputeMd5Hash(File.ReadAllBytes(finalPath))
+                                    If finalHash = srcHash Then Continue For  ' มีอยู่แล้ว
+                                    Dim counter As Integer = 1
+                                    Do While File.Exists(finalPath)
+                                        finalPath = Path.Combine(destDir, $"{nameNoExt}_{shortHash}_{counter}{ext}")
+                                        counter += 1
+                                    Loop
+                                End If
+                                File.WriteAllBytes(finalPath, srcBytes)
+                            End If
+                        Else
+                            ' ไฟล์ปลายทางไม่มี → copy ตรงๆ
+                            File.Copy(srcFile, destFilePath)
+                        End If
+                    Catch ex As Exception
+                        AppPaths.LogCrash(ex, $"SyncReceiptsToBackup.File: {srcFile}")
+                    End Try
+                Next
+            Catch ex As Exception
+                AppPaths.LogCrash(ex, "DatabaseBackupHelper.SyncReceiptsToBackup")
+            End Try
+        End Sub
+
+        ''' <summary>
+        ''' คำนวณ MD5 hash จาก byte array
+        ''' </summary>
+        Private Shared Function ComputeMd5Hash(data As Byte()) As String
+            Using md5 As MD5 = MD5.Create()
+                Dim hashBytes As Byte() = md5.ComputeHash(data)
+                Return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant()
+            End Using
+        End Function
+
+        ''' <summary>
+        ''' คืน MD5 hash สั้น 8 ตัวอักษรแรก (สำหรับตั้งชื่อไฟล์ collision)
+        ''' </summary>
+        Private Shared Function GetShortMd5Hash(data As Byte()) As String
+            Return ComputeMd5Hash(data).Substring(0, 8)
+        End Function
+
+        ' ── Cleanup helpers (FIFO ตาม max count, sort จากชื่อไฟล์) ──
+
+        Public Shared Sub CleanupWeeklyBackups()
+            CleanupTierFolder(Path.Combine(AppPaths.BackupFolder, "Weekly"), "Backup_Weekly_*.accdb", MaxWeeklyBackups)
+        End Sub
+
+        Public Shared Sub CleanupMonthlyBackups()
+            CleanupTierFolder(Path.Combine(AppPaths.BackupFolder, "Monthly"), "Backup_Monthly_*.accdb", MaxMonthlyBackups)
+        End Sub
+
+        Public Shared Sub CleanupYearlyBackups()
+            CleanupTierFolder(Path.Combine(AppPaths.BackupFolder, "Yearly"), "Backup_Yearly_*.accdb", MaxYearlyBackups)
+        End Sub
+
+        ''' <summary>
+        ''' ลบไฟล์ที่เก่าที่สุดในโฟลเดอร์จนเหลือไม่เกิน maxCount
+        ''' เรียงลำดับจากชื่อไฟล์ (ไม่ใช่ File.CreationTime) เพื่อความแม่นยำ
+        ''' </summary>
+        Private Shared Sub CleanupTierFolder(folder As String, searchPattern As String, maxCount As Integer)
+            Try
+                If Not Directory.Exists(folder) Then Return
+
+                Dim files = Directory.GetFiles(folder, searchPattern)
+                If files.Length <= maxCount Then Return
+
+                ' เรียงจากชื่อไฟล์ (ชื่อมี timestamp อยู่แล้ว → เรียงเก่าไปใหม่ได้ถูกต้อง)
+                Array.Sort(files, StringComparer.OrdinalIgnoreCase)
+
+                ' ลบไฟล์ที่เก่าที่สุดออกจนเหลือ maxCount
+                Dim toDelete = files.Length - maxCount
+                For i As Integer = 0 To toDelete - 1
+                    Try
+                        File.Delete(files(i))
+                    Catch ex As Exception
+                        AppPaths.LogCrash(ex, $"CleanupTierFolder.Delete: {files(i)}")
+                    End Try
+                Next
+            Catch ex As Exception
+                AppPaths.LogCrash(ex, $"CleanupTierFolder({folder})")
             End Try
         End Sub
     End Class

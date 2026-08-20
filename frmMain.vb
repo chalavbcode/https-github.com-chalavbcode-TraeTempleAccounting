@@ -203,7 +203,8 @@ Namespace TempleAccounting
             lblFormHostHint.Visible = True
             Try
                 LoadActualDashboardFromDb()
-            Catch
+            Catch ex As Exception
+                ErrorLogHelper.LogSilentError("frmMain.ShowDashboard", ex)
                 LoadSampleDashboardData()
             End Try
         End Sub
@@ -223,7 +224,8 @@ Namespace TempleAccounting
                     ShowFormInPanel(New FrmIncome(), "💰 บันทึกรายรับเงินบริจาค")
                     Try
                         LoadActualDonationOverviewFromDb()
-                    Catch
+                    Catch ex As Exception
+                        ErrorLogHelper.LogSilentError("frmMain.NavMenu.DonationOverview", ex)
                         LoadDonationSample()
                     End Try
 
@@ -232,7 +234,8 @@ Namespace TempleAccounting
                     ShowFormInPanel(New FrmExpense(), "💸 บันทึกรายจ่ายของวัด")
                     Try
                         LoadActualExpenseOverviewFromDb()
-                    Catch
+                    Catch ex As Exception
+                        ErrorLogHelper.LogSilentError("frmMain.NavMenu.ExpenseOverview", ex)
                         LoadExpenseSample()
                     End Try
 
@@ -241,7 +244,8 @@ Namespace TempleAccounting
                     ShowFormInPanel(New FrmReports(), "📊 ศูนย์รายงานและส่งออก CSV/Excel")
                     Try
                         LoadActualReportOverviewFromDb()
-                    Catch
+                    Catch ex As Exception
+                        ErrorLogHelper.LogSilentError("frmMain.NavMenu.ReportOverview", ex)
                         LoadReportSample()
                     End Try
 
@@ -250,7 +254,8 @@ Namespace TempleAccounting
                     ShowFormInPanel(New FrmTransactions(), "👥 รายการเงินรับ-จ่ายทั้งหมด (ค้นหา/แก้ไข/ลบ)")
                     Try
                         LoadTransactionOverview()
-                    Catch
+                    Catch ex As Exception
+                        ErrorLogHelper.LogSilentError("frmMain.NavMenu.TransactionOverview", ex)
                     End Try
 
                 Case "btnMultiImport"
@@ -272,7 +277,8 @@ Namespace TempleAccounting
                     ShowFormInPanel(New FrmTempleSetting(), "🥇 ข้อมูลวัด - พระ/อาวาส/ผู้ทำบัญชี/พร้อมเพย์")
                     Try
                         LoadMonkSample()
-                    Catch
+                    Catch ex As Exception
+                        ErrorLogHelper.LogSilentError("frmMain.NavMenu.MonkSample", ex)
                     End Try
 
                 Case "btnActivity"
@@ -280,7 +286,8 @@ Namespace TempleAccounting
                     ShowFormInPanel(New FrmTransfer(), "🎎 โอนเงินภายในระหว่างกองทุน/บัญชีธนาคาร")
                     Try
                         LoadActivitySample()
-                    Catch
+                    Catch ex As Exception
+                        ErrorLogHelper.LogSilentError("frmMain.NavMenu.ActivitySample", ex)
                     End Try
 
                 Case "btnSetting"
@@ -288,7 +295,8 @@ Namespace TempleAccounting
                     ShowFormInPanel(New FrmMasterData(), "⚙️ จัดการข้อมูลหลัก ประเภท/กองทุน/บัญชี  และนำเข้าจังหวัด")
                     Try
                         LoadSettingSample()
-                    Catch
+                    Catch ex As Exception
+                        ErrorLogHelper.LogSilentError("frmMain.NavMenu.SettingSample", ex)
                     End Try
             End Select
         End Sub
@@ -914,10 +922,10 @@ Namespace TempleAccounting
 
         Private Sub FrmMain_FormClosing(sender As Object, e As FormClosingEventArgs)
             Try
-                ' สำรองข้อมูลอัตโนมัติแบบเต็มระบบเมื่อปิดโปรแกรม (Background Auto-Backup)
-                DatabaseBackupHelper.BackupFullSystem(isAuto:=True)
-            Catch
-                ' ไม่ต้องแสดง Error ตอนปิดโปรแกรมเพื่อไม่ให้กวนผู้ใช้
+                ' Tiered Backup: สำรองข้อมูลแบบ Weekly/Monthly/Yearly เมื่อปิดโปรแกรม
+                DatabaseBackupHelper.RunTieredBackup()
+            Catch ex As Exception
+                ErrorLogHelper.LogSilentError("frmMain.FormClosing.TieredBackup", ex)
             End Try
         End Sub
     End Class

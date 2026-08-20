@@ -29,6 +29,7 @@
 
   <ItemGroup>
     <!-- ===== Helpers / Startup ===== -->
+    <Compile Include="ErrorLogHelper.vb" />
     <Compile Include="Database.vb" />
     <Compile Include="DatabaseBackupHelper.vb" />
     <Compile Include="DesktopShortcutHelper.vb" />
