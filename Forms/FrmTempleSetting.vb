@@ -311,24 +311,41 @@ Namespace TempleAccounting
                     Dim ppID = If(chkUsePromptPay.Checked, txtPromptPayID.Text.Trim(), "")
 
                     ' บันทึกข้อมูล TempleInfo - อ้างอิง PersonnelID เท่านั้น (Modern Refactored Structure)
-                    Db.ExecuteNonQuery(conn, "DELETE FROM TempleSetting")
-                    Db.InsertAndGetId(conn,
-                        "INSERT INTO TempleSetting (TempleCode,TempleName,TempleAddress,Tambon,Amphoe,Province,PostCode,TemplePhone," &
-                        "PromptPayName,PromptPayID,AbbotPersonnelID,WaiyawatPersonnelID,BookkeeperPersonnelID) " &
-                        "VALUES (@a1,@a2,@a3,@a4,@a5,@a6,@a7,@a8,@a9,@a10,@a11,@a12,@a13)",
-                        New Tuple(Of String, Object)("@a1", txtTempleCode.Text.Trim()),
-                        New Tuple(Of String, Object)("@a2", txtTempleName.Text.Trim()),
-                        New Tuple(Of String, Object)("@a3", txtTempleAddress.Text.Trim()),
-                        New Tuple(Of String, Object)("@a4", tn),
-                        New Tuple(Of String, Object)("@a5", an),
-                        New Tuple(Of String, Object)("@a6", pn),
-                        New Tuple(Of String, Object)("@a7", txtPostCode.Text.Trim()),
-                        New Tuple(Of String, Object)("@a8", txtTemplePhone.Text.Trim()),
-                        New Tuple(Of String, Object)("@a9", ppName),
-                        New Tuple(Of String, Object)("@a10", ppID),
-                        New Tuple(Of String, Object)("@a11", If(abbotID.HasValue, abbotID.Value, DBNull.Value)),
-                        New Tuple(Of String, Object)("@a12", If(waiyawatID.HasValue, waiyawatID.Value, DBNull.Value)),
-                        New Tuple(Of String, Object)("@a13", If(bookkeeperID.HasValue, bookkeeperID.Value, DBNull.Value)))
+                    ' ใช้ transaction เพื่อป้องกันข้อมูลหายถ้า DELETE สำเร็จแต่ INSERT ล้มเหลว
+                    Using trans = conn.BeginTransaction()
+                        Try
+                            Dim oledbConn = TryCast(conn, OleDbConnection)
+                            Using cmd = oledbConn.CreateCommand()
+                                cmd.Transaction = TryCast(trans, OleDbTransaction)
+                                cmd.CommandText = "DELETE FROM TempleSetting"
+                                cmd.ExecuteNonQuery()
+                            End Using
+
+                            Db.InsertAndGetId(conn,
+                                "INSERT INTO TempleSetting (TempleCode,TempleName,TempleAddress,Tambon,Amphoe,Province,PostCode,TemplePhone," &
+                                "PromptPayName,PromptPayID,AbbotPersonnelID,WaiyawatPersonnelID,BookkeeperPersonnelID) " &
+                                "VALUES (@a1,@a2,@a3,@a4,@a5,@a6,@a7,@a8,@a9,@a10,@a11,@a12,@a13)",
+                                New Tuple(Of String, Object)("@a1", txtTempleCode.Text.Trim()),
+                                New Tuple(Of String, Object)("@a2", txtTempleName.Text.Trim()),
+                                New Tuple(Of String, Object)("@a3", txtTempleAddress.Text.Trim()),
+                                New Tuple(Of String, Object)("@a4", tn),
+                                New Tuple(Of String, Object)("@a5", an),
+                                New Tuple(Of String, Object)("@a6", pn),
+                                New Tuple(Of String, Object)("@a7", txtPostCode.Text.Trim()),
+                                New Tuple(Of String, Object)("@a8", txtTemplePhone.Text.Trim()),
+                                New Tuple(Of String, Object)("@a9", ppName),
+                                New Tuple(Of String, Object)("@a10", ppID),
+                                New Tuple(Of String, Object)("@a11", If(abbotID.HasValue, abbotID.Value, DBNull.Value)),
+                                New Tuple(Of String, Object)("@a12", If(waiyawatID.HasValue, waiyawatID.Value, DBNull.Value)),
+                                New Tuple(Of String, Object)("@a13", If(bookkeeperID.HasValue, bookkeeperID.Value, DBNull.Value)))
+
+                            trans.Commit()
+                        Catch ex As Exception
+                            trans.Rollback()
+                            MessageBox.Show("บันทึกข้อมูลวัดไม่สำเร็จ: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                            Return
+                        End Try
+                    End Using
 
                     MessageBox.Show("✅ บันทึกข้อมูลวัดสำเร็จ!", "สำเร็จ", MessageBoxButtons.OK, MessageBoxIcon.Information)
 
