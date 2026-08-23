@@ -113,6 +113,7 @@ Namespace TempleAccounting
             btnSave.Anchor = AnchorStyles.Top Or AnchorStyles.Left
             btnCancel.Anchor = AnchorStyles.Top Or AnchorStyles.Left
             btnImportExcel.Anchor = AnchorStyles.Top Or AnchorStyles.Left
+            btnClose.Anchor = AnchorStyles.Top Or AnchorStyles.Left
 
             ' ความสูงช่องหมายเหตุคงที่
             txtRemark.Height = 55
@@ -131,6 +132,15 @@ Namespace TempleAccounting
             btnSave.Top = txtReceipt.Bottom + 12
             btnCancel.Top = btnSave.Top
             btnImportExcel.Top = btnSave.Top
+
+            ' Lock btnClose to same row as other action buttons
+            btnClose.Top = btnSave.Top
+            btnClose.Height = btnSave.Height
+            If btnImportExcel IsNot Nothing AndAlso btnImportExcel.Visible Then
+                btnClose.Left = btnImportExcel.Right + 8
+            Else
+                btnClose.Left = btnCancel.Right + 8
+            End If
         End Sub
 
         Private Sub FrmIncome_KeyDown(sender As Object, e As KeyEventArgs) Handles Me.KeyDown

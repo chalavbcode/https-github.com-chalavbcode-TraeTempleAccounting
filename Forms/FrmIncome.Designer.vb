@@ -112,7 +112,7 @@ Namespace TempleAccounting
             ' 
             ' lbl3
             ' 
-            lbl3.Location = New Point(75, 200)
+            lbl3.Location = New Point(40, 159)
             lbl3.Name = "lbl3"
             lbl3.Size = New Size(190, 40)
             lbl3.TabIndex = 2
@@ -171,7 +171,7 @@ Namespace TempleAccounting
             dtpDate.Name = "dtpDate"
             dtpDate.Size = New Size(520, 33)
             dtpDate.TabIndex = 0
-            dtpDate.Value = New Date(Date.Today.Year, Date.Today.Month, 1, 0, 0, 0, 0)
+            dtpDate.Value = New Date(2026, 8, 1, 0, 0, 0, 0)
             ' 
             ' cboCategory
             ' 
