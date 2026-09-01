@@ -43,6 +43,7 @@ Namespace TempleAccounting
         Friend WithEvents dgvRecentTransactions As DataGridView
         Friend WithEvents lblSummary As Label
         Friend WithEvents lblRecentHeader As Label
+        Friend WithEvents tlpRecentList As TableLayoutPanel
 
         <DebuggerNonUserCode()>
         Protected Overrides Sub Dispose(disposing As Boolean)
@@ -88,6 +89,7 @@ Namespace TempleAccounting
             lblRefNo = New Label()
             lblSummary = New Label()
             lblRecentHeader = New Label()
+            tlpRecentList = New TableLayoutPanel()
             dgvRecentTransactions = New DataGridView()
             CType(dgvRecentTransactions, ISupportInitialize).BeginInit()
             SuspendLayout()
@@ -389,13 +391,14 @@ Namespace TempleAccounting
             ' 
             ' lblRecentHeader
             ' 
-            lblRecentHeader.Anchor = AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right
+            lblRecentHeader.AutoSize = False
             lblRecentHeader.BackColor = Color.FromArgb(CByte(241), CByte(196), CByte(15))
+            lblRecentHeader.Dock = DockStyle.Fill
             lblRecentHeader.Font = New Font("Tahoma", 10F, FontStyle.Bold)
             lblRecentHeader.ForeColor = Color.Black
-            lblRecentHeader.Location = New Point(766, 85)
+            lblRecentHeader.Location = New Point(0, 0)
             lblRecentHeader.Name = "lblRecentHeader"
-            lblRecentHeader.Size = New Size(991, 28)
+            lblRecentHeader.Size = New Size(1007, 32)
             lblRecentHeader.TabIndex = 27
             lblRecentHeader.Text = "📋 รายการรายรับล่าสุด 10 รายการ"
             lblRecentHeader.TextAlign = ContentAlignment.MiddleCenter
@@ -405,18 +408,34 @@ Namespace TempleAccounting
             dgvRecentTransactions.AllowUserToAddRows = False
             dgvRecentTransactions.AllowUserToDeleteRows = False
             dgvRecentTransactions.AllowUserToResizeRows = False
-            dgvRecentTransactions.Anchor = AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right
             dgvRecentTransactions.BackgroundColor = Color.White
             dgvRecentTransactions.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize
-            dgvRecentTransactions.Location = New Point(782, 102)
+            dgvRecentTransactions.Dock = DockStyle.Fill
+            dgvRecentTransactions.Location = New Point(0, 32)
             dgvRecentTransactions.MultiSelect = False
             dgvRecentTransactions.Name = "dgvRecentTransactions"
             dgvRecentTransactions.ReadOnly = True
             dgvRecentTransactions.RowHeadersVisible = False
             dgvRecentTransactions.RowHeadersWidth = 62
             dgvRecentTransactions.SelectionMode = DataGridViewSelectionMode.FullRowSelect
-            dgvRecentTransactions.Size = New Size(991, 412)
+            dgvRecentTransactions.Size = New Size(1007, 397)
             dgvRecentTransactions.TabIndex = 26
+            ' 
+            ' tlpRecentList
+            ' 
+            tlpRecentList.Anchor = AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right
+            tlpRecentList.ColumnCount = 1
+            tlpRecentList.ColumnStyles.Add(New ColumnStyle(SizeType.Absolute, 1007.0F))
+            tlpRecentList.Dock = DockStyle.None
+            tlpRecentList.Location = New Point(766, 85)
+            tlpRecentList.Margin = New Padding(0)
+            tlpRecentList.Name = "tlpRecentList"
+            tlpRecentList.Padding = New Padding(0)
+            tlpRecentList.RowCount = 2
+            tlpRecentList.RowStyles.Add(New RowStyle(SizeType.Absolute, 32.0F))
+            tlpRecentList.RowStyles.Add(New RowStyle(SizeType.Percent, 100.0F))
+            tlpRecentList.Size = New Size(1007, 429)
+            tlpRecentList.TabIndex = 28
             ' 
             ' FrmIncome
             ' 
@@ -450,8 +469,9 @@ Namespace TempleAccounting
             Controls.Add(btnCancel)
             Controls.Add(btnImportExcel)
             Controls.Add(btnClose)
-            Controls.Add(dgvRecentTransactions)
-            Controls.Add(lblRecentHeader)
+            Controls.Add(tlpRecentList)
+            tlpRecentList.Controls.Add(lblRecentHeader)
+            tlpRecentList.Controls.Add(dgvRecentTransactions)
             Controls.Add(lblSummary)
             Font = New Font("Tahoma", 10.5F)
             MinimumSize = New Size(1100, 900)
