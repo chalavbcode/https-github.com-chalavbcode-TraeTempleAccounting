@@ -93,7 +93,7 @@ Module Program
         Try
             Application.EnableVisualStyles()
             Application.SetCompatibleTextRenderingDefault(False)
-            Application.SetHighDpiMode(HighDpiMode.SystemAware)
+            Application.SetHighDpiMode(HighDpiMode.PerMonitorV2)
         Catch ex As Exception
             BootCrash(ex, "Step 2 - WinForms init")
             MessageBox.Show("❌ ขั้นตอนที่ 3 ล้มเหลว: ไม่สามารถเปิดระบบหน้าต่างของโปรแกรมได้:" & vbCrLf & ex.Message,
@@ -149,6 +149,16 @@ Module Program
             TempleAccounting.AppPaths.MigrateReceiptsToMaster()
         Catch ex As Exception
             BootCrash(ex, "Step 4b - MigrateReceiptsToMaster")
+        End Try
+
+        Try
+            If Not TempleAccounting.AppPreferences.IsOnboardingCompleted Then
+                Using wizard As New TempleAccounting.FrmOnboardingWizard()
+                    If wizard.ShowDialog() <> DialogResult.OK Then Return
+                End Using
+            End If
+        Catch ex As Exception
+            BootCrash(ex, "Step 4d - OnboardingWizard")
         End Try
 
         Dim mainForm As TempleAccounting.frmMain = Nothing

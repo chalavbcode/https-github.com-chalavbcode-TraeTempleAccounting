@@ -1,4 +1,4 @@
-Option Strict Off
+﻿Option Strict Off
 Option Explicit On
 
 Imports System
@@ -183,7 +183,7 @@ Namespace TempleAccounting
             btnClose.FlatAppearance.BorderSize = 0
             btnClose.FlatAppearance.MouseOverBackColor = Color.FromArgb(CByte(200), CByte(30), CByte(30))
             btnClose.FlatStyle = FlatStyle.Flat
-            btnClose.Font = New Font("Segoe UI Symbol", 15F, FontStyle.Bold, GraphicsUnit.Point, CByte(0))
+            btnClose.Font = New Font("Segoe UI Symbol", 15.0F, FontStyle.Bold, GraphicsUnit.Point, CByte(0))
             btnClose.ForeColor = Color.FromArgb(CByte(255), CByte(248), CByte(220))
             btnClose.Location = New Point(328, 0)
             btnClose.Name = "btnClose"
@@ -198,7 +198,7 @@ Namespace TempleAccounting
             btnMinimize.FlatAppearance.BorderSize = 0
             btnMinimize.FlatAppearance.MouseOverBackColor = Color.FromArgb(CByte(160), CByte(82), CByte(45))
             btnMinimize.FlatStyle = FlatStyle.Flat
-            btnMinimize.Font = New Font("Segoe UI Symbol", 15F, FontStyle.Bold, GraphicsUnit.Point, CByte(0))
+            btnMinimize.Font = New Font("Segoe UI Symbol", 15.0F, FontStyle.Bold, GraphicsUnit.Point, CByte(0))
             btnMinimize.ForeColor = Color.FromArgb(CByte(255), CByte(248), CByte(220))
             btnMinimize.Location = New Point(284, 0)
             btnMinimize.Name = "btnMinimize"
@@ -264,7 +264,7 @@ Namespace TempleAccounting
             ' lblTitle
             ' 
             lblTitle.AutoSize = True
-            lblTitle.Font = New Font("Tahoma", 20F, FontStyle.Bold, GraphicsUnit.Point, CByte(222))
+            lblTitle.Font = New Font("Tahoma", 20.0F, FontStyle.Bold, GraphicsUnit.Point, CByte(222))
             lblTitle.ForeColor = Color.FromArgb(CByte(255), CByte(215), CByte(0))
             lblTitle.Location = New Point(94, 8)
             lblTitle.Name = "lblTitle"
@@ -293,7 +293,7 @@ Namespace TempleAccounting
             pnlSidebar.Location = New Point(0, 84)
             pnlSidebar.Name = "pnlSidebar"
             pnlSidebar.Padding = New Padding(12, 16, 12, 14)
-            pnlSidebar.Size = New Size(251, 726)
+            pnlSidebar.Size = New Size(251, 746)
             pnlSidebar.TabIndex = 1
             ' 
             ' btnLogout
@@ -307,7 +307,7 @@ Namespace TempleAccounting
             btnLogout.Font = New Font("Tahoma", 11.25F, FontStyle.Bold, GraphicsUnit.Point, CByte(222))
             btnLogout.ForeColor = Color.White
             btnLogout.ImageAlign = ContentAlignment.MiddleLeft
-            btnLogout.Location = New Point(12, 660)
+            btnLogout.Location = New Point(12, 680)
             btnLogout.Name = "btnLogout"
             btnLogout.Padding = New Padding(14, 0, 8, 0)
             btnLogout.Size = New Size(227, 48)
@@ -319,7 +319,7 @@ Namespace TempleAccounting
             ' pnlSidebarSpacer
             ' 
             pnlSidebarSpacer.Dock = DockStyle.Bottom
-            pnlSidebarSpacer.Location = New Point(12, 708)
+            pnlSidebarSpacer.Location = New Point(12, 728)
             pnlSidebarSpacer.Name = "pnlSidebarSpacer"
             pnlSidebarSpacer.Size = New Size(227, 4)
             pnlSidebarSpacer.TabIndex = 9
@@ -335,7 +335,7 @@ Namespace TempleAccounting
             btnSetting.Font = New Font("Tahoma", 11.25F, FontStyle.Regular, GraphicsUnit.Point, CByte(222))
             btnSetting.ForeColor = Color.White
             btnSetting.ImageAlign = ContentAlignment.MiddleLeft
-            btnSetting.Location = New Point(12, 729)
+            btnSetting.Location = New Point(12, 791)
             btnSetting.Name = "btnSetting"
             btnSetting.Padding = New Padding(14, 0, 8, 0)
             btnSetting.Size = New Size(227, 62)
@@ -552,7 +552,7 @@ Namespace TempleAccounting
             btnDashboard.FlatAppearance.BorderSize = 0
             btnDashboard.FlatAppearance.MouseOverBackColor = Color.FromArgb(CByte(250), CByte(204), CByte(21))
             btnDashboard.FlatStyle = FlatStyle.Flat
-            btnDashboard.Font = New Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, CByte(222))
+            btnDashboard.Font = New Font("Tahoma", 12.0F, FontStyle.Bold, GraphicsUnit.Point, CByte(222))
             btnDashboard.ForeColor = Color.FromArgb(CByte(69), CByte(26), CByte(3))
             btnDashboard.ImageAlign = ContentAlignment.MiddleLeft
             btnDashboard.Location = New Point(12, 16)
@@ -574,7 +574,7 @@ Namespace TempleAccounting
             pnlContent.Location = New Point(251, 88)
             pnlContent.Name = "pnlContent"
             pnlContent.Padding = New Padding(16, 16, 16, 12)
-            pnlContent.Size = New Size(1189, 722)
+            pnlContent.Size = New Size(1189, 742)
             pnlContent.TabIndex = 2
             ' 
             ' pnlFormHost
@@ -585,7 +585,7 @@ Namespace TempleAccounting
             pnlFormHost.Dock = DockStyle.Fill
             pnlFormHost.Location = New Point(16, 137)
             pnlFormHost.Name = "pnlFormHost"
-            pnlFormHost.Size = New Size(1157, 573)
+            pnlFormHost.Size = New Size(1157, 593)
             pnlFormHost.TabIndex = 2
             ' 
             ' pnlFormHostBody
@@ -594,7 +594,7 @@ Namespace TempleAccounting
             pnlFormHostBody.Dock = DockStyle.Fill
             pnlFormHostBody.Location = New Point(0, 84)
             pnlFormHostBody.Name = "pnlFormHostBody"
-            pnlFormHostBody.Size = New Size(1157, 489)
+            pnlFormHostBody.Size = New Size(1157, 509)
             pnlFormHostBody.TabIndex = 1
             ' 
             ' pnlFormHostHeader
@@ -682,7 +682,7 @@ Namespace TempleAccounting
             ' 
             lblCard4Value.BackColor = Color.Transparent
             lblCard4Value.Dock = DockStyle.Top
-            lblCard4Value.Font = New Font("Tahoma", 17F, FontStyle.Bold, GraphicsUnit.Point, CByte(222))
+            lblCard4Value.Font = New Font("Tahoma", 17.0F, FontStyle.Bold, GraphicsUnit.Point, CByte(222))
             lblCard4Value.ForeColor = Color.FromArgb(CByte(154), CByte(52), CByte(18))
             lblCard4Value.Location = New Point(12, 46)
             lblCard4Value.Name = "lblCard4Value"
@@ -695,7 +695,7 @@ Namespace TempleAccounting
             ' 
             lblCard4Title.BackColor = Color.Transparent
             lblCard4Title.Dock = DockStyle.Top
-            lblCard4Title.Font = New Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, CByte(222))
+            lblCard4Title.Font = New Font("Tahoma", 10.0F, FontStyle.Bold, GraphicsUnit.Point, CByte(222))
             lblCard4Title.ForeColor = Color.FromArgb(CByte(120), CByte(80), CByte(40))
             lblCard4Title.Location = New Point(12, 10)
             lblCard4Title.Name = "lblCard4Title"
@@ -721,7 +721,7 @@ Namespace TempleAccounting
             ' 
             lblCard3Value.BackColor = Color.Transparent
             lblCard3Value.Dock = DockStyle.Top
-            lblCard3Value.Font = New Font("Tahoma", 17F, FontStyle.Bold, GraphicsUnit.Point, CByte(222))
+            lblCard3Value.Font = New Font("Tahoma", 17.0F, FontStyle.Bold, GraphicsUnit.Point, CByte(222))
             lblCard3Value.ForeColor = Color.FromArgb(CByte(153), CByte(27), CByte(27))
             lblCard3Value.Location = New Point(12, 46)
             lblCard3Value.Name = "lblCard3Value"
@@ -734,7 +734,7 @@ Namespace TempleAccounting
             ' 
             lblCard3Title.BackColor = Color.Transparent
             lblCard3Title.Dock = DockStyle.Top
-            lblCard3Title.Font = New Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, CByte(222))
+            lblCard3Title.Font = New Font("Tahoma", 10.0F, FontStyle.Bold, GraphicsUnit.Point, CByte(222))
             lblCard3Title.ForeColor = Color.FromArgb(CByte(120), CByte(80), CByte(40))
             lblCard3Title.Location = New Point(12, 10)
             lblCard3Title.Name = "lblCard3Title"
@@ -760,7 +760,7 @@ Namespace TempleAccounting
             ' 
             lblCard2Value.BackColor = Color.Transparent
             lblCard2Value.Dock = DockStyle.Top
-            lblCard2Value.Font = New Font("Tahoma", 17F, FontStyle.Bold, GraphicsUnit.Point, CByte(222))
+            lblCard2Value.Font = New Font("Tahoma", 17.0F, FontStyle.Bold, GraphicsUnit.Point, CByte(222))
             lblCard2Value.ForeColor = Color.FromArgb(CByte(22), CByte(101), CByte(52))
             lblCard2Value.Location = New Point(12, 46)
             lblCard2Value.Name = "lblCard2Value"
@@ -773,7 +773,7 @@ Namespace TempleAccounting
             ' 
             lblCard2Title.BackColor = Color.Transparent
             lblCard2Title.Dock = DockStyle.Top
-            lblCard2Title.Font = New Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, CByte(222))
+            lblCard2Title.Font = New Font("Tahoma", 10.0F, FontStyle.Bold, GraphicsUnit.Point, CByte(222))
             lblCard2Title.ForeColor = Color.FromArgb(CByte(120), CByte(80), CByte(40))
             lblCard2Title.Location = New Point(12, 10)
             lblCard2Title.Name = "lblCard2Title"
@@ -799,7 +799,7 @@ Namespace TempleAccounting
             ' 
             lblCard1Value.BackColor = Color.Transparent
             lblCard1Value.Dock = DockStyle.Top
-            lblCard1Value.Font = New Font("Tahoma", 17F, FontStyle.Bold, GraphicsUnit.Point, CByte(222))
+            lblCard1Value.Font = New Font("Tahoma", 17.0F, FontStyle.Bold, GraphicsUnit.Point, CByte(222))
             lblCard1Value.ForeColor = Color.FromArgb(CByte(161), CByte(98), CByte(7))
             lblCard1Value.Location = New Point(12, 46)
             lblCard1Value.Name = "lblCard1Value"
@@ -812,7 +812,7 @@ Namespace TempleAccounting
             ' 
             lblCard1Title.BackColor = Color.Transparent
             lblCard1Title.Dock = DockStyle.Top
-            lblCard1Title.Font = New Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, CByte(222))
+            lblCard1Title.Font = New Font("Tahoma", 10.0F, FontStyle.Bold, GraphicsUnit.Point, CByte(222))
             lblCard1Title.ForeColor = Color.FromArgb(CByte(120), CByte(80), CByte(40))
             lblCard1Title.Location = New Point(12, 10)
             lblCard1Title.Name = "lblCard1Title"
@@ -825,7 +825,7 @@ Namespace TempleAccounting
             ' 
             lblOverviewTitle.AutoSize = True
             lblOverviewTitle.Dock = DockStyle.Top
-            lblOverviewTitle.Font = New Font("Tahoma", 13F, FontStyle.Bold, GraphicsUnit.Point, CByte(222))
+            lblOverviewTitle.Font = New Font("Tahoma", 13.0F, FontStyle.Bold, GraphicsUnit.Point, CByte(222))
             lblOverviewTitle.ForeColor = Color.FromArgb(CByte(120), CByte(53), CByte(15))
             lblOverviewTitle.Location = New Point(0, 0)
             lblOverviewTitle.Margin = New Padding(0, 0, 0, 8)
@@ -841,10 +841,10 @@ Namespace TempleAccounting
             pnlStatus.Controls.Add(lblStatusCenter)
             pnlStatus.Controls.Add(lblStatusLeft)
             pnlStatus.Dock = DockStyle.Bottom
-            pnlStatus.Location = New Point(0, 810)
+            pnlStatus.Location = New Point(0, 830)
             pnlStatus.Name = "pnlStatus"
             pnlStatus.Padding = New Padding(14, 5, 14, 5)
-            pnlStatus.Size = New Size(1440, 30)
+            pnlStatus.Size = New Size(1440, 10)
             pnlStatus.TabIndex = 3
             ' 
             ' lblStatusRight
@@ -854,7 +854,7 @@ Namespace TempleAccounting
             lblStatusRight.ForeColor = Color.FromArgb(CByte(253), CByte(224), CByte(71))
             lblStatusRight.Location = New Point(1110, 5)
             lblStatusRight.Name = "lblStatusRight"
-            lblStatusRight.Size = New Size(316, 20)
+            lblStatusRight.Size = New Size(316, 0)
             lblStatusRight.TabIndex = 2
             lblStatusRight.Text = "v1.0.0"
             lblStatusRight.TextAlign = ContentAlignment.MiddleRight
@@ -866,7 +866,7 @@ Namespace TempleAccounting
             lblStatusCenter.ForeColor = Color.FromArgb(CByte(254), CByte(249), CByte(195))
             lblStatusCenter.Location = New Point(14, 5)
             lblStatusCenter.Name = "lblStatusCenter"
-            lblStatusCenter.Size = New Size(1412, 20)
+            lblStatusCenter.Size = New Size(1412, 0)
             lblStatusCenter.TabIndex = 1
             lblStatusCenter.Text = ChrW(55357) & ChrW(57314) & " สถานะระบบ: ปกติ | ฐานข้อมูล: เชื่อมต่อแล้ว"
             lblStatusCenter.TextAlign = ContentAlignment.MiddleLeft
@@ -878,7 +878,7 @@ Namespace TempleAccounting
             lblStatusLeft.ForeColor = Color.FromArgb(CByte(88), CByte(40), CByte(12))
             lblStatusLeft.Location = New Point(14, 5)
             lblStatusLeft.Name = "lblStatusLeft"
-            lblStatusLeft.Size = New Size(0, 20)
+            lblStatusLeft.Size = New Size(0, 0)
             lblStatusLeft.TabIndex = 0
             ' 
             ' pnlSeparator1

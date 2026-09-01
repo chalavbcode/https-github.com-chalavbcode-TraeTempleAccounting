@@ -408,7 +408,7 @@ Namespace TempleAccounting
             dgvRecentTransactions.Anchor = AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right
             dgvRecentTransactions.BackgroundColor = Color.White
             dgvRecentTransactions.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize
-            dgvRecentTransactions.Location = New Point(766, 113)
+            dgvRecentTransactions.Location = New Point(782, 102)
             dgvRecentTransactions.MultiSelect = False
             dgvRecentTransactions.Name = "dgvRecentTransactions"
             dgvRecentTransactions.ReadOnly = True

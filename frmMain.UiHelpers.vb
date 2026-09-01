@@ -7,7 +7,98 @@ Imports WinTimer = System.Windows.Forms.Timer
 
 Namespace TempleAccounting
     Public Partial Class frmMain
+        ' ===== Developer Tools (Onboarding Wizard) =====
+        Private WithEvents btnTestWizard As Button
+        Private WithEvents btnResetOnboarding As Button
+
+        Private Sub SetupDeveloperTools()
+            Try
+                ' สร้าง Panel สำหรับเครื่องมือนักพัฒนา
+                Dim pnlDev As New Panel()
+                pnlDev.Dock = DockStyle.Top
+                pnlDev.Height = 80
+                pnlDev.BackColor = Color.FromArgb(75, 85, 99)
+                pnlDev.Padding = New Padding(8, 6, 8, 4)
+
+                ' ปุ่มทดลอง Onboarding Wizard
+                btnTestWizard = New Button()
+                btnTestWizard.Dock = DockStyle.Top
+                btnTestWizard.Height = 32
+                btnTestWizard.FlatStyle = FlatStyle.Flat
+                btnTestWizard.FlatAppearance.BorderSize = 0
+                btnTestWizard.BackColor = Color.FromArgb(55, 65, 81)
+                btnTestWizard.ForeColor = Color.FromArgb(253, 224, 71)
+                btnTestWizard.Font = New Font("Tahoma", 9.5!, FontStyle.Bold)
+                btnTestWizard.Text = "🧪 ทดลอง Onboarding"
+                btnTestWizard.TextAlign = ContentAlignment.MiddleLeft
+                btnTestWizard.Padding = New Padding(10, 0, 0, 0)
+                AddHandler btnTestWizard.Click, AddressOf BtnTestWizard_Click
+
+                ' ปุ่มรีเซ็ตสถานะ Onboarding
+                btnResetOnboarding = New Button()
+                btnResetOnboarding.Dock = DockStyle.Top
+                btnResetOnboarding.Height = 32
+                btnResetOnboarding.FlatStyle = FlatStyle.Flat
+                btnResetOnboarding.FlatAppearance.BorderSize = 0
+                btnResetOnboarding.BackColor = Color.FromArgb(55, 65, 81)
+                btnResetOnboarding.ForeColor = Color.FromArgb(252, 165, 165)
+                btnResetOnboarding.Font = New Font("Tahoma", 9.5!)
+                btnResetOnboarding.Text = "🔄 รีเซ็ต Onboarding"
+                btnResetOnboarding.TextAlign = ContentAlignment.MiddleLeft
+                btnResetOnboarding.Padding = New Padding(10, 0, 0, 0)
+                AddHandler btnResetOnboarding.Click, AddressOf BtnResetOnboarding_Click
+
+                ' เพิ่มปุ่มลงใน Panel (เพิ่ม btnReset ก่อนเพื่อให้แสดงด้านบน)
+                pnlDev.Controls.Add(btnResetOnboarding)
+                pnlDev.Controls.Add(btnTestWizard)
+
+                ' เพิ่ม Panel ลงใน Sidebar (Insert ก่อน spacer)
+                ' ใช้ index = pnlSidebar.Controls.IndexOf(pnlSidebarSpacer) เพื่อแทรกก่อน spacer
+                Dim spacerIdx As Integer = pnlSidebar.Controls.IndexOf(pnlSidebarSpacer)
+                If spacerIdx >= 0 Then
+                    pnlSidebar.Controls.Add(pnlDev) ' Controls.Add จะวางท้ายสุด แต่ Dock.Bottom จะจัดเรียงตาม index
+                Else
+                    pnlSidebar.Controls.Add(pnlDev)
+                End If
+            Catch ex As Exception
+                ErrorLogHelper.LogSilentError("frmMain.SetupDeveloperTools", ex)
+            End Try
+        End Sub
+
+        ''' <summary>เปิด Onboarding Wizard ในโหมดทดลอง</summary>
+        Private Sub BtnTestWizard_Click(sender As Object, e As EventArgs)
+            Dim result = MessageBox.Show(
+                "🧪 ต้องการทดลอง Onboarding Wizard หรือไม่?" & vbCrLf & vbCrLf &
+                "ข้อมูลจะไม่ถูกบันทึกจริง (Dry-run mode)",
+                "ยืนยันการทดลอง",
+                MessageBoxButtons.YesNo, MessageBoxIcon.Question)
+            If result = DialogResult.Yes Then
+                Using wizard As New FrmOnboardingWizard(isTestMode:=True)
+                    wizard.ShowDialog(Me)
+                End Using
+            End If
+        End Sub
+
+        ''' <summary>รีเซ็ตสถานะ Onboarding (สำหรับนักพัฒนา)</summary>
+        Private Sub BtnResetOnboarding_Click(sender As Object, e As EventArgs)
+            Dim result = MessageBox.Show(
+                "🔄 ต้องการรีเซ็ตสถานะ Onboarding หรือไม่?" & vbCrLf & vbCrLf &
+                "โปรแกรมจะแสดง Onboarding Wizard อีกครั้งในครั้งถัดไปที่เปิดโปรแกรม",
+                "ยืนยันการรีเซ็ต",
+                MessageBoxButtons.YesNo, MessageBoxIcon.Warning,
+                MessageBoxDefaultButton.Button2)
+            If result = DialogResult.Yes Then
+                OnboardingRepository.ResetOnboardingStatus()
+                MessageBox.Show("✅ รีเซ็ตสถานะ Onboarding เรียบร้อย!" & vbCrLf &
+                                "โปรแกรมจะแสดง Wizard ในครั้งถัดไปที่เปิดโปรแกรม",
+                                "สำเร็จ", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            End If
+        End Sub
+
         Private Sub SetupEventHandlers()
+            ' เรียก SetupDeveloperTools เพื่อสร้างปุ่มเครื่องมือนักพัฒนา
+            SetupDeveloperTools()
+
             AddHandler btnDashboard.Click, AddressOf NavMenu_Click
             AddHandler btnDonation.Click, AddressOf NavMenu_Click
             AddHandler btnExpense.Click, AddressOf NavMenu_Click
@@ -164,6 +255,8 @@ Namespace TempleAccounting
 
         Private Sub SetupToolTips()
             If ttMain Is Nothing Then Return
+            If btnTestWizard IsNot Nothing Then ttMain.SetToolTip(btnTestWizard, "เปิด Onboarding Wizard ในโหมดทดลอง (ไม่บันทึกข้อมูลจริง)")
+            If btnResetOnboarding IsNot Nothing Then ttMain.SetToolTip(btnResetOnboarding, "รีเซ็ตสถานะ Onboarding ให้แสดง Wizard อีกครั้ง")
             ttMain.SetToolTip(btnDashboard, "กลับไปที่หน้าสรุปภาพรวมของระบบ")
             ttMain.SetToolTip(btnDonation, "บันทึกข้อมูลรายรับหรือเงินบริจาคเข้าวัด")
             ttMain.SetToolTip(btnExpense, "บันทึกข้อมูลรายจ่ายต่างๆ ของวัด")

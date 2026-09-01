@@ -15,6 +15,7 @@ Namespace TempleAccounting
         Private _lastExpenseFundID As Integer
         Private _lastIncomeCategoryID As Integer
         Private _lastIncomeFundID As Integer
+        Private _isOnboardingCompleted As Boolean = True
         Private _loaded As Boolean
 
         Public Property LastExpenseCategoryID As Integer
@@ -57,6 +58,21 @@ Namespace TempleAccounting
             End Set
         End Property
 
+        ''' <summary>
+        ''' True = onboarding wizard has been completed (or was never needed).
+        ''' Default is True so existing users are NOT prompted to re-run onboarding.
+        ''' Only a brand-new install (empty/no user_preferences.ini) will get the wizard.
+        ''' </summary>
+        Public Property IsOnboardingCompleted As Boolean
+            Get
+                EnsureLoaded()
+                Return _isOnboardingCompleted
+            End Get
+            Set(value As Boolean)
+                _isOnboardingCompleted = value
+            End Set
+        End Property
+
         Private ReadOnly Property ConfigFilePath As String
             Get
                 Return Path.Combine(AppPaths.AppRoot, "user_preferences.ini")
@@ -81,6 +97,7 @@ Namespace TempleAccounting
                         Case "LastExpenseFundID" : _lastExpenseFundID = n
                         Case "LastIncomeCategoryID" : _lastIncomeCategoryID = n
                         Case "LastIncomeFundID" : _lastIncomeFundID = n
+                        Case "IsOnboardingCompleted" : _isOnboardingCompleted = (n <> 0)
                     End Select
                 Next
             Catch ex As Exception
@@ -100,6 +117,7 @@ Namespace TempleAccounting
                 sb.AppendLine("LastExpenseFundID=" & _lastExpenseFundID)
                 sb.AppendLine("LastIncomeCategoryID=" & _lastIncomeCategoryID)
                 sb.AppendLine("LastIncomeFundID=" & _lastIncomeFundID)
+                sb.AppendLine("IsOnboardingCompleted=" & If(_isOnboardingCompleted, "1", "0"))
                 File.WriteAllText(cfgPath, sb.ToString(), Encoding.UTF8)
             Catch ex As Exception
                 ErrorLogHelper.LogSilentError("AppPreferences.Save", ex)
