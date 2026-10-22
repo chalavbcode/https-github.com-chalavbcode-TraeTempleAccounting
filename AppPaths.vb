@@ -1,4 +1,4 @@
-﻿Option Strict Off
+Option Strict Off
 Option Explicit On
 
 Imports System
@@ -19,6 +19,7 @@ Namespace TempleAccounting
         Private _masterReceiptsDir As String
         Private _projectRoot As String
         Private _projectRootSearched As Boolean
+        Private _appDataFolder As String
 
         Public ReadOnly Property LogsFolder As String
             Get
@@ -160,6 +161,21 @@ Namespace TempleAccounting
                     If Not Directory.Exists(_exportFolder) Then Directory.CreateDirectory(_exportFolder)
                 End If
                 Return _exportFolder
+            End Get
+        End Property
+
+        ''' <summary>
+        ''' โฟลเดอร์ข้อมูลแอปพลิเคชัน (%AppData%\TempleAccounting) — ใช้เก็บ backup_registry.json
+        ''' ไม่ผูกกับ bin\ จึงไม่หายเมื่อ VS Clean/Rebuild
+        ''' </summary>
+        Public ReadOnly Property AppDataFolder As String
+            Get
+                If String.IsNullOrEmpty(_appDataFolder) Then
+                    Dim baseDir As String = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)
+                    _appDataFolder = Path.Combine(baseDir, "TempleAccounting")
+                    If Not Directory.Exists(_appDataFolder) Then Directory.CreateDirectory(_appDataFolder)
+                End If
+                Return _appDataFolder
             End Get
         End Property
 

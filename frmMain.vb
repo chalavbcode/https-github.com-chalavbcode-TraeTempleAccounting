@@ -1,4 +1,4 @@
-﻿Imports System
+Imports System
 Imports System.Drawing
 Imports System.Drawing.Drawing2D
 Imports System.Windows.Forms
@@ -918,6 +918,13 @@ Namespace TempleAccounting
                     End If
                 End Using
             End If
+        End Sub
+
+        Private Sub btnVerifyBackup_Click(sender As Object, e As EventArgs)
+            Using dlg As New FrmBackupVerify()
+                dlg.Icon = Me.Icon
+                dlg.ShowDialog(Me)
+            End Using
         End Sub
 
         Private Sub FrmMain_FormClosing(sender As Object, e As FormClosingEventArgs)

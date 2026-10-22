@@ -9,6 +9,8 @@ Imports System.Collections.Generic
 Imports System.Data.OleDb
 Imports System.Windows.Forms
 Imports System.Globalization
+Imports System.Threading
+Imports System.Threading.Tasks
 
 Namespace TempleAccounting
     Public Class DatabaseBackupHelper
@@ -19,24 +21,45 @@ Namespace TempleAccounting
         ''' <param name="isAuto">เป็นการสำรองข้อมูลอัตโนมัติหรือไม่</param>
         ''' <returns>True หากสำรองข้อมูลสำเร็จ</returns>
         Public Shared Function BackupFullSystem(Optional targetBaseDir As String = "", Optional isAuto As Boolean = False) As Boolean
+            Return BackupFullSystemAsync(targetBaseDir, isAuto, Nothing).GetAwaiter().GetResult()
+        End Function
+
+        ''' <summary>เส้นทางไฟล์ registry (backup_registry.json) ใน app data folder</summary>
+        Private Shared ReadOnly Property RegistryPath As String
+            Get
+                Return Path.Combine(AppPaths.AppDataFolder, "backup_registry.json")
+            End Get
+        End Property
+
+        ''' <summary>
+        ''' สำรองข้อมูลแบบ async บน background thread พร้อม progress (UI ไม่ค้าง)
+        ''' และบันทึก registry + mirror manifest ด้วยผลจริงเท่านั้น
+        ''' </summary>
+        Public Shared Async Function BackupFullSystemAsync(Optional targetBaseDir As String = "", Optional isAuto As Boolean = False, Optional progress As IProgress(Of BackupProgress) = Nothing) As Task(Of Boolean)
             Try
-                ' 1. เตรียมเส้นทางปลายทาง
                 If String.IsNullOrEmpty(targetBaseDir) Then
                     targetBaseDir = AppPaths.BackupFolder
                 End If
 
-                ' สร้างโฟลเดอร์ Timestamp สำหรับชุดสำรองข้อมูลนี้ (ใช้ปี ค.ศ. เสมอ)
                 Dim timestamp As String = DateTime.Now.ToString("yyyyMMdd_HHmmss", CultureInfo.InvariantCulture)
                 Dim backupPath As String = Path.Combine(targetBaseDir, "Backup_" & timestamp)
 
-                ' 2. สำรองข้อมูลตาม BACKUP_ITEMS + ตรวจสอบ SHA-256 + เขียน manifest/log
-                '    (Best effort เคลียร์ connection ค้างก่อน copy .accdb ที่อาจถูกล็อก)
                 GC.Collect()
                 GC.WaitForPendingFinalizers()
 
-                Dim result As BackupResult = BackupEngine.ExecuteBackup(BackupConfig.BackupItems, backupPath)
+                Dim result As BackupResult = Await BackupEngine.ExecuteBackupAsync(BackupConfig.BackupItems, backupPath, progress)
 
-                ' 3. รายงานผลตามความเป็นจริง — ห้ามแจ้ง "สำเร็จ" ถ้ามีไฟล์ผิดพลาด
+                ' บันทึก registry + mirror manifest ด้วยผลจริงเท่านั้น
+                If result.SourceFileCount > 0 Then
+                    Dim entry As BackupRegistryEntry = BuildRegistryEntry(result, backupPath)
+                    BackupRegistry.AddEntry(RegistryPath, entry)
+                    BackupRegistry.WriteManifestMirror(entry)
+                End If
+
+                ErrorLogHelper.LogInfo("DatabaseBackupHelper.BackupFullSystemAsync",
+                                       "สำรอง -> " & backupPath & " | สำเร็จ=" & result.Success.ToString() &
+                                       " | ไฟล์=" & result.SourceFileCount.ToString() & " | ปัญหา=" & result.Problems.Count.ToString())
+
                 If result.Success Then
                     If Not isAuto Then
                         MessageBoxHelper.ShowInfo("สำรองข้อมูลครบถ้วนและตรวจสอบผ่านแล้ว!" & Environment.NewLine &
@@ -46,6 +69,12 @@ Namespace TempleAccounting
                     End If
                     Return True
                 Else
+                    ' ไฟล์ .accdb ถูกล็อก → แจ้งให้ปิดฐานข้อมูล (ไม่ข้ามแบบเงียบ ๆ)
+                    If result.DatabaseLocked AndAlso Not isAuto Then
+                        MessageBoxHelper.ShowError("ไฟล์ฐานข้อมูล (.accdb) กำลังถูกเปิดใช้งานอยู่" & Environment.NewLine &
+                                                   "กรุณาปิดฐานข้อมูล (และโปรแกรมอื่นที่ใช้ฐานข้อมูล) แล้วลองสำรองใหม่อีกครั้ง")
+                    End If
+
                     Dim msg As New StringBuilder()
                     msg.AppendLine("❌ การสำรองข้อมูลไม่สมบูรณ์ (ไม่ถือว่าสำเร็จ)")
                     msg.AppendLine()
@@ -63,12 +92,203 @@ Namespace TempleAccounting
                     Return False
                 End If
             Catch ex As Exception
-                AppPaths.LogCrash(ex, "DatabaseBackupHelper.BackupFullSystem")
+                AppPaths.LogCrash(ex, "DatabaseBackupHelper.BackupFullSystemAsync")
+                ErrorLogHelper.LogSilentError("DatabaseBackupHelper.BackupFullSystemAsync", ex)
                 If Not isAuto Then
                     MessageBoxHelper.ShowError("เกิดข้อผิดพลาดในการสำรองข้อมูล: " & ex.Message)
                 End If
                 Return False
             End Try
+        End Function
+
+        ''' <summary>สร้าง registry entry จากผลการสำรอง (บันทึกเฉพาะผลจริง)</summary>
+        Private Shared Function BuildRegistryEntry(result As BackupResult, backupPath As String) As BackupRegistryEntry
+            Dim entry As New BackupRegistryEntry() With {
+                .Timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                .DestinationPath = backupPath,
+                .DriveLetter = result.DriveLetter,
+                .VolumeLabel = result.VolumeLabel,
+                .VerificationResult = If(result.Success, "สำเร็จ", "ไม่สมบูรณ์")
+            }
+            For Each rec In result.FileRecords
+                entry.Files.Add(New BackupFileEntry() With {
+                    .RelativePath = rec.RelativePath,
+                    .SizeBytes = rec.SizeBytes,
+                    .Sha256 = rec.Sha256
+                })
+            Next
+            Return entry
+        End Function
+
+        ''' <summary>หนึ่งแถวสำหรับแสดงผลตรวจสอบใน DataGridView</summary>
+        Public Class BackupVerifyRow
+            Public Property BackupNumber As Integer
+            Public Property Timestamp As String
+            Public Property DriveAndPath As String
+            Public Property DatabaseStatus As String
+            Public Property ReceiptsStatus As String
+            Public Property OverallStatus As String
+            Public Property Classification As BackupStatusClass
+            Public Property NewFiles As New List(Of String)
+            Public Property Problems As New List(Of String)
+        End Class
+
+        ''' <summary>ตรวจสอบชุดสำรองล่าสุด n รายการจาก registry แล้วจัดหมวด (เรียกจาก code ได้)</summary>
+        Public Shared Function VerifyLastBackups(Optional count As Integer = 5) As List(Of BackupVerifyRow)
+            Dim rows As New List(Of BackupVerifyRow)()
+            Try
+                Dim entries = BackupRegistry.GetLast(RegistryPath, count)
+                Dim items = BackupConfig.BackupItems
+                Dim num As Integer = 1
+                For Each e In entries
+                    Dim v = BackupEngine.ClassifyBackup(e.DestinationPath, e.Files, items)
+                    Dim drivePath As String = e.DestinationPath
+                    If Not String.IsNullOrEmpty(e.DriveLetter) Then drivePath = e.DriveLetter & "  " & e.DestinationPath
+                    rows.Add(New BackupVerifyRow() With {
+                        .BackupNumber = num,
+                        .Timestamp = e.Timestamp,
+                        .DriveAndPath = drivePath,
+                        .DatabaseStatus = v.DatabaseStatus,
+                        .ReceiptsStatus = v.ReceiptsStatus,
+                        .OverallStatus = v.OverallStatus,
+                        .Classification = v.Classification,
+                        .NewFiles = v.NewFiles,
+                        .Problems = v.Problems
+                    })
+                    num += 1
+                Next
+            Catch ex As Exception
+                ErrorLogHelper.LogSilentError("DatabaseBackupHelper.VerifyLastBackups", ex)
+            End Try
+            Return rows
+        End Function
+
+        ''' <summary>ไฟล์ในข้อมูลปัจจุบันที่ยังไม่เคยถูกสำรองในชุดสำรองใดเลย</summary>
+        Public Shared Function FindNewUnbackedFiles() As List(Of String)
+            Try
+                Dim entries = BackupRegistry.GetAll(RegistryPath)
+                Dim paths = BackupRegistry.CollectBackedUpPaths(entries)
+                Return BackupEngine.FindUnbackedFiles(BackupConfig.BackupItems, paths)
+            Catch ex As Exception
+                ErrorLogHelper.LogSilentError("DatabaseBackupHelper.FindNewUnbackedFiles", ex)
+                Return New List(Of String)()
+            End Try
+        End Function
+
+        ''' <summary>สแกนไดรฟ์ที่พร้อมใช้งานเพื่อหาชุดสำรอง (Backup_* / backup_manifest.json) พร้อม progress + cancel</summary>
+        Public Shared Function ScanDrivesForBackups(Optional progress As IProgress(Of Integer) = Nothing, Optional token As CancellationToken = Nothing) As List(Of String)
+            Dim roots As New List(Of String)()
+            Try
+                For Each di In DriveInfo.GetDrives()
+                    If di.IsReady Then roots.Add(di.RootDirectory.FullName)
+                Next
+            Catch ex As Exception
+                ErrorLogHelper.LogSilentError("DatabaseBackupHelper.ScanDrivesForBackups.GetDrives", ex)
+            End Try
+
+            Dim found As New List(Of String)()
+            Dim total As Integer = roots.Count
+            For i As Integer = 0 To roots.Count - 1
+                If token.IsCancellationRequested Then Exit For
+                If progress IsNot Nothing Then progress.Report(If(total > 0, CInt(i * 100.0 / total), 0))
+                Dim r = BackupEngine.ScanForBackupFolders(New List(Of String) From {roots(i)}, BackupRegistry.ProjectId, 3)
+                For Each f In r
+                    If Not found.Contains(f, StringComparer.OrdinalIgnoreCase) Then found.Add(f)
+                Next
+                If progress IsNot Nothing Then progress.Report(If(total > 0, CInt((i + 1) * 100.0 / total), 100))
+            Next
+
+            ErrorLogHelper.LogInfo("DatabaseBackupHelper.ScanDrivesForBackups", "สแกน " & total.ToString() & " ไดรฟ์ พบ " & found.Count.ToString() & " ชุดสำรอง")
+            Return found
+        End Function
+
+        ''' <summary>หาชุดสำรองที่สแกนพบแต่ยังไม่มีใน registry</summary>
+        Public Shared Function FindBackupsMissingFromRegistry(foundFolders As List(Of String)) As List(Of String)
+            Dim missing As New List(Of String)()
+            If foundFolders Is Nothing Then Return missing
+            Dim known As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase)
+            Try
+                For Each e In BackupRegistry.GetAll(RegistryPath)
+                    If Not String.IsNullOrEmpty(e.DestinationPath) Then known.Add(NormalizePath(e.DestinationPath))
+                Next
+            Catch ex As Exception
+                ErrorLogHelper.LogSilentError("DatabaseBackupHelper.FindBackupsMissingFromRegistry", ex)
+            End Try
+            For Each f In foundFolders
+                If Not known.Contains(NormalizePath(f)) Then missing.Add(f)
+            Next
+            Return missing
+        End Function
+
+        ''' <summary>เพิ่มชุดสำรองที่สแกนพบเข้าสู่ registry หลังจากตรวจสอบผ่านแล้วเท่านั้น</summary>
+        Public Shared Function AddScannedBackupToRegistry(backupFolder As String) As Boolean
+            Try
+                If Not Directory.Exists(backupFolder) Then Return False
+                Dim verify = BackupEngine.VerifyBackup(BackupConfig.BackupItems, backupFolder)
+                If Not verify.Success Then
+                    ErrorLogHelper.LogInfo("DatabaseBackupHelper.AddScannedBackupToRegistry", "ตรวจสอบไม่ผ่าน ไม่เพิ่มเข้าสู่ registry: " & backupFolder)
+                    Return False
+                End If
+                Dim entry As New BackupRegistryEntry() With {
+                    .Timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                    .DestinationPath = backupFolder,
+                    .VerificationResult = "สำเร็จ (เพิ่มจากการสแกนไดรฟ์)"
+                }
+                CaptureDrive(backupFolder, entry)
+                For Each rec In verify.FileRecords
+                    entry.Files.Add(New BackupFileEntry() With {
+                        .RelativePath = rec.RelativePath,
+                        .SizeBytes = rec.SizeBytes,
+                        .Sha256 = rec.Sha256
+                    })
+                Next
+                BackupRegistry.AddEntry(RegistryPath, entry)
+                BackupRegistry.WriteManifestMirror(entry)
+                ErrorLogHelper.LogInfo("DatabaseBackupHelper.AddScannedBackupToRegistry", "เพิ่มเข้าสู่ registry แล้ว: " & backupFolder)
+                Return True
+            Catch ex As Exception
+                ErrorLogHelper.LogSilentError("DatabaseBackupHelper.AddScannedBackupToRegistry", ex)
+                Return False
+            End Try
+        End Function
+
+        ''' <summary>เตือนเมื่อยังไม่มีชุดสำรองที่สมบูรณ์+ตรวจสอบผ่าน บนไดรฟ์จริงอย่างน้อย 2 ไดรฟ์</summary>
+        Public Shared Function SafetyCheckTwoDrives() As String
+            Try
+                Dim entries = BackupRegistry.GetAll(RegistryPath)
+                Dim items = BackupConfig.BackupItems
+                Dim completeDrives As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase)
+                For Each e In entries
+                    Dim cls = BackupEngine.ClassifyBackup(e.DestinationPath, e.Files, items)
+                    If cls.Classification = BackupStatusClass.Identical OrElse cls.Classification = BackupStatusClass.OlderButIntact Then
+                        Dim root = Path.GetPathRoot(e.DestinationPath)
+                        If Not String.IsNullOrEmpty(root) Then completeDrives.Add(root.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar))
+                    End If
+                Next
+                If completeDrives.Count < 2 Then
+                    Return "⚠️ คำเตือน: ยังไม่มีชุดสำรองที่สมบูรณ์และตรวจสอบผ่านบนไดรฟ์จริงอย่างน้อย 2 ไดรฟ์ (พบ " & completeDrives.Count.ToString() & " ไดรฟ์)"
+                End If
+                Return ""
+            Catch ex As Exception
+                ErrorLogHelper.LogSilentError("DatabaseBackupHelper.SafetyCheckTwoDrives", ex)
+                Return ""
+            End Try
+        End Function
+
+        Private Shared Sub CaptureDrive(folderPath As String, entry As BackupRegistryEntry)
+            Try
+                Dim root = Path.GetPathRoot(folderPath)
+                If String.IsNullOrEmpty(root) Then Return
+                Dim di As New DriveInfo(root)
+                entry.DriveLetter = di.Name.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+                entry.VolumeLabel = di.VolumeLabel
+            Catch
+            End Try
+        End Sub
+
+        Private Shared Function NormalizePath(p As String) As String
+            If String.IsNullOrEmpty(p) Then Return ""
+            Return p.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar).ToLowerInvariant()
         End Function
 
         ''' <summary>

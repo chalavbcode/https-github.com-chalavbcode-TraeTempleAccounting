@@ -1,4 +1,4 @@
-﻿Option Strict Off
+Option Strict Off
 Option Explicit On
 
 Imports System
@@ -34,6 +34,24 @@ Namespace TempleAccounting
             Catch
                 ' การ log เอง fail ก็ไม่ควรทำให้โปรแกรมพัง
                 ' ยอมให้เงียบเฉพาะจุดนี้จุดเดียวในทั้งโปรเจกต์
+            End Try
+        End Sub
+
+        ''' <summary>บันทึกข้อมูลการทำงานทั่วไป (ไม่ใช่ error) ลง error.log เดียวกัน</summary>
+        ''' <param name="context">ตำแหน่ง/บริบทที่เกิดเหตุการณ์</param>
+        ''' <param name="message">ข้อความเหตุการณ์</param>
+        Public Sub LogInfo(context As String, message As String)
+            Try
+                If String.IsNullOrEmpty(_errorLogPath) Then
+                    _errorLogPath = Path.Combine(AppPaths.LogsFolder, "error.log")
+                End If
+
+                Dim timestamp As String = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+                Dim line As String = $"[{timestamp}] [INFO] {context}: {message}"
+
+                File.AppendAllText(_errorLogPath, line & Environment.NewLine)
+            Catch
+                ' เงียบเฉพาะจุด log เท่านั้น
             End Try
         End Sub
     End Module

@@ -5,6 +5,7 @@ Imports System
 Imports System.IO
 Imports System.Text
 Imports System.Threading
+Imports System.Threading.Tasks
 Imports System.Security.Cryptography
 Imports System.Collections.Generic
 Imports System.Text.Json
@@ -36,6 +37,9 @@ Namespace TempleAccounting
     Public Class BackupResult
         Public Property Success As Boolean
         Public Property DestinationFolder As String
+        Public Property DriveLetter As String
+        Public Property VolumeLabel As String
+        Public Property DatabaseLocked As Boolean
         Public Property SourceFileCount As Integer
         Public Property CopiedFileCount As Integer
         Public Property VerifiedFileCount As Integer
@@ -64,12 +68,44 @@ Namespace TempleAccounting
         Public Property Files As List(Of BackupFileRecord)
     End Class
 
+    ''' <summary>ข้อมูลความคืบหน้าของการสำรอง (สำหรับ IProgress)</summary>
+    Public Class BackupProgress
+        Public Property Phase As String
+        Public Property CurrentFile As String
+        Public Property FilesDone As Integer
+        Public Property TotalFiles As Integer
+        Public Property Percent As Integer
+    End Class
+
+    ''' <summary>หมวดสถานะของชุดสำรองหนึ่งชุดเมื่อตรวจสอบ</summary>
+    Public Enum BackupStatusClass
+        Identical
+        OlderButIntact
+        Incomplete
+        Corrupted
+        DriveMissing
+    End Enum
+
+    ''' <summary>ผลการตรวจสอบ/จัดหมวดชุดสำรองหนึ่งชุด</summary>
+    Public Class BackupVerificationResult
+        Public Property BackupFolder As String
+        Public Property Classification As BackupStatusClass
+        Public Property DatabaseStatus As String
+        Public Property ReceiptsTotal As Integer
+        Public Property ReceiptsOk As Integer
+        Public Property ReceiptsStatus As String
+        Public Property OverallStatus As String
+        Public Property NewFiles As New List(Of String)
+        Public Property Problems As New List(Of String)
+    End Class
+
     ''' <summary>
     ''' กลไกสำรองข้อมูลแบบสมบูรณ์และตรวจสอบได้
     ''' • คัดลอกทุกรายการ (ไฟล์/โฟลเดอร์รวมซับโฟลเดอร์) ลงโฟลเดอร์ปลายทาง
     ''' • ตรวจสอบจำนวนไฟล์ ขนาด และ SHA-256 ทีละไฟล์
     ''' • เขียน manifest.json / manifest.csv และ backup.log
     ''' • retry เมื่อไฟล์ถูกล็อก พร้อมแจ้งปัญหา (ไม่ข้ามแบบเงียบ ๆ)
+    ''' • รองรับ async + progress และการตรวจสอบ/จัดหมวดชุดสำรอง
     ''' เป็นโค้ดล้วน (pure) ไม่ผูกกับ WinForms/AppPaths จึงทดสอบอัตโนมัติได้
     ''' </summary>
     Public Class BackupEngine
@@ -77,8 +113,18 @@ Namespace TempleAccounting
         Public Const MaxRetryAttempts As Integer = 3
         Public Const RetryDelayMs As Integer = 500
 
-        ''' <summary>สำรองข้อมูลทุกรายการลง destinationFolder แล้วตรวจสอบความถูกต้อง</summary>
+        ''' <summary>สำรองข้อมูลทุกรายการลง destinationFolder แล้วตรวจสอบความถูกต้อง (ซิงโครนัส)</summary>
         Public Shared Function ExecuteBackup(items As List(Of BackupItemSpec), destinationFolder As String) As BackupResult
+            Return ExecuteBackupCore(items, destinationFolder, Nothing)
+        End Function
+
+        ''' <summary>สำรองข้อมูลแบบ async บน background thread พร้อมรายงาน progress</summary>
+        Public Shared Function ExecuteBackupAsync(items As List(Of BackupItemSpec), destinationFolder As String, Optional progress As IProgress(Of BackupProgress) = Nothing) As Task(Of BackupResult)
+            Return Task.Run(Function() ExecuteBackupCore(items, destinationFolder, progress))
+        End Function
+
+        ''' <summary>กลไกหลัก (ใช้ร่วมกันทั้ง sync/async)</summary>
+        Private Shared Function ExecuteBackupCore(items As List(Of BackupItemSpec), destinationFolder As String, progress As IProgress(Of BackupProgress)) As BackupResult
             Dim result As New BackupResult()
             result.DestinationFolder = destinationFolder
             Try
@@ -89,35 +135,62 @@ Namespace TempleAccounting
                 End If
 
                 If Not Directory.Exists(destinationFolder) Then Directory.CreateDirectory(destinationFolder)
+                CaptureDriveInfo(destinationFolder, result)
 
                 ' 1. ระบุไฟล์ทั้งหมดที่ต้องสำรอง
+                Report(progress, New BackupProgress() With {.Phase = "เตรียมรายการไฟล์", .FilesDone = 0, .TotalFiles = 0, .Percent = 0})
                 Dim planned As List(Of PlannedFile) = BuildFilePlan(items, result)
                 result.SourceFileCount = planned.Count
+                Dim total As Integer = planned.Count
 
                 ' 2. คัดลอกทีละไฟล์ (retry เมื่อไฟล์ถูกล็อก)
-                For Each p In planned
+                For idx As Integer = 0 To planned.Count - 1
+                    Dim p As PlannedFile = planned(idx)
                     Dim destPath As String = Path.Combine(destinationFolder, p.RelativePath)
                     Dim destDir As String = Path.GetDirectoryName(destPath)
                     If Not String.IsNullOrEmpty(destDir) AndAlso Not Directory.Exists(destDir) Then
                         Directory.CreateDirectory(destDir)
                     End If
 
+                    Report(progress, New BackupProgress() With {
+                        .Phase = "คัดลอก",
+                        .CurrentFile = p.RelativePath,
+                        .FilesDone = idx,
+                        .TotalFiles = total,
+                        .Percent = If(total > 0, CInt(Math.Floor(idx * 100.0 / total)), 0)
+                    })
+
                     If CopyWithRetry(p.SourcePath, destPath) Then
                         result.CopiedFileCount += 1
                     Else
                         result.FailedFileCount += 1
                         result.Problems.Add("คัดลอกไม่สำเร็จ (ไฟล์อาจถูกล็อก/ถูกใช้งานอยู่): " & p.SourcePath)
+                        If p.RelativePath.EndsWith(".accdb", StringComparison.OrdinalIgnoreCase) Then
+                            result.DatabaseLocked = True
+                        End If
                     End If
+
+                    Report(progress, New BackupProgress() With {
+                        .Phase = "คัดลอก",
+                        .CurrentFile = p.RelativePath,
+                        .FilesDone = idx + 1,
+                        .TotalFiles = total,
+                        .Percent = If(total > 0, CInt(Math.Floor((idx + 1) * 100.0 / total)), 0)
+                    })
                 Next
 
                 ' 3. ตรวจสอบความถูกต้อง (จำนวน/ขนาด/SHA-256) เทียบต้นทางกับปลายทาง
+                Report(progress, New BackupProgress() With {.Phase = "ตรวจสอบ", .FilesDone = total, .TotalFiles = total, .Percent = 100})
                 VerifyFiles(planned, destinationFolder, result)
 
                 ' 4. เขียน manifest + log
+                Report(progress, New BackupProgress() With {.Phase = "เขียน manifest", .FilesDone = total, .TotalFiles = total, .Percent = 100})
                 WriteManifest(destinationFolder, result)
                 result.LogPath = WriteLog(destinationFolder, items, result)
 
                 result.Success = result.Problems.Count = 0
+
+                Report(progress, New BackupProgress() With {.Phase = "เสร็จสิ้น", .FilesDone = total, .TotalFiles = total, .Percent = 100})
             Catch ex As Exception
                 result.Success = False
                 result.Problems.Add("เกิดข้อผิดพลาดระหว่างสำรองข้อมูล: " & ex.Message)
@@ -146,6 +219,212 @@ Namespace TempleAccounting
             End Try
             Return result
         End Function
+
+        ''' <summary>
+        ''' จัดหมวดชุดสำรองหนึ่งชุด เทียบระหว่างรายการไฟล์ที่บันทึกไว้ (registry) กับไฟล์บนดิสก์และข้อมูลปัจจุบัน
+        ''' คืนค่า: Identical / OlderButIntact / Incomplete / Corrupted / DriveMissing
+        ''' </summary>
+        Public Shared Function ClassifyBackup(backupFolder As String, recordedFiles As List(Of BackupFileEntry), currentItems As List(Of BackupItemSpec)) As BackupVerificationResult
+            Dim r As New BackupVerificationResult() With {.BackupFolder = backupFolder}
+            If currentItems Is Nothing Then currentItems = New List(Of BackupItemSpec)()
+            If recordedFiles Is Nothing Then recordedFiles = New List(Of BackupFileEntry)()
+
+            ' 1. ตรวจสอบว่ามีไดรฟ์/โฟลเดอร์อยู่หรือไม่ (ไดรฟ์ไม่เชื่อมต่อ = "ไม่พบไดรฟ์")
+            Dim driveMissing As Boolean = False
+            Try
+                Dim root As String = Path.GetPathRoot(backupFolder)
+                If String.IsNullOrEmpty(root) Then
+                    driveMissing = True
+                ElseIf Not Directory.Exists(root) Then
+                    driveMissing = True
+                End If
+            Catch
+                driveMissing = True
+            End Try
+
+            If driveMissing Then
+                r.Classification = BackupStatusClass.DriveMissing
+                r.DatabaseStatus = "ไม่พบไดรฟ์"
+                r.ReceiptsStatus = "ไม่พบไดรฟ์"
+                r.OverallStatus = "ไม่พบไดรฟ์"
+                r.Problems.Add("ไม่พบไดรฟ์: " & If(backupFolder, "(ไม่ทราบ)"))
+                Return r
+            End If
+
+            If Not Directory.Exists(backupFolder) Then
+                r.Classification = BackupStatusClass.Incomplete
+                r.DatabaseStatus = "ข้อมูลหาย"
+                r.ReceiptsStatus = "ข้อมูลหาย"
+                r.OverallStatus = "ข้อมูลหาย (ไม่พบโฟลเดอร์)"
+                r.Problems.Add("ไม่พบโฟลเดอร์สำรองข้อมูล: " & backupFolder)
+                Return r
+            End If
+
+            ' 2. ตรวจสอบไฟล์ที่บันทึกไว้ใน registry เทียบกับไฟล์บนดิสก์
+            Dim recordedPaths As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase)
+            Dim missing As New List(Of String)()
+            Dim corrupted As New List(Of String)()
+            Dim dbFound As Boolean = False
+            Dim dbOk As Boolean = False
+            Dim receiptsTotal As Integer = 0
+            Dim receiptsOk As Integer = 0
+
+            For Each f In recordedFiles
+                If String.IsNullOrEmpty(f.RelativePath) Then Continue For
+                recordedPaths.Add(f.RelativePath)
+                Dim isDb As Boolean = f.RelativePath.EndsWith(".accdb", StringComparison.OrdinalIgnoreCase)
+                Dim dest As String = Path.Combine(backupFolder, f.RelativePath)
+
+                If Not File.Exists(dest) Then
+                    missing.Add(f.RelativePath)
+                    If isDb Then dbFound = True Else receiptsTotal += 1
+                    Continue For
+                End If
+
+                Try
+                    Dim sz As Long = New FileInfo(dest).Length
+                    If sz <> f.SizeBytes Then
+                        corrupted.Add(f.RelativePath & " (ขนาดไม่ตรง)")
+                        If isDb Then dbFound = True : dbOk = False Else receiptsTotal += 1
+                        Continue For
+                    End If
+                    Dim h As String = ComputeSha256(dest)
+                    If Not String.Equals(h, f.Sha256, StringComparison.OrdinalIgnoreCase) Then
+                        corrupted.Add(f.RelativePath & " (SHA-256 ไม่ตรง)")
+                        If isDb Then dbFound = True : dbOk = False Else receiptsTotal += 1
+                        Continue For
+                    End If
+                    If isDb Then
+                        dbFound = True
+                        dbOk = True
+                    Else
+                        receiptsTotal += 1
+                        receiptsOk += 1
+                    End If
+                Catch ex As Exception
+                    corrupted.Add(f.RelativePath & " (" & ex.Message & ")")
+                    If isDb Then dbFound = True : dbOk = False Else receiptsTotal += 1
+                End Try
+            Next
+
+            ' 3. สรุปสถานะ DB / Receipts
+            If Not dbFound Then
+                r.DatabaseStatus = "ข้อมูลหาย"
+            ElseIf dbOk Then
+                r.DatabaseStatus = "ตรงกัน"
+            Else
+                r.DatabaseStatus = "เสียหาย"
+            End If
+            r.ReceiptsTotal = receiptsTotal
+            r.ReceiptsOk = receiptsOk
+            r.ReceiptsStatus = receiptsOk.ToString() & " / " & receiptsTotal.ToString()
+
+            ' 4. จัดหมวดรวม
+            If corrupted.Count > 0 Then
+                r.Classification = BackupStatusClass.Corrupted
+                r.OverallStatus = "เสียหาย"
+                For Each c In corrupted : r.Problems.Add(c) : Next
+            ElseIf missing.Count > 0 OrElse Not dbFound Then
+                r.Classification = BackupStatusClass.Incomplete
+                r.OverallStatus = "ไม่สมบูรณ์"
+                For Each m In missing : r.Problems.Add("ไม่พบไฟล์: " & m) : Next
+                If Not dbFound Then r.Problems.Add("ไม่พบฐานข้อมูล (.accdb) ในสำรอง")
+            Else
+                ' สำรองยังคงสมบูรณ์ (intact) → เปรียบเทียบกับข้อมูลปัจจุบัน
+                Dim currentPlan As List(Of PlannedFile) = BuildFilePlan(currentItems, New BackupResult())
+                Dim newOrChanged As New List(Of String)()
+                For Each p In currentPlan
+                    If recordedPaths.Contains(p.RelativePath) Then
+                        Dim rec = recordedFiles.Find(Function(x) String.Equals(x.RelativePath, p.RelativePath, StringComparison.OrdinalIgnoreCase))
+                        If rec IsNot Nothing Then
+                            Try
+                                Dim curHash As String = ComputeSha256(p.SourcePath)
+                                If Not String.Equals(curHash, rec.Sha256, StringComparison.OrdinalIgnoreCase) Then
+                                    newOrChanged.Add(p.RelativePath)
+                                End If
+                            Catch
+                                newOrChanged.Add(p.RelativePath)
+                            End Try
+                        End If
+                    Else
+                        newOrChanged.Add(p.RelativePath)
+                    End If
+                Next
+
+                If newOrChanged.Count = 0 Then
+                    r.Classification = BackupStatusClass.Identical
+                    r.OverallStatus = "ตรงกับปัจจุบัน"
+                Else
+                    r.Classification = BackupStatusClass.OlderButIntact
+                    r.OverallStatus = "เก่ากว่าแต่สมบูรณ์"
+                    r.NewFiles.AddRange(newOrChanged)
+                End If
+            End If
+
+            Return r
+        End Function
+
+        ''' <summary>หาไฟล์ในข้อมูลปัจจุบันที่ยังไม่เคยถูกสำรองเลย (ไม่ปรากฏใน backedUpPaths)</summary>
+        Public Shared Function FindUnbackedFiles(currentItems As List(Of BackupItemSpec), backedUpPaths As IEnumerable(Of String)) As List(Of String)
+            Dim result As New List(Of String)()
+            If currentItems Is Nothing Then Return result
+            Dim set_ As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase)
+            If backedUpPaths IsNot Nothing Then
+                For Each s In backedUpPaths
+                    If Not String.IsNullOrEmpty(s) Then set_.Add(s)
+                Next
+            End If
+            Dim plan As List(Of PlannedFile) = BuildFilePlan(currentItems, New BackupResult())
+            For Each p In plan
+                If Not set_.Contains(p.RelativePath) Then result.Add(p.RelativePath)
+            Next
+            Return result
+        End Function
+
+        ''' <summary>
+        ''' สแกนหาโฟลเดอร์ backup (ชื่อ Backup_* หรือมี backup_manifest.json ตรง projectId)
+        ''' ภายใต้รายการ root ที่ให้มา โดยจำกัดความลึก ไม่แก้ไข/ลบ/ย้ายไฟล์ใด ๆ
+        ''' </summary>
+        Public Shared Function ScanForBackupFolders(roots As IEnumerable(Of String), projectId As String, maxDepth As Integer) As List(Of String)
+            Dim found As New List(Of String)()
+            If roots Is Nothing Then Return found
+            For Each root In roots
+                If String.IsNullOrEmpty(root) OrElse Not Directory.Exists(root) Then Continue For
+                ScanDir(root, projectId, maxDepth, 0, found)
+            Next
+            Return found
+        End Function
+
+        Private Shared Sub ScanDir(dir As String, projectId As String, maxDepth As Integer, depth As Integer, found As List(Of String))
+            If depth > maxDepth Then Return
+            Try
+                Dim name As String = Path.GetFileName(dir.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar))
+                Dim isBackup As Boolean = False
+                If name.StartsWith("Backup_", StringComparison.OrdinalIgnoreCase) Then
+                    isBackup = True
+                Else
+                    Dim manifest As String = Path.Combine(dir, "backup_manifest.json")
+                    If File.Exists(manifest) Then
+                        Try
+                            Dim pid As String = BackupRegistry.ReadManifestProjectId(dir)
+                            If String.Equals(pid, projectId, StringComparison.OrdinalIgnoreCase) Then isBackup = True
+                        Catch
+                        End Try
+                    End If
+                End If
+
+                If isBackup AndAlso Not found.Contains(dir, StringComparer.OrdinalIgnoreCase) Then
+                    found.Add(dir)
+                End If
+
+                If depth < maxDepth Then
+                    For Each subDir In Directory.GetDirectories(dir)
+                        ScanDir(subDir, projectId, maxDepth, depth + 1, found)
+                    Next
+                End If
+            Catch
+            End Try
+        End Sub
 
         ''' <summary>ระบุรายชื่อไฟล์ทั้งหมดที่จะสำรองจาก BACKUP_ITEMS (รวมซับโฟลเดอร์)</summary>
         Private Shared Function BuildFilePlan(items As List(Of BackupItemSpec), result As BackupResult) As List(Of PlannedFile)
@@ -257,6 +536,26 @@ Namespace TempleAccounting
                 End Using
             End Using
         End Function
+
+        ''' <summary>จับ drive letter + volume label ของปลายทางสำรอง</summary>
+        Private Shared Sub CaptureDriveInfo(folderPath As String, result As BackupResult)
+            Try
+                Dim root As String = Path.GetPathRoot(folderPath)
+                If String.IsNullOrEmpty(root) Then Return
+                Dim di As New DriveInfo(root)
+                result.DriveLetter = di.Name.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+                result.VolumeLabel = di.VolumeLabel
+            Catch
+            End Try
+        End Sub
+
+        Private Shared Sub Report(progress As IProgress(Of BackupProgress), p As BackupProgress)
+            If progress Is Nothing Then Return
+            Try
+                progress.Report(p)
+            Catch
+            End Try
+        End Sub
 
         Private Shared Sub WriteManifest(folder As String, result As BackupResult)
             Dim doc As New ManifestDocument() With {

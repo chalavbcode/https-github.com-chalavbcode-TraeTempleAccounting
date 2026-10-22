@@ -34,6 +34,7 @@
     <Compile Include="DatabaseBackupHelper.vb" />
     <Compile Include="BackupEngine.vb" />
     <Compile Include="BackupConfig.vb" />
+    <Compile Include="BackupRegistry.vb" />
     <Compile Include="DesktopShortcutHelper.vb" />
     <Compile Include="AppPaths.vb" />
     <Compile Include="AppPreferences.vb" />
@@ -66,6 +67,9 @@
     </Compile>
     <Compile Include="frmMain.UiHelpers.vb">
       <DependentUpon>frmMain.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\FrmBackupVerify.vb">
+      <SubType>Form</SubType>
     </Compile>
     <EmbeddedResource Include="Forms\FrmChartPreview.resx" />
     <EmbeddedResource Include="Forms\FrmMasterData.resx" />

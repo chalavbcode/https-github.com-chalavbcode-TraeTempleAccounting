@@ -1,4 +1,4 @@
-﻿Imports System
+Imports System
 Imports System.Drawing
 Imports System.Drawing.Drawing2D
 Imports System.IO
@@ -111,6 +111,7 @@ Namespace TempleAccounting
             AddHandler btnSetting.Click, AddressOf NavMenu_Click
             AddHandler btnBackup.Click, AddressOf btnBackup_Click
             AddHandler btnRestore.Click, AddressOf btnRestore_Click
+            AddHandler btnVerifyBackup.Click, AddressOf btnVerifyBackup_Click
 
             AddHandler pnlCard1.Click, AddressOf OverviewCard_Click
             AddHandler pnlCard2.Click, AddressOf OverviewCard_Click
@@ -166,6 +167,7 @@ Namespace TempleAccounting
                 ilIcons.Images.Add("setting", MakeIconBitmap("⚙️", Color.FromArgb(75, 85, 99)))
                 ilIcons.Images.Add("backup", MakeIconBitmap("💾", Color.FromArgb(5, 150, 105)))
                 ilIcons.Images.Add("restore", MakeIconBitmap("🔄", Color.FromArgb(59, 130, 246)))
+                ilIcons.Images.Add("verify", MakeIconBitmap("🔍", Color.FromArgb(37, 99, 235)))
 
                 ApplyButtonImage(btnDashboard, "home")
                 ApplyButtonImage(btnDonation, "donation")
@@ -179,6 +181,7 @@ Namespace TempleAccounting
                 ApplyButtonImage(btnSetting, "setting")
                 ApplyButtonImage(btnBackup, "backup")
                 ApplyButtonImage(btnRestore, "restore")
+                ApplyButtonImage(btnVerifyBackup, "verify")
             Catch
             End Try
 
@@ -269,6 +272,7 @@ Namespace TempleAccounting
             ttMain.SetToolTip(btnSetting, "ตั้งค่าข้อมูลวัดและข้อมูลพื้นฐานของระบบ")
             ttMain.SetToolTip(btnBackup, "สำรองข้อมูลฐานข้อมูล")
             ttMain.SetToolTip(btnRestore, "คืนค่าข้อมูลจากไฟล์สำรอง")
+            ttMain.SetToolTip(btnVerifyBackup, "ตรวจสอบชุดสำรองข้อมูลและสแกนหา Backup บนไดรฟ์ต่างๆ")
             ttMain.SetToolTip(btnLogout, "ออกจากระบบและกลับไปหน้าเข้าสู่ระบบ")
             ttMain.SetToolTip(btnClose, "ปิดโปรแกรม")
             ttMain.SetToolTip(btnMinimize, "ย่อหน้าต่างโปรแกรมลง")
