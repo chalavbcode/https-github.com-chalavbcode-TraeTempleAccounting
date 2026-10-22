@@ -3,6 +3,8 @@ Imports System.Drawing
 Imports System.Drawing.Drawing2D
 Imports System.Windows.Forms
 Imports System.IO
+Imports System.Threading
+Imports System.Threading.Tasks
 Imports WinTimer = System.Windows.Forms.Timer
 
 Namespace TempleAccounting
@@ -14,6 +16,14 @@ Namespace TempleAccounting
         Private _compactOverviewMode As Boolean = False
         Private picHomeLogo As PictureBox
         Private Shared _appIcon As Icon
+
+        ' สถานะ/UI สำหรับการสำรองข้อมูลแบบ async (progress + ปุ่มยกเลิก)
+        Private _isBackingUp As Boolean = False
+        Private _backupCts As CancellationTokenSource = Nothing
+        Private pnlBackupProgress As Panel
+        Private pgbBackup As ProgressBar
+        Private lblBackupProgress As Label
+        Private btnCancelBackup As Button
 
         ''' <summary>ไอคอนแอปพลิเคชัน (lamYangI&E.ico) ที่ใช้ร่วมกันทั้งหน้าหลักและฟอร์มลูก/ป็อปอัป</summary>
         Public Shared ReadOnly Property AppIcon As Icon
@@ -883,17 +893,139 @@ Namespace TempleAccounting
             End If
         End Sub
 
-        Private Sub btnBackup_Click(sender As Object, e As EventArgs)
+        Private Async Sub btnBackup_Click(sender As Object, e As EventArgs)
+            If _isBackingUp Then Return
             Using fbd As New FolderBrowserDialog()
                 fbd.Description = "เลือกโฟลเดอร์ปลายทางที่ต้องการเก็บโฟลเดอร์สำรองข้อมูล (ฐานข้อมูลและรูปใบเสร็จ)"
                 fbd.UseDescriptionForTitle = True
                 fbd.ShowNewFolderButton = True
 
                 If fbd.ShowDialog() = DialogResult.OK Then
-                    ' เรียกใช้ Helper เพื่อสำรองข้อมูลแบบเต็มระบบ
-                    DatabaseBackupHelper.BackupFullSystem(fbd.SelectedPath, False)
+                    Await RunBackupAsync(fbd.SelectedPath)
                 End If
             End Using
+        End Sub
+
+        ''' <summary>เริ่มสำรองข้อมูลแบบ async บน background thread พร้อม progress + ปุ่มยกเลิก</summary>
+        Private Async Function RunBackupAsync(targetBaseDir As String) As Task
+            _isBackingUp = True
+            _backupCts = New CancellationTokenSource()
+            Dim token As CancellationToken = _backupCts.Token
+            Dim progress As New Progress(Of BackupProgress)(AddressOf OnBackupProgress)
+
+            ' UI: ปิดปุ่มสำรอง เปิดแถบ progress + ปุ่มยกเลิก
+            btnBackup.Enabled = False
+            lblBackupProgress.Text = "กำลังเตรียมการสำรอง..."
+            pgbBackup.Value = 0
+            btnCancelBackup.Visible = True
+            pnlBackupProgress.Visible = True
+
+            Try
+                Await DatabaseBackupHelper.BackupFullSystemAsync(targetBaseDir, False, progress, token)
+            Catch ex As Exception
+                ErrorLogHelper.LogSilentError("frmMain.RunBackupAsync", ex)
+                If Not Me.IsDisposed Then
+                    MessageBoxHelper.ShowError("เกิดข้อผิดพลาดในการสำรองข้อมูล: " & ex.Message)
+                End If
+            Finally
+                _isBackingUp = False
+                If _backupCts IsNot Nothing Then
+                    _backupCts.Dispose()
+                    _backupCts = Nothing
+                End If
+                If Not Me.IsDisposed Then
+                    btnBackup.Enabled = True
+                    btnCancelBackup.Visible = False
+                    pnlBackupProgress.Visible = False
+                    lblBackupProgress.Text = ""
+                End If
+            End Try
+        End Function
+
+        ''' <summary>รับรายงานความคืบหน้าจาก IProgress (ทำงานบน UI thread)</summary>
+        Private Sub OnBackupProgress(p As BackupProgress)
+            If p Is Nothing OrElse Me.IsDisposed Then Return
+            If pgbBackup IsNot Nothing Then
+                pgbBackup.Value = Math.Max(0, Math.Min(100, p.Percent))
+            End If
+            If lblBackupProgress IsNot Nothing Then
+                Select Case p.Phase
+                    Case "คัดลอก"
+                        lblBackupProgress.Text = "กำลังคัดลอก: " & p.CurrentFile & " (" & p.FilesDone & "/" & p.TotalFiles & ")"
+                    Case "ตรวจสอบ"
+                        lblBackupProgress.Text = "กำลังตรวจสอบความถูกต้อง..."
+                    Case "เขียน manifest"
+                        lblBackupProgress.Text = "กำลังเขียน manifest..."
+                    Case Else
+                        lblBackupProgress.Text = If(String.IsNullOrEmpty(p.Phase), "กำลังสำรอง...", p.Phase)
+                End Select
+            End If
+        End Sub
+
+        Private Sub BtnCancelBackup_Click(sender As Object, e As EventArgs)
+            If _backupCts IsNot Nothing Then
+                Try
+                    _backupCts.Cancel()
+                Catch
+                End Try
+            End If
+        End Sub
+
+        ''' <summary>สร้างแถบ progress + ปุ่มยกเลิก (แสดงเฉพาะตอนกำลังสำรอง)</summary>
+        Private Sub SetupBackupProgressUi()
+            If pnlContent Is Nothing Then Return
+
+            pnlBackupProgress = New Panel() With {
+                .Name = "pnlBackupProgress",
+                .Dock = DockStyle.Top,
+                .Height = 40,
+                .BackColor = Color.FromArgb(255, 251, 235),
+                .Visible = False
+            }
+
+            Dim table As New TableLayoutPanel() With {
+                .Dock = DockStyle.Fill,
+                .ColumnCount = 3,
+                .RowCount = 1,
+                .Margin = New Padding(0),
+                .Padding = New Padding(8, 4, 8, 4)
+            }
+            table.ColumnStyles.Add(New ColumnStyle(SizeType.AutoSize))
+            table.ColumnStyles.Add(New ColumnStyle(SizeType.Percent, 100.0F))
+            table.ColumnStyles.Add(New ColumnStyle(SizeType.AutoSize))
+
+            lblBackupProgress = New Label() With {
+                .AutoSize = True,
+                .Dock = DockStyle.Fill,
+                .TextAlign = ContentAlignment.MiddleLeft,
+                .ForeColor = Color.FromArgb(120, 53, 15),
+                .Text = ""
+            }
+
+            pgbBackup = New ProgressBar() With {
+                .Dock = DockStyle.Fill,
+                .Minimum = 0,
+                .Maximum = 100,
+                .Style = ProgressBarStyle.Continuous,
+                .Margin = New Padding(10, 0, 10, 0)
+            }
+
+            btnCancelBackup = New Button() With {
+                .Text = "ยกเลิก",
+                .AutoSize = True,
+                .FlatStyle = FlatStyle.Flat,
+                .BackColor = Color.FromArgb(190, 30, 30),
+                .ForeColor = Color.White,
+                .Visible = False
+            }
+            AddHandler btnCancelBackup.Click, AddressOf BtnCancelBackup_Click
+
+            table.Controls.Add(lblBackupProgress, 0, 0)
+            table.Controls.Add(pgbBackup, 1, 0)
+            table.Controls.Add(btnCancelBackup, 2, 0)
+            pnlBackupProgress.Controls.Add(table)
+            pnlContent.Controls.Add(pnlBackupProgress)
+            pnlBackupProgress.BringToFront()
         End Sub
 
         Private Sub btnRestore_Click(sender As Object, e As EventArgs)
@@ -928,6 +1060,25 @@ Namespace TempleAccounting
         End Sub
 
         Private Sub FrmMain_FormClosing(sender As Object, e As FormClosingEventArgs)
+            If _isBackingUp Then
+                Dim choice As DialogResult = MessageBox.Show(
+                    "กำลังสำรองข้อมูลอยู่" & Environment.NewLine &
+                    "ยกเลิกการสำรองแล้วออก หรือ รอให้เสร็จ?",
+                    "กำลังสำรองข้อมูล",
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2)
+                If choice = DialogResult.Yes Then
+                    If _backupCts IsNot Nothing Then
+                        Try
+                            _backupCts.Cancel()
+                        Catch
+                        End Try
+                    End If
+                Else
+                    e.Cancel = True
+                    Return
+                End If
+            End If
+
             Try
                 ' Tiered Backup: สำรองข้อมูลแบบ Weekly/Monthly/Yearly เมื่อปิดโปรแกรม
                 DatabaseBackupHelper.RunTieredBackup()

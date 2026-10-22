@@ -36,6 +36,7 @@ Namespace TempleAccounting
     ''' <summary>ผลลัพธ์การสำรอง/ตรวจสอบข้อมูล</summary>
     Public Class BackupResult
         Public Property Success As Boolean
+        Public Property Cancelled As Boolean
         Public Property DestinationFolder As String
         Public Property DriveLetter As String
         Public Property VolumeLabel As String
@@ -115,16 +116,50 @@ Namespace TempleAccounting
 
         ''' <summary>สำรองข้อมูลทุกรายการลง destinationFolder แล้วตรวจสอบความถูกต้อง (ซิงโครนัส)</summary>
         Public Shared Function ExecuteBackup(items As List(Of BackupItemSpec), destinationFolder As String) As BackupResult
-            Return ExecuteBackupCore(items, destinationFolder, Nothing)
+            Return ExecuteBackupCore(items, destinationFolder, Nothing, Nothing)
         End Function
 
         ''' <summary>สำรองข้อมูลแบบ async บน background thread พร้อมรายงาน progress</summary>
-        Public Shared Function ExecuteBackupAsync(items As List(Of BackupItemSpec), destinationFolder As String, Optional progress As IProgress(Of BackupProgress) = Nothing) As Task(Of BackupResult)
-            Return Task.Run(Function() ExecuteBackupCore(items, destinationFolder, progress))
+        Public Shared Function ExecuteBackupAsync(items As List(Of BackupItemSpec), destinationFolder As String, Optional progress As IProgress(Of BackupProgress) = Nothing, Optional token As CancellationToken = Nothing) As Task(Of BackupResult)
+            Return Task.Run(Function() ExecuteBackupCore(items, destinationFolder, progress, token))
+        End Function
+
+        ''' <summary>
+        ''' ตรวจสอบว่า destinationFolder อยู่ภายใน (หรือเป็น) โฟลเดอร์ต้นทางรายการใดรายการหนึ่งหรือไม่
+        ''' คืนค่าข้อความปัญหาภาษาไทย ("" ถ้าปลอดภัย)
+        ''' </summary>
+        Public Shared Function FindContainmentProblem(items As List(Of BackupItemSpec), destinationFolder As String) As String
+            If items Is Nothing Then Return ""
+            If String.IsNullOrEmpty(destinationFolder) Then Return ""
+            For Each item In items
+                If String.IsNullOrEmpty(item.SourcePath) Then Continue For
+                Dim srcRoot As String = item.SourcePath
+                If Not item.IsFolder Then
+                    srcRoot = Path.GetDirectoryName(item.SourcePath)
+                End If
+                If String.IsNullOrEmpty(srcRoot) Then Continue For
+                If IsSameOrSubPath(destinationFolder, srcRoot) Then
+                    Return "ไม่สามารถสำรองข้อมูลลงในโฟลเดอร์ต้นทางได้: " & srcRoot & Environment.NewLine &
+                           "กรุณาเลือกโฟลเดอร์ปลายทางที่อยู่นอกโฟลเดอร์ฐานข้อมูล/ใบเสร็จ"
+                End If
+            Next
+            Return ""
+        End Function
+
+        Private Shared Function IsSameOrSubPath(candidate As String, parent As String) As Boolean
+            Try
+                Dim fullCandidate As String = Path.GetFullPath(candidate).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+                Dim fullParent As String = Path.GetFullPath(parent).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+                If String.Equals(fullCandidate, fullParent, StringComparison.OrdinalIgnoreCase) Then Return True
+                Dim rel As String = Path.GetRelativePath(fullParent, fullCandidate)
+                Return Not rel.StartsWith("..", StringComparison.Ordinal) AndAlso Not Path.IsPathRooted(rel)
+            Catch
+                Return False
+            End Try
         End Function
 
         ''' <summary>กลไกหลัก (ใช้ร่วมกันทั้ง sync/async)</summary>
-        Private Shared Function ExecuteBackupCore(items As List(Of BackupItemSpec), destinationFolder As String, progress As IProgress(Of BackupProgress)) As BackupResult
+        Private Shared Function ExecuteBackupCore(items As List(Of BackupItemSpec), destinationFolder As String, progress As IProgress(Of BackupProgress), token As CancellationToken) As BackupResult
             Dim result As New BackupResult()
             result.DestinationFolder = destinationFolder
             Try
@@ -143,8 +178,14 @@ Namespace TempleAccounting
                 result.SourceFileCount = planned.Count
                 Dim total As Integer = planned.Count
 
-                ' 2. คัดลอกทีละไฟล์ (retry เมื่อไฟล์ถูกล็อก)
+                ' 2. คัดลอกทีละไฟล์ (retry เมื่อไฟล์ถูกล็อก) พร้อมรองรับการยกเลิก
                 For idx As Integer = 0 To planned.Count - 1
+                    If token.IsCancellationRequested Then
+                        result.Cancelled = True
+                        result.Problems.Add("ยกเลิกการสำรองโดยผู้ใช้")
+                        Exit For
+                    End If
+
                     Dim p As PlannedFile = planned(idx)
                     Dim destPath As String = Path.Combine(destinationFolder, p.RelativePath)
                     Dim destDir As String = Path.GetDirectoryName(destPath)
@@ -160,9 +201,14 @@ Namespace TempleAccounting
                         .Percent = If(total > 0, CInt(Math.Floor(idx * 100.0 / total)), 0)
                     })
 
-                    If CopyWithRetry(p.SourcePath, destPath) Then
+                    If CopyWithRetry(p.SourcePath, destPath, token) Then
                         result.CopiedFileCount += 1
                     Else
+                        If token.IsCancellationRequested Then
+                            result.Cancelled = True
+                            result.Problems.Add("ยกเลิกการสำรองโดยผู้ใช้")
+                            Exit For
+                        End If
                         result.FailedFileCount += 1
                         result.Problems.Add("คัดลอกไม่สำเร็จ (ไฟล์อาจถูกล็อก/ถูกใช้งานอยู่): " & p.SourcePath)
                         If p.RelativePath.EndsWith(".accdb", StringComparison.OrdinalIgnoreCase) Then
@@ -180,8 +226,10 @@ Namespace TempleAccounting
                 Next
 
                 ' 3. ตรวจสอบความถูกต้อง (จำนวน/ขนาด/SHA-256) เทียบต้นทางกับปลายทาง
-                Report(progress, New BackupProgress() With {.Phase = "ตรวจสอบ", .FilesDone = total, .TotalFiles = total, .Percent = 100})
-                VerifyFiles(planned, destinationFolder, result)
+                If Not result.Cancelled Then
+                    Report(progress, New BackupProgress() With {.Phase = "ตรวจสอบ", .FilesDone = total, .TotalFiles = total, .Percent = 100})
+                    VerifyFiles(planned, destinationFolder, result, token)
+                End If
 
                 ' 4. เขียน manifest + log
                 Report(progress, New BackupProgress() With {.Phase = "เขียน manifest", .FilesDone = total, .TotalFiles = total, .Percent = 100})
@@ -211,7 +259,7 @@ Namespace TempleAccounting
 
                 Dim planned As List(Of PlannedFile) = BuildFilePlan(items, result)
                 result.SourceFileCount = planned.Count
-                VerifyFiles(planned, backupFolder, result)
+                VerifyFiles(planned, backupFolder, result, Nothing)
                 result.Success = result.Problems.Count = 0
             Catch ex As Exception
                 result.Success = False
@@ -385,19 +433,26 @@ Namespace TempleAccounting
         ''' สแกนหาโฟลเดอร์ backup (ชื่อ Backup_* หรือมี backup_manifest.json ตรง projectId)
         ''' ภายใต้รายการ root ที่ให้มา โดยจำกัดความลึก ไม่แก้ไข/ลบ/ย้ายไฟล์ใด ๆ
         ''' </summary>
-        Public Shared Function ScanForBackupFolders(roots As IEnumerable(Of String), projectId As String, maxDepth As Integer) As List(Of String)
+        Public Shared Function ScanForBackupFolders(roots As IEnumerable(Of String), projectId As String, maxDepth As Integer,
+                                                    Optional token As CancellationToken = Nothing,
+                                                    Optional onFolder As Action(Of String) = Nothing) As List(Of String)
             Dim found As New List(Of String)()
             If roots Is Nothing Then Return found
             For Each root In roots
+                If token.IsCancellationRequested Then Exit For
                 If String.IsNullOrEmpty(root) OrElse Not Directory.Exists(root) Then Continue For
-                ScanDir(root, projectId, maxDepth, 0, found)
+                ScanDir(root, projectId, maxDepth, 0, found, token, onFolder)
             Next
             Return found
         End Function
 
-        Private Shared Sub ScanDir(dir As String, projectId As String, maxDepth As Integer, depth As Integer, found As List(Of String))
+        Private Shared Sub ScanDir(dir As String, projectId As String, maxDepth As Integer, depth As Integer,
+                                   found As List(Of String), token As CancellationToken, onFolder As Action(Of String))
             If depth > maxDepth Then Return
+            If token.IsCancellationRequested Then Return
             Try
+                If onFolder IsNot Nothing Then onFolder(dir)
+
                 Dim name As String = Path.GetFileName(dir.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar))
                 Dim isBackup As Boolean = False
                 If name.StartsWith("Backup_", StringComparison.OrdinalIgnoreCase) Then
@@ -419,7 +474,8 @@ Namespace TempleAccounting
 
                 If depth < maxDepth Then
                     For Each subDir In Directory.GetDirectories(dir)
-                        ScanDir(subDir, projectId, maxDepth, depth + 1, found)
+                        If token.IsCancellationRequested Then Return
+                        ScanDir(subDir, projectId, maxDepth, depth + 1, found, token, onFolder)
                     Next
                 End If
             Catch
@@ -466,8 +522,13 @@ Namespace TempleAccounting
         End Function
 
         ''' <summary>ตรวจสอบแต่ละไฟล์: มีอยู่/ขนาด/SHA-256 ตรงกัน และเก็บผลลง manifest</summary>
-        Private Shared Sub VerifyFiles(planned As List(Of PlannedFile), backupFolder As String, result As BackupResult)
+        Private Shared Sub VerifyFiles(planned As List(Of PlannedFile), backupFolder As String, result As BackupResult, token As CancellationToken)
             For Each p In planned
+                If token.IsCancellationRequested Then
+                    result.Cancelled = True
+                    result.Problems.Add("ยกเลิกการสำรองโดยผู้ใช้")
+                    Exit For
+                End If
                 Dim rec As New BackupFileRecord() With {
                     .RelativePath = p.RelativePath,
                     .SourcePath = p.SourcePath,
@@ -513,14 +574,19 @@ Namespace TempleAccounting
         End Sub
 
         ''' <summary>คัดลอกไฟล์พร้อม retry เมื่อไฟล์ถูกล็อก (เช่น .accdb ที่เปิดอยู่)</summary>
-        Private Shared Function CopyWithRetry(srcPath As String, destPath As String) As Boolean
+        Private Shared Function CopyWithRetry(srcPath As String, destPath As String, token As CancellationToken) As Boolean
             For attempt As Integer = 1 To MaxRetryAttempts
+                If token.IsCancellationRequested Then Return False
                 Try
                     File.Copy(srcPath, destPath, True)
                     Return True
                 Catch ex As Exception
                     If attempt < MaxRetryAttempts Then
-                        Thread.Sleep(RetryDelayMs)
+                        If token.CanBeCanceled Then
+                            If token.WaitHandle.WaitOne(RetryDelayMs) Then Return False
+                        Else
+                            Thread.Sleep(RetryDelayMs)
+                        End If
                     End If
                 End Try
             Next
@@ -529,12 +595,7 @@ Namespace TempleAccounting
 
         ''' <summary>คำนวณ SHA-256 ของไฟล์ (ยอมให้อ่านไฟล์ที่เปิดใช้งานอยู่ได้)</summary>
         Private Shared Function ComputeSha256(filePath As String) As String
-            Using fs As New FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite Or FileShare.Delete)
-                Using sha As SHA256 = SHA256.Create()
-                    Dim hashBytes As Byte() = sha.ComputeHash(fs)
-                    Return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant()
-                End Using
-            End Using
+            Return BackupHashing.ComputeSha256File(filePath)
         End Function
 
         ''' <summary>จับ drive letter + volume label ของปลายทางสำรอง</summary>

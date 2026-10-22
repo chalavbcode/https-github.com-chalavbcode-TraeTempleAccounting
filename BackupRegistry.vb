@@ -25,6 +25,18 @@ Namespace TempleAccounting
         Public Property VolumeLabel As String
         Public Property VerificationResult As String
         Public Property Files As New List(Of BackupFileEntry)
+
+        ' ── ข้อมูลที่เพิ่มสำหรับชุดสำรองแบบ legacy (ไม่มี backup_manifest.json) ──
+        ''' <summary>True = ชุดสำรองรุ่นเก่าที่ไม่มี backup_manifest.json (ประเมินจากการสแกนโฟลเดอร์)</summary>
+        Public Property IsLegacy As Boolean
+        ''' <summary>True = ชุดสำรองครบถ้วน (ตรงกับปัจจุบัน หรือเก่ากว่าแต่สมบูรณ์) — ใช้ได้จริง</summary>
+        Public Property IsComplete As Boolean
+        ''' <summary>ข้อความสถานะล่าสุด เช่น "ตรงกับปัจจุบัน" / "ไม่สมบูรณ์"</summary>
+        Public Property Status As String
+        ''' <summary>เวลาของชุดสำรองจากชื่อโฟลเดอร์ (yyyy-MM-dd HH:mm:ss) ใช้เป็นกุญแจกันซ้ำ</summary>
+        Public Property FolderTimestamp As String
+        ''' <summary>เหตุผล/ปัญหาโดยละเอียดของชุดสำรองนี้</summary>
+        Public Property Problems As New List(Of String)
     End Class
 
     ''' <summary>เอกสารรวม registry</summary>
@@ -123,6 +135,31 @@ Namespace TempleAccounting
             Catch
             End Try
             Return ""
+        End Function
+
+        ''' <summary>ปรับ path ให้เทียบกันได้ (ตัด separator ท้าย + ตัวพิมพ์เล็ก)</summary>
+        Public Function NormalizeFolderPath(folder As String) As String
+            If String.IsNullOrEmpty(folder) Then Return ""
+            Return folder.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar).ToLowerInvariant()
+        End Function
+
+        ''' <summary>
+        ''' ค้นหา entry ของชุดสำรองจาก path เต็ม — กุญแจกันซ้ำคือ "path เต็ม + เวลาของโฟลเดอร์"
+        ''' (path เดียวกันย่อมเป็นชุดเดียวกัน จึงถือว่าซ้ำเสมอ แม้ FolderTimestamp จะว่าง)
+        ''' </summary>
+        Public Function FindEntryForFolder(doc As RegistryDocument, folder As String) As BackupRegistryEntry
+            If doc Is Nothing OrElse doc.Entries Is Nothing OrElse String.IsNullOrEmpty(folder) Then Return Nothing
+            Dim key As String = NormalizeFolderPath(folder)
+            For Each e In doc.Entries
+                If e Is Nothing OrElse String.IsNullOrEmpty(e.DestinationPath) Then Continue For
+                If NormalizeFolderPath(e.DestinationPath) = key Then Return e
+            Next
+            Return Nothing
+        End Function
+
+        ''' <summary>ตรวจว่าชุดสำรองนี้ถูกเพิ่มเข้าสู่ registry แล้วหรือไม่</summary>
+        Public Function IsRegistered(doc As RegistryDocument, folder As String) As Boolean
+            Return FindEntryForFolder(doc, folder) IsNot Nothing
         End Function
 
         ''' <summary>คืน union ของ RelativePath ทั้งหมดที่เคยถูกสำรองใน entries (ใช้หาไฟล์ใหม่ที่ยังไม่ได้สำรอง)</summary>

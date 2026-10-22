@@ -4,6 +4,7 @@ Option Explicit On
 Imports System
 Imports System.Drawing
 Imports System.IO
+Imports System.Text
 Imports System.Windows.Forms
 Imports System.Threading
 Imports System.Threading.Tasks
@@ -11,10 +12,10 @@ Imports System.Threading.Tasks
 Namespace TempleAccounting
     ''' <summary>
     ''' หน้าต่างตรวจสอบชุดสำรองข้อมูล (Backup)
-    ''' • แสดงผลตรวจสอบชุดสำรองล่าสุด 5 ชุดใน DataGridView
-    ''' • สแกนไดรฟ์ที่พร้อมใช้งานเพื่อหาชุดสำรองที่ยังไม่อยู่ใน registry (มี progress + ยกเลิก)
-    ''' • แสดงคำเตือนความปลอดภัย (สำรองครบ 2 ไดรฟ์) และไฟล์ใหม่ที่ยังไม่ได้สำรอง
-    ''' ทำงานบน background thread (UI ไม่ค้าง)
+    ''' • สแกนไดรฟ์ที่พร้อมใช้งาน (background thread + progress + ปุ่มยกเลิกที่ใช้ได้จริง)
+    ''' • ประเมินทุกชุดที่พบ (รวมชุดรุ่นเก่าที่ไม่มี manifest) และเพิ่มเข้าสู่ registry ทุกชุด
+    ''' • แสดงทุกชุดที่พบในตาราง พร้อมสถานะ/เหตุผล และชุดที่ไม่สมบูรณ์ก็มองเห็นได้
+    ''' • สรุปไฟล์ที่ยังไม่ได้สำรองโดยเทียบกับชุดสำรองที่สมบูรณ์ล่าสุดเท่านั้น
     ''' </summary>
     Public Class FrmBackupVerify
         Inherits Form
@@ -22,10 +23,14 @@ Namespace TempleAccounting
         Private dgvResults As DataGridView
         Private btnVerify As Button
         Private btnScan As Button
+        Private btnCancel As Button
         Private btnClose As Button
         Private lblStatus As Label
+        Private lblAlert As Label
+        Private prgScan As ProgressBar
         Private txtSummary As TextBox
         Private _scanCts As CancellationTokenSource = Nothing
+        Private _scanning As Boolean = False
 
         Public Sub New()
             InitializeUI()
@@ -34,8 +39,8 @@ Namespace TempleAccounting
         Private Sub InitializeUI()
             Me.Text = "ตรวจสอบ Backup"
             Me.StartPosition = FormStartPosition.CenterParent
-            Me.Size = New Size(980, 640)
-            Me.MinimumSize = New Size(760, 480)
+            Me.Size = New Size(1280, 720)
+            Me.MinimumSize = New Size(980, 560)
             Me.BackColor = Color.FromArgb(255, 253, 244)
             Me.Font = New Font("Tahoma", 10.0!, FontStyle.Regular, GraphicsUnit.Point, 222)
             Me.FormBorderStyle = FormBorderStyle.Sizable
@@ -44,7 +49,7 @@ Namespace TempleAccounting
             ' ── แถบบน: หัวข้อ + ปุ่ม ──
             Dim pnlTop As New Panel()
             pnlTop.Dock = DockStyle.Top
-            pnlTop.Height = 92
+            pnlTop.Height = 108
             pnlTop.Padding = New Padding(16, 12, 16, 8)
 
             Dim lblTitle As New Label()
@@ -59,55 +64,51 @@ Namespace TempleAccounting
             lblHint.AutoSize = True
             lblHint.Font = New Font("Tahoma", 9.0!, FontStyle.Regular, GraphicsUnit.Point, 222)
             lblHint.ForeColor = Color.FromArgb(120, 80, 40)
-            lblHint.Text = "ตรวจสอบชุดสำรองล่าสุด 5 ชุด และสแกนไดรฟ์ที่เชื่อมต่อเพื่อหาชุดสำรองที่ยังไม่อยู่ในรายการ"
-            lblHint.Location = New Point(16, 40)
+            lblHint.Text = "สแกนไดรฟ์ที่เชื่อมต่อ ประเมินทุกชุดสำรอง (รวมชุดรุ่นเก่าที่ไม่มี manifest) แล้วเพิ่มเข้าสู่รายการ"
+            lblHint.Location = New Point(16, 38)
             pnlTop.Controls.Add(lblHint)
 
-            btnVerify = New Button()
-            btnVerify.Text = "🛡️ ตรวจสอบ Backup"
-            btnVerify.Size = New Size(160, 38)
-            btnVerify.Location = New Point(16, 62)
-            btnVerify.FlatStyle = FlatStyle.Flat
-            btnVerify.FlatAppearance.BorderSize = 0
-            btnVerify.BackColor = Color.FromArgb(5, 150, 105)
-            btnVerify.ForeColor = Color.White
-            btnVerify.Font = New Font("Tahoma", 10.0!, FontStyle.Bold, GraphicsUnit.Point, 222)
-            btnVerify.Cursor = Cursors.Hand
+            btnVerify = MakeButton("🛡️ ตรวจสอบ Backup", New Point(16, 62), New Size(160, 38), Color.FromArgb(5, 150, 105))
             AddHandler btnVerify.Click, AddressOf VerifyButton_Click
             pnlTop.Controls.Add(btnVerify)
 
-            btnScan = New Button()
-            btnScan.Text = "🔎 สแกนไดรฟ์หา Backup"
-            btnScan.Size = New Size(180, 38)
-            btnScan.Location = New Point(184, 62)
-            btnScan.FlatStyle = FlatStyle.Flat
-            btnScan.FlatAppearance.BorderSize = 0
-            btnScan.BackColor = Color.FromArgb(37, 99, 235)
-            btnScan.ForeColor = Color.White
-            btnScan.Font = New Font("Tahoma", 10.0!, FontStyle.Bold, GraphicsUnit.Point, 222)
-            btnScan.Cursor = Cursors.Hand
+            btnScan = MakeButton("🔎 สแกนไดรฟ์หา Backup", New Point(184, 62), New Size(180, 38), Color.FromArgb(37, 99, 235))
             AddHandler btnScan.Click, AddressOf ScanButton_Click
             pnlTop.Controls.Add(btnScan)
 
-            btnClose = New Button()
-            btnClose.Text = "ปิด"
-            btnClose.Size = New Size(90, 38)
+            btnCancel = MakeButton("⏹ ยกเลิกการสแกน", New Point(372, 62), New Size(160, 38), Color.FromArgb(153, 27, 27))
+            btnCancel.Visible = False
+            AddHandler btnCancel.Click, AddressOf CancelButton_Click
+            pnlTop.Controls.Add(btnCancel)
+
+            btnClose = MakeButton("ปิด", New Point(Me.ClientSize.Width - 106, 62), New Size(90, 38), Color.FromArgb(146, 64, 14))
             btnClose.Anchor = AnchorStyles.Top Or AnchorStyles.Right
-            btnClose.Location = New Point(Me.ClientSize.Width - 106, 62)
-            btnClose.FlatStyle = FlatStyle.Flat
-            btnClose.FlatAppearance.BorderSize = 0
-            btnClose.BackColor = Color.FromArgb(146, 64, 14)
-            btnClose.ForeColor = Color.White
-            btnClose.Font = New Font("Tahoma", 10.0!, FontStyle.Bold, GraphicsUnit.Point, 222)
-            btnClose.Cursor = Cursors.Hand
             AddHandler btnClose.Click, Sub(s, e) Me.Close()
             pnlTop.Controls.Add(btnClose)
 
-            ' ── แถบล่าง: สถานะ + สรุป ──
+            ' ── แถบล่าง: เตือน + progress + สถานะ + สรุป ──
             Dim pnlBottom As New Panel()
             pnlBottom.Dock = DockStyle.Bottom
-            pnlBottom.Height = 150
+            pnlBottom.Height = 200
             pnlBottom.Padding = New Padding(16, 6, 16, 10)
+
+            lblAlert = New Label()
+            lblAlert.Dock = DockStyle.Top
+            lblAlert.Height = 28
+            lblAlert.Font = New Font("Tahoma", 10.5!, FontStyle.Bold, GraphicsUnit.Point, 222)
+            lblAlert.ForeColor = Color.FromArgb(153, 27, 27)
+            lblAlert.Text = "กำลังตรวจสอบสถานะชุดสำรอง..."
+
+            txtSummary = New TextBox()
+            txtSummary.Dock = DockStyle.Fill
+            txtSummary.Multiline = True
+            txtSummary.ReadOnly = True
+            txtSummary.ScrollBars = ScrollBars.Vertical
+            txtSummary.WordWrap = False
+            txtSummary.Font = New Font("Tahoma", 9.5!, FontStyle.Regular, GraphicsUnit.Point, 222)
+            txtSummary.BackColor = Color.FromArgb(255, 253, 244)
+            txtSummary.BorderStyle = BorderStyle.FixedSingle
+            pnlBottom.Controls.Add(txtSummary)
 
             lblStatus = New Label()
             lblStatus.Dock = DockStyle.Top
@@ -117,15 +118,15 @@ Namespace TempleAccounting
             lblStatus.Text = "กด 'ตรวจสอบ Backup' เพื่อเริ่มตรวจสอบชุดสำรองล่าสุด"
             pnlBottom.Controls.Add(lblStatus)
 
-            txtSummary = New TextBox()
-            txtSummary.Dock = DockStyle.Fill
-            txtSummary.Multiline = True
-            txtSummary.ReadOnly = True
-            txtSummary.ScrollBars = ScrollBars.Vertical
-            txtSummary.Font = New Font("Tahoma", 9.0!, FontStyle.Regular, GraphicsUnit.Point, 222)
-            txtSummary.BackColor = Color.FromArgb(255, 253, 244)
-            txtSummary.BorderStyle = BorderStyle.FixedSingle
-            pnlBottom.Controls.Add(txtSummary)
+            prgScan = New ProgressBar()
+            prgScan.Dock = DockStyle.Top
+            prgScan.Height = 12
+            prgScan.Minimum = 0
+            prgScan.Maximum = 100
+            prgScan.Style = ProgressBarStyle.Continuous
+            pnlBottom.Controls.Add(prgScan)
+
+            pnlBottom.Controls.Add(lblAlert)
 
             ' ── DataGridView ──
             dgvResults = New DataGridView()
@@ -140,134 +141,241 @@ Namespace TempleAccounting
             dgvResults.BackgroundColor = Color.White
             dgvResults.BorderStyle = BorderStyle.None
             dgvResults.DefaultCellStyle.Font = New Font("Tahoma", 9.5!, FontStyle.Regular, GraphicsUnit.Point, 222)
+            dgvResults.DefaultCellStyle.WrapMode = DataGridViewTriState.False
             dgvResults.ColumnHeadersDefaultCellStyle.Font = New Font("Tahoma", 9.5!, FontStyle.Bold, GraphicsUnit.Point, 222)
             dgvResults.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(120, 53, 15)
             dgvResults.ColumnHeadersDefaultCellStyle.ForeColor = Color.White
+            dgvResults.ColumnHeadersDefaultCellStyle.WrapMode = DataGridViewTriState.True
+            dgvResults.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
+            dgvResults.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize
             dgvResults.EnableHeadersVisualStyles = False
-            dgvResults.ColumnHeadersHeight = 36
+            dgvResults.RowTemplate.Height = 26
             BuildGridColumns()
 
             Me.Controls.Add(dgvResults)
             Me.Controls.Add(pnlBottom)
             Me.Controls.Add(pnlTop)
 
-            ' ── เริ่มตรวจสอบทันทีเมื่อเปิดหน้าต่าง ──
             AddHandler Me.Shown, Sub(s, e) VerifyButton_Click(Nothing, EventArgs.Empty)
         End Sub
 
+        Private Function MakeButton(text As String, location As Point, size As Size, backColor As Color) As Button
+            Dim b As New Button()
+            b.Text = text
+            b.Size = size
+            b.Location = location
+            b.FlatStyle = FlatStyle.Flat
+            b.FlatAppearance.BorderSize = 0
+            b.BackColor = backColor
+            b.ForeColor = Color.White
+            b.Font = New Font("Tahoma", 10.0!, FontStyle.Bold, GraphicsUnit.Point, 222)
+            b.Cursor = Cursors.Hand
+            Return b
+        End Function
+
         Private Sub BuildGridColumns()
             dgvResults.Columns.Clear()
-            AddColumn("colNum", "ครั้งที่", 60)
-            AddColumn("colDate", "วันที่", 140)
-            AddColumn("colDrive", "ไดรฟ์ + ตำแหน่ง", 320)
-            AddColumn("colDb", "ฐานข้อมูล", 120)
-            AddColumn("colReceipts", "ใบเสร็จ (n / n)", 120)
-            AddColumn("colOverall", "สถานะรวม", 140)
+            AddColumn("colNum", "ครั้งที่", 70)
+            AddColumn("colDate", "วันที่", 150)
+            AddColumn("colDrive", "ไดรฟ์ + ตำแหน่ง", 300)
+            AddColumn("colDb", "ฐานข้อมูล", 130)
+            AddColumn("colReceipts", "ใบเสร็จ (n/N)", 130)
+            AddColumn("colOverall", "สถานะรวม", 150)
+            AddColumn("colNotes", "หมายเหตุ / เหตุผล", 240)
         End Sub
 
-        Private Sub AddColumn(name As String, header As String, width As Integer)
+        Private Sub AddColumn(name As String, header As String, minWidth As Integer)
             Dim col As New DataGridViewTextBoxColumn()
             col.Name = name
             col.HeaderText = header
-            col.FillWeight = width
-            col.MinimumWidth = 60
+            col.MinimumWidth = minWidth
+            col.FillWeight = minWidth
             col.SortMode = DataGridViewColumnSortMode.NotSortable
             dgvResults.Columns.Add(col)
         End Sub
 
+        ' ───────────────────────── ตรวจสอบชุดสำรองล่าสุด ─────────────────────────
+
         Private Async Sub VerifyButton_Click(sender As Object, e As EventArgs)
+            If _scanning Then Return
             Await VerifyBackupsAsync()
         End Sub
 
         Private Async Function VerifyBackupsAsync() As Task
             SetBusy(True)
             lblStatus.Text = "กำลังตรวจสอบชุดสำรองล่าสุด..."
+            prgScan.Style = ProgressBarStyle.Marquee
             Try
                 Dim rows As List(Of DatabaseBackupHelper.BackupVerifyRow) =
                     Await Task.Run(Function() DatabaseBackupHelper.VerifyLastBackups(5))
                 PopulateGrid(rows)
-                lblStatus.Text = "ตรวจสอบเสร็จสิ้น — " & rows.Count.ToString() & " ชุดสำรอง"
-                UpdateSummary()
+
+                Dim info As DatabaseBackupHelper.BackupSummaryInfo =
+                    Await Task.Run(Function() DatabaseBackupHelper.BuildStatusSummary())
+                ApplySummary(info)
+
+                If rows.Count = 0 Then
+                    lblStatus.Text = "ยังไม่มีชุดสำรองในรายการ — กด 'สแกนไดรฟ์หา Backup' เพื่อค้นหาและเพิ่ม"
+                Else
+                    lblStatus.Text = "ตรวจสอบเสร็จสิ้น — " & rows.Count.ToString() & " ชุดสำรองล่าสุด"
+                End If
             Catch ex As Exception
                 lblStatus.Text = "เกิดข้อผิดพลาดระหว่างตรวจสอบ"
                 ErrorLogHelper.LogSilentError("FrmBackupVerify.VerifyButton_Click", ex)
+                MessageBoxHelper.ShowError("ตรวจสอบชุดสำรองไม่สำเร็จ: " & ex.Message, "ตรวจสอบไม่สำเร็จ")
             Finally
+                prgScan.Style = ProgressBarStyle.Continuous
                 SetBusy(False)
             End Try
         End Function
 
+        ' ───────────────────────── สแกนไดรฟ์ ─────────────────────────
+
         Private Async Sub ScanButton_Click(sender As Object, e As EventArgs)
-            If _scanCts IsNot Nothing Then
-                _scanCts.Cancel()
-                lblStatus.Text = "กำลังยกเลิกการสแกน..."
+            If _scanning Then
+                CancelScan()
                 Return
             End If
 
+            _scanning = True
             _scanCts = New CancellationTokenSource()
             Dim token As CancellationToken = _scanCts.Token
-            btnScan.Text = "⏹ ยกเลิกการสแกน"
-            SetBusy(True, disableScan:=False)
+
+            btnVerify.Enabled = False
+            btnScan.Enabled = False
+            btnScan.Text = "กำลังสแกน..."
+            btnCancel.Visible = True
+            btnCancel.Enabled = True
+            prgScan.Style = ProgressBarStyle.Continuous
+            prgScan.Value = 0
             lblStatus.Text = "กำลังสแกนไดรฟ์..."
 
             Try
-                Dim prog As New Progress(Of Integer)(Sub(p)
-                    If lblStatus IsNot Nothing AndAlso Not lblStatus.IsDisposed Then
-                        lblStatus.Text = "กำลังสแกนไดรฟ์... " & p.ToString() & "%"
-                    End If
-                End Sub)
+                Dim prog As New Progress(Of DatabaseBackupHelper.BackupScanProgress)(
+                    Sub(p)
+                        If p Is Nothing OrElse Me.IsDisposed Then Return
+                        Try
+                            If Not prgScan.IsDisposed Then prgScan.Value = p.Percent
+                            If Not lblStatus.IsDisposed AndAlso Not String.IsNullOrEmpty(p.Status) Then lblStatus.Text = p.Status
+                        Catch
+                        End Try
+                    End Sub)
 
-                Dim found As List(Of String) = Await Task.Run(Function() DatabaseBackupHelper.ScanDrivesForBackups(prog, token))
+                Dim res As DatabaseBackupHelper.BackupScanResult =
+                    Await Task.Run(Function() DatabaseBackupHelper.ScanAndRegisterBackups(prog, token))
 
-                If token.IsCancellationRequested Then
-                    lblStatus.Text = "ยกเลิกการสแกนแล้ว"
+                If token.IsCancellationRequested OrElse res.Cancelled Then
+                    lblStatus.Text = "ยกเลิกการสแกนแล้ว (ชุดที่ตรวจเสร็จก่อนยกเลิกถูกบันทึกแล้ว)"
+                    If res.Outcomes.Count > 0 Then PopulateGrid(BuildRowsFromOutcomes(res.Outcomes))
+                    Dim cancelledInfo As DatabaseBackupHelper.BackupSummaryInfo =
+                        Await Task.Run(Function() DatabaseBackupHelper.BuildStatusSummary())
+                    ApplySummary(cancelledInfo)
                     Return
                 End If
 
-                lblStatus.Text = "สแกนเสร็จ — พบ " & found.Count.ToString() & " ชุดสำรอง"
+                PopulateGrid(BuildRowsFromOutcomes(res.Outcomes))
 
-                Dim missing As List(Of String) = DatabaseBackupHelper.FindBackupsMissingFromRegistry(found)
-                If missing.Count > 0 Then
-                    Dim sb As New System.Text.StringBuilder()
-                    sb.AppendLine("พบชุดสำรองบนไดรฟ์ที่ยังไม่อยู่ในรายการ (registry) จำนวน " & missing.Count.ToString() & " ชุด:")
-                    For Each m In missing
-                        sb.AppendLine("• " & m)
-                    Next
-                    sb.AppendLine()
-                    sb.AppendLine("ต้องการตรวจสอบและเพิ่มเข้าสู่รายการหรือไม่?")
-                    Dim result = MessageBox.Show(Me, sb.ToString(), "พบชุดสำรองใหม่",
-                                                  MessageBoxButtons.YesNo, MessageBoxIcon.Question)
-                    If result = DialogResult.Yes Then
-                        Dim added As Integer = 0
-                        For Each m In missing
-                            If DatabaseBackupHelper.AddScannedBackupToRegistry(m) Then added += 1
-                        Next
-                        MessageBox.Show(Me, "เพิ่มเข้าสู่รายการแล้ว " & added.ToString() & " ชุด (จาก " & missing.Count.ToString() & " ชุด)",
-                                        "สำเร็จ", MessageBoxButtons.OK, MessageBoxIcon.Information)
-                        ' รีเฟรชผลตรวจสอบหลังเพิ่ม
-                        Await VerifyBackupsAsync()
-                        Return
-                    End If
-                ElseIf found.Count > 0 Then
-                    MessageBox.Show(Me, "พบชุดสำรอง " & found.Count.ToString() & " ชุด และทั้งหมดอยู่ในรายการแล้ว",
-                                    "สแกนไดรฟ์", MessageBoxButtons.OK, MessageBoxIcon.Information)
-                Else
-                    MessageBox.Show(Me, "ไม่พบชุดสำรอง (Backup_*) บนไดรฟ์ที่เชื่อมต่อ",
-                                    "สแกนไดรฟ์", MessageBoxButtons.OK, MessageBoxIcon.Information)
-                End If
+                Dim info As DatabaseBackupHelper.BackupSummaryInfo =
+                    Await Task.Run(Function() DatabaseBackupHelper.BuildStatusSummary())
+                ApplySummary(info)
 
-                UpdateSummary()
+                lblStatus.Text = "สแกนเสร็จ — พบ " & res.FoundCount.ToString() &
+                                 " ชุด • เพิ่ม " & res.AddedCount.ToString() &
+                                 " ชุด • ข้าม " & res.SkippedCount.ToString() & " ชุด"
+
+                ShowScanResult(res)
             Catch ex As Exception
                 lblStatus.Text = "เกิดข้อผิดพลาดระหว่างสแกนไดรฟ์"
                 ErrorLogHelper.LogSilentError("FrmBackupVerify.ScanButton_Click", ex)
+                MessageBoxHelper.ShowError("สแกนไดรฟ์ไม่สำเร็จ: " & ex.Message, "สแกนไม่สำเร็จ")
             Finally
+                _scanning = False
                 If _scanCts IsNot Nothing Then
                     _scanCts.Dispose()
                     _scanCts = Nothing
                 End If
                 btnScan.Text = "🔎 สแกนไดรฟ์หา Backup"
+                btnCancel.Visible = False
+                btnCancel.Enabled = True
+                prgScan.Style = ProgressBarStyle.Continuous
                 SetBusy(False)
             End Try
         End Sub
+
+        Private Sub CancelButton_Click(sender As Object, e As EventArgs)
+            CancelScan()
+        End Sub
+
+        Private Sub CancelScan()
+            If _scanCts IsNot Nothing AndAlso Not _scanCts.IsCancellationRequested Then
+                _scanCts.Cancel()
+                lblStatus.Text = "กำลังยกเลิกการสแกน..."
+                btnCancel.Enabled = False
+            End If
+        End Sub
+
+        ''' <summary>แสดงผลการสแกนด้วย dialog ที่ถูกต้อง + อธิบายจำนวน/เหตุผลภาษาไทย</summary>
+        Private Sub ShowScanResult(res As DatabaseBackupHelper.BackupScanResult)
+            If res Is Nothing Then Return
+
+            If res.Failed Then
+                MessageBoxHelper.ShowError("สแกนไดรฟ์ไม่สำเร็จ: " & res.ErrorMessage, "สแกนไม่สำเร็จ")
+                Return
+            End If
+
+            Dim sb As New StringBuilder()
+            sb.AppendLine("พบชุดสำรอง " & res.FoundCount.ToString() & " ชุด")
+            sb.AppendLine("เพิ่มเข้าสู่รายการ " & res.AddedCount.ToString() & " ชุด")
+            sb.AppendLine("ข้าม " & res.SkippedCount.ToString() & " ชุด")
+
+            If res.FoundCount = 0 Then
+                sb.AppendLine()
+                sb.AppendLine("ไม่พบโฟลเดอร์ชุดสำรอง (Backup_*) บนไดรฟ์ที่เชื่อมต่อ")
+                sb.AppendLine("กรุณาตรวจสอบว่าไดรฟ์สำรองถูกเชื่อมต่ออยู่")
+            Else
+                sb.AppendLine()
+                sb.AppendLine("รายละเอียดแต่ละชุด:")
+                For Each o In res.Outcomes
+                    If o Is Nothing OrElse o.Evaluation Is Nothing Then Continue For
+                    Dim ev As LegacyEvaluation = o.Evaluation
+                    Dim folderName As String = Path.GetFileName(ev.BackupFolder.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar))
+                    sb.AppendLine("• " & folderName)
+                    If o.Added Then
+                        Dim line As String = "    เพิ่มแล้ว — " & ev.StatusText
+                        If Not ev.IsComplete Then line &= " (ไม่นับเป็นชุดสำรองที่ใช้ได้)"
+                        If Not String.IsNullOrEmpty(ev.Reason) Then line &= ": " & ev.Reason
+                        sb.AppendLine(line)
+                    Else
+                        sb.AppendLine("    ข้าม — " & If(String.IsNullOrEmpty(o.SkipReason), "ไม่ทราบสาเหตุ", o.SkipReason))
+                    End If
+                Next
+            End If
+
+            If res.AddedCount > 0 Then
+                MessageBoxHelper.ShowInfo(sb.ToString(), "สำเร็จ")
+            Else
+                MessageBox.Show(Me, sb.ToString(), "ไม่ได้เพิ่มชุดสำรอง",
+                                MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            End If
+        End Sub
+
+        ' ───────────────────────── ตาราง ─────────────────────────
+
+        Private Function BuildRowsFromOutcomes(outcomes As List(Of DatabaseBackupHelper.BackupScanOutcome)) As List(Of DatabaseBackupHelper.BackupVerifyRow)
+            Dim rows As New List(Of DatabaseBackupHelper.BackupVerifyRow)()
+            If outcomes Is Nothing Then Return rows
+            Dim number As Integer = 1
+            For Each o In outcomes
+                If o Is Nothing OrElse o.Evaluation Is Nothing Then Continue For
+                Dim r As DatabaseBackupHelper.BackupVerifyRow = DatabaseBackupHelper.BuildRow(number, o.Evaluation)
+                If Not o.Added Then
+                    r.Notes = If(String.IsNullOrEmpty(r.Notes), o.SkipReason, r.Notes & " · " & o.SkipReason)
+                End If
+                rows.Add(r)
+                number += 1
+            Next
+            Return rows
+        End Function
 
         Private Sub PopulateGrid(rows As List(Of DatabaseBackupHelper.BackupVerifyRow))
             dgvResults.Rows.Clear()
@@ -277,11 +385,12 @@ Namespace TempleAccounting
                 Dim idx = dgvResults.Rows.Add()
                 Dim row = dgvResults.Rows(idx)
                 row.Cells("colNum").Value = r.BackupNumber
-                row.Cells("colDate").Value = r.Timestamp
+                row.Cells("colDate").Value = If(String.IsNullOrEmpty(r.Timestamp), "-", r.Timestamp)
                 row.Cells("colDrive").Value = r.DriveAndPath
                 row.Cells("colDb").Value = r.DatabaseStatus
                 row.Cells("colReceipts").Value = r.ReceiptsStatus
                 row.Cells("colOverall").Value = r.OverallStatus
+                row.Cells("colNotes").Value = r.Notes
 
                 Select Case r.Classification
                     Case BackupStatusClass.Identical
@@ -300,32 +409,23 @@ Namespace TempleAccounting
             Next
         End Sub
 
-        Private Sub UpdateSummary()
-            Dim sb As New System.Text.StringBuilder()
+        Private Sub ApplySummary(info As DatabaseBackupHelper.BackupSummaryInfo)
+            If info Is Nothing Then Return
+            txtSummary.Text = info.Text
 
-            Dim safety As String = DatabaseBackupHelper.SafetyCheckTwoDrives()
-            If Not String.IsNullOrEmpty(safety) Then
-                sb.AppendLine(safety)
-                sb.AppendLine()
-            End If
-
-            Dim unbacked As List(Of String) = DatabaseBackupHelper.FindNewUnbackedFiles()
-            If unbacked.Count > 0 Then
-                sb.AppendLine("📄 ไฟล์ใหม่ที่ยังไม่ได้สำรอง (" & unbacked.Count.ToString() & " ไฟล์):")
-                For Each f In unbacked
-                    sb.AppendLine("• " & f)
-                Next
+            If info.HasCompleteBackup Then
+                lblAlert.ForeColor = Color.FromArgb(22, 101, 52)
+                lblAlert.Text = "✅ มีชุดสำรองที่ครบถ้วนแล้ว " & info.CompleteCount.ToString() & " ชุด"
             Else
-                sb.AppendLine("✅ ไม่มีไฟล์ใหม่ที่ยังไม่ได้สำรอง")
+                lblAlert.ForeColor = Color.FromArgb(153, 27, 27)
+                lblAlert.Text = "⚠️ ยังไม่มีชุดสำรองที่ครบถ้วน - กรุณากดสำรองข้อมูล"
             End If
-
-            txtSummary.Text = sb.ToString()
         End Sub
 
         Private Sub SetBusy(busy As Boolean, Optional disableScan As Boolean = True)
             btnVerify.Enabled = Not busy
             If disableScan Then btnScan.Enabled = Not busy
-            Me.UseWaitCursor = busy
+            Me.UseWaitCursor = busy AndAlso Not _scanning
         End Sub
     End Class
 End Namespace

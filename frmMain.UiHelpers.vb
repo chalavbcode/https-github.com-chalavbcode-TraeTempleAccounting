@@ -99,6 +99,9 @@ Namespace TempleAccounting
             ' เรียก SetupDeveloperTools เพื่อสร้างปุ่มเครื่องมือนักพัฒนา
             SetupDeveloperTools()
 
+            ' สร้างแถบ progress + ปุ่มยกเลิกสำหรับการสำรองข้อมูล
+            SetupBackupProgressUi()
+
             AddHandler btnDashboard.Click, AddressOf NavMenu_Click
             AddHandler btnDonation.Click, AddressOf NavMenu_Click
             AddHandler btnExpense.Click, AddressOf NavMenu_Click

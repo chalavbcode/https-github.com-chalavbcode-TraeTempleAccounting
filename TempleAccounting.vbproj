@@ -35,6 +35,7 @@
     <Compile Include="BackupEngine.vb" />
     <Compile Include="BackupConfig.vb" />
     <Compile Include="BackupRegistry.vb" />
+    <Compile Include="BackupLegacyEvaluator.vb" />
     <Compile Include="DesktopShortcutHelper.vb" />
     <Compile Include="AppPaths.vb" />
     <Compile Include="AppPreferences.vb" />
