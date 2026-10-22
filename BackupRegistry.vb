@@ -144,22 +144,24 @@ Namespace TempleAccounting
         End Function
 
         ''' <summary>
-        ''' ค้นหา entry ของชุดสำรองจาก path เต็ม — กุญแจกันซ้ำคือ "path เต็ม + เวลาของโฟลเดอร์"
-        ''' (path เดียวกันย่อมเป็นชุดเดียวกัน จึงถือว่าซ้ำเสมอ แม้ FolderTimestamp จะว่าง)
+        ''' ค้นหา entry ของชุดสำรอง — กุญแจกันซ้ำคือ "path เต็ม + เวลาของโฟลเดอร์"
+        ''' ถ้าเวลาของโฟลเดอร์ว่าง (ข้อมูลรุ่นเก่า) ถือว่า path เดียวกันคือชุดเดียวกัน
         ''' </summary>
-        Public Function FindEntryForFolder(doc As RegistryDocument, folder As String) As BackupRegistryEntry
+        Public Function FindEntryForFolder(doc As RegistryDocument, folder As String, Optional folderTimestamp As String = "") As BackupRegistryEntry
             If doc Is Nothing OrElse doc.Entries Is Nothing OrElse String.IsNullOrEmpty(folder) Then Return Nothing
             Dim key As String = NormalizeFolderPath(folder)
             For Each e In doc.Entries
                 If e Is Nothing OrElse String.IsNullOrEmpty(e.DestinationPath) Then Continue For
-                If NormalizeFolderPath(e.DestinationPath) = key Then Return e
+                If NormalizeFolderPath(e.DestinationPath) <> key Then Continue For
+                If String.IsNullOrEmpty(folderTimestamp) OrElse String.IsNullOrEmpty(e.FolderTimestamp) Then Return e
+                If String.Equals(e.FolderTimestamp, folderTimestamp, StringComparison.Ordinal) Then Return e
             Next
             Return Nothing
         End Function
 
-        ''' <summary>ตรวจว่าชุดสำรองนี้ถูกเพิ่มเข้าสู่ registry แล้วหรือไม่</summary>
-        Public Function IsRegistered(doc As RegistryDocument, folder As String) As Boolean
-            Return FindEntryForFolder(doc, folder) IsNot Nothing
+        ''' <summary>ตรวจว่าชุดสำรองนี้ถูกเพิ่มเข้าสู่ registry แล้วหรือไม่ (path เต็ม + เวลาโฟลเดอร์)</summary>
+        Public Function IsRegistered(doc As RegistryDocument, folder As String, Optional folderTimestamp As String = "") As Boolean
+            Return FindEntryForFolder(doc, folder, folderTimestamp) IsNot Nothing
         End Function
 
         ''' <summary>คืน union ของ RelativePath ทั้งหมดที่เคยถูกสำรองใน entries (ใช้หาไฟล์ใหม่ที่ยังไม่ได้สำรอง)</summary>

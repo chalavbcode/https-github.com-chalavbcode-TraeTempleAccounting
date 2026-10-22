@@ -104,7 +104,7 @@ Namespace TempleAccounting
             txtSummary.Multiline = True
             txtSummary.ReadOnly = True
             txtSummary.ScrollBars = ScrollBars.Vertical
-            txtSummary.WordWrap = False
+            txtSummary.WordWrap = True
             txtSummary.Font = New Font("Tahoma", 9.5!, FontStyle.Regular, GraphicsUnit.Point, 222)
             txtSummary.BackColor = Color.FromArgb(255, 253, 244)
             txtSummary.BorderStyle = BorderStyle.FixedSingle
@@ -208,10 +208,12 @@ Namespace TempleAccounting
             Try
                 Dim rows As List(Of DatabaseBackupHelper.BackupVerifyRow) =
                     Await Task.Run(Function() DatabaseBackupHelper.VerifyLastBackups(5))
+                If Me.IsDisposed OrElse Me.Disposing Then Return
                 PopulateGrid(rows)
 
-                Dim info As DatabaseBackupHelper.BackupSummaryInfo =
+                Dim info As BackupSummaryInfo =
                     Await Task.Run(Function() DatabaseBackupHelper.BuildStatusSummary())
+                If Me.IsDisposed OrElse Me.Disposing Then Return
                 ApplySummary(info)
 
                 If rows.Count = 0 Then
@@ -263,11 +265,12 @@ Namespace TempleAccounting
 
                 Dim res As DatabaseBackupHelper.BackupScanResult =
                     Await Task.Run(Function() DatabaseBackupHelper.ScanAndRegisterBackups(prog, token))
+                If Me.IsDisposed OrElse Me.Disposing Then Return
 
                 If token.IsCancellationRequested OrElse res.Cancelled Then
                     lblStatus.Text = "ยกเลิกการสแกนแล้ว (ชุดที่ตรวจเสร็จก่อนยกเลิกถูกบันทึกแล้ว)"
                     If res.Outcomes.Count > 0 Then PopulateGrid(BuildRowsFromOutcomes(res.Outcomes))
-                    Dim cancelledInfo As DatabaseBackupHelper.BackupSummaryInfo =
+                    Dim cancelledInfo As BackupSummaryInfo =
                         Await Task.Run(Function() DatabaseBackupHelper.BuildStatusSummary())
                     ApplySummary(cancelledInfo)
                     Return
@@ -275,13 +278,18 @@ Namespace TempleAccounting
 
                 PopulateGrid(BuildRowsFromOutcomes(res.Outcomes))
 
-                Dim info As DatabaseBackupHelper.BackupSummaryInfo =
+                Dim info As BackupSummaryInfo =
                     Await Task.Run(Function() DatabaseBackupHelper.BuildStatusSummary())
+                If Me.IsDisposed OrElse Me.Disposing Then Return
                 ApplySummary(info)
 
-                lblStatus.Text = "สแกนเสร็จ — พบ " & res.FoundCount.ToString() &
-                                 " ชุด • เพิ่ม " & res.AddedCount.ToString() &
-                                 " ชุด • ข้าม " & res.SkippedCount.ToString() & " ชุด"
+                If res.Failed Then
+                    lblStatus.Text = "สแกนไดรฟ์ไม่สำเร็จ"
+                Else
+                    lblStatus.Text = "สแกนเสร็จ — พบ " & res.FoundCount.ToString() &
+                                     " ชุด • เพิ่ม " & res.AddedCount.ToString() &
+                                     " ชุด • ข้าม " & res.SkippedCount.ToString() & " ชุด"
+                End If
 
                 ShowScanResult(res)
             Catch ex As Exception
@@ -409,7 +417,7 @@ Namespace TempleAccounting
             Next
         End Sub
 
-        Private Sub ApplySummary(info As DatabaseBackupHelper.BackupSummaryInfo)
+        Private Sub ApplySummary(info As BackupSummaryInfo)
             If info Is Nothing Then Return
             txtSummary.Text = info.Text
 

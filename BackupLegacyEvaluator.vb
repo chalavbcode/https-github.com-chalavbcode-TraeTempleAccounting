@@ -76,6 +76,8 @@ Namespace TempleAccounting
         Public Property DatabaseSha256 As String
         ''' <summary>True = ฐานข้อมูลในชุดสำรองเหมือนต้นฉบับปัจจุบันทุกไบต์</summary>
         Public Property DatabaseMatchesCurrent As Boolean
+        ''' <summary>True = อ่าน hash ของฐานข้อมูลปัจจุบันได้ (ถ้าถูกเปิดใช้งานอยู่จะเทียบไม่ได้)</summary>
+        Public Property CurrentDatabaseHashKnown As Boolean
         Public Property ReceiptsFolderExists As Boolean
         ''' <summary>จำนวนไฟล์ใบเสร็จที่อยู่ในชุดสำรอง (รวมซับโฟลเดอร์)</summary>
         Public Property BackupReceiptCount As Integer
@@ -186,7 +188,10 @@ Namespace TempleAccounting
             End If
 
             Dim ts As Date? = ParseFolderTimestamp(backupFolder)
-            If ts.HasValue Then e.FolderTimestamp = ts.Value.ToString("yyyy-MM-dd HH:mm:ss")
+            If ts.HasValue Then
+                ' ใช้ InvariantCulture เพื่อไม่ให้ปีกลายเป็น พ.ศ. บนเครื่อง locale ไทย
+                e.FolderTimestamp = ts.Value.ToString("yyyy-MM-dd HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture)
+            End If
 
             If Not e.DriveReady Then
                 e.FolderExists = False
@@ -209,7 +214,8 @@ Namespace TempleAccounting
             ' 2. manifest (มีหรือไม่มี)
             e.ManifestExists = File.Exists(Path.Combine(backupFolder, "backup_manifest.json"))
             e.EngineManifestExists = File.Exists(Path.Combine(backupFolder, "manifest.json"))
-            e.IsLegacy = Not e.ManifestExists
+            ' legacy = ไม่มี manifest ใด ๆ ในโฟลเดอร์ (ต้องประเมินจากการสแกนไฟล์จริง)
+            e.IsLegacy = Not e.ManifestExists AndAlso Not e.EngineManifestExists
 
             Dim corrupted As New List(Of String)()
             Dim hashCache As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
@@ -244,8 +250,11 @@ Namespace TempleAccounting
                     Dim h As String = BackupHashing.ComputeSha256File(dbPath)
                     e.DatabaseSha256 = h
                     hashCache(dbPath) = h
-                    If Not String.IsNullOrEmpty(snapshot.DatabaseSha256) Then
+                    e.CurrentDatabaseHashKnown = Not String.IsNullOrEmpty(snapshot.DatabaseSha256)
+                    If e.CurrentDatabaseHashKnown Then
                         e.DatabaseMatchesCurrent = String.Equals(h, snapshot.DatabaseSha256, StringComparison.OrdinalIgnoreCase)
+                    Else
+                        e.Problems.Add("อ่านฐานข้อมูลปัจจุบันเพื่อเทียบ hash ไม่ได้ (อาจถูกเปิดใช้งานอยู่)")
                     End If
                 End If
             Catch ex As Exception
@@ -408,7 +417,13 @@ Namespace TempleAccounting
             e.Classification = BackupStatusClass.OlderButIntact
             e.StatusText = StatusTextFor(BackupStatusClass.OlderButIntact)
             Dim oldReasons As New List(Of String)()
-            If e.DatabaseExists AndAlso Not dbSame Then oldReasons.Add("ฐานข้อมูลถูกแก้ไขหลังการสำรอง (hash ไม่ตรงกับปัจจุบัน)")
+            If e.DatabaseExists AndAlso Not dbSame Then
+                If e.CurrentDatabaseHashKnown Then
+                    oldReasons.Add("ฐานข้อมูลถูกแก้ไขหลังการสำรอง (hash ไม่ตรงกับปัจจุบัน)")
+                Else
+                    oldReasons.Add("เทียบ hash กับฐานข้อมูลปัจจุบันไม่ได้ (อาจถูกเปิดใช้งานอยู่)")
+                End If
+            End If
             If e.ReceiptsChanged.Count > 0 Then oldReasons.Add("ใบเสร็จเปลี่ยน " & e.ReceiptsChanged.Count.ToString() & " ไฟล์")
             e.Reason = String.Join(" · ", oldReasons)
             For Each r In oldReasons
@@ -526,7 +541,7 @@ Namespace TempleAccounting
             If evaluation Is Nothing OrElse String.IsNullOrEmpty(evaluation.BackupFolder) Then Return False
             Try
                 Dim doc As RegistryDocument = BackupRegistry.Load(registryPath)
-                If BackupRegistry.IsRegistered(doc, evaluation.BackupFolder) Then Return False
+                If BackupRegistry.IsRegistered(doc, evaluation.BackupFolder, evaluation.FolderTimestamp) Then Return False
                 doc.Entries.Add(BuildRegistryEntry(evaluation))
                 BackupRegistry.Save(registryPath, doc)
                 Return True
@@ -539,7 +554,7 @@ Namespace TempleAccounting
         Public Function AddEvaluationToDocument(doc As RegistryDocument, evaluation As LegacyEvaluation) As Boolean
             If doc Is Nothing OrElse evaluation Is Nothing Then Return False
             If String.IsNullOrEmpty(evaluation.BackupFolder) Then Return False
-            If BackupRegistry.IsRegistered(doc, evaluation.BackupFolder) Then Return False
+            If BackupRegistry.IsRegistered(doc, evaluation.BackupFolder, evaluation.FolderTimestamp) Then Return False
             doc.Entries.Add(BuildRegistryEntry(evaluation))
             Return True
         End Function
@@ -560,6 +575,201 @@ Namespace TempleAccounting
             Catch
                 Return 0
             End Try
+        End Function
+
+    End Module
+
+    ''' <summary>ข้อความสรุปสถานะสำรอง + ไฟล์ที่ยังไม่ได้สำรอง (สำหรับหน้า "ตรวจสอบ Backup")</summary>
+    Public Class BackupSummaryInfo
+        Public Property Text As String = ""
+        Public Property HasCompleteBackup As Boolean
+        Public Property CompleteCount As Integer
+        Public Property LatestCompletePath As String = ""
+    End Class
+
+    ''' <summary>
+    ''' สร้างข้อความสรุปสถานะการสำรอง: หาชุดสำรองที่สมบูรณ์ล่าสุด แล้วเทียบต้นฉบับปัจจุบันกับชุดนั้นเท่านั้น
+    ''' แยกฐานข้อมูลกับใบเสร็จ และระบุว่าไฟล์ฐานข้อมูลอาจเปลี่ยนหลังการสำรอง/กำลังถูกเปิดใช้งาน
+    ''' เป็นโค้ดล้วน (pure) ไม่ผูกกับ WinForms จึงทดสอบได้
+    ''' </summary>
+    Public Module BackupStatusBuilder
+
+        Public Function Build(registryPath As String, snapshot As CurrentDataSnapshot) As BackupSummaryInfo
+            Dim info As New BackupSummaryInfo()
+            If snapshot Is Nothing Then snapshot = New CurrentDataSnapshot()
+
+            Dim doc As RegistryDocument = BackupRegistry.Load(registryPath)
+            Dim complete As List(Of BackupRegistryEntry) = CompleteEntries(doc)
+            info.CompleteCount = complete.Count
+
+            Dim sb As New StringBuilder()
+            Dim eval As LegacyEvaluation = Nothing
+
+            ' ตรวจสอบชุดที่เคยสมบูรณ์จากใหม่ → เก่า แล้วใช้ชุดแรกที่ยังครบถ้วนจริง
+            ' (จำกัด 20 ชุด เพื่อไม่ให้อ่านดิสก์นานเกินไป)
+            Dim checkedCount As Integer = 0
+            For Each e In complete
+                If checkedCount >= 20 Then Exit For
+                checkedCount += 1
+                Dim candidate As LegacyEvaluation = BackupLegacyEvaluator.Evaluate(e.DestinationPath, snapshot)
+                If candidate.IsComplete Then
+                    eval = candidate
+                    info.LatestCompletePath = e.DestinationPath
+                    Exit For
+                End If
+            Next
+
+            If eval IsNot Nothing Then
+                info.HasCompleteBackup = True
+                sb.AppendLine("✅ ชุดสำรองที่สมบูรณ์ล่าสุด: " & info.LatestCompletePath)
+                Dim line As String = "   สถานะ: " & eval.StatusText
+                If Not String.IsNullOrEmpty(eval.FolderTimestamp) Then line &= "  •  วันที่ " & eval.FolderTimestamp
+                If eval.IsLegacy Then line &= "  •  legacy (ไม่มี manifest)"
+                sb.AppendLine(line)
+            Else
+                info.HasCompleteBackup = False
+                sb.AppendLine("ยังไม่มีชุดสำรองที่ครบถ้วน - กรุณากดสำรองข้อมูล")
+                If complete.Count > 0 Then
+                    sb.AppendLine("(ตรวจสอบชุดที่เคยสมบูรณ์ " & Math.Min(complete.Count, 20).ToString() & " ชุดแล้ว — ไม่พบชุดที่ยังครบถ้วน)")
+                End If
+                sb.AppendLine("ไฟล์ปัจจุบันทั้งหมดยังไม่ได้รับการสำรองที่ตรวจสอบได้")
+            End If
+
+            Dim safety As String = BuildTwoDriveWarning(complete)
+            If Not String.IsNullOrEmpty(safety) Then
+                sb.AppendLine()
+                sb.AppendLine(safety)
+            End If
+
+            ' ── เทียบกับชุดสำรองที่สมบูรณ์ล่าสุดเท่านั้น ──
+            Dim dbUnbacked As Boolean = True
+            Dim dbNote As String = ""
+            Dim receiptsUnbacked As New List(Of String)()
+
+            If eval Is Nothing Then
+                dbNote = "ยังไม่มีชุดสำรองที่สมบูรณ์ให้เทียบ"
+                For Each r In snapshot.Receipts
+                    receiptsUnbacked.Add(r.RelativePath)
+                Next
+            Else
+                dbUnbacked = Not eval.DatabaseMatchesCurrent
+                If Not eval.DatabaseExists Then
+                    dbNote = "ไม่พบไฟล์ฐานข้อมูลในชุดสำรองล่าสุด"
+                ElseIf Not eval.DatabaseMatchesCurrent Then
+                    dbNote = "hash ต่างจากชุดสำรองล่าสุด — ไฟล์อาจถูกแก้ไขหลังการสำรอง หรือกำลังถูกเปิดใช้งานอยู่ (locked)"
+                End If
+                For Each r In eval.ReceiptsMissing
+                    receiptsUnbacked.Add(r)
+                Next
+                For Each r In eval.ReceiptsChanged
+                    receiptsUnbacked.Add(r & " (เนื้อหาเปลี่ยน)")
+                Next
+            End If
+
+            Dim total As Integer = receiptsUnbacked.Count + If(dbUnbacked, 1, 0)
+            sb.AppendLine()
+            If total = 0 Then
+                sb.AppendLine("✅ ไม่มีไฟล์ใหม่ที่ยังไม่ได้สำรอง (ฐานข้อมูลและใบเสร็จตรงกับชุดสำรองล่าสุดแล้ว)")
+            Else
+                If eval Is Nothing Then
+                    sb.AppendLine("📄 ไฟล์ที่ยังไม่ได้สำรอง (" & total.ToString() & " ไฟล์):")
+                Else
+                    sb.AppendLine("📄 ไฟล์ที่ยังไม่ได้สำรอง/เปลี่ยนแปลง (" & total.ToString() & " ไฟล์) เทียบกับชุดสำรองล่าสุด:")
+                End If
+                If dbUnbacked Then
+                    sb.AppendLine("   ฐานข้อมูล (1):")
+                    sb.AppendLine("   • " & If(String.IsNullOrEmpty(snapshot.DatabaseFileName), "(ไม่พบไฟล์ฐานข้อมูล)", snapshot.DatabaseFileName) &
+                                  If(String.IsNullOrEmpty(dbNote), "", " — " & dbNote))
+                End If
+                If receiptsUnbacked.Count > 0 Then
+                    sb.AppendLine("   ใบเสร็จ (" & receiptsUnbacked.Count.ToString() & "):")
+                    Dim shown As Integer = 0
+                    For Each r In receiptsUnbacked
+                        If shown >= 15 Then Exit For
+                        sb.AppendLine("   • " & r)
+                        shown += 1
+                    Next
+                    If receiptsUnbacked.Count > shown Then
+                        sb.AppendLine("   … และอีก " & (receiptsUnbacked.Count - shown).ToString() & " ไฟล์")
+                    End If
+                End If
+            End If
+
+            info.Text = sb.ToString()
+            Return info
+        End Function
+
+        ''' <summary>เตือนเมื่อยังไม่มีชุดสำรองที่สมบูรณ์บนไดรฟ์จริงอย่างน้อย 2 ไดรฟ์</summary>
+        Public Function BuildSafetyWarning(registryPath As String) As String
+            Try
+                Return BuildTwoDriveWarning(CompleteEntries(BackupRegistry.Load(registryPath)))
+            Catch
+                Return ""
+            End Try
+        End Function
+
+        ''' <summary>รายการทั้งหมดเรียงจากใหม่ → เก่า (ตามเวลาของชุดสำรอง ไม่ใช่ลำดับที่เพิ่มเข้า registry)</summary>
+        Public Function SortedEntriesNewestFirst(doc As RegistryDocument) As List(Of BackupRegistryEntry)
+            Dim list As New List(Of BackupRegistryEntry)()
+            If doc Is Nothing OrElse doc.Entries Is Nothing Then Return list
+            For Each e In doc.Entries
+                If e IsNot Nothing AndAlso Not String.IsNullOrEmpty(e.DestinationPath) Then list.Add(e)
+            Next
+            list.Sort(Function(a, b) EntryTimestamp(b).CompareTo(EntryTimestamp(a)))
+            Return list
+        End Function
+
+        ''' <summary>เวลาของ entry (ใช้ FolderTimestamp ก่อน แล้วค่อย Timestamp)</summary>
+        Public Function EntryTimestamp(e As BackupRegistryEntry) As Date
+            If e Is Nothing Then Return Date.MinValue
+            If Not String.IsNullOrEmpty(e.FolderTimestamp) Then
+                Dim d As Date
+                If Date.TryParseExact(e.FolderTimestamp, "yyyy-MM-dd HH:mm:ss", Globalization.CultureInfo.InvariantCulture, Globalization.DateTimeStyles.None, d) Then
+                    Return d
+                End If
+            End If
+            Dim fallback As Date
+            If Not String.IsNullOrEmpty(e.Timestamp) AndAlso DateTime.TryParse(e.Timestamp, Globalization.CultureInfo.InvariantCulture, Globalization.DateTimeStyles.None, fallback) Then
+                If fallback.Year > 2400 Then fallback = fallback.AddYears(-543)
+                Return fallback
+            End If
+            Return Date.MinValue
+        End Function
+
+        ''' <summary>รายการชุดสำรองที่สมบูรณ์ (ใหม่ → เก่า) จาก registry</summary>
+        Public Function CompleteEntries(doc As RegistryDocument) As List(Of BackupRegistryEntry)
+            Dim complete As New List(Of BackupRegistryEntry)()
+            For Each e In SortedEntriesNewestFirst(doc)
+                If IsCompleteEntry(e) Then complete.Add(e)
+            Next
+            Return complete
+        End Function
+
+        Public Function IsCompleteEntry(e As BackupRegistryEntry) As Boolean
+            If e Is Nothing Then Return False
+            If e.IsComplete Then Return True
+            ' รายการรุ่นเก่าที่บันทึกไว้ก่อนมีสถานะ: ตรวจจากข้อความผลการสำรอง
+            If String.IsNullOrEmpty(e.Status) AndAlso Not String.IsNullOrEmpty(e.VerificationResult) Then
+                Return e.VerificationResult.StartsWith("สำเร็จ", StringComparison.Ordinal) AndAlso
+                       Not e.VerificationResult.Contains("ไม่สมบูรณ์")
+            End If
+            Return False
+        End Function
+
+        Public Function BuildTwoDriveWarning(complete As List(Of BackupRegistryEntry)) As String
+            Dim drives As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase)
+            If complete IsNot Nothing Then
+                For Each e In complete
+                    Dim root As String = Path.GetPathRoot(e.DestinationPath)
+                    If Not String.IsNullOrEmpty(root) AndAlso Directory.Exists(root) Then
+                        drives.Add(root.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar))
+                    End If
+                Next
+            End If
+            If drives.Count < 2 Then
+                Return "⚠️ คำเตือน: ยังไม่มีชุดสำรองที่สมบูรณ์บนไดรฟ์จริงอย่างน้อย 2 ไดรฟ์ (พบ " & drives.Count.ToString() & " ไดรฟ์)"
+            End If
+            Return ""
         End Function
 
     End Module
