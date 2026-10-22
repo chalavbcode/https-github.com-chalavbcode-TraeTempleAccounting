@@ -3,6 +3,7 @@ Option Explicit On
 
 Imports System
 Imports System.IO
+Imports System.Text
 Imports System.Security.Cryptography
 Imports System.Collections.Generic
 Imports System.Data.OleDb
@@ -24,39 +25,43 @@ Namespace TempleAccounting
                     targetBaseDir = AppPaths.BackupFolder
                 End If
 
-                ' สร้างโฟลเดอร์ Timestamp สำหรับชุดสำรองข้อมูลนี้
-                Dim timestamp As String = DateTime.Now.ToString("yyyyMMdd_HHmmss")
-                Dim backupSubFolderName As String = $"Backup_{timestamp}"
-                Dim backupPath As String = Path.Combine(targetBaseDir, backupSubFolderName)
+                ' สร้างโฟลเดอร์ Timestamp สำหรับชุดสำรองข้อมูลนี้ (ใช้ปี ค.ศ. เสมอ)
+                Dim timestamp As String = DateTime.Now.ToString("yyyyMMdd_HHmmss", CultureInfo.InvariantCulture)
+                Dim backupPath As String = Path.Combine(targetBaseDir, "Backup_" & timestamp)
 
-                If Not Directory.Exists(backupPath) Then
-                    Directory.CreateDirectory(backupPath)
-                End If
+                ' 2. สำรองข้อมูลตาม BACKUP_ITEMS + ตรวจสอบ SHA-256 + เขียน manifest/log
+                '    (Best effort เคลียร์ connection ค้างก่อน copy .accdb ที่อาจถูกล็อก)
+                GC.Collect()
+                GC.WaitForPendingFinalizers()
 
-                ' 2. สำรองฐานข้อมูล (.accdb)
-                Dim dbSource As String = AppPaths.DatabaseFile
-                If File.Exists(dbSource) Then
-                    ' ใน .NET 10.0 OleDbConnection.ClearAllPools() อาจไม่มี 
-                    ' เราจะพึ่งพา GC เพื่อช่วยเคลียร์ Connection ที่ค้างอยู่ (Best Effort)
-                    GC.Collect()
-                    GC.WaitForPendingFinalizers()
+                Dim result As BackupResult = BackupEngine.ExecuteBackup(BackupConfig.BackupItems, backupPath)
 
-                    Dim dbDestName As String = $"TempleDB_{timestamp}.accdb"
-                    Dim dbDestPath As String = Path.Combine(backupPath, dbDestName)
-                    File.Copy(dbSource, dbDestPath, True)
+                ' 3. รายงานผลตามความเป็นจริง — ห้ามแจ้ง "สำเร็จ" ถ้ามีไฟล์ผิดพลาด
+                If result.Success Then
+                    If Not isAuto Then
+                        MessageBoxHelper.ShowInfo("สำรองข้อมูลครบถ้วนและตรวจสอบผ่านแล้ว!" & Environment.NewLine &
+                                                 "จำนวนไฟล์: " & result.SourceFileCount & Environment.NewLine &
+                                                 "ตรวจสอบผ่าน: " & result.VerifiedFileCount & Environment.NewLine &
+                                                 "ตำแหน่ง: " & backupPath)
+                    End If
+                    Return True
                 Else
-                    If Not isAuto Then MessageBoxHelper.ShowError("ไม่พบไฟล์ฐานข้อมูลต้นทาง")
+                    Dim msg As New StringBuilder()
+                    msg.AppendLine("❌ การสำรองข้อมูลไม่สมบูรณ์ (ไม่ถือว่าสำเร็จ)")
+                    msg.AppendLine()
+                    msg.AppendLine("ไฟล์/รายการที่มีปัญหา:")
+                    For Each p As String In result.Problems
+                        msg.AppendLine("• " & p)
+                    Next
+                    If Not String.IsNullOrEmpty(result.LogPath) Then
+                        msg.AppendLine()
+                        msg.AppendLine("ดูรายละเอียดเพิ่มเติมที่: " & result.LogPath)
+                    End If
+                    If Not isAuto Then
+                        MessageBoxHelper.ShowError(msg.ToString())
+                    End If
+                    Return False
                 End If
-
-                ' 3. สำรองรูปใบเสร็จไปโฟลเดอร์กลาง (Append-Only, Collision-Safe)
-                SyncReceiptsToBackup()
-
-                ' 4. แจ้งเตือน (เฉพาะ Manual)
-                If Not isAuto Then
-                    MessageBoxHelper.ShowInfo($"สำรองข้อมูลครบถ้วนแล้ว!{Environment.NewLine}ตำแหน่ง: {backupPath}")
-                End If
-
-                Return True
             Catch ex As Exception
                 AppPaths.LogCrash(ex, "DatabaseBackupHelper.BackupFullSystem")
                 If Not isAuto Then
