@@ -1,4 +1,4 @@
-Namespace TempleAccounting
+﻿Namespace TempleAccounting
     Partial Class FrmHelpDialog
         Inherits System.Windows.Forms.Form
 
