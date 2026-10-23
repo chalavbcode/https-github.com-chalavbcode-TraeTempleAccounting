@@ -1,0 +1,26 @@
+﻿T08 — Onboarding wizard module (V9 survey)
+Generated: 2026-10-23. Files: Forms/FrmOnboardingWizard.vb (819) + .Designer.vb (1052) + WizardText.vb (79) + OnboardingRepository.vb (292) + AppPreferences/AppPreferenceHelper. VERIFIED by full read.
+
+## The 5 steps (re-verified against code)
+| Step | Panel | Content | Validation gate (ValidateCurrentStep, FrmOnboardingWizard.vb:194-279) | Persistence (btnNext_Click l.345-384) |
+|---|---|---|---|---|
+| 1 Temple Profile | pnlStep1 | name/address/phone + Province→District→SubDistrict cascade (parameterized WHERE, `_isLoading` guard, l.529-571) | name, address, province, district, subdistrict non-empty; MistyRose/Honeydew + ToolTip, no ErrorProvider (l.150-158); reasons label l.213-219 | `SaveStep1()` (l.461-494) → `OnboardingRepository.SaveTempleSetting` (transactional DELETE+INSERT, OnboardingRepository.vb:26-57) |
+| 2 Personnel | pnlStep2 | Abbot combo (พระ), Waiyawat+Bookkeeper (ฆราวาส), count label, linked-summary grid (UNION ALL) | personnelCount ≥1 (DB) AND ≥1 role selected (l.223-238) | `SaveStep2()` (l.647-663) → `LinkPersonnelToTempleSetting` (single UPDATE **with** cmd.Transaction, OnboardingRepository.vb:92-112) + `ReportEngine.ClearTemplateInfoCache()` |
+| 3 Bank/Fund | pnlStep3 | bank grid + inline grpAddBank add form; funds grid (read-only) | `GetBankAccountCount() ≥ 1` (l.241-248) | bank added immediately via `btnSaveNewBank_Click` (l.716-747) → `OnboardingRepository.AddBankAccount` (no tx needed, single INSERT); btnNext just advances |
+| 4 Opening Balances | pnlStep4 | date (defaults today) + cash + bank | both Decimal.TryParse ≥ 0 (0 allowed) (l.250-260) | `SaveStep4()` (l.748-757) → `SaveOpeningBalance` (DELETE OpeningBalance + 2 INSERTs in tx, OnboardingRepository.vb:182-216) ; also `btnSaveBalance_Click` (l.763-778) |
+| 5 Test Report | pnlStep5 | summary grid + "🖨️ พิมพ์รายงานหน้า (ตรวจสอบ)" → `IncomeExpenseReport.ShowPreview` current month Detailed (l.799-814) | **always enabled** (l.264-266) | Finish → `AppPreferenceHelper.MarkOnboardingComplete()` (l.373-375) → `DialogResult.OK` |
+
+## Re-verified behaviors
+- **Re-entry guard** (Load, l.53-62): if `Not _isTestMode` and `GetTempleSettingCount() > 0` → force `IsOnboardingCompleted=True`, Save, `DialogResult.OK`, Close. ✓ matches V8.
+- **Test mode** (`SetupTestMode` l.141-157): orange banner `pnlTestBar`, ControlBox+MinimizeBox enabled, `btnCloseTestMode` visible, orange `btnNext` + header, tooltip. All persistence bypassed under `_isTestMode`: SaveStep1 (l.361), SaveStep2 (l.364), SaveStep4 (l.369), MarkOnboardingComplete (l.373-377), AddBankAccount (l.711-718), SaveBalance (l.763-770). Reached from sidebar "🧪 ทดลอง Onboarding" (frmMain.UiHelpers.vb:70-79). ✓ matches V8.
+- **Part 7 guard** (Shown l.70-84): enforces 1000×720 against shrinkers; `#If DEBUG AuditOverlap()` (l.113-131) + `T()` ChrW Thai-text helper (l.94-100). ✓
+- UiFitter.AutoFitFormButtons + DisableComboBoxWheel on Load (l.85-86). ✓
+- `ValidateCurrentStep` re-runs on TextChanged/SelectedIndexChanged (multiple Handles, e.g. l.495-499, 666-669) and after saves (l.326); Next disabled until gate passes; Back → `ShowStep(n-1)` reloads: `LoadStep1FromDb` (l.318), `RefreshStep2Data`, `RefreshStep3Data` (l.319-320). ✓
+- Repository surface complete (17 Public Shared members, OnboardingRepository.vb:17-284 incl. `HasOpeningBalance` l.218, `ResetOnboardingStatus` l.284).
+
+## Delta vs V8 — new findings
+1. **Step3Title mismatch: STILL PRESENT (NOT fixed)** — WizardText.vb:23 `Step3Title = "ขั้นที่ 3: ตั้งค่าปีงบประมาณ"` while Step 3 is bank/fund verification (Step3Desc WizardText.vb:47 "กำหนดช่องทางธนาคาร…"; gate = GetBankAccountCount). V8 outstanding item #5 → **still open**. (Step3Desc also has a stray "(1)" suffix.)
+2. **P0 interaction with T05 defect**: `SaveTempleSetting` and `SaveOpeningBalance` are structured DELETE(with cmd.Transaction) + INSERTs **without** cmd.Transaction (OnboardingRepository.vb:37 vs 42, and 191 vs 193/200) → System.Data.OleDb throws "requires the command to have a transaction…" (empirically proven this session, T05 §2). Mechanism VERIFIED; end-to-end fresh-install wizard failure **UNVERIFIED** (no fresh-install run performed). Consequence if confirmed: Step1→Next and Step4→Next always throw → wizard error dialog → onboarding cannot complete on a brand-new install (this machine's existing data masks it via the re-entry guard).
+3. **PostCode round-trip bug (new)**: `txtTempleCode` is digits-only "รหัสไปรษณีย์" input (l.501-504) and is **saved** as `postCode:=txtTempleCode.Text` (l.489), but **loaded** from `TempleCode` column (l.450: `txtTempleCode.Text = row("TempleCode")`). Going Back to Step 1 overwrites any typed postcode with the (empty) TempleCode ⇒ postcode persistently saved as "" unless Step1→Next without revisiting. Also `SaveStep1` always passes `templeCode:=""` (l.482).
+4. **`_testReportViewed` is a dead flag**: assigned at l.752, 769, 806 but never read (grep) — Step5 gate is unconditional; V8's "Step 5 Always enabled" ✓ but the flag's comment "อนุญาตให้ไป Step 5" is misleading.
+5. Wizard Step1 save does NOT touch UsePromptPay/Abbot columns (consistent with T04 finding that UsePromptPay exists only in the current DB).
