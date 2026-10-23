@@ -390,6 +390,7 @@ Namespace TempleAccounting
                 Next
             End Using
 
+            RefreshCashOnHandCard()
             RefreshOverviewLayout()
         End Sub
 

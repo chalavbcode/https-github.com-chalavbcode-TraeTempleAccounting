@@ -1,4 +1,4 @@
-﻿Option Strict Off
+Option Strict Off
 Option Explicit On
 
 Imports System.Data
@@ -48,6 +48,7 @@ Namespace TempleAccounting
                     TryCreateTable(conn, "Funds", "CREATE TABLE Funds (ID COUNTER PRIMARY KEY, FundName TEXT(200) NOT NULL)")
                     TryCreateTable(conn, "BankAccounts", "CREATE TABLE BankAccounts (ID COUNTER PRIMARY KEY, BankName TEXT(100) NOT NULL, AccountNo TEXT(50), AccountName TEXT(200))")
                     TryCreateTable(conn, "Transactions", "CREATE TABLE Transactions (ID COUNTER PRIMARY KEY, TranDate DATETIME NOT NULL, TranType TEXT(10) NOT NULL, CategoryID INTEGER, FundID INTEGER, BankID INTEGER, Detail TEXT(255), Amount CURRENCY NOT NULL, Note MEMO, CreateDate DATETIME DEFAULT Now(), ToFundID INTEGER, ToBankID INTEGER, ReceiptPath TEXT(255))")
+                    TryCreateTable(conn, "CashCounts", "CREATE TABLE CashCounts (ID COUNTER PRIMARY KEY, CountDate DATETIME, D1 CURRENCY, D2 CURRENCY, D5 CURRENCY, D10 CURRENCY, D20 CURRENCY, D50 CURRENCY, D100 CURRENCY, D500 CURRENCY, D1000 CURRENCY, TotalCounted CURRENCY, ExpectedBefore CURRENCY, Variance CURRENCY, [Note] TEXT(255), [Source] TEXT(50), CreatedAt DATETIME)")
                     TryCreateTable(conn, "Personnel", "CREATE TABLE Personnel (PersonnelID COUNTER PRIMARY KEY, Title TEXT(50), FirstName TEXT(100), LastName TEXT(100), FullName TEXT(255), PersonType TEXT(50), PositionID INTEGER, Phone TEXT(50))")
                     TryCreateTable(conn, "Positions", "CREATE TABLE Positions (PositionID COUNTER PRIMARY KEY, PositionName TEXT(100), PositionGroup TEXT(20))")
 
@@ -62,6 +63,7 @@ Namespace TempleAccounting
                     SeedBankAccounts(conn)
                     SeedPositions(conn)
                     SeedPersonnel(conn)
+                    SeedCashCounts(conn)
                 End Using
                 _schemaChecked = True
             Catch ex As Exception
@@ -288,6 +290,41 @@ Namespace TempleAccounting
                                     New Tuple(Of String, Object)("@pid", If(posId Is Nothing, DBNull.Value, posId)))
                 End If
             Next
+        End Sub
+
+        Private Sub SeedCashCounts(conn As OleDbConnection)
+            Try
+                Dim count As Integer = CInt(DbScalar(conn, "SELECT COUNT(*) FROM CashCounts"))
+                If count > 0 Then Return
+
+                ' ยอดตั้งต้น 0 บาท (สิ้นสุด 2026-02-20) + การนับจริงย้อนหลัง 2 ครั้ง
+                InsertCashCount(conn, New Date(2026, 2, 20), 0D, 0D, 0D, 0D, 0D, 0D, 0D, 0D, 0D, 0D, "เริ่มเปิดสมุดเงินสดใหม่ (ยอดตั้งต้น 0 บาท)", "Cutover, opening cash 0")
+                InsertCashCount(conn, New Date(2026, 4, 30), 130D, 80D, 30D, 0D, 1480D, 200D, 8400D, 5500D, 11000D, 26820D, "นับเงินสดจริง (ย้อนหลัง)", "Historical manual import")
+                InsertCashCount(conn, New Date(2026, 6, 9), 130D, 80D, 30D, 0D, 1000D, 450D, 6700D, 2000D, 9000D, 19390D, "นับเงินสดจริง (ย้อนหลัง)", "Historical manual import")
+            Catch ex As Exception
+                AppPaths.LogCrash(ex, "AccessDbProvider.SeedCashCounts")
+            End Try
+        End Sub
+
+        Private Sub InsertCashCount(conn As OleDbConnection, countDate As Date,
+                                    d1 As Decimal, d2 As Decimal, d5 As Decimal, d10 As Decimal,
+                                    d20 As Decimal, d50 As Decimal, d100 As Decimal, d500 As Decimal, d1000 As Decimal,
+                                    total As Decimal, note As String, source As String)
+            ExecuteNonQuery(conn,
+                "INSERT INTO CashCounts (CountDate, D1, D2, D5, D10, D20, D50, D100, D500, D1000, TotalCounted, [Note], [Source], CreatedAt) " &
+                "VALUES (" & AccessDateLiteral(countDate) & ", @d1, @d2, @d5, @d10, @d20, @d50, @d100, @d500, @d1000, @total, @note, @source, " & AccessDateLiteral(DateTime.Now) & ")",
+                New Tuple(Of String, Object)("@d1", d1),
+                New Tuple(Of String, Object)("@d2", d2),
+                New Tuple(Of String, Object)("@d5", d5),
+                New Tuple(Of String, Object)("@d10", d10),
+                New Tuple(Of String, Object)("@d20", d20),
+                New Tuple(Of String, Object)("@d50", d50),
+                New Tuple(Of String, Object)("@d100", d100),
+                New Tuple(Of String, Object)("@d500", d500),
+                New Tuple(Of String, Object)("@d1000", d1000),
+                New Tuple(Of String, Object)("@total", total),
+                New Tuple(Of String, Object)("@note", If(String.IsNullOrEmpty(note), DBNull.Value, note)),
+                New Tuple(Of String, Object)("@source", If(String.IsNullOrEmpty(source), DBNull.Value, source)))
         End Sub
 
         ' ---------------- Public data-access methods ----------------

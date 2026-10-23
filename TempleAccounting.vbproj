@@ -72,6 +72,9 @@
     <Compile Include="Forms\FrmBackupVerify.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Forms\FrmCashCount.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <EmbeddedResource Include="Forms\FrmChartPreview.resx" />
     <EmbeddedResource Include="Forms\FrmMasterData.resx" />
     <EmbeddedResource Include="frmMain.resx">
@@ -203,6 +206,8 @@
     <Compile Include="Services\ITransactionRepository.vb" />
     <Compile Include="Services\AccessTransactionRepository.vb" />
     <Compile Include="Services\TransactionService.vb" />
+    <Compile Include="Services\CashOnHandService.vb" />
+    <Compile Include="Services\CashOnHandRepository.vb" />
     <Compile Include="Services\IDbProvider.vb" />
     <Compile Include="Services\AccessDbProvider.vb" />
     <Compile Include="Services\SqlServerDbProvider.vb" />
