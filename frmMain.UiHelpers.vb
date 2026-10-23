@@ -11,6 +11,13 @@ Namespace TempleAccounting
         Private WithEvents btnTestWizard As Button
         Private WithEvents btnResetOnboarding As Button
 
+        ' ===== Cash on Hand card =====
+        Private pnlCardCash As Panel
+        Private lblCashCaption As Label
+        Private lblCashAmount As Label
+        Private lblCashSub As Label
+        Private btnCountCash As Button
+
         Private Sub SetupDeveloperTools()
             Try
                 ' สร้าง Panel สำหรับเครื่องมือนักพัฒนา
@@ -102,6 +109,9 @@ Namespace TempleAccounting
             ' สร้างแถบ progress + ปุ่มยกเลิกสำหรับการสำรองข้อมูล
             SetupBackupProgressUi()
 
+            ' สร้างการ์ด "เงินสดในมือ (โดยประมาณ)" เพิ่มใต้แถวการ์ดเดิม
+            SetupCashOnHandCard()
+
             AddHandler btnDashboard.Click, AddressOf NavMenu_Click
             AddHandler btnDonation.Click, AddressOf NavMenu_Click
             AddHandler btnExpense.Click, AddressOf NavMenu_Click
@@ -153,6 +163,139 @@ Namespace TempleAccounting
                 AddHandler ctrlRef.MouseLeave, Sub(s, e) cardRef.BackColor = original
                 AddHandler ctrlRef.Click, clickBridge
             Next
+        End Sub
+
+        ''' <summary>สร้างการ์ด "เงินสดในมือ (โดยประมาณ)" เพิ่มเป็นแถวที่สองใต้การ์ดเดิม 4 ใบ</summary>
+        Private Sub SetupCashOnHandCard()
+            If pnlOverview Is Nothing Then Return
+
+            ' ขยายความสูงแถบภาพรวมเพื่อรองรับการ์ดแถวที่สอง
+            pnlOverview.Height = 211
+
+            pnlCardCash = New Panel()
+            pnlCardCash.Dock = DockStyle.Bottom
+            pnlCardCash.Height = 90
+            pnlCardCash.BackColor = Color.White
+            pnlCardCash.Padding = New Padding(12, 8, 12, 8)
+            pnlCardCash.Name = "pnlCardCash"
+            pnlCardCash.Cursor = Cursors.Hand
+
+            lblCashCaption = New Label()
+            lblCashCaption.Text = "เงินสดในมือ (โดยประมาณ)"
+            lblCashCaption.Location = New Point(12, 8)
+            lblCashCaption.Size = New Size(760, 20)
+            lblCashCaption.Font = New Font("Tahoma", 10.0!, FontStyle.Bold, GraphicsUnit.Point, 222)
+            lblCashCaption.ForeColor = Color.FromArgb(120, 80, 40)
+            lblCashCaption.BackColor = Color.Transparent
+            lblCashCaption.Name = "lblCashCaption"
+            lblCashCaption.Cursor = Cursors.Hand
+
+            lblCashAmount = New Label()
+            lblCashAmount.Text = "0.00"
+            lblCashAmount.Location = New Point(12, 28)
+            lblCashAmount.Size = New Size(760, 34)
+            lblCashAmount.Font = New Font("Tahoma", 17.0!, FontStyle.Bold, GraphicsUnit.Point, 222)
+            lblCashAmount.ForeColor = Color.FromArgb(22, 101, 52)
+            lblCashAmount.BackColor = Color.Transparent
+            lblCashAmount.Name = "lblCashAmount"
+            lblCashAmount.Cursor = Cursors.Hand
+
+            lblCashSub = New Label()
+            lblCashSub.Text = ""
+            lblCashSub.Location = New Point(12, 64)
+            lblCashSub.Size = New Size(760, 18)
+            lblCashSub.Font = New Font("Tahoma", 8.5!, FontStyle.Regular, GraphicsUnit.Point, 222)
+            lblCashSub.ForeColor = Color.FromArgb(120, 80, 40)
+            lblCashSub.BackColor = Color.Transparent
+            lblCashSub.Name = "lblCashSub"
+            lblCashSub.Cursor = Cursors.Hand
+
+            btnCountCash = New Button()
+            btnCountCash.Text = "นับเงินสด"
+            btnCountCash.Anchor = AnchorStyles.Top Or AnchorStyles.Right
+            btnCountCash.Location = New Point(995, 26)
+            btnCountCash.Size = New Size(150, 40)
+            btnCountCash.FlatStyle = FlatStyle.Flat
+            btnCountCash.FlatAppearance.BorderSize = 0
+            btnCountCash.BackColor = Color.FromArgb(5, 150, 105)
+            btnCountCash.ForeColor = Color.White
+            btnCountCash.Font = New Font("Tahoma", 10.0!, FontStyle.Bold, GraphicsUnit.Point, 222)
+            btnCountCash.Cursor = Cursors.Hand
+            btnCountCash.Name = "btnCountCash"
+
+            pnlCardCash.Controls.Add(lblCashCaption)
+            pnlCardCash.Controls.Add(lblCashAmount)
+            pnlCardCash.Controls.Add(lblCashSub)
+            pnlCardCash.Controls.Add(btnCountCash)
+
+            ' เพิ่มลงใน pnlOverview แบบ Dock.Bottom (แสดงใต้แถวการ์ดเดิม)
+            pnlOverview.Controls.Add(pnlCardCash)
+            pnlCardCash.BringToFront()
+
+            ' hover + click: ทั้งการ์ดและลูกทุกตัวเปิดหน้าต่างนับเงินสด
+            Dim highlight = Color.FromArgb(220, 252, 231)
+            AddHandler pnlCardCash.MouseEnter, Sub(s, e) pnlCardCash.BackColor = highlight
+            AddHandler pnlCardCash.MouseLeave, Sub(s, e) pnlCardCash.BackColor = Color.White
+            For Each ctrl As Control In pnlCardCash.Controls
+                Dim cRef = ctrl
+                AddHandler cRef.MouseEnter, Sub(s, e) pnlCardCash.BackColor = highlight
+                AddHandler cRef.MouseLeave, Sub(s, e) pnlCardCash.BackColor = Color.White
+                AddHandler cRef.Click, AddressOf BtnCountCash_Click
+            Next
+            AddHandler pnlCardCash.Click, AddressOf BtnCountCash_Click
+        End Sub
+
+        ''' <summary>อัปเดตค่าเงินสดในมือบนการ์ดจากฐานข้อมูลจริง</summary>
+        Private Sub RefreshCashOnHandCard()
+            If pnlCardCash Is Nothing Then Return
+            Try
+                Db.EnsureSchema()
+                Dim v = CashOnHandRepository.ComputeCashOnHand(Date.Today)
+                Dim latest = CashOnHandRepository.GetLatestCount()
+
+                If v.HasValue Then
+                    lblCashAmount.Text = v.Value.ToString("#,##0.00")
+                Else
+                    lblCashAmount.Text = "—"
+                End If
+
+                If latest Is Nothing Then
+                    lblCashSub.Text = "ยังไม่มีการนับเงินสด"
+                    lblCashSub.ForeColor = Color.FromArgb(120, 80, 40)
+                Else
+                    Dim d = CashOnHandService.NormalizeDate(latest.CountDate)
+                    Dim today = CashOnHandService.NormalizeDate(Date.Today)
+                    Dim days = (today - d).TotalDays
+                    If days > 30 Then
+                        lblCashSub.Text = "นับล่าสุด " & d.ToString("dd/MM/yyyy") & " = " & latest.TotalCounted.ToString("#,##0.00") & "  •  ควรนับเงินสดใหม่"
+                        lblCashSub.ForeColor = Color.FromArgb(153, 27, 27)
+                    Else
+                        lblCashSub.Text = "นับล่าสุด " & d.ToString("dd/MM/yyyy") & " = " & latest.TotalCounted.ToString("#,##0.00")
+                        lblCashSub.ForeColor = Color.FromArgb(120, 80, 40)
+                    End If
+                End If
+            Catch ex As Exception
+                ErrorLogHelper.LogSilentError("frmMain.RefreshCashOnHandCard", ex)
+            End Try
+        End Sub
+
+        Private Sub BtnCountCash_Click(sender As Object, e As EventArgs)
+            OpenCashCountDialog()
+        End Sub
+
+        Private Sub OpenCashCountDialog()
+            Try
+                Db.EnsureSchema()
+                Using dlg As New FrmCashCount()
+                    dlg.Icon = Me.Icon
+                    If dlg.ShowDialog(Me) = DialogResult.OK Then
+                        RefreshCashOnHandCard()
+                    End If
+                End Using
+            Catch ex As Exception
+                ErrorLogHelper.LogSilentError("frmMain.OpenCashCountDialog", ex)
+                MessageBox.Show("เปิดหน้าต่างนับเงินสดไม่สำเร็จ: " & ex.Message, "ผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            End Try
         End Sub
 
         Private Sub SetupIconsAndImages()
