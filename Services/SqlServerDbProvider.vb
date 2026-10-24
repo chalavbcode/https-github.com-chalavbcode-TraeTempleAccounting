@@ -86,9 +86,9 @@ Namespace TempleAccounting
                     ' Seed data
                     SeedCategories(conn)
                     SeedFunds(conn)
-                    SeedBankAccounts(conn)
                     SeedPositions(conn)
-                    SeedPersonnel(conn)
+                    ' BankAccounts / Personnel are NOT seeded — they hold this temple's identity
+                    ' (formerly seeded "วัดแหลมยาง" bank account and 6 sample people into every new DB)
                 End Using
                 _schemaChecked = True
             Catch ex As Exception
@@ -197,15 +197,6 @@ Namespace TempleAccounting
             Next
         End Sub
 
-        Private Sub SeedBankAccounts(conn As SqlConnection)
-            Dim count As Integer = CInt(DbScalar(conn, "SELECT COUNT(*) FROM BankAccounts"))
-            If count > 0 Then Return
-            ExecuteNonQueryInternal(conn, "INSERT INTO BankAccounts (BankName, AccountNo, AccountName) VALUES (@n, @a, @nm)",
-                New Tuple(Of String, Object)("@n", "ธนาคารออมสิน"),
-                New Tuple(Of String, Object)("@a", "-"),
-                New Tuple(Of String, Object)("@nm", "วัดแหลมยาง"))
-        End Sub
-
         Private Sub SeedPositions(conn As SqlConnection)
             Dim posList = New List(Of (Name As String, Group As String)) From {
                 ("เจ้าอาวาส", "พระ"), ("รองเจ้าอาวาส", "พระ"), ("ผู้ช่วยเจ้าอาวาส", "พระ"), ("เลขานุการเจ้าอาวาส", "พระ"),
@@ -222,37 +213,15 @@ Namespace TempleAccounting
                         New Tuple(Of String, Object)("@n", pos.Name),
                         New Tuple(Of String, Object)("@g", pos.Group))
                 Else
-                    ExecuteNonQueryInternal(conn, "UPDATE Positions SET PositionGroup = @g WHERE PositionName = @n",
-                        New Tuple(Of String, Object)("@g", pos.Group),
+                    ' Update only when the value actually differs — rewriting every boot
+                    ' changes the DB file hash and invalidates backup hash-equality.
+                    Dim currentGroup = DbScalar(conn, "SELECT PositionGroup FROM Positions WHERE PositionName = @n",
                         New Tuple(Of String, Object)("@n", pos.Name))
-                End If
-            Next
-        End Sub
-
-        Private Sub SeedPersonnel(conn As SqlConnection)
-            Dim samples = New List(Of (Title As String, First As String, Last As String, PosName As String, PType As String)) From {
-                ("พระครูสมุห์", "สมชาย", "", "เจ้าอาวาส", "Monk"),
-                ("พระมหา", "วิทยา", "", "พระภิกษุ", "Monk"),
-                ("นาย", "สมศักดิ์", "ใจดี", "ไวยาวัจกร", "Layperson"),
-                ("นาย", "ประเสริฐ", "บุญมี", "เหรัญญิก", "Layperson"),
-                ("นางสาว", "พรทิพย์", "สุขใจ", "ผู้ทำบัญชี", "Layperson"),
-                ("นาย", "อนันต์", "แสงทอง", "กรรมการวัด", "Layperson")
-            }
-
-            For Each item In samples
-                Dim fullName = $"{item.Title}{item.First}"
-                If Not String.IsNullOrWhiteSpace(item.Last) Then fullName &= $" {item.Last}"
-
-                Dim exists = DbScalar(conn, "SELECT COUNT(*) FROM Personnel WHERE FullName = @fn", New Tuple(Of String, Object)("@fn", fullName))
-                If CInt(exists) = 0 Then
-                    Dim posId = DbScalar(conn, "SELECT PositionID FROM Positions WHERE PositionName = @pn", New Tuple(Of String, Object)("@pn", item.PosName))
-                    ExecuteNonQueryInternal(conn, "INSERT INTO Personnel (Title, FirstName, LastName, FullName, PersonType, PositionID) VALUES (@t, @f, @l, @fn, @pt, @pid)",
-                        New Tuple(Of String, Object)("@t", item.Title),
-                        New Tuple(Of String, Object)("@f", item.First),
-                        New Tuple(Of String, Object)("@l", item.Last),
-                        New Tuple(Of String, Object)("@fn", fullName),
-                        New Tuple(Of String, Object)("@pt", item.PType),
-                        New Tuple(Of String, Object)("@pid", If(posId Is Nothing, DBNull.Value, posId)))
+                    If Not String.Equals(CStr(currentGroup), pos.Group, StringComparison.Ordinal) Then
+                        ExecuteNonQueryInternal(conn, "UPDATE Positions SET PositionGroup = @g WHERE PositionName = @n",
+                            New Tuple(Of String, Object)("@g", pos.Group),
+                            New Tuple(Of String, Object)("@n", pos.Name))
+                    End If
                 End If
             Next
         End Sub

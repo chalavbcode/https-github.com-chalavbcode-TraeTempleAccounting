@@ -398,7 +398,7 @@ Namespace TempleAccounting
             Me.tlpStep1.Controls.Add(Me.cboProvince, 1, 2)
             Me.tlpStep1.Controls.Add(Me.lblDistrict, 2, 2)
             Me.tlpStep1.Controls.Add(Me.cboDistrict, 3, 2)
-            ' Row 3: ตำบล * + รหัสวัด
+            ' Row 3: ตำบล * + รหัสไปรษณีย์ (txtTempleCode = ช่องรหัสไปรษณีย์ — ชื่อ control เดิมตั้งผิด ห้าม map กับคอลัมน์ TempleCode)
             Me.tlpStep1.Controls.Add(Me.lblSubDistrict, 0, 3)
             Me.tlpStep1.Controls.Add(Me.cboSubDistrict, 1, 3)
             Me.tlpStep1.Controls.Add(Me.lblTempleCode, 2, 3)

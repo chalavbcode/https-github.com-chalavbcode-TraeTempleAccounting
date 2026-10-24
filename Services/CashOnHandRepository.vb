@@ -91,7 +91,21 @@ Namespace TempleAccounting
 
         ''' <summary>เงินสดในมือ ณ วันที่ asOf (Nothing ถ้ายังไม่มีการนับเลย)</summary>
         Public Function ComputeCashOnHand(asOf As Date) As Decimal?
+            CashOnHandService.CashFundId = ResolveCashFundId()
             Return CashOnHandService.ComputeCashOnHand(asOf, ToRecords(LoadCounts()), LoadTransactions())
+        End Function
+
+        ''' <summary>
+        ''' หา FundID ของกองทุน "เงินสด" จากชื่อ (ไม่ใช่เลขคงที่) — คืน -1 ถ้าไม่มีกองทุนนี้
+        ''' เพื่อให้การจำแนกการโอนไม่พึ่งพา ID ที่บังเอิญตรงกันในบางฐานข้อมูล
+        ''' </summary>
+        Private Function ResolveCashFundId() As Integer
+            Using conn = Db.OpenConn()
+                Dim id = Db.DbScalar(conn, "SELECT TOP 1 ID FROM Funds WHERE FundName = @n",
+                                     New Tuple(Of String, Object)("@n", "เงินสด"))
+                If id Is Nothing OrElse id Is DBNull.Value Then Return -1
+                Return Convert.ToInt32(id)
+            End Using
         End Function
 
         ''' <summary>การนับล่าสุด (เรียงตาม CountDate) หรือ Nothing ถ้ายังไม่มี</summary>
@@ -115,6 +129,7 @@ Namespace TempleAccounting
                 total += d
             Next
 
+            CashOnHandService.CashFundId = ResolveCashFundId()
             Dim expectedVal = CashOnHandService.ComputeCashOnHand(countDate, ToRecords(LoadCounts()), LoadTransactions())
             Dim expected As Decimal = If(expectedVal.HasValue, expectedVal.Value, 0D)
             Dim variance As Decimal = total - expected

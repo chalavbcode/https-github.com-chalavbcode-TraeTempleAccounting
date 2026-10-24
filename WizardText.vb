@@ -20,7 +20,7 @@ Namespace TempleAccounting
         ' ===== Header / Step Titles =====
         Public Const Step1Title As String = "ขั้นที่ 1: ตั้งค่าข้อมูลวัด"
         Public Const Step2Title As String = "ขั้นที่ 2: ข้อมูลเจ้าอาวาส"
-        Public Const Step3Title As String = "ขั้นที่ 3: ตั้งค่าปีงบประมาณ"
+        Public Const Step3Title As String = "ขั้นที่ 3: ตั้งค่าบัญชีธนาคารและกองทุน"
         Public Const Step4Title As String = "ขั้นที่ 4: กำหนดยอดยกมา"
         Public Const Step5Title As String = "ขั้นที่ 5: ตรวจสอบและยืนยัน"
 
@@ -44,7 +44,7 @@ Namespace TempleAccounting
         Public Const PersonnelCountFormat As String = "ข้อมูลบุคลากรในระบบ: {0} คน..."
 
         ' ===== Step 3: บัญชีธนาคาร =====
-        Public Const Step3Desc As String = "กำหนดช่องทางธนาคารของวัด และเพิ่มข้อมูลบัญชีที่ใช้จริง (1)"
+        Public Const Step3Desc As String = "กำหนดช่องทางธนาคารของวัด และเพิ่มข้อมูลบัญชีที่ใช้จริง"
         Public Const BankHeader As String = "ช่องทางธนาคาร:"
         Public Const AddBank As String = "+ เพิ่มบัญชีธนาคาร"
         Public Const AddBankGroup As String = "+ เพิ่มบัญชีธนาคาร ใหม่"

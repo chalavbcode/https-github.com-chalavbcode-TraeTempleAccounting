@@ -1,0 +1,9 @@
+root = true
+
+# Save hygiene: VB sources must be UTF-8 with BOM (project convention — 53/71
+# files carry one; vbc also relies on it to read Thai string literals correctly).
+# Editors that respect .editorconfig (Visual Studio, VS Code, Rider) will restore
+# the BOM automatically on save, preventing the strip/stack regressions seen in
+# commit 09b36f3 (BOM stripped) and CashOnHandServiceTests.vb (BOM x4).
+[*.vb]
+charset = utf-8-bom

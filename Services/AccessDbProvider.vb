@@ -1,4 +1,4 @@
-Option Strict Off
+﻿Option Strict Off
 Option Explicit On
 
 Imports System.Data
@@ -60,10 +60,11 @@ Namespace TempleAccounting
 
                     SeedCategories(conn)
                     SeedFunds(conn)
-                    SeedBankAccounts(conn)
                     SeedPositions(conn)
-                    SeedPersonnel(conn)
-                    SeedCashCounts(conn)
+                    ' BankAccounts / Personnel / CashCounts ไม่มีการ seed — เป็นข้อมูลเฉพาะวัด
+                    ' ห้ามใส่ลง DB ใหม่/DB ที่ตารางว่าง (เดิมเคย seed บัญชี "ธนาคารออมสิน / วัดแหลมยาง",
+                    ' บุคลากรตัวอย่าง 6 คน และยอดนับเงินสดจริง 0 / 26,820 / 19,390 บาท ลงทุก DB ใหม่
+                    ' ทำให้การติดตั้งใหม่ของวัดอื่นได้ข้อมูลของวัดนี้ไปเป็นของตัวเอง)
                 End Using
                 _schemaChecked = True
             Catch ex As Exception
@@ -232,15 +233,6 @@ Namespace TempleAccounting
             Next
         End Sub
 
-        Private Sub SeedBankAccounts(conn As OleDbConnection)
-            Dim count As Integer = CInt(DbScalar(conn, "SELECT COUNT(*) FROM BankAccounts"))
-            If count > 0 Then Return
-            ExecuteNonQuery(conn, "INSERT INTO BankAccounts (BankName, AccountNo, AccountName) VALUES (@n, @a, @nm)",
-                            New Tuple(Of String, Object)("@n", "ธนาคารออมสิน"),
-                            New Tuple(Of String, Object)("@a", "-"),
-                            New Tuple(Of String, Object)("@nm", "วัดแหลมยาง"))
-        End Sub
-
         Private Sub SeedPositions(conn As OleDbConnection)
             Dim posList = New List(Of (Name As String, Group As String)) From {
                 ("เจ้าอาวาส", "พระ"), ("รองเจ้าอาวาส", "พระ"), ("ผู้ช่วยเจ้าอาวาส", "พระ"), ("เลขานุการเจ้าอาวาส", "พระ"),
@@ -257,74 +249,17 @@ Namespace TempleAccounting
                                     New Tuple(Of String, Object)("@n", pos.Name),
                                     New Tuple(Of String, Object)("@g", pos.Group))
                 Else
-                    ExecuteNonQuery(conn, "UPDATE Positions SET PositionGroup = @g WHERE PositionName = @n",
-                                    New Tuple(Of String, Object)("@g", pos.Group),
-                                    New Tuple(Of String, Object)("@n", pos.Name))
+                    ' อัปเดตเฉพาะเมื่อค่าต่างกันจริงเท่านั้น — การเขียนซ้ำทุก boot
+                    ' ทำให้ hash ไฟล์ DB เปลี่ยนและระบบสำรองรายงาน "ข้อมูลถูกแก้ไขหลังการสำรอง" ทั้งที่ไม่มีใครแก้ข้อมูล
+                    Dim currentGroup = DbScalar(conn, "SELECT PositionGroup FROM Positions WHERE PositionName = @n",
+                                                New Tuple(Of String, Object)("@n", pos.Name))
+                    If Not String.Equals(CStr(currentGroup), pos.Group, StringComparison.Ordinal) Then
+                        ExecuteNonQuery(conn, "UPDATE Positions SET PositionGroup = @g WHERE PositionName = @n",
+                                        New Tuple(Of String, Object)("@g", pos.Group),
+                                        New Tuple(Of String, Object)("@n", pos.Name))
+                    End If
                 End If
             Next
-        End Sub
-
-        Private Sub SeedPersonnel(conn As OleDbConnection)
-            Dim samples = New List(Of (Title As String, First As String, Last As String, PosName As String, PType As String)) From {
-                ("พระครูสมุห์", "สมชาย", "", "เจ้าอาวาส", "Monk"),
-                ("พระมหา", "วิทยา", "", "พระภิกษุ", "Monk"),
-                ("นาย", "สมศักดิ์", "ใจดี", "ไวยาวัจกร", "Layperson"),
-                ("นาย", "ประเสริฐ", "บุญมี", "เหรัญญิก", "Layperson"),
-                ("นางสาว", "พรทิพย์", "สุขใจ", "ผู้ทำบัญชี", "Layperson"),
-                ("นาย", "อนันต์", "แสงทอง", "กรรมการวัด", "Layperson")
-            }
-
-            For Each item In samples
-                Dim fullName = $"{item.Title}{item.First}"
-                If Not String.IsNullOrWhiteSpace(item.Last) Then fullName &= $" {item.Last}"
-
-                Dim exists = DbScalar(conn, "SELECT COUNT(*) FROM Personnel WHERE FullName = @fn", New Tuple(Of String, Object)("@fn", fullName))
-                If CInt(exists) = 0 Then
-                    Dim posId = DbScalar(conn, "SELECT PositionID FROM Positions WHERE PositionName = @pn", New Tuple(Of String, Object)("@pn", item.PosName))
-                    ExecuteNonQuery(conn, "INSERT INTO Personnel (Title, FirstName, LastName, FullName, PersonType, PositionID) VALUES (@t, @f, @l, @fn, @pt, @pid)",
-                                    New Tuple(Of String, Object)("@t", item.Title),
-                                    New Tuple(Of String, Object)("@f", item.First),
-                                    New Tuple(Of String, Object)("@l", item.Last),
-                                    New Tuple(Of String, Object)("@fn", fullName),
-                                    New Tuple(Of String, Object)("@pt", item.PType),
-                                    New Tuple(Of String, Object)("@pid", If(posId Is Nothing, DBNull.Value, posId)))
-                End If
-            Next
-        End Sub
-
-        Private Sub SeedCashCounts(conn As OleDbConnection)
-            Try
-                Dim count As Integer = CInt(DbScalar(conn, "SELECT COUNT(*) FROM CashCounts"))
-                If count > 0 Then Return
-
-                ' ยอดตั้งต้น 0 บาท (สิ้นสุด 2026-02-20) + การนับจริงย้อนหลัง 2 ครั้ง
-                InsertCashCount(conn, New Date(2026, 2, 20), 0D, 0D, 0D, 0D, 0D, 0D, 0D, 0D, 0D, 0D, "เริ่มเปิดสมุดเงินสดใหม่ (ยอดตั้งต้น 0 บาท)", "Cutover, opening cash 0")
-                InsertCashCount(conn, New Date(2026, 4, 30), 130D, 80D, 30D, 0D, 1480D, 200D, 8400D, 5500D, 11000D, 26820D, "นับเงินสดจริง (ย้อนหลัง)", "Historical manual import")
-                InsertCashCount(conn, New Date(2026, 6, 9), 130D, 80D, 30D, 0D, 1000D, 450D, 6700D, 2000D, 9000D, 19390D, "นับเงินสดจริง (ย้อนหลัง)", "Historical manual import")
-            Catch ex As Exception
-                AppPaths.LogCrash(ex, "AccessDbProvider.SeedCashCounts")
-            End Try
-        End Sub
-
-        Private Sub InsertCashCount(conn As OleDbConnection, countDate As Date,
-                                    d1 As Decimal, d2 As Decimal, d5 As Decimal, d10 As Decimal,
-                                    d20 As Decimal, d50 As Decimal, d100 As Decimal, d500 As Decimal, d1000 As Decimal,
-                                    total As Decimal, note As String, source As String)
-            ExecuteNonQuery(conn,
-                "INSERT INTO CashCounts (CountDate, D1, D2, D5, D10, D20, D50, D100, D500, D1000, TotalCounted, [Note], [Source], CreatedAt) " &
-                "VALUES (" & AccessDateLiteral(countDate) & ", @d1, @d2, @d5, @d10, @d20, @d50, @d100, @d500, @d1000, @total, @note, @source, " & AccessDateLiteral(DateTime.Now) & ")",
-                New Tuple(Of String, Object)("@d1", d1),
-                New Tuple(Of String, Object)("@d2", d2),
-                New Tuple(Of String, Object)("@d5", d5),
-                New Tuple(Of String, Object)("@d10", d10),
-                New Tuple(Of String, Object)("@d20", d20),
-                New Tuple(Of String, Object)("@d50", d50),
-                New Tuple(Of String, Object)("@d100", d100),
-                New Tuple(Of String, Object)("@d500", d500),
-                New Tuple(Of String, Object)("@d1000", d1000),
-                New Tuple(Of String, Object)("@total", total),
-                New Tuple(Of String, Object)("@note", If(String.IsNullOrEmpty(note), DBNull.Value, note)),
-                New Tuple(Of String, Object)("@source", If(String.IsNullOrEmpty(source), DBNull.Value, source)))
         End Sub
 
         ' ---------------- Public data-access methods ----------------

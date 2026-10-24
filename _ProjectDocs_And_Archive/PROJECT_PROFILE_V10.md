@@ -8,6 +8,25 @@
 
 ---
 
+## 0. Post-Audit Fix Status (updated 2026-10-24)
+
+> ชุดแก้ไขหลัง audit ได้ปิดข้อค้นพบด้านล่างแล้ว — ข้อความเดิมของ audit คงไว้ทั้งหมดเพื่อเป็นหลักฐาน แต่เพิ่มเครื่องหมาย **FIXED/RESOLVED** กำกับ หมายเหตุ: items 0.2/0.3/0.5 อยู่ใน working tree ที่รอ commit (commit hash จะมีเมื่อรวมเข้าระบบ)
+
+| # | Finding | Status | Fix | Verification |
+|---|---|---|---|---|
+| 0.1 | §8 P0 1 — Transaction-facade defect: `cmd.Transaction` ไม่เคยถูกกำหนด (§3.1) | **FIXED** (`fa390cf`) | เพิ่ม overload ที่รับ ambient transaction ใน `IDbProvider`/`Database.vb`/ทั้งสอง provider + ส่ง `trans` ครบ 4 จุดเรียก; แถมแก้ reserved words `[Detail]`/`[Note]` ใน INSERT ของ `SaveOpeningBalance` (บั๊กที่ซ่อนใต้บั๊ก tx) | RUNTIME harness กับสำเนา DB: `SaveTempleSetting` ×2 + `SaveOpeningBalance` ×2 ผ่านครบ 11/11 checks (control ยัง reproduce error เดิมได้) |
+| 0.2 | §8 P0 2 — `SeedPositions` เขียนทับ 19 แถวทุก boot (§3.2) | **FIXED** (ชุดแก้ไข 2026-10-24) | UPDATE เฉพาะเมื่อ `PositionGroup` ต่างกันจริง (ทั้งสอง provider) | RUNTIME ทดสอบ hash 3 boot บนสำเนา DB: ก่อนแก้ hash เปลี่ยน 3/3 — หลังแก้ 0/3; mutation test: ค่าผิดยังถูกแก้คืนได้ใน boot ถัดไป |
+| 0.3 | §8 P1 3 — `SeedCashCounts` ยัดประวัติเงินสดจริงลง DB ว่าง (§4.3.1) | **FIXED** (ชุดแก้ไข 2026-10-24) | ลบการ seed ออกทั้งหมด (การไม่ seed อะไรเลยปลอดภัยกว่า zero-baseline row ซึ่งยัง hard-code วัน cutover ของวัดนี้); ขยายผลชั้นเดียวกัน: ลบ `SeedBankAccounts` ("วัดแหลมยาง") และ `SeedPersonnel` (บุคลากรตัวอย่าง 6 คน) ด้วย | RUNTIME: `CashCounts` ว่าง + boot → 0 แถว (เดิม 3 แถว / 46,210 บาท); `BankAccounts`/`Personnel` ว่าง + boot → 0/0 (เดิม 1/6); ข้อมูลจริงเดิมไม่ถูกแตะ; query ของ wizard บนตารางว่างไม่พัง |
+| 0.4 | §8 P1 4 — โปรเจกต์เทสต์คอมไพล์ไม่ผ่าน (BOM ×4) + `BackupTests/` ถูก gitignore | **FIXED** (`77c97b7`) | ลบ BOM เกินจาก `CashOnHandServiceTests.vb`; เพิ่ม `!BackupTests/` ใน `.gitignore` | `dotnet test` ผ่าน 40/40 → ปัจจุบัน 42/42 |
+| 0.5 | §8 P2 10 — `CashFundId = 1` hard-code (§4.3.2) | **FIXED** (ชุดแก้ไข 2026-10-24) | `CashOnHandService.CashFundId` เป็น property ที่ resolve จากชื่อกองทุน "เงินสด" ใน `CashOnHandRepository.ResolveCashFundId` ทุกครั้งก่อนคำนวณ; ค่าเริ่มต้น -1 = ไม่มีกองทุนเงินสด → ไม่จำแนกการโอนเป็นเงินสดเลย | RUNTIME 3 สถานการณ์: DB ใหม่ (fund 1 = กองทุนทั่วไป) → 0 (เดิมนับผิด 20,000); "เงินสด" อยู่ ID 3 → 20,000 (เดิม 0); รูปแบบ DB จริง → 20,000 เหมือนเดิม; + unit tests ใหม่ 2 ตัว |
+| 0.6 | §8 P2 12 — ข้อมูลบัญชีจริงอยู่ใน git (`cash_dump.txt`) | **RESOLVED** (`629e8cb`) | ล้างออกจากทุก commit ด้วย history rewrite + force-push; สำเนาในเครื่องเก็บไว้และเพิ่มใน `.gitignore` | `git log origin/modify_backupoct -- "*cash_dump*"` ว่าง; raw GitHub URL → 404. ตกค้าง: cache/fork บน GitHub อาจยังมีสำเนา |
+| 0.7 | §8 P2 11 — BOM regression / save hygiene | **FIXED** (ชุดแก้ไข 2026-10-24) | คืน UTF-8 BOM ให้ `Services/AccessDbProvider.vb` (ที่ `09b36f3` strip ไป) และ `frmMain.UiHelpers.vb`; เพิ่ม `.editorconfig` กำหนำ `charset = utf-8-bom` สำหรับ `*.vb` เพื่อบังคับการ save ครั้งถัดไปของ editor ที่รองรับ | hex ยืนยัน `EF BB BF` นำหน้าทั้ง 2 ไฟล์; build 0/0; `dotnet test` 42/42. หมายเหตุ: ยังมีไฟล์ `.vb` ไร้ BOM อีก 16 ไฟล์ที่ไม่เคยถูกระบุว่าเป็น regression — จะคืนเองอัตโนมัติเมื่อถูก save ใหม่ |
+| 0.8 | §8 P2 17 — Wizard Step 1 เขียน `txtTempleCode` (ช่องรหัสไปรษณีย์) ลงคอลัมน์ PostCode แต่ `LoadStep1FromDb` อ่านกลับจาก `TempleCode` และ `SaveStep1` ส่ง `templeCode:=""` ทับรหัสวัดเดิม; `WizardText.Step3Title` ไม่ตรงกับเนื้อหา Step 3 | **FIXED** (2026-10-24) | `LoadStep1FromDb` อ่าน PostCode; `SaveStep1` คงค่า TempleCode เดิมผ่าน `GetExistingTempleCode()`; เปลี่ยน `Step3Title` เป็น "ขั้นที่ 3: ตั้งค่าบัญชีธนาคารและกองทุน"; แก้ comment ใน Designer ที่เรียกช่องนี้ว่า "รหัสวัด" | build 0/0; `dotnet test` (BackupTests) 42/42. **ยังไม่ได้รัน harness round-trip ของ wizard** (เป็น WinForms ที่โปรเจกต์เทสต์ไม่อ้างอิง) — ยืนยันจากการอ่านโค้ด |
+
+**ยังไม่ได้แก้หลังชุดนี้:** §8 P1 5–7, §8 P2 8, 9, 13–17, P3 ทั้งหมด และ §4.3.3–4.3.4
+
+---
+
 ## 1. Executive Summary & Version History
 
 ### 1.1 Executive Summary
@@ -15,16 +34,16 @@
 Temple Accounting System (lamYangI&E) is a VB.NET / WinForms desktop application for temple income–expense bookkeeping on **MS Access (OLEDB)**, .NET 10 (`net10.0-windows`), single-user and fully offline. Since V9 (2026-10-23), **6 commits** added a complete **Cash-on-Hand / cash-count subsystem** (dashboard card + `FrmCashCount` + pure-logic service + repository + `CashCounts` table + seed data) and committed the V9 survey artifacts themselves. No backup-system or transaction-layer code changed.
 
 Headline findings:
-- **Both V9 P0 defects are still OPEN at HEAD.** (1) The transaction-facade defect (`AccessDbProvider` never assigns `cmd.Transaction`) is untouched — the three DELETE+INSERT saves still throw every time; now at `AccessDbProvider.vb:332-375`. (2) `SeedPositions` still rewrites all 19 Positions rows on every boot (`AccessDbProvider.vb:244-264`), still invalidating backup hash-equality.
-- **New P1 — cash-count seed writes real historical money into any empty DB**: `SeedCashCounts` (`AccessDbProvider.vb:295-307`) inserts 3 rows carrying this temple's actual cash counts (0 / 26,820 / 19,390 บาท) into *any* database where `CashCounts` is empty — including a future fresh install for a different temple. RUNTIME-confirmed present in the live DB (3 rows, `ExpectedBefore`/`Variance` all NULL).
-- **New P1 — the test suite no longer runs.** `BackupTests/CashOnHandServiceTests.vb` starts with **four stacked UTF-8 BOMs** → `dotnet test` fails with BC30037/BC30627/BC30465 (RUNTIME). All 40 tests (14 engine + 12 legacy + 14 cash-on-hand) are un-compilable; and `BackupTests/` is still gitignored by the `Backup*/` rule, so the broken file is invisible to git.
-- **New P2 — hard-coded `CashFundId = 1`** (`CashOnHandService.vb:35`) makes cash classification data-dependent: it is correct only because this DB's FundID 1 happens to be "เงินสด"; a fresh install seeds "กองทุนทั่วไป" as FundID 1 (`AccessDbProvider.vb:227-233`), which would silently misclassify transfers.
-- **Encoding regression:** commit `09b36f3` **stripped the UTF-8 BOM from `Services/AccessDbProvider.vb`** (git-diff confirmed) — contradicting the project's "BOM enforced" intent. `frmMain.UiHelpers.vb` is also BOM-less.
+- **Both V9 P0 defects are still OPEN at HEAD.** (1) The transaction-facade defect (`AccessDbProvider` never assigns `cmd.Transaction`) is untouched — the three DELETE+INSERT saves still throw every time; now at `AccessDbProvider.vb:332-375`. (2) `SeedPositions` still rewrites all 19 Positions rows on every boot (`AccessDbProvider.vb:244-264`), still invalidating backup hash-equality. **[BOTH FIXED 2026-10-24 — see §0.1–0.2]**
+- **New P1 — cash-count seed writes real historical money into any empty DB**: `SeedCashCounts` (`AccessDbProvider.vb:295-307`) inserts 3 rows carrying this temple's actual cash counts (0 / 26,820 / 19,390 บาท) into *any* database where `CashCounts` is empty — including a future fresh install for a different temple. RUNTIME-confirmed present in the live DB (3 rows, `ExpectedBefore`/`Variance` all NULL). **[FIXED 2026-10-24 — seeding removed entirely, see §0.3]**
+- **New P1 — the test suite no longer runs.** `BackupTests/CashOnHandServiceTests.vb` starts with **four stacked UTF-8 BOMs** → `dotnet test` fails with BC30037/BC30627/BC30465 (RUNTIME). All 40 tests (14 engine + 12 legacy + 14 cash-on-hand) are un-compilable; and `BackupTests/` is still gitignored by the `Backup*/` rule, so the broken file is invisible to git. **[FIXED 2026-10-24 — `77c97b7`, see §0.4]**
+- **New P2 — hard-coded `CashFundId = 1`** (`CashOnHandService.vb:35`) makes cash classification data-dependent: it is correct only because this DB's FundID 1 happens to be "เงินสด"; a fresh install seeds "กองทุนทั่วไป" as FundID 1 (`AccessDbProvider.vb:227-233`), which would silently misclassify transfers. **[FIXED 2026-10-24 — resolved by fund name, see §0.5]**
+- **Encoding regression:** commit `09b36f3` **stripped the UTF-8 BOM from `Services/AccessDbProvider.vb`** (git-diff confirmed) — contradicting the project's "BOM enforced" intent. `frmMain.UiHelpers.vb` is also BOM-less. **[FIXED 2026-10-24 — BOM restored + `.editorconfig` enforcement, see §0.7]**
 - **Build now succeeds clean:** `dotnet build -c Release` → **0 Warning(s), 0 Error(s)** (RUNTIME, 2026-10-24, app not running) — V9's blocked build was environmental, now resolved; the compile itself was and remains clean.
 - **V9 doc-integrity error:** V9's stated evidence base "HEAD = `0c274d5`" **does not exist in this repository** (`git cat-file -t 0c274d5` → fatal). V9's numbers (400 commits) match `fdeb598`, which is the true V9 baseline.
 - **Three V9 UNVERIFIED items RESOLVED:** `SaveSelectedRowEdits` is wired (not dead code); `LoadMonkSample` uses the personnel-ID schema; the ACE OLEDB 12.0 provider is present and works on this machine.
 - **Receipt reconciliation unchanged** (re-run on a fresh copy): 110 transactions, 20 receipt-linked rows, 22 files on disk, **0 missing, 2 orphans** (`Receipt_13.jpg`, `Receipt_56.jpg` — IDs confirmed absent from Transactions).
-- **Privacy note:** `cash_dump.txt` (committed in `fb9378b`) contains the temple's **real ledger data** — donor names, amounts, bank names — now tracked in git, alongside survey scripts containing absolute machine paths.
+- **Privacy note:** `cash_dump.txt` (committed in `fb9378b`) contains the temple's **real ledger data** — donor names, amounts, bank names — now tracked in git, alongside survey scripts containing absolute machine paths. **[RESOLVED 2026-10-24 — purged from history in `629e8cb`, see §0.6]**
 
 ### 1.2 Version History (highlights)
 
@@ -73,7 +92,7 @@ Headline findings:
 
 ## 3. Re-verification of V9 Claims at HEAD
 
-### 3.1 P0 #1 — Transaction-facade defect: **STILL OPEN** (VERIFIED + V9 RUNTIME carried)
+### 3.1 P0 #1 — Transaction-facade defect: **STILL OPEN** (VERIFIED + V9 RUNTIME carried) → **FIXED 2026-10-24** (`fa390cf`, see §0.1)
 
 `AccessDbProvider.ExecuteNonQuery/DbScalar/GetTable/InsertAndGetId` (now `AccessDbProvider.vb:332-375`; V9 cited 305-345 — lines shifted by the cash-count additions) still create commands via `conn.CreateCommand()` and **never assign `cmd.Transaction`**. The three broken call sites are byte-for-byte unchanged:
 
@@ -85,7 +104,7 @@ Headline findings:
 
 OleDb enforces assignment: a command executed while a transaction is pending on the connection throws "The Transaction property of the command has not been initialized." (V9 RUNTIME-proven with a disposable DB; the test scripts are now committed at `V9_survey/tmp/OleDbTxTest.cs`/`.ps1`.) Consequence unchanged: **wizard Step 1 / Step 4 saves and FrmTempleSetting save throw and fail every time**; masked on this machine only by the onboarding re-entry guard and existing TempleSetting row.
 
-### 3.2 P0 #2 — SeedPositions rewrites 19 rows every boot: **STILL OPEN** (VERIFIED)
+### 3.2 P0 #2 — SeedPositions rewrites 19 rows every boot: **STILL OPEN** (VERIFIED) → **FIXED 2026-10-24** (see §0.2)
 
 `AccessDbProvider.vb:244-264`: for each of the 19 known positions, the code checks existence and then — in the `Else` branch (l.259-262) — runs `UPDATE Positions SET PositionGroup = @g WHERE PositionName = @n` **unconditionally**, even when the value already matches. Every `EnsureSchema()` (every boot) therefore writes 19 rows, changing the DB file's hash and making complete backups report "ฐานข้อมูลถูกแก้ไขหลังการสำรอง" without any user edit. Fix direction (from V9, still apt): skip the UPDATE when `PositionGroup` already equals the target.
 
@@ -139,8 +158,8 @@ OleDb enforces assignment: a command executed while a transaction is pending on 
 
 ### 4.3 New findings in this subsystem
 
-1. **P1 — seed leaks real financial history into any empty DB** (`AccessDbProvider.vb:295-307`): the three seeded rows carry actual amounts — 2026-02-20 total 0 ("ยอดตั้งต้น"), 2026-04-30 total **26,820**, 2026-06-09 total **19,390** — with Thai notes claiming "การนับจริงย้อนหลัง". RUNTIME: the live DB contains exactly these 3 rows (`ExpectedBefore`/`Variance` NULL ×3 — seeds skip the computation that `SaveCount` always performs). On a *fresh install* (new temple), the user would inherit this temple's cash history as if it were their own, and the dashboard would show a fabricated "เงินสดในมือ". Fix direction: seed only a zero-baseline row (or nothing), and compute/stamp `ExpectedBefore` like `SaveCount` does.
-2. **P2 — hard-coded `CashFundId = 1`** (`CashOnHandService.vb:35`): correct today only because this DB's FundID 1 is "เงินสด" (`cash_dump.txt` Funds). `SeedFunds` (`AccessDbProvider.vb:227-233`) creates "กองทุนทั่วไป" **first** on a fresh DB → FundID 1 = กองทุนทั่วไป → bank↔general-fund transfers would be miscounted as cash movement. Fix direction: resolve the cash fund by name/flag at startup, not by magic ID.
+1. **P1 — seed leaks real financial history into any empty DB** (`AccessDbProvider.vb:295-307`): the three seeded rows carry actual amounts — 2026-02-20 total 0 ("ยอดตั้งต้น"), 2026-04-30 total **26,820**, 2026-06-09 total **19,390** — with Thai notes claiming "การนับจริงย้อนหลัง". RUNTIME: the live DB contains exactly these 3 rows (`ExpectedBefore`/`Variance` NULL ×3 — seeds skip the computation that `SaveCount` always performs). On a *fresh install* (new temple), the user would inherit this temple's cash history as if it were their own, and the dashboard would show a fabricated "เงินสดในมือ". Fix direction: seed only a zero-baseline row (or nothing), and compute/stamp `ExpectedBefore` like `SaveCount` does. *(**FIXED 2026-10-24** — seeding removed entirely, see §0.3)*
+2. **P2 — hard-coded `CashFundId = 1`** (`CashOnHandService.vb:35`): correct today only because this DB's FundID 1 is "เงินสด" (`cash_dump.txt` Funds). `SeedFunds` (`AccessDbProvider.vb:227-233`) creates "กองทุนทั่วไป" **first** on a fresh DB → FundID 1 = กองทุนทั่วไป → bank↔general-fund transfers would be miscounted as cash movement. Fix direction: resolve the cash fund by name/flag at startup, not by magic ID. *(**FIXED 2026-10-24** — resolved by name in `CashOnHandRepository`, see §0.5)*
 3. **P2 — full-table loads on the UI thread at dashboard refresh** (`CashOnHandRepository.vb:70-92` SELECTs *all* CashCounts + *all* Transactions; called from `RefreshCashOnHandCard`, `frmMain.vb:393`, and again on every `dtpDate` change via `FrmCashCount.RecalcExpected` l.402-407). Harmless at 110 rows; unbounded growth risk — same class as V9's P1 UI-thread findings (Excel import, merge, location rebuild still open).
 4. **P3 — `SaveCount` duplicates the compute path** (`CashOnHandRepository.vb:118` reloads counts+transactions to compute `ExpectedBefore` in the same UI flow that just computed it for the preview) — two full scans per save; cosmetic at current scale.
 5. **Positive notes:** the service/repository split is the codebase's **first** pure-logic/data-access separation and shipped with 14 unit tests; `SeedCashCounts` correctly uses the seed-only-when-empty guard (unlike `SeedPositions`); `FrmCashCount` is the first form to implement the intended Dpi-only policy; manual documents were updated in the same feature (§13).
@@ -187,13 +206,13 @@ Observation (P3): `bin/Release/net10.0-windows/Receipts/` holds only 9 jpgs — 
 
 ### P0 — critical (unchanged from V9, still open)
 
-1. **Transaction-facade defect** — `AccessDbProvider.vb:332-375` never assigns `cmd.Transaction`; TempleSetting save + wizard Step 1/4 saves throw every time (`OnboardingRepository.vb:31-57,184-216`, `FrmTempleSetting.vb:315-344`). *Fix: thread the ambient transaction through the facade, or stop mixing facade `InsertAndGetId` into explicit-transaction scopes.*
-2. **`SeedPositions` rewrites 19 rows per boot** (`AccessDbProvider.vb:244-264`) — invalidates backup hash-equality. *Fix: skip the UPDATE when `PositionGroup` already matches.*
+1. **Transaction-facade defect** — `AccessDbProvider.vb:332-375` never assigns `cmd.Transaction`; TempleSetting save + wizard Step 1/4 saves throw every time (`OnboardingRepository.vb:31-57,184-216`, `FrmTempleSetting.vb:315-344`). *Fix: thread the ambient transaction through the facade, or stop mixing facade `InsertAndGetId` into explicit-transaction scopes.* **→ FIXED 2026-10-24 (`fa390cf`).**
+2. **`SeedPositions` rewrites 19 rows per boot** (`AccessDbProvider.vb:244-264`) — invalidates backup hash-equality. *Fix: skip the UPDATE when `PositionGroup` already matches.* **→ FIXED 2026-10-24.**
 
 ### P1 — high (new in V10)
 
-3. **`SeedCashCounts` writes this temple's real cash history into any empty database** (`AccessDbProvider.vb:295-307`; live-DB-confirmed 3 rows). *Fix: seed only a zero baseline (or nothing), compute `ExpectedBefore`/`Variance` like `SaveCount`.*
-4. **Test project does not compile** — quadruple BOM in `BackupTests/CashOnHandServiceTests.vb` blocks all 40 tests (RUNTIME); `BackupTests/` still gitignored, so the breakage is invisible to git. *Fix: strip the extra BOMs; un-ignore `BackupTests/` (`.gitignore:262`) so tests are versioned.*
+3. **`SeedCashCounts` writes this temple's real cash history into any empty database** (`AccessDbProvider.vb:295-307`; live-DB-confirmed 3 rows). *Fix: seed only a zero baseline (or nothing), compute `ExpectedBefore`/`Variance` like `SaveCount`.* **→ FIXED 2026-10-24 (seeding removed; bank/personnel identity seeds removed too).**
+4. **Test project does not compile** — quadruple BOM in `BackupTests/CashOnHandServiceTests.vb` blocks all 40 tests (RUNTIME); `BackupTests/` still gitignored, so the breakage is invisible to git. *Fix: strip the extra BOMs; un-ignore `BackupTests/` (`.gitignore:262`) so tests are versioned.* **→ FIXED (`77c97b7`); suite now 42/42.**
 
 ### P1 — high (carried from V9, still open)
 
@@ -205,14 +224,14 @@ Observation (P3): `bin/Release/net10.0-windows/Receipts/` holds only 9 jpgs — 
 
 ### P2 — medium
 
-10. **Hard-coded `CashFundId = 1`** (`CashOnHandService.vb:35`) — breaks on any DB whose FundID 1 isn't "เงินสด" (incl. fresh installs).
-11. **BOM regression / save hygiene** — `AccessDbProvider.vb` BOM stripped in `09b36f3`; root cause class of the test-file breakage.
-12. **Real ledger data committed to git** — `V9_survey/tmp/cash_dump.txt` (donor names, amounts, banks) + scripts with absolute `C:\Users\fantasy\...` paths. *Consider squashing out or accepting with a privacy note.*
+10. **Hard-coded `CashFundId = 1`** (`CashOnHandService.vb:35`) — breaks on any DB whose FundID 1 isn't "เงินสด" (incl. fresh installs). **→ FIXED 2026-10-24 (resolved by fund name).**
+11. **BOM regression / save hygiene** — `AccessDbProvider.vb` BOM stripped in `09b36f3`; root cause class of the test-file breakage. **→ FIXED 2026-10-24 (BOM restored to `AccessDbProvider.vb` + `frmMain.UiHelpers.vb`; `.editorconfig` enforces `utf-8-bom` for `*.vb`).**
+12. **Real ledger data committed to git** — `V9_survey/tmp/cash_dump.txt` (donor names, amounts, banks) + scripts with absolute `C:\Users\fantasy\...` paths. *Consider squashing out or accepting with a privacy note.* **→ RESOLVED 2026-10-24 (`629e8cb` — history rewritten + force-pushed; local copy kept and gitignored).**
 13. Data at rest unencrypted (now also: seed rows + git-tracked dump).
 14. Unbounded, unredacted, Buddhist-timestamped logs (`crash.log` 77.5 KB and growing).
 15. ~19 culture-sensitive date-format sites.
 16. Mixed AutoScaleMode (6 forms still unset); restore + FormClosing tiered backup still on UI thread.
-17. `Step3Title` mismatch + wizard Step 1 writes `txtTempleCode` into the `PostCode` column and passes an empty `TempleCode` (`FrmOnboardingWizard.vb:482-490`) — V9's postcode round-trip bug, now precisely located.
+17. `Step3Title` mismatch + wizard Step 1 writes `txtTempleCode` into the `PostCode` column and passes an empty `TempleCode` (`FrmOnboardingWizard.vb:482-490`) — V9's postcode round-trip bug, now precisely located. **→ FIXED 2026-10-24 (§0.8).**
 
 ### P3 — low (carried + new)
 
@@ -238,7 +257,7 @@ Empty catches (~80); two dialog/log systems; README still 46 bytes; no CI; dead 
 3. ACE OLEDB 12.0 provider — confirmed present (RUNTIME open of DB copies).
 4. V9's blocked Release build — now succeeds 0/0 (environmental cause removed).
 
-**Still open (re-confirmed, not merely carried):** both P0s; scan depth ≤3; registry own-`AddEntry` unverified at runtime; `Step3Title` mismatch; culture-sensitive formats; no log rotation; dev buttons in Release.
+**Still open (re-confirmed, not merely carried):** ~~both P0s~~ *(both P0s FIXED 2026-10-24 — see §0.1–0.2)*; scan depth ≤3; registry own-`AddEntry` unverified at runtime; `Step3Title` mismatch; culture-sensitive formats; no log rotation; dev buttons in Release.
 
 ---
 
@@ -258,7 +277,7 @@ Empty catches (~80); two dialog/log systems; README still 46 bytes; no CI; dead 
 | Forms/FrmIncome.vb / FrmExpense.vb | 666 / 622 | entry forms (~79% duplicated) |
 | **Forms/FrmCashCount.vb** | **502** | cash-count dialog (DPI reference impl.) |
 | **Services/CashOnHandRepository.vb** | **179** | CashCounts/Transactions reads + save |
-| **Services/CashOnHandService.vb** | **121** | pure cash logic (`CashFundId=1` ⚠) |
-| Services/AccessDbProvider.vb | 403 | schema/seeds/facade (both P0s live here ⚠) |
+| **Services/CashOnHandService.vb** | **121** | pure cash logic (`CashFundId` resolved by name ✓ since 2026-10-24) |
+| Services/AccessDbProvider.vb | 403 | schema/seeds/facade (both P0s fixed 2026-10-24 ✓; identity seeds removed) |
 
 **UNVERIFIED at V10 (carry-forward):** fresh-install wizard E2E save failure (mechanism proven, flow untested); whether the engine's own `AddEntry` writes a registry entry on a manual 💾 backup; legacy Buddhist folder parse/sort at runtime; effective default of unset `AutoScaleMode` on high-DPI; historical cause of the 2 orphan receipts; actual `manifest.json` `Created` text on D:\ sets; whether a TempleSetting save was attempted since `05d5f18` (needs user evidence).

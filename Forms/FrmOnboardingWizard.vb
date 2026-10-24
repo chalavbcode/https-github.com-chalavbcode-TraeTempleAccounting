@@ -447,7 +447,9 @@ Namespace TempleAccounting
             Try
                 Dim row = OnboardingRepository.LoadTempleSetting()
                 If row IsNot Nothing Then
-                    txtTempleCode.Text = If(row("TempleCode") Is DBNull.Value, "", row("TempleCode").ToString())
+                    ' txtTempleCode คือช่อง "รหัสไปรษณีย์" (ชื่อ control เดิมตั้งผิด) → ต้อง map กับคอลัมน์ PostCode เสมอ
+                    ' (เดิมอ่านจาก TempleCode ทำให้รอบ Back→Next เขียนทับรหัสไปรษณีย์ที่กรอกไว้ด้วยค่าว่าง)
+                    txtTempleCode.Text = If(row("PostCode") Is DBNull.Value, "", row("PostCode").ToString())
                     txtTempleName.Text = If(row("TempleName") Is DBNull.Value, "", row("TempleName").ToString())
                     txtTempleAddress.Text = If(row("TempleAddress") Is DBNull.Value, "", row("TempleAddress").ToString())
                     txtPhone.Text = If(row("TemplePhone") Is DBNull.Value, "", row("TemplePhone").ToString())
@@ -456,6 +458,22 @@ Namespace TempleAccounting
                 ErrorLogHelper.LogSilentError("FrmOnboardingWizard.LoadStep1FromDb", ex)
             End Try
         End Sub
+
+        ''' <summary>
+        ''' อ่านค่า TempleCode (รหัสวัด) เดิมจาก DB เพื่อคงไว้ตอนบันทึก — wizard ไม่มีช่องกรอกรหัสวัด
+        ''' จึงห้ามเขียนทับด้วยค่าว่าง (ค่าเดิมมาจาก FrmTempleSetting)
+        ''' </summary>
+        Private Function GetExistingTempleCode() As String
+            Try
+                Dim row = OnboardingRepository.LoadTempleSetting()
+                If row IsNot Nothing AndAlso row("TempleCode") IsNot DBNull.Value Then
+                    Return row("TempleCode").ToString()
+                End If
+            Catch ex As Exception
+                ErrorLogHelper.LogSilentError("FrmOnboardingWizard.GetExistingTempleCode", ex)
+            End Try
+            Return ""
+        End Function
 
         ''' <summary>บันทึกข้อมูลวัดลง DB (ภายใน Transaction)</summary>
         Private Sub SaveStep1()
@@ -479,8 +497,10 @@ Namespace TempleAccounting
                 subDistrictName = cboSubDistrict.Text
             End If
 
+            ' หมายเหตุ: txtTempleCode คือช่องรหัสไปรษณีย์ (ชื่อ control เดิมตั้งผิด) → เก็บลง PostCode
+            ' ส่วน TempleCode คงค่าเดิมไว้ (GetExistingTempleCode) เพราะ wizard ไม่มีช่องกรอกรหัสวัด
             OnboardingRepository.SaveTempleSetting(
-                templeCode:="",
+                templeCode:=GetExistingTempleCode(),
                 templeName:=txtTempleName.Text.Trim(),
                 templeAddress:=txtTempleAddress.Text.Trim(),
                 tambon:=subDistrictName,

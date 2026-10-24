@@ -30,6 +30,12 @@ Namespace TempleAccounting
                 .BankID = bankID, .FundID = fundID, .ToFundID = toFundID, .ToBankID = toBankID}
         End Function
 
+        ''' <summary>สภาพแวดล้อมทดสอบ: กองทุน "เงินสด" = FundID 1 (เหมือนฐานข้อมูลจริง)</summary>
+        <TestInitialize>
+        Public Sub Init()
+            CashOnHandService.CashFundId = 1
+        End Sub
+
         ' ── ClassifyCashAmount: กฎการจำแนกเงินสด ──
 
         <TestMethod>
@@ -65,6 +71,22 @@ Namespace TempleAccounting
         <TestMethod>
         Public Sub Classify_TransferCashToBank_Negative()
             Assert.AreEqual(-20000D, CashOnHandService.ClassifyCashAmount("Transfer", Nothing, Nothing, 1, Nothing, 2, 20000D))
+        End Sub
+
+        <TestMethod>
+        Public Sub Classify_Transfer_UsesResolvedCashFundId_NotMagicOne()
+            ' กองทุน "เงินสด" ถูก resolve ไปที่ ID 7 (ไม่ใช่ 1) — ต้องใช้ค่าที่ resolve ไม่ใช่เลขคงที่
+            CashOnHandService.CashFundId = 7
+            Assert.AreEqual(20000D, CashOnHandService.ClassifyCashAmount("Transfer", Nothing, 2, Nothing, 7, Nothing, 20000D))
+            Assert.AreEqual(0D, CashOnHandService.ClassifyCashAmount("Transfer", Nothing, 2, Nothing, 1, Nothing, 20000D))
+        End Sub
+
+        <TestMethod>
+        Public Sub Classify_Transfer_WithoutCashFund_IsZero()
+            ' ไม่มีกองทุน "เงินสด" ในระบบ (resolve ไม่เจอ = -1) → ห้ามจำแนกการโอนเป็นเงินสด
+            CashOnHandService.CashFundId = -1
+            Assert.AreEqual(0D, CashOnHandService.ClassifyCashAmount("Transfer", Nothing, 2, Nothing, 1, Nothing, 20000D))
+            Assert.AreEqual(0D, CashOnHandService.ClassifyCashAmount("Transfer", Nothing, Nothing, 1, Nothing, 2, 20000D))
         End Sub
 
         ' ── ComputeCashOnHand: สถานการณ์หลัก ──

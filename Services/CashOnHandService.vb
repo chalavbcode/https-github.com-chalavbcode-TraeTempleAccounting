@@ -31,8 +31,13 @@ Namespace TempleAccounting
     ''' คำนวณเงินสดในมือแบบบริสุทธิ์ (pure) — ไม่แตะฐานข้อมูล
     ''' </summary>
     Public Module CashOnHandService
-        ''' <summary>กองทุน "เงินสด" (FundID = 1)</summary>
-        Public Const CashFundId As Integer = 1
+        ''' <summary>
+        ''' กองทุนที่ใช้เก็บ "เงินสด" สำหรับจำแนกการโอน (Transfer) — ค่าเริ่มต้น -1 = ยังไม่กำหนด
+        ''' ชั้นข้อมูล (CashOnHandRepository) จะ resolve ค่าจริงจากชื่อกองทุน "เงินสด" ทุกครั้งก่อนคำนวณ
+        ''' เพราะ FundID ของ "เงินสด" ต่างกันได้ในแต่ละฐานข้อมูล (DB ใหม่ FundID 1 คือ "กองทุนทั่วไป")
+        ''' — การ hard-code เลขคงที่จะทำให้จำแนกการโอนผิดเงียบ ๆ
+        ''' </summary>
+        Public Property CashFundId As Integer = -1
 
         ''' <summary>
         ''' แปลงปีพุทธศักราช (&gt;2400) เป็นคริสต์ศักราช เช่นเดียวกับ Db.NormalizeGregorianDate
