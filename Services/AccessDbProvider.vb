@@ -330,9 +330,14 @@ Namespace TempleAccounting
         ' ---------------- Public data-access methods ----------------
 
         Public Function ExecuteNonQuery(conn As IDbConnection, sql As String, ParamArray params As Tuple(Of String, Object)()) As Integer Implements IDbProvider.ExecuteNonQuery
+            Return ExecuteNonQuery(conn, CType(Nothing, IDbTransaction), sql, params)
+        End Function
+
+        Public Function ExecuteNonQuery(conn As IDbConnection, tx As IDbTransaction, sql As String, ParamArray params As Tuple(Of String, Object)()) As Integer Implements IDbProvider.ExecuteNonQuery
             Dim oledbConn = TryCast(conn, OleDbConnection)
             Using cmd = oledbConn.CreateCommand()
                 cmd.CommandText = sql
+                If tx IsNot Nothing Then cmd.Transaction = TryCast(tx, OleDbTransaction)
                 For Each p In params
                     cmd.Parameters.AddWithValue(p.Item1, If(p.Item2 Is Nothing, DBNull.Value, p.Item2))
                 Next
@@ -341,9 +346,14 @@ Namespace TempleAccounting
         End Function
 
         Public Function DbScalar(conn As IDbConnection, sql As String, ParamArray params As Tuple(Of String, Object)()) As Object Implements IDbProvider.DbScalar
+            Return DbScalar(conn, CType(Nothing, IDbTransaction), sql, params)
+        End Function
+
+        Public Function DbScalar(conn As IDbConnection, tx As IDbTransaction, sql As String, ParamArray params As Tuple(Of String, Object)()) As Object Implements IDbProvider.DbScalar
             Dim oledbConn = TryCast(conn, OleDbConnection)
             Using cmd = oledbConn.CreateCommand()
                 cmd.CommandText = sql
+                If tx IsNot Nothing Then cmd.Transaction = TryCast(tx, OleDbTransaction)
                 For Each p In params
                     cmd.Parameters.AddWithValue(p.Item1, If(p.Item2 Is Nothing, DBNull.Value, p.Item2))
                 Next
@@ -354,9 +364,14 @@ Namespace TempleAccounting
         End Function
 
         Public Function GetTable(conn As IDbConnection, sql As String, ParamArray params As Tuple(Of String, Object)()) As DataTable Implements IDbProvider.GetTable
+            Return GetTable(conn, CType(Nothing, IDbTransaction), sql, params)
+        End Function
+
+        Public Function GetTable(conn As IDbConnection, tx As IDbTransaction, sql As String, ParamArray params As Tuple(Of String, Object)()) As DataTable Implements IDbProvider.GetTable
             Dim oledbConn = TryCast(conn, OleDbConnection)
             Using cmd = oledbConn.CreateCommand()
                 cmd.CommandText = sql
+                If tx IsNot Nothing Then cmd.Transaction = TryCast(tx, OleDbTransaction)
                 For Each p In params
                     cmd.Parameters.AddWithValue(p.Item1, If(p.Item2 Is Nothing, DBNull.Value, p.Item2))
                 Next
@@ -369,8 +384,12 @@ Namespace TempleAccounting
         End Function
 
         Public Function InsertAndGetId(conn As IDbConnection, sql As String, ParamArray params As Tuple(Of String, Object)()) As Integer Implements IDbProvider.InsertAndGetId
-            ExecuteNonQuery(conn, sql, params)
-            Return CInt(DbScalar(conn, "SELECT @@IDENTITY"))
+            Return InsertAndGetId(conn, CType(Nothing, IDbTransaction), sql, params)
+        End Function
+
+        Public Function InsertAndGetId(conn As IDbConnection, tx As IDbTransaction, sql As String, ParamArray params As Tuple(Of String, Object)()) As Integer Implements IDbProvider.InsertAndGetId
+            ExecuteNonQuery(conn, tx, sql, params)
+            Return CInt(DbScalar(conn, tx, "SELECT @@IDENTITY"))
         End Function
 
         Public Function NormalizeGregorianDate(value As Date) As Date Implements IDbProvider.NormalizeGregorianDate

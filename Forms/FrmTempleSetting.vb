@@ -321,7 +321,7 @@ Namespace TempleAccounting
                                 cmd.ExecuteNonQuery()
                             End Using
 
-                            Db.InsertAndGetId(conn,
+                            Db.InsertAndGetId(conn, trans,
                                 "INSERT INTO TempleSetting (TempleCode,TempleName,TempleAddress,Tambon,Amphoe,Province,PostCode,TemplePhone," &
                                 "PromptPayName,PromptPayID,AbbotPersonnelID,WaiyawatPersonnelID,BookkeeperPersonnelID) " &
                                 "VALUES (@a1,@a2,@a3,@a4,@a5,@a6,@a7,@a8,@a9,@a10,@a11,@a12,@a13)",

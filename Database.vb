@@ -45,6 +45,26 @@ Namespace TempleAccounting
             Return DbProviderFactory.Current.InsertAndGetId(conn, sql, params)
         End Function
 
+        ''' <summary>
+        ''' Transaction-aware overloads — pass the ambient IDbTransaction when the caller
+        ''' manages a transaction on the connection (required by OleDb/SqlClient).
+        ''' </summary>
+        Public Function ExecuteNonQuery(conn As IDbConnection, tx As IDbTransaction, sql As String, ParamArray params As Tuple(Of String, Object)()) As Integer
+            Return DbProviderFactory.Current.ExecuteNonQuery(conn, tx, sql, params)
+        End Function
+
+        Public Function DbScalar(conn As IDbConnection, tx As IDbTransaction, sql As String, ParamArray params As Tuple(Of String, Object)()) As Object
+            Return DbProviderFactory.Current.DbScalar(conn, tx, sql, params)
+        End Function
+
+        Public Function GetTable(conn As IDbConnection, tx As IDbTransaction, sql As String, ParamArray params As Tuple(Of String, Object)()) As DataTable
+            Return DbProviderFactory.Current.GetTable(conn, tx, sql, params)
+        End Function
+
+        Public Function InsertAndGetId(conn As IDbConnection, tx As IDbTransaction, sql As String, ParamArray params As Tuple(Of String, Object)()) As Integer
+            Return DbProviderFactory.Current.InsertAndGetId(conn, tx, sql, params)
+        End Function
+
         ''' <summary>Converts Buddhist-era year (>2400) to Gregorian.</summary>
         Public Function NormalizeGregorianDate(value As Date) As Date
             Return DbProviderFactory.Current.NormalizeGregorianDate(value)

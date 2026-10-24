@@ -37,8 +37,8 @@ Namespace TempleAccounting
                             cmd.CommandText = "DELETE FROM TempleSetting"
                             cmd.ExecuteNonQuery()
                         End Using
-                        ' INSERT ข้อมูลใหม่
-                        Db.InsertAndGetId(conn,
+                        ' INSERT ข้อมูลใหม่ (ส่ง trans เข้าไปด้วย — OleDb บังคับให้ command อยู่ใน transaction เดียวกัน)
+                        Db.InsertAndGetId(conn, trans,
                             "INSERT INTO TempleSetting (TempleCode,TempleName,TempleAddress,Tambon,Amphoe,Province,PostCode,TemplePhone) VALUES (@c,@n,@a,@t,@am,@p,@z,@ph)",
                             New Tuple(Of String, Object)("@c", templeCode),
                             New Tuple(Of String, Object)("@n", templeName),
@@ -193,15 +193,15 @@ Namespace TempleAccounting
                         Dim dateLit = Db.AccessDateLiteral(Db.NormalizeGregorianDate(balanceDate))
                         ' INSERT เงินสด (ถ้ามี)
                         If cashAmount > 0 Then
-                            Db.InsertAndGetId(conn,
-                                "INSERT INTO Transactions (TranDate,TranType,Detail,Amount,Note) VALUES (" &
+                            Db.InsertAndGetId(conn, trans,
+                                "INSERT INTO Transactions (TranDate,TranType,[Detail],Amount,[Note]) VALUES (" &
                                 dateLit & ",'OpeningBalance','Cash Opening',@a,'')",
                                 New Tuple(Of String, Object)("@a", cashAmount))
                         End If
                         ' INSERT เงินฝาก (ถ้ามี)
                         If bankAmount > 0 Then
-                            Db.InsertAndGetId(conn,
-                                "INSERT INTO Transactions (TranDate,TranType,Detail,Amount,Note) VALUES (" &
+                            Db.InsertAndGetId(conn, trans,
+                                "INSERT INTO Transactions (TranDate,TranType,[Detail],Amount,[Note]) VALUES (" &
                                 dateLit & ",'OpeningBalance','Bank Opening',@a,'')",
                                 New Tuple(Of String, Object)("@a", bankAmount))
                         End If

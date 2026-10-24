@@ -272,9 +272,14 @@ Namespace TempleAccounting
         ' ---------------- Public IDbProvider implementation ----------------
 
         Public Function ExecuteNonQuery(conn As IDbConnection, sql As String, ParamArray params As Tuple(Of String, Object)()) As Integer Implements IDbProvider.ExecuteNonQuery
+            Return ExecuteNonQuery(conn, CType(Nothing, IDbTransaction), sql, params)
+        End Function
+
+        Public Function ExecuteNonQuery(conn As IDbConnection, tx As IDbTransaction, sql As String, ParamArray params As Tuple(Of String, Object)()) As Integer Implements IDbProvider.ExecuteNonQuery
             Dim sqlConn = TryCast(conn, SqlConnection)
             Using cmd = sqlConn.CreateCommand()
                 cmd.CommandText = TranslateSql(sql)
+                If tx IsNot Nothing Then cmd.Transaction = TryCast(tx, SqlTransaction)
                 For Each p In params
                     cmd.Parameters.AddWithValue(p.Item1, If(p.Item2 Is Nothing, DBNull.Value, p.Item2))
                 Next
@@ -283,9 +288,14 @@ Namespace TempleAccounting
         End Function
 
         Public Function DbScalar(conn As IDbConnection, sql As String, ParamArray params As Tuple(Of String, Object)()) As Object Implements IDbProvider.DbScalar
+            Return DbScalar(conn, CType(Nothing, IDbTransaction), sql, params)
+        End Function
+
+        Public Function DbScalar(conn As IDbConnection, tx As IDbTransaction, sql As String, ParamArray params As Tuple(Of String, Object)()) As Object Implements IDbProvider.DbScalar
             Dim sqlConn = TryCast(conn, SqlConnection)
             Using cmd = sqlConn.CreateCommand()
                 cmd.CommandText = TranslateSql(sql)
+                If tx IsNot Nothing Then cmd.Transaction = TryCast(tx, SqlTransaction)
                 For Each p In params
                     cmd.Parameters.AddWithValue(p.Item1, If(p.Item2 Is Nothing, DBNull.Value, p.Item2))
                 Next
@@ -296,9 +306,14 @@ Namespace TempleAccounting
         End Function
 
         Public Function GetTable(conn As IDbConnection, sql As String, ParamArray params As Tuple(Of String, Object)()) As DataTable Implements IDbProvider.GetTable
+            Return GetTable(conn, CType(Nothing, IDbTransaction), sql, params)
+        End Function
+
+        Public Function GetTable(conn As IDbConnection, tx As IDbTransaction, sql As String, ParamArray params As Tuple(Of String, Object)()) As DataTable Implements IDbProvider.GetTable
             Dim sqlConn = TryCast(conn, SqlConnection)
             Using cmd = sqlConn.CreateCommand()
                 cmd.CommandText = TranslateSql(sql)
+                If tx IsNot Nothing Then cmd.Transaction = TryCast(tx, SqlTransaction)
                 For Each p In params
                     cmd.Parameters.AddWithValue(p.Item1, If(p.Item2 Is Nothing, DBNull.Value, p.Item2))
                 Next
@@ -311,9 +326,13 @@ Namespace TempleAccounting
         End Function
 
         Public Function InsertAndGetId(conn As IDbConnection, sql As String, ParamArray params As Tuple(Of String, Object)()) As Integer Implements IDbProvider.InsertAndGetId
-            ExecuteNonQuery(conn, sql, params)
+            Return InsertAndGetId(conn, CType(Nothing, IDbTransaction), sql, params)
+        End Function
+
+        Public Function InsertAndGetId(conn As IDbConnection, tx As IDbTransaction, sql As String, ParamArray params As Tuple(Of String, Object)()) As Integer Implements IDbProvider.InsertAndGetId
+            ExecuteNonQuery(conn, tx, sql, params)
             ' SQL Server uses SCOPE_IDENTITY() — no @@IDENTITY (which may return trigger-generated identity)
-            Return CInt(DbScalar(conn, "SELECT SCOPE_IDENTITY()"))
+            Return CInt(DbScalar(conn, tx, "SELECT SCOPE_IDENTITY()"))
         End Function
 
         Public Function NormalizeGregorianDate(value As Date) As Date Implements IDbProvider.NormalizeGregorianDate
