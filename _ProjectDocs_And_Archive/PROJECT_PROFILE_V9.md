@@ -1,4 +1,4 @@
-﻿# PROJECT_PROFILE_V9 — Temple Accounting System (ระบบบัญชีวัด)
+﻿﻿﻿﻿# PROJECT_PROFILE_V9 — Temple Accounting System (ระบบบัญชีวัด)
 
 > **Document version:** V9 (full current-state snapshot + V8→V9 delta)
 > **Generated:** 2026-10-23

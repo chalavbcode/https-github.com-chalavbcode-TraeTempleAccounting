@@ -13,6 +13,8 @@ Namespace TempleAccounting
     ''' • กรอกมูลค่า (บาท) แยกตามชนิดธนบัตร/เหรียญ 9 ช่อง พร้อมรวมอัตโนมัติ
     ''' • แสดงยอดคาดการณ์/ผลต่างเทียบกับข้อมูลธุรกรรมก่อนบันทึก
     ''' • แสดงตารางการนับก่อนหน้า (แทรกอย่างเดียว ไม่ลบ/ไม่แก้ไขแถวเดิม)
+    ''' • Layout = TableLayoutPanel ล้วน + ฉลาก AutoSize (ฟอนต์ไทยไม่ถูกตัดสระบน/ล่าง)
+    ''' • DPI: AutoScaleMode.Dpi + ค่าคงที่ทุกจุดคูด้วย K() (สเกลตาม DeviceDpi) — ปรับแต่งในโค้ด ไม่ใช้ Height ตรง ๆ
     ''' </summary>
     Public Class FrmCashCount
         Inherits Form
@@ -28,6 +30,9 @@ Namespace TempleAccounting
         Private btnCancel As Button
         Private _expected As Decimal = 0D
 
+        ''' <summary>สเกล DPI ของฟอร์มนี้ (DeviceDpi / 96) — ค่าคงที่ทุกจุดคูด้วย K() ให้เท่ากับฟอนต์ที่ขยายตาม DPI</summary>
+        Private _uiScale As Single = 1.0F
+
         Private Shared ReadOnly DenomLabels As String() = {
             "เหรียญ 1 บาท", "เหรียญ 2 บาท", "เหรียญ 5 บาท", "เหรียญ 10 บาท",
             "ธนบัตร 20 บาท", "ธนบัตร 50 บาท", "ธนบัตร 100 บาท", "ธนบัตร 500 บาท", "ธนบัตร 1,000 บาท"}
@@ -38,104 +43,159 @@ Namespace TempleAccounting
             RecalcExpected()
         End Sub
 
+        ''' <summary>แปลงค่าพิกเซลที่ออกแบบที่ 96 DPI ให้เป็นพิกเซล ณ DPI ปัจจุบันของเครื่อง</summary>
+        Private Function K(v As Integer) As Integer
+            If _uiScale = 1.0F Then Return v
+            Return CInt(Math.Round(CDbl(v) * CDbl(_uiScale)))
+        End Function
+
         Private Sub InitializeUI()
+            ' ── DPI: คูนค่าคงที่ทั้งหมดตาม DeviceDpi (ค่าฟอนต์/LabelText ขยายตาม point อยู่แล้ว) ──
+            Dim dpi As Integer = Me.DeviceDpi
+            If dpi <= 0 Then dpi = 96
+            _uiScale = CSng(dpi) / 96.0F
+
             Me.Text = "นับเงินสด"
             Me.StartPosition = FormStartPosition.CenterParent
-            Me.Size = New Size(660, 760)
-            Me.MinimumSize = New Size(620, 640)
-            Me.BackColor = Color.FromArgb(255, 253, 244)
+            Me.AutoScaleDimensions = New SizeF(96.0F, 96.0F)
+            Me.AutoScaleMode = AutoScaleMode.Dpi
             Me.Font = New Font("Tahoma", 10.0!, FontStyle.Regular, GraphicsUnit.Point, 222)
+            Me.BackColor = Color.FromArgb(255, 253, 244)
             Me.FormBorderStyle = FormBorderStyle.Sizable
+            Me.ClientSize = New Size(K(740), K(620))
+            Me.MinimumSize = New Size(K(660), K(515))   ' content ≈ 445px + ตาราง ≈ 40px + กรอบหน้าต่าง → เห็นครบทุกส่วนทุก DPI
 
-            ' ── แถบบน: หัวข้อ + คำอธิบาย ──
-            Dim pnlTop As New Panel()
-            pnlTop.Dock = DockStyle.Top
-            pnlTop.Height = 86
-            pnlTop.Padding = New Padding(16, 12, 16, 8)
+            ' ── Layout หลัก: TableLayoutPanel Dock=Fill แบ่งแถวบนลงล่าง ──
+            Dim root As New TableLayoutPanel()
+            root.Dock = DockStyle.Fill
+            root.ColumnCount = 1
+            root.RowCount = 7
+            root.Padding = New Padding(K(10), K(8), K(10), K(8))
+            root.Margin = New Padding(0)
+            root.ColumnStyles.Add(New ColumnStyle(SizeType.Percent, 100.0F))
+            root.RowStyles.Add(New RowStyle(SizeType.AutoSize))        ' 0 = หัวข้อ
+            root.RowStyles.Add(New RowStyle(SizeType.AutoSize))        ' 1 = วันที่นับ
+            root.RowStyles.Add(New RowStyle(SizeType.AutoSize))        ' 2 = มูลค่าแยกชนิด
+            root.RowStyles.Add(New RowStyle(SizeType.AutoSize))        ' 3 = สรุปยอด
+            root.RowStyles.Add(New RowStyle(SizeType.AutoSize))        ' 4 = หมายเหตุ
+            root.RowStyles.Add(New RowStyle(SizeType.Percent, 100.0F)) ' 5 = ตารางการนับก่อนหน้า
+            root.RowStyles.Add(New RowStyle(SizeType.AutoSize))        ' 6 = ปุ่มล่าง
+            Me.Controls.Add(root)
+
+            ' ── 1) แถบหัวข้อ: ชื่อจอ + คำอธิบาย (AutoSize, เว้นระหว่างบรรทัด 6px) ──
+            Dim pnlHeader As New TableLayoutPanel()
+            pnlHeader.Dock = DockStyle.Fill
+            pnlHeader.AutoSize = True
+            pnlHeader.ColumnCount = 1
+            pnlHeader.RowCount = 2
+            pnlHeader.Margin = New Padding(0, 0, 0, K(4))
+            pnlHeader.ColumnStyles.Add(New ColumnStyle(SizeType.Percent, 100.0F))
+            pnlHeader.RowStyles.Add(New RowStyle(SizeType.AutoSize))
+            pnlHeader.RowStyles.Add(New RowStyle(SizeType.AutoSize))
 
             Dim lblTitle As New Label()
             lblTitle.AutoSize = True
             lblTitle.Font = New Font("Tahoma", 15.0!, FontStyle.Bold, GraphicsUnit.Point, 222)
             lblTitle.ForeColor = Color.FromArgb(120, 53, 15)
             lblTitle.Text = "💰 นับเงินสด"
-            lblTitle.Location = New Point(16, 10)
-            pnlTop.Controls.Add(lblTitle)
+            lblTitle.Margin = New Padding(0, 0, 0, K(6))
+            pnlHeader.Controls.Add(lblTitle, 0, 0)
 
             Dim lblHint As New Label()
             lblHint.AutoSize = True
             lblHint.Font = New Font("Tahoma", 9.0!, FontStyle.Regular, GraphicsUnit.Point, 222)
             lblHint.ForeColor = Color.FromArgb(120, 80, 40)
             lblHint.Text = "กรอกมูลค่า (บาท) ของเงินสดแต่ละชนิด ระบบจะรวมและเทียบกับยอดคาดการณ์ให้อัตโนมัติ"
-            lblHint.Location = New Point(16, 38)
-            pnlTop.Controls.Add(lblHint)
+            lblHint.Margin = New Padding(0, 0, 0, K(2))
+            pnlHeader.Controls.Add(lblHint, 0, 1)
+            root.Controls.Add(pnlHeader, 0, 0)
 
-            ' ── แถบวันที่ ──
-            Dim pnlDate As New Panel()
-            pnlDate.Dock = DockStyle.Top
-            pnlDate.Height = 44
-            pnlDate.Padding = New Padding(16, 6, 16, 4)
+            ' ── 2) แถบวันที่นับ (AutoSize) ──
+            Dim pnlDate As New FlowLayoutPanel()
+            pnlDate.Dock = DockStyle.Fill
+            pnlDate.AutoSize = True
+            pnlDate.WrapContents = False
+            pnlDate.Margin = New Padding(0, K(2), 0, K(2))
+            pnlDate.Padding = New Padding(0)
 
             Dim lblDate As New Label()
             lblDate.Text = "วันที่นับ"
-            lblDate.Location = New Point(16, 12)
             lblDate.AutoSize = True
             lblDate.ForeColor = Color.FromArgb(120, 53, 15)
+            lblDate.Margin = New Padding(0, K(5), K(8), 0)
             pnlDate.Controls.Add(lblDate)
 
             dtpDate = New DateTimePicker()
             dtpDate.Format = DateTimePickerFormat.Short
             dtpDate.Value = Date.Today
-            dtpDate.Location = New Point(110, 10)
-            dtpDate.Size = New Size(160, 28)
+            dtpDate.Width = K(170)    ' ความสูงให้ฟอนต์กำหนด ไม่ตั้ง Height ตรง ๆ
+            dtpDate.Margin = New Padding(0, K(1), 0, 0)
             pnlDate.Controls.Add(dtpDate)
+            root.Controls.Add(pnlDate, 0, 1)
 
-            ' ── ช่องกรอกแยกชนิด (TableLayoutPanel 3x3) ──
-            Dim pnlDenom As New Panel()
-            pnlDenom.Dock = DockStyle.Top
-            pnlDenom.Height = 190
-            pnlDenom.Padding = New Padding(16, 4, 16, 4)
+            ' ── 3) มูลค่าเงินสดแยกตามชนิด: หัวข้อ AutoSize คนละแถว กับตาราง 3x3 (ไม่มีทางทับกัน) ──
+            Dim pnlDenom As New TableLayoutPanel()
+            pnlDenom.Dock = DockStyle.Fill
+            pnlDenom.AutoSize = True
+            pnlDenom.ColumnCount = 1
+            pnlDenom.RowCount = 2
+            pnlDenom.Margin = New Padding(0, K(4), 0, K(4))
+            pnlDenom.ColumnStyles.Add(New ColumnStyle(SizeType.Percent, 100.0F))
+            pnlDenom.RowStyles.Add(New RowStyle(SizeType.AutoSize))
+            pnlDenom.RowStyles.Add(New RowStyle(SizeType.AutoSize))
 
             Dim lblDenomHint As New Label()
             lblDenomHint.Text = "มูลค่าเงินสดแยกตามชนิด (บาท)"
+            lblDenomHint.AutoSize = True
             lblDenomHint.Font = New Font("Tahoma", 9.5!, FontStyle.Bold, GraphicsUnit.Point, 222)
             lblDenomHint.ForeColor = Color.FromArgb(120, 80, 40)
-            lblDenomHint.Dock = DockStyle.Top
-            lblDenomHint.Height = 22
-            pnlDenom.Controls.Add(lblDenomHint)
+            lblDenomHint.Margin = New Padding(0, 0, 0, K(6))
+            pnlDenom.Controls.Add(lblDenomHint, 0, 0)
 
             Dim tbl As New TableLayoutPanel()
             tbl.Dock = DockStyle.Fill
+            tbl.AutoSize = True    ' สำคัญ: ถ้า False row AutoSize ของ pnlDenom จะได้ height default 100px → แถว 2-3 ถูกตัด
             tbl.ColumnCount = 3
             tbl.RowCount = 3
+            tbl.Margin = New Padding(0)
             tbl.Padding = New Padding(0)
             For i As Integer = 0 To 2
                 tbl.ColumnStyles.Add(New ColumnStyle(SizeType.Percent, 33.33F))
-                tbl.RowStyles.Add(New RowStyle(SizeType.Percent, 33.33F))
+                tbl.RowStyles.Add(New RowStyle(SizeType.AutoSize))
             Next
-            pnlDenom.Controls.Add(tbl)
+            pnlDenom.Controls.Add(tbl, 0, 1)
+            root.Controls.Add(pnlDenom, 0, 2)
 
             ReDim _denomBoxes(8)
             For i As Integer = 0 To 8
-                Dim cell As New Panel()
+                ' เซลล์ = 2 แถว: ฉลาก (AutoSize) อยู่เหนือ TextBox เสมอ — ไม่มี Height คงที่ จึงไม่ตัดสระบน/ล่าง
+                Dim cell As New TableLayoutPanel()
                 cell.Dock = DockStyle.Fill
-                cell.Margin = New Padding(4)
-                cell.Padding = New Padding(4)
+                cell.AutoSize = True
+                cell.ColumnCount = 1
+                cell.RowCount = 2
+                cell.Margin = New Padding(K(6), K(2), K(6), K(4))
+                cell.Padding = New Padding(0)
+                cell.ColumnStyles.Add(New ColumnStyle(SizeType.Percent, 100.0F))
+                cell.RowStyles.Add(New RowStyle(SizeType.AutoSize))
+                cell.RowStyles.Add(New RowStyle(SizeType.AutoSize))
 
                 Dim lbl As New Label()
                 lbl.Text = DenomLabels(i)
-                lbl.Dock = DockStyle.Top
-                lbl.Height = 20
+                lbl.AutoSize = True
                 lbl.Font = New Font("Tahoma", 9.0!, FontStyle.Regular, GraphicsUnit.Point, 222)
                 lbl.ForeColor = Color.FromArgb(120, 80, 40)
-                cell.Controls.Add(lbl)
+                lbl.Margin = New Padding(0, 0, 0, K(3))
+                cell.Controls.Add(lbl, 0, 0)
 
                 Dim txt As New TextBox()
                 txt.Text = "0"
-                txt.Dock = DockStyle.Top
-                txt.Height = 26
+                txt.Font = New Font("Tahoma", 11.0!, FontStyle.Regular, GraphicsUnit.Point, 222)
                 txt.TextAlign = HorizontalAlignment.Right
-                txt.Font = New Font("Tahoma", 10.0!, FontStyle.Regular, GraphicsUnit.Point, 222)
-                cell.Controls.Add(txt)
+                txt.BorderStyle = BorderStyle.FixedSingle
+                txt.Anchor = AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right
+                txt.Margin = New Padding(0)
+                cell.Controls.Add(txt, 0, 1)
 
                 _denomBoxes(i) = txt
                 AddHandler txt.TextChanged, AddressOf DenomBox_TextChanged
@@ -143,85 +203,112 @@ Namespace TempleAccounting
                 tbl.Controls.Add(cell, i Mod 3, i \ 3)
             Next
 
-            ' ── สรุปยอด + คาดการณ์ + ผลต่าง ──
-            Dim pnlSummary As New Panel()
-            pnlSummary.Dock = DockStyle.Top
-            pnlSummary.Height = 96
-            pnlSummary.Padding = New Padding(16, 4, 16, 4)
+            ' ── 4) สรุปยอด 3 คอลัมน์: แคปชันอยู่เหนือค่าเสมอ (AutoSize ทั้งคู่ ไม่ทับกัน) ──
+            Dim pnlSummary As New TableLayoutPanel()
+            pnlSummary.Dock = DockStyle.Fill
+            pnlSummary.AutoSize = True
+            pnlSummary.ColumnCount = 3
+            pnlSummary.RowCount = 2
+            pnlSummary.Margin = New Padding(0, K(4), 0, K(4))
+            pnlSummary.ColumnStyles.Add(New ColumnStyle(SizeType.Percent, 38.0F))
+            pnlSummary.ColumnStyles.Add(New ColumnStyle(SizeType.Percent, 32.0F))
+            pnlSummary.ColumnStyles.Add(New ColumnStyle(SizeType.Percent, 30.0F))
+            pnlSummary.RowStyles.Add(New RowStyle(SizeType.AutoSize))
+            pnlSummary.RowStyles.Add(New RowStyle(SizeType.AutoSize))
 
             Dim lblTotalCaption As New Label()
             lblTotalCaption.Text = "รวมเงินสดที่นับได้ (บาท)"
-            lblTotalCaption.Location = New Point(16, 8)
             lblTotalCaption.AutoSize = True
             lblTotalCaption.ForeColor = Color.FromArgb(120, 53, 15)
-            pnlSummary.Controls.Add(lblTotalCaption)
+            lblTotalCaption.Margin = New Padding(0, 0, 0, K(2))
+            pnlSummary.Controls.Add(lblTotalCaption, 0, 0)
 
             lblTotal = New Label()
             lblTotal.Text = "0.00"
-            lblTotal.Location = New Point(16, 30)
-            lblTotal.Size = New Size(300, 36)
+            lblTotal.AutoSize = True
             lblTotal.Font = New Font("Tahoma", 17.0!, FontStyle.Bold, GraphicsUnit.Point, 222)
             lblTotal.ForeColor = Color.FromArgb(22, 101, 52)
-            pnlSummary.Controls.Add(lblTotal)
+            lblTotal.Margin = New Padding(0)
+            pnlSummary.Controls.Add(lblTotal, 0, 1)
 
             Dim lblExpCaption As New Label()
             lblExpCaption.Text = "ยอดคาดการณ์ (จากธุรกรรม)"
-            lblExpCaption.Location = New Point(360, 8)
             lblExpCaption.AutoSize = True
             lblExpCaption.ForeColor = Color.FromArgb(120, 80, 40)
-            pnlSummary.Controls.Add(lblExpCaption)
+            lblExpCaption.Margin = New Padding(0, K(4), 0, K(2))
+            pnlSummary.Controls.Add(lblExpCaption, 1, 0)
 
             lblExpected = New Label()
             lblExpected.Text = "0.00"
-            lblExpected.Location = New Point(360, 30)
-            lblExpected.Size = New Size(140, 24)
+            lblExpected.AutoSize = True
             lblExpected.Font = New Font("Tahoma", 10.0!, FontStyle.Bold, GraphicsUnit.Point, 222)
             lblExpected.ForeColor = Color.FromArgb(30, 64, 175)
-            pnlSummary.Controls.Add(lblExpected)
+            lblExpected.Margin = New Padding(0, K(4), 0, 0)
+            pnlSummary.Controls.Add(lblExpected, 1, 1)
 
             Dim lblVarCaption As New Label()
             lblVarCaption.Text = "ผลต่าง"
-            lblVarCaption.Location = New Point(360, 58)
             lblVarCaption.AutoSize = True
             lblVarCaption.ForeColor = Color.FromArgb(120, 80, 40)
-            pnlSummary.Controls.Add(lblVarCaption)
+            lblVarCaption.Margin = New Padding(0, K(4), 0, K(2))
+            pnlSummary.Controls.Add(lblVarCaption, 2, 0)
 
             lblVariance = New Label()
             lblVariance.Text = "0.00"
-            lblVariance.Location = New Point(360, 72)
-            lblVariance.Size = New Size(140, 20)
+            lblVariance.AutoSize = True
             lblVariance.Font = New Font("Tahoma", 10.0!, FontStyle.Bold, GraphicsUnit.Point, 222)
-            pnlSummary.Controls.Add(lblVariance)
+            lblVariance.ForeColor = Color.FromArgb(22, 101, 52)
+            lblVariance.Margin = New Padding(0, K(4), 0, 0)
+            pnlSummary.Controls.Add(lblVariance, 2, 1)
+            root.Controls.Add(pnlSummary, 0, 3)
 
-            ' ── หมายเหตุ ──
-            Dim pnlNote As New Panel()
-            pnlNote.Dock = DockStyle.Top
-            pnlNote.Height = 56
-            pnlNote.Padding = New Padding(16, 4, 16, 4)
+            ' ── 5) แถบหมายเหตุ (AutoSize) ──
+            Dim pnlNote As New TableLayoutPanel()
+            pnlNote.Dock = DockStyle.Fill
+            pnlNote.AutoSize = True
+            pnlNote.ColumnCount = 2
+            pnlNote.RowCount = 1
+            pnlNote.Margin = New Padding(0, K(2), 0, K(4))
+            pnlNote.ColumnStyles.Add(New ColumnStyle(SizeType.AutoSize))
+            pnlNote.ColumnStyles.Add(New ColumnStyle(SizeType.Percent, 100.0F))
+            pnlNote.RowStyles.Add(New RowStyle(SizeType.AutoSize))
 
             Dim lblNote As New Label()
             lblNote.Text = "หมายเหตุ"
-            lblNote.Location = New Point(16, 6)
             lblNote.AutoSize = True
             lblNote.ForeColor = Color.FromArgb(120, 53, 15)
-            pnlNote.Controls.Add(lblNote)
+            lblNote.Margin = New Padding(0, K(5), K(8), 0)
+            pnlNote.Controls.Add(lblNote, 0, 0)
 
             txtNote = New TextBox()
-            txtNote.Location = New Point(110, 4)
-            txtNote.Size = New Size(520, 28)
-            pnlNote.Controls.Add(txtNote)
+            txtNote.Font = New Font("Tahoma", 10.0!, FontStyle.Regular, GraphicsUnit.Point, 222)
+            txtNote.BorderStyle = BorderStyle.FixedSingle
+            txtNote.Anchor = AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right
+            txtNote.Margin = New Padding(0, K(1), 0, 0)
+            pnlNote.Controls.Add(txtNote, 1, 0)
+            root.Controls.Add(pnlNote, 0, 4)
 
-            ' ── ตารางการนับก่อนหน้า ──
+            ' ── 6) ตารางการนับก่อนหน้า (แถว Percent ยืดพื้นที่ที่เหลือทั้งหมด) ──
+            Dim pnlHistory As New TableLayoutPanel()
+            pnlHistory.Dock = DockStyle.Fill
+            pnlHistory.ColumnCount = 1
+            pnlHistory.RowCount = 2
+            pnlHistory.Margin = New Padding(0)
+            pnlHistory.ColumnStyles.Add(New ColumnStyle(SizeType.Percent, 100.0F))
+            pnlHistory.RowStyles.Add(New RowStyle(SizeType.AutoSize))
+            pnlHistory.RowStyles.Add(New RowStyle(SizeType.Percent, 100.0F))
+
             Dim lblHistory As New Label()
-            lblHistory.Dock = DockStyle.Top
-            lblHistory.Height = 28
-            lblHistory.Padding = New Padding(16, 4, 0, 0)
             lblHistory.Text = "📋 การนับก่อนหน้า"
+            lblHistory.AutoSize = True
             lblHistory.Font = New Font("Tahoma", 9.5!, FontStyle.Bold, GraphicsUnit.Point, 222)
             lblHistory.ForeColor = Color.FromArgb(120, 80, 40)
+            lblHistory.Margin = New Padding(0, K(2), 0, K(4))
+            pnlHistory.Controls.Add(lblHistory, 0, 0)
 
             dgvHistory = New DataGridView()
             dgvHistory.Dock = DockStyle.Fill
+            dgvHistory.Margin = New Padding(0)
             dgvHistory.ReadOnly = True
             dgvHistory.AllowUserToAddRows = False
             dgvHistory.AllowUserToDeleteRows = False
@@ -232,34 +319,47 @@ Namespace TempleAccounting
             dgvHistory.BackgroundColor = Color.White
             dgvHistory.BorderStyle = BorderStyle.None
             dgvHistory.EnableHeadersVisualStyles = False
-            dgvHistory.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(250, 240, 210)
+
+            ' หัวตาราง: สีครีมเข้มทุกคอลัมน์เท่ากัน (SelectionBackColor = BackColor แก้หัว "วันที่" เป็นสีน้ำเงิน)
+            Dim headerBack As Color = Color.FromArgb(242, 231, 205)
+            dgvHistory.ColumnHeadersDefaultCellStyle.BackColor = headerBack
             dgvHistory.ColumnHeadersDefaultCellStyle.ForeColor = Color.FromArgb(120, 53, 15)
+            dgvHistory.ColumnHeadersDefaultCellStyle.SelectionBackColor = headerBack
+            dgvHistory.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.FromArgb(120, 53, 15)
             dgvHistory.ColumnHeadersDefaultCellStyle.Font = New Font("Tahoma", 9.0!, FontStyle.Bold, GraphicsUnit.Point, 222)
+
+            ' แถวข้อมูล: ไฮไลต์สีครีมส้ม แทนสีน้ำเงินของระบบ
+            dgvHistory.DefaultCellStyle.BackColor = Color.White
+            dgvHistory.DefaultCellStyle.ForeColor = Color.FromArgb(70, 50, 30)
+            dgvHistory.DefaultCellStyle.SelectionBackColor = Color.FromArgb(255, 236, 200)
+            dgvHistory.DefaultCellStyle.SelectionForeColor = Color.FromArgb(90, 40, 10)
             dgvHistory.DefaultCellStyle.Font = New Font("Tahoma", 9.0!, FontStyle.Regular, GraphicsUnit.Point, 222)
+            dgvHistory.GridColor = Color.FromArgb(228, 216, 188)
 
-            ' ── ปุ่มล่าง ──
-            Dim pnlButtons As New Panel()
-            pnlButtons.Dock = DockStyle.Bottom
-            pnlButtons.Height = 56
-            pnlButtons.Padding = New Padding(16, 8, 16, 8)
+            pnlHistory.Controls.Add(dgvHistory, 0, 1)
+            root.Controls.Add(pnlHistory, 0, 5)
 
-            btnCancel = MakeButton("ยกเลิก", 16, 8, 110, 40, Color.FromArgb(146, 64, 14))
-            pnlButtons.Controls.Add(btnCancel)
+            ' ── 7) ปุ่มล่าง: ยกเลิก (ซ้าย) + บันทึก (ขวา) ขนาดเท่ากัน อยู่ใน layout ไม่ใช่ลอย ──
+            Dim pnlButtons As New TableLayoutPanel()
+            pnlButtons.Dock = DockStyle.Fill
+            pnlButtons.AutoSize = True
+            pnlButtons.ColumnCount = 2
+            pnlButtons.RowCount = 1
+            pnlButtons.Margin = New Padding(0, K(6), 0, K(8))   ' เว้นจากขอบล่าง/แถบ F1 ≥ 8px
+            pnlButtons.ColumnStyles.Add(New ColumnStyle(SizeType.Percent, 50.0F))
+            pnlButtons.ColumnStyles.Add(New ColumnStyle(SizeType.Percent, 50.0F))
+            pnlButtons.RowStyles.Add(New RowStyle(SizeType.AutoSize))
 
-            btnSave = MakeButton("💾 บันทึกการนับ", 0, 8, 160, 40, Color.FromArgb(5, 150, 105))
+            btnCancel = MakeButton("ยกเลิก", 0, 0, 150, 40, Color.FromArgb(146, 64, 14))
+            btnCancel.Anchor = AnchorStyles.Top Or AnchorStyles.Left
+            btnCancel.Margin = New Padding(0, K(2), K(8), 0)
+            pnlButtons.Controls.Add(btnCancel, 0, 0)
+
+            btnSave = MakeButton("💾 บันทึกการนับ", 0, 0, 150, 40, Color.FromArgb(5, 150, 105))
             btnSave.Anchor = AnchorStyles.Top Or AnchorStyles.Right
-            btnSave.Location = New Point(Me.ClientSize.Width - 176, 8)
-            pnlButtons.Controls.Add(btnSave)
-
-            ' ── ประกอบ layout (Dock ล่างต้องเพิ่มก่อน Fill) ──
-            Me.Controls.Add(dgvHistory)
-            Me.Controls.Add(lblHistory)
-            Me.Controls.Add(pnlButtons)
-            Me.Controls.Add(pnlNote)
-            Me.Controls.Add(pnlSummary)
-            Me.Controls.Add(pnlDenom)
-            Me.Controls.Add(pnlDate)
-            Me.Controls.Add(pnlTop)
+            btnSave.Margin = New Padding(K(8), K(2), 0, 0)
+            pnlButtons.Controls.Add(btnSave, 1, 0)
+            root.Controls.Add(pnlButtons, 0, 6)
 
             AddHandler dtpDate.ValueChanged, AddressOf DtpDate_ValueChanged
             AddHandler btnSave.Click, AddressOf BtnSave_Click
@@ -270,7 +370,7 @@ Namespace TempleAccounting
             Dim b As New Button()
             b.Text = text
             b.Location = New Point(x, y)
-            b.Size = New Size(w, h)
+            b.Size = New Size(K(w), K(h))
             b.FlatStyle = FlatStyle.Flat
             b.FlatAppearance.BorderSize = 0
             b.BackColor = color
@@ -342,6 +442,14 @@ Namespace TempleAccounting
                     dgvHistory.Columns(2).FillWeight = 25
                     dgvHistory.Columns(3).FillWeight = 20
                     dgvHistory.Columns(4).FillWeight = 40
+
+                    ' วันที่/หมายเหตุชิดซ้าย, คอลัมน์ตัวเลขชิดขวา (ค่า Format N2 มาจากด้านบนแล้ว)
+                    dgvHistory.Columns(0).DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft
+                    For c As Integer = 1 To 3
+                        dgvHistory.Columns(c).DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight
+                    Next
+                    dgvHistory.Columns(4).AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+                    dgvHistory.Columns(4).DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft
                 End If
             Catch ex As Exception
                 ErrorLogHelper.LogSilentError("FrmCashCount.LoadHistory", ex)
