@@ -370,3 +370,8 @@ FodyWeavers.xsd
 *.accdb
 *.accde
 *.ldb
+
+## Private user data: receipts, exports and local backups (do not track)
+Receipts/
+Export/
+*.bak
