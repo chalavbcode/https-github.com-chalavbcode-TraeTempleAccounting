@@ -260,6 +260,8 @@ Generated_Code/
 # because we have git ;-)
 _UpgradeReport_Files/
 Backup*/
+# BackupTests/ เป็นชุดทดสอบของโปรเจกต์ ไม่ใช่โฟลเดอร์แบ็คอัพ — ยกเลิกการซ่อนจากกฎ Backup*/ ด้านบน
+!BackupTests/
 UpgradeLog*.XML
 UpgradeLog*.htm
 ServiceFabricBackup/

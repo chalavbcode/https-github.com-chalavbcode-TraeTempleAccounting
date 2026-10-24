@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace></RootNamespace>
+    <Nullable>disable</Nullable>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
+    <PackageReference Include="MSTest.TestAdapter" Version="4.0.2" />
+    <PackageReference Include="MSTest.TestFramework" Version="4.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\BackupEngine.vb" />
+    <Compile Include="..\BackupRegistry.vb" />
+    <Compile Include="..\BackupLegacyEvaluator.vb" />
+    <Compile Include="..\Services\CashOnHandService.vb" />
+    <Compile Include="BackupEngineTests.vb" />
+    <Compile Include="LegacyBackupTests.vb" />
+    <Compile Include="CashOnHandServiceTests.vb" />
+  </ItemGroup>
+
+</Project>
