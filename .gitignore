@@ -377,3 +377,6 @@ FodyWeavers.xsd
 Receipts/
 Export/
 *.bak
+
+## Real ledger data dumps (cash analysis) — never track or commit
+_ProjectDocs_And_Archive/V9_survey/tmp/cash_dump.txt
